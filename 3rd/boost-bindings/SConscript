@@ -1,0 +1,10 @@
+import sys
+import os
+
+Import ( 'boost_options' )
+Import ( 'getCurrentPath' )
+
+# add heavily modified boost bindings to include paths
+boost_options[ 'CPPPATH' ] = boost_options.get( 'CPPPATH', [] ) + [ getCurrentPath() ]
+
+Export ( 'boost_options' )

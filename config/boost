@@ -1,0 +1,126 @@
+# CHANGELOG:
+# 2012-08-03 (frieder):
+# - change to common library import, asio makes it still more complicated
+
+import types
+import sys
+import os
+
+
+Import( '*' )
+
+SConscript ( '#/config/libraryConfig.py' )
+Import('standardLibFinder', 'standardLibConfig')
+
+# define a function that maps boost library names to actual libraries
+# this is bound to the name boost_libs with the coorect suffix later
+def boost_libs_proto( names, suffix ):
+	# convert a single string to a list of strings	
+	if isinstance( names, types.StringType ):
+		names = [ names ]
+
+	libs = []
+
+	if sys.platform == 'win32':
+		# on windows, boost libraries are linked automatically
+		# ... except python
+		if 'python' in names:
+			names = [ 'python' ]
+		else:
+			names = []	
+	
+	for name in names:
+		libs += [ 'boost_' + name + suffix ]
+
+	return libs
+
+# set default directory
+default_boost_path = None
+if sys.platform == 'win32':
+	default_boost_path = 'C:\\Boost'
+
+# set default lib suffix
+default_lib_suffix = '-mt'
+if sys.platform == 'win32':
+
+	msvs_version = masterEnv.get('MSVC_VERSION')
+	
+	if msvs_version == '7.1':
+		default_lib_suffix = '-vc71-mt'
+	elif msvs_version == '8.0':
+		default_lib_suffix = '-vc80-mt'
+	elif msvs_version == '9.0':
+		default_lib_suffix = '-vc90-mt'
+	elif msvs_version == '10.0':
+		default_lib_suffix = '-vc100-mt'
+	else:
+		default_lib = '-vc80-mt'
+		
+	if not configuration:
+		default_lib_suffix += '-gd'
+		
+# add configuration options
+opts.Add( 'BOOST_PATH', 'Path to the boost library', default_boost_path )
+opts.Add( 'BOOST_INCLUDE', 'Path to the boost headers' )
+opts.Add( 'BOOST_LIBS', 'Path to the boost libraries' )
+opts.Add( 'BOOST_SUFFIX', 'Suffix to add to boost library names', default_lib_suffix )
+	
+# set variables
+
+libName = "BOOST"
+boost_libs = lambda l: boost_libs_proto( l, opts[ 'BOOST_SUFFIX' ] )
+
+compileSettings =  [{} , boost_libs( "thread" ), "boost/thread.hpp", "C++", "boost::mutex m; boost::mutex::scoped_lock l( m );"]
+libFinder = standardLibFinder(libName,compileSettings)
+
+
+configHelper = standardLibConfig(libName, libFinder)
+
+boost_options = configHelper.getLibraryOptions()
+
+# in windows boost libs are linked automatically
+if sys.platform == 'win32':
+	boost_options['LIBS'] = []
+
+
+have_boost = configHelper.haveLib()
+if have_boost:
+	boost_options[ 'CPPDEFINES' ] += [ ('BOOST_FILESYSTEM_VERSION', 2) ]
+
+boost_have_asio = False
+if not configHelper.hasOption('have_asio'):
+	cenv = masterEnv.Clone()		
+	cenv.Append( **boost_options )
+	conf = Configure( cenv )
+
+
+	# do not check for asio to avoid confusion. Re-enable this check again when ASIO has been included in the official boost distribution.
+	if not conf.CheckCXXHeader( "boost/asio.hpp" ):
+		print "System Boost asio not found. Using our own version in 3rd/asio."
+		boost_have_asio = True		
+		boostIncludes = configHelper.getOption('CPPPATH')
+		boostIncludes.append( Dir('#').abspath+"/3rd/asio" )
+		configHelper.setOption('CPPPATH',boostIncludes)		
+		configHelper.setOption('have_asio',True)		
+		configHelper.saveConfigSettings()
+		boost_options = configHelper.getLibraryOptions()
+		
+	else:
+		configHelper.setOption('have_asio',True)		
+		configHelper.saveConfigSettings()
+		boost_have_asio = True
+
+	conf.Finish()
+else:
+	boost_have_asio = configHelper.getOption('have_asio')
+
+if not configHelper.hasOption('have_lapackbindings'):	
+	# no longer check for lapack bindings. Our own version of the bindings is now modified heavily anyways.
+	boostIncludes = configHelper.getOption('CPPPATH')
+	boostIncludes.append( Dir('#').abspath+"/3rd/boost-bindings" )
+	configHelper.setOption('CPPPATH',boostIncludes)
+	configHelper.setOption('have_lapackbindings',True)
+	configHelper.saveConfigSettings()
+
+# export results
+Export( [ 'have_boost', 'boost_options', 'boost_libs', 'boost_have_asio' ] )

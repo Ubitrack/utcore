@@ -1,0 +1,40 @@
+import sys
+import os
+
+Import ( '*' )
+
+# specify files used by the library
+sources = globSourceFiles( os.path.join ('src', '*.cpp' ) )
+
+# export cc flags for usage with log4cpp
+log4cpp_options = { 'CPPPATH' : [ os.path.join (getCurrentPath(), 'include' ) ] }
+
+if sys.platform == 'win32':
+	log4cpp_options[ 'CPPDEFINES' ] = [ 'LOG4CPP_HAS_DLL' ]
+else:
+	log4cpp_options[ 'LIBS' ] = log4cpp_options[ 'LIBS' ] + [ 'pthread' ]
+
+Export( [ 'log4cpp_options' ] )
+
+# import the global build environment
+env = masterEnv.Clone()
+env.Append( CPPPATH = log4cpp_options[ 'CPPPATH' ] )
+
+# build the library
+if sys.platform == 'win32':
+	env.Append( CPPDEFINES = log4cpp_options.get( 'CPPDEFINES', [] ) + [ 'LOG4CPP_BUILD_DLL' ] )
+	env.Append( LIBS = [ 'wsock32', 'advapi32' ] )
+	env.Append( CCFLAGS = [ '/wd4290', '/wd4275' ] )
+	
+#use different name for release and debug build	
+libs = setupLibraryBuild(env, sources, 'log4cpp', 'utCore')
+
+log4cpp_options[ 'LIBS' ] = []
+log4cpp_options[ 'LIBPATH' ] = []
+# add the ubitrack library to the link options.
+log4cpp_options[ 'LIBS' ] += libs
+log4cpp_options[ 'LIBPATH' ] += [ install_library_prefix ]
+
+Export( [ 'log4cpp_options' ] )
+success = libs
+Return('success')

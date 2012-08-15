@@ -1,0 +1,35 @@
+import sys
+import os
+
+Import ( '*' )
+
+# specify files used by the library
+headers = Split( "tinyxml.h" )
+sources = Split( "tinyxml.cpp tinyxmlerror.cpp tinyxmlparser.cpp" )
+
+env = masterEnv.Clone()
+
+# export cc flags for usage with tinyxml
+tinyxml_options = { 'CPPDEFINES' : [ 'TIXML_USE_STL' ], 'CPPPATH' : [ getCurrentPath() ] }
+
+
+
+env.AppendUnique( **tinyxml_options )
+
+# build the library
+if sys.platform == 'win32':	
+	env.Append( CPPDEFINES = [ '_LIB', '_CRT_SECURE_NO_DEPRECATE' ] )
+	env.Append( LINKFLAGS = [ '/NODEFAULTLIB' ] )
+
+libs = setupStaticLibraryBuild(env, sources, 'tinyxml', 'utCore')
+
+# clear all 3rd-party dependencies in the case of linking against ubitrack.dll
+tinyxml_options[ 'LIBS' ] = []
+tinyxml_options[ 'LIBPATH' ] = []
+# add the ubitrack library to the link options.
+tinyxml_options[ 'LIBS' ] += libs
+tinyxml_options[ 'LIBPATH' ] += [ install_library_prefix ]
+
+Export( [ 'tinyxml_options' ] )
+success = libs
+Return('success')

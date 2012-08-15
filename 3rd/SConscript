@@ -1,0 +1,3 @@
+# just recurse into subdirectories
+SConscript( dirs = [ 'tinyxml', 'log4cpp', 'boost-bindings' ] )
+

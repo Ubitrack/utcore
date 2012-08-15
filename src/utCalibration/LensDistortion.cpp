@@ -1,0 +1,141 @@
+/*
+ * Ubitrack - Library for Ubiquitous Tracking
+ * Copyright 2006, Technische Universitaet Muenchen, and individual
+ * contributors as indicated by the @authors tag. See the 
+ * copyright.txt in the distribution for a full listing of individual
+ * contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+
+/**
+ * @ingroup tracking_algorithms
+ * @file
+ * Implements functions for lens distortion.
+ *
+ * @author Daniel Pustka <daniel.pustka@in.tum.de>
+ */ 
+
+#include "LensDistortion.h"
+#include "Function/RadialDistortion.h"
+
+#ifdef HAVE_LAPACK
+#include <utMath/LevenbergMarquardt.h>
+#endif
+
+namespace Ubitrack { namespace Calibration {
+
+template< typename T >
+Math::Vector< 2, T > projectWithDistortionImpl( const Math::Vector< 3, T >& p, const Math::Vector< 4, T >& dist,
+	const Math::Matrix< 3, 3, T >& K )
+{
+	// dehomogenize point
+	Math::Vector< 2, T > dehomogenized( p( 0 ) / p( 2 ), p( 1 ) / p( 2 ) );
+
+	// distort
+	Math::Vector< 2, T > dp;
+	Function::radialDistortion( dp, dehomogenized, dist );
+
+	// back to image coordinates
+	return Math::Vector< 2, T >( 
+		( dp( 0 ) * K( 0, 0 ) + dp( 1 ) * K( 0, 1 ) + K( 0, 2 ) ) / K( 2, 2 ), 
+		(                       dp( 1 ) * K( 1, 1 ) + K( 1, 2 ) ) / K( 2, 2 ) );
+}
+
+
+Math::Vector< 2, float > projectWithDistortion( const Math::Vector< 3, float >& p, const Math::Vector< 4, float >& dist,
+	const Math::Matrix< 3, 3, float >& K )
+{
+	return projectWithDistortionImpl( p, dist, K );
+}
+
+
+Math::Vector< 2, double > projectWithDistortion( const Math::Vector< 3, double >& p, const Math::Vector< 4, double >& dist,
+	const Math::Matrix< 3, 3, double >& K )
+{
+	return projectWithDistortionImpl( p, dist, K );
+}
+
+
+template< typename T >
+Math::Vector< 2, T > lensDistortImpl( const Math::Vector< 2, T >& p, const Math::Vector< 4, T >& dist,
+	const Math::Matrix< 3, 3, T >& K )
+{
+	// unproject point to normalized camera coordinates (assuming K( 2, 2 ) == +/-1)
+	T x2 = ( p( 1 ) - K( 1, 2 ) * K( 2, 2 ) ) / K( 1, 1 );
+	T x1 = ( p( 0 ) - K( 0, 1 ) * x2 - K( 0, 2 ) * K( 2, 2 ) ) / K( 0, 0 );
+	Math::Vector< 2, T > camPoint( x1, x2 );
+
+	// distort
+	Math::Vector< 2, T > dp;
+	Function::radialDistortion( dp, camPoint, dist );
+
+	// back to image coordinates
+	return Math::Vector< 2, T >( dp( 0 ) * K( 0, 0 ) + dp( 1 ) * K( 0, 1 ) + K( 0, 2 ) * K( 2, 2 ), dp( 1 ) * K( 1, 1 ) + K( 1, 2 ) * K( 2, 2 ) );
+}
+
+
+Math::Vector< 2, float > lensDistort( const Math::Vector< 2, float >& p, const Math::Vector< 4, float >& dist,
+	const Math::Matrix< 3, 3, float >& K )
+{ 
+	return lensDistortImpl( p, dist, K ); 
+}
+
+
+Math::Vector< 2, double > lensDistort( const Math::Vector< 2, double >& p, const Math::Vector< 4, double >& dist,
+	const Math::Matrix< 3, 3, double >& K )
+{ 
+	return lensDistortImpl( p, dist, K ); 
+}
+
+#ifdef HAVE_LAPACK
+
+template< typename T >
+Math::Vector< 2, T > lensUnDistortImpl( const Math::Vector< 2, T >& p, const Math::Vector< 4, T >& dist,
+	const Math::Matrix< 3, 3, T >& K )
+{
+	// unproject point to normalized camera coordinates (assuming K( 2, 2 ) == +/-1)
+	T x2 = ( p( 1 ) - K( 1, 2 ) * K( 2, 2 ) ) / K( 1, 1 );
+	T x1 = ( p( 0 ) - K( 0, 1 ) * x2 - K( 0, 2 ) * K( 2, 2 ) ) / K( 0, 0 );
+	Math::Vector< 2, T > camPoint( x1, x2 );
+
+	// non-linear minimization
+	Math::Vector< 2, T > dp( camPoint );
+	Function::RadialDistortionWrtP< T > distFunc( dist );
+	Math::levenbergMarquardt( distFunc, dp, camPoint, Math::OptTerminate( 5, 1e-5 ), Math::OptNoNormalize() );
+
+	// back to image coordinates
+	return Math::Vector< 2, T >( dp( 0 ) * K( 0, 0 ) + dp( 1 ) * K( 0, 1 ) + K( 0, 2 ) * K( 2, 2 ), dp( 1 ) * K( 1, 1 ) + K( 1, 2 ) * K( 2, 2 ) );
+}
+
+
+Math::Vector< 2, float > lensUnDistort( const Math::Vector< 2, float >& p, const Math::Vector< 4, float >& dist,
+	const Math::Matrix< 3, 3, float >& K )
+{ 
+	return lensUnDistortImpl( p, dist, K ); 
+}
+
+
+Math::Vector< 2, double > lensUnDistort( const Math::Vector< 2, double >& p, const Math::Vector< 4, double >& dist,
+	const Math::Matrix< 3, 3, double >& K )
+{ 
+	return lensUnDistortImpl( p, dist, K ); 
+}
+
+#endif
+
+} } // namespace Ubitrack::Calibration
+

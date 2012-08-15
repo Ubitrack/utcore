@@ -1,0 +1,25 @@
+import os
+import SCons.Tool.swig
+
+Import ( 'masterEnv' )
+
+# normally swig should work out of the box, with scons, but there is a bug...
+Import( 'opts' )
+opts.Add( 'SWIG_PATH', 'Path to the SWIG executable' )
+
+have_swig = False
+
+if 'swig' in masterEnv[ 'TOOLS' ]:
+	# add configuration options
+
+	if 'SWIG_PATH' in opts :
+		masterEnv[ 'SWIG' ] = opts[ 'SWIG_PATH' ]
+	have_swig = True
+else:
+	# workaround for scons bug
+	if 'SWIG_PATH' in opts:
+		SCons.Tool.swig.generate( masterEnv )
+		masterEnv[ 'SWIG' ] = opts[ 'SWIG_PATH' ]
+		have_swig = True
+
+Export( [ 'have_swig' ] )
