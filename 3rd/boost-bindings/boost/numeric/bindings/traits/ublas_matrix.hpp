@@ -69,8 +69,8 @@ namespace boost { namespace numeric { namespace bindings { namespace traits {
       typedef typename detail::generate_const<M,ArrT>::type array_type ;
       return vector_traits<array_type>::storage (m.data()); 
     }
-    static int size1 (matrix_type& m) { return m.size1(); } 
-    static int size2 (matrix_type& m) { return m.size2(); }
+    static int size1 (matrix_type& m) { return static_cast< int >( m.size1() ); } 
+    static int size2 (matrix_type& m) { return static_cast< int >( m.size2() ); }
     static int storage_size (matrix_type& m) { return size1 (m) * size2 (m); }
     static int leading_dimension (matrix_type& m) {
       // g++ 2.95.4 and 3.0.4 (with -pedantic) dislike 
@@ -164,8 +164,8 @@ namespace boost { namespace numeric { namespace bindings { namespace traits {
       return ptr; 
     }
 
-    static int size1 (matrix_type& mr) { return mr.size1(); } 
-    static int size2 (matrix_type& mr) { return mr.size2(); }
+    static int size1 (matrix_type& mr) { return static_cast< int > ( mr.size1() ); } 
+    static int size2 (matrix_type& mr) { return static_cast< int > ( mr.size2() ); }
     static int leading_dimension (matrix_type& mr) {
       return matrix_traits<m_type>::leading_dimension (mr.data()); 
     }

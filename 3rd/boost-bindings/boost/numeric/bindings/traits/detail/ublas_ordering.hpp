@@ -33,12 +33,12 @@ namespace boost { namespace numeric { namespace bindings { namespace traits {
 
       template <typename M>
       static int leading_dimension( M const& m ) {
-        return m.size2() ;
+        return static_cast < int > ( m.size2() );
       }
 
       template <typename M>
       static int stride1( M const& m ) {
-        return m.size2() ;
+        return static_cast < int > ( m.size2() );
       }
 
       template <typename M>
@@ -54,7 +54,7 @@ namespace boost { namespace numeric { namespace bindings { namespace traits {
 
       template <typename M>
       static int leading_dimension( M const& m ) {
-        return m.size1() ;
+        return static_cast < int > ( m.size1() );
       }
 
       template <typename M>
@@ -64,7 +64,7 @@ namespace boost { namespace numeric { namespace bindings { namespace traits {
 
       template <typename M>
       static int stride2( M const& m ) {
-        return m.size1() ;
+        return static_cast < int > ( m.size1() );
       }
     };
 
