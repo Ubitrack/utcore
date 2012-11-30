@@ -43,23 +43,23 @@ namespace ublas = boost::numeric::ublas;
 /**
  * class for parameters which are optimized (i.e. part of the parameter vector)
  */
-template< unsigned Size = 0 >
+template< std::size_t Size = 0 >
 class Parameter
 {
 public:
-	Parameter( unsigned nStart, unsigned nSize = Size )
+	Parameter( std::size_t nStart, std::size_t nSize = Size )
 		: m_range( nStart, nStart + nSize )
 	{
 		assert( !Size || nSize == Size );
 	}
 
-	unsigned size() const
+	std::size_t size() const
 	{ return m_range.size(); }
 
 private:	
 	template< class, class > friend class Binder;
 	
-	static const unsigned staticSize = Size;
+	static const std::size_t staticSize = Size;
 	static const bool wantsJacobian = true;
 
 	template< class ParameterVector >
@@ -67,7 +67,7 @@ private:
 	{ return ublas::vector_range< const ParameterVector >( p, m_range ); }
 
 	/** store jacobian in destination matrix */
-	template< unsigned LHSize, class ParameterVector, class LeftHand, class DestinationMatrix >
+	template< std::size_t LHSize, class ParameterVector, class LeftHand, class DestinationMatrix >
 	void i_multiplyJacobian( const ParameterVector&, const LeftHand& l, DestinationMatrix& j ) const
 	{
 		ublas::matrix_range< DestinationMatrix > dest( j, ublas::range( 0, j.size1() ), m_range );

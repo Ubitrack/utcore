@@ -40,12 +40,12 @@ namespace Ubitrack { namespace Math { namespace Function { namespace Detail {
 /**
  * statically sized, stack-allocated vector for intermediate results
  */
-template< unsigned Size >
+template< std::size_t Size >
 class ResultVector
 	: public Math::Vector< Size >
 {
 public:
-	ResultVector( unsigned s )
+	ResultVector( std::size_t s )
 	{
 		assert( s == Size );
 	}
@@ -69,7 +69,7 @@ class ResultVector< 0U >
 	: public ublas::vector< double >
 {
 public:
-	ResultVector( unsigned s )
+	ResultVector( std::size_t s )
 		: ublas::vector< double >( s )
 	{}
 

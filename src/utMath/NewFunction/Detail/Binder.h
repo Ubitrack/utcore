@@ -53,12 +53,12 @@ public:
 		, m_result( f.size() )
 	{}
 
-	unsigned size() const
+	std::size_t size() const
 	{ return m_func.size(); }
 
 private:
 	template< class, class > friend class Binder;
-	static const unsigned staticSize = CFunc::staticSize;
+	static const std::size_t staticSize = CFunc::staticSize;
 	static const bool wantsJacobian = CFunc::wantsJacobian || CParam::wantsJacobian;
 	
 	template< class ParameterVector >
@@ -114,7 +114,7 @@ private:
 	// internal jacobian function
 	
 	// multiply jacobian of current parameter (no right-hand-side parameters)
-	template< unsigned LHSize, class ParameterVector, class LeftHand, class DestinationMatrix >
+	template< std::size_t LHSize, class ParameterVector, class LeftHand, class DestinationMatrix >
 	void i_multiplyJacobian( const ParameterVector& p, const LeftHand& l, DestinationMatrix& j ) const
 	{
 		// assume evaluate() has already been called
@@ -130,7 +130,7 @@ private:
 	}
 	
 	// multiply jacobian of current parameter (one right-hand-side parameter)
-	template< unsigned LHSize, class ParameterVector, class LeftHand, class DestinationMatrix, class Param1 >
+	template< std::size_t LHSize, class ParameterVector, class LeftHand, class DestinationMatrix, class Param1 >
 	void i_multiplyJacobian( const ParameterVector& p, const LeftHand& l, DestinationMatrix& j, const Param1& p1 ) const
 	{
 		// assume evaluate() has already been called
@@ -146,7 +146,7 @@ private:
 	}
 	
 	// multiply jacobian of current parameter (two right-hand-side parameters)
-	template< unsigned LHSize, class ParameterVector, class LeftHand, class DestinationMatrix, class Param1, class Param2 >
+	template< std::size_t LHSize, class ParameterVector, class LeftHand, class DestinationMatrix, class Param1, class Param2 >
 	void i_multiplyJacobian( const ParameterVector& p, const LeftHand& l, DestinationMatrix& j, const Param1& p1, const Param2& p2 ) const
 	{
 		// assume evaluate() has already been called

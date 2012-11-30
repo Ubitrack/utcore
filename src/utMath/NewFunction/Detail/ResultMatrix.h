@@ -40,12 +40,12 @@ namespace Ubitrack { namespace Math { namespace Function { namespace Detail {
 /**
  * statically sized, stack-allocated matrix for intermediate results
  */
-template< unsigned TotalSize, unsigned Size1, unsigned Size2 >
+template< std::size_t TotalSize, std::size_t Size1, std::size_t Size2 >
 class ResultMatrix
 	: public Math::Matrix< Size1, Size2 >
 {
 public:
-	ResultMatrix( unsigned s1, unsigned s2 )
+	ResultMatrix( std::size_t s1, std::size_t s2 )
 	{
 		assert( Size1 == s1 && Size2 == s2 );
 	}
@@ -59,12 +59,12 @@ public:
 };
 
 /** dynamically sized, heap-allocated matrix for intermediate results */
-template< unsigned Size1, unsigned Size2 >
+template< std::size_t Size1, std::size_t Size2 >
 class ResultMatrix< 0U, Size1, Size2 >
 	: public ublas::matrix< double >
 {
 public:
-	ResultMatrix( unsigned s1, unsigned s2 )
+	ResultMatrix( std::size_t s1, std::size_t s2 )
 		: ublas::matrix< double >( s1, s2 )
 	{}
 	
