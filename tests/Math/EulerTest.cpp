@@ -1,7 +1,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
-#include <Math/Quaternion.h>
-#include <Math/Matrix.h>
+#include <utMath/Quaternion.h>
+#include <utMath/Matrix.h>
 #include "../tools.h"
 
 #ifndef M_PI

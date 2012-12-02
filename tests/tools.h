@@ -26,8 +26,9 @@
 #define __TESTS_TOOLS_H_INCLUDED__
 
 #include <boost/numeric/ublas/matrix.hpp>
-#include <Math/Quaternion.h>
-#include <Math/Vector.h>
+
+#include <utMath/Quaternion.h>
+#include <utMath/Vector.h>
 #include <math.h>
 
 template< class T > 

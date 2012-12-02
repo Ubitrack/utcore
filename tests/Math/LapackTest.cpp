@@ -1,6 +1,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
-#include <Math/Matrix.h>
+
+#include <utMath/Matrix.h>
 
 #ifdef HAVE_LAPACK
 #include <boost/numeric/bindings/lapack/gesvd.hpp>
