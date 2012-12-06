@@ -63,13 +63,15 @@ typename T::value_type determinant( const T& mat )
 	// make a copy of mat, as the factorization will overwrite the contents	
 	ublas::matrix< typename T::value_type, boost::numeric::ublas::column_major > a( mat );
 	ublas::vector< int > ipiv( a.size1() );
+	typedef typename T::size_type size_type;
+	
 	boost::numeric::bindings::lapack::getrf( a, ipiv );
 	
 	typename T::value_type det = 1;
 
-    for (std::size_t i=0; i < ipiv.size(); ++i) 
+    for ( size_type i=0; i < ipiv.size(); ++i) 
 	{
-		if ( std::size_t( ipiv( i ) ) != i+1 )
+		if ( size_type( ipiv( i ) ) != i+1 )
 			det *= -1;
 		det *= a( i, i );
     }
@@ -106,20 +108,21 @@ boost::numeric::ublas::matrix< T, boost::numeric::ublas::column_major, ST > pseu
 {
 	namespace ublas = boost::numeric::ublas;
 	typedef ublas::matrix< T, ublas::column_major, ST > M;
+	typedef typename M::size_type size_type;
 	// make a copy of m, as the factorization will overwrite the contents
 	M a( mat );
 	
-	unsigned int n = mat.size1();
-	unsigned int m = mat.size2();
-
-	unsigned nSingularValues = std::min( n, m );
+	size_type n = mat.size1();
+	size_type m = mat.size2();
+	size_type nSingularValues = std::min( n, m );
+	
 	ublas::vector< T > s( nSingularValues );
 	ublas::matrix< T, ublas::column_major > U( n, n );
 	ublas::matrix< T, ublas::column_major > Vt( m, m );
 
 	boost::numeric::bindings::lapack::gesvd( 'S', 'S', a, s, U, Vt );
 
-	for( unsigned int i=0; i<nSingularValues; i++ )
+	for( size_type i=0; i<nSingularValues; i++ )
 	{
 		if( s( i ) != 0 )
 		{
@@ -129,14 +132,14 @@ boost::numeric::ublas::matrix< T, boost::numeric::ublas::column_major, ST > pseu
 
 	if( n > m )
 	{
-		for ( unsigned i = 0; i < m; i++ )
+		for ( size_type i = 0; i < m; i++ )
 			ublas::row( Vt, i ) *= s( i );
 
 		a = ublas::prod( ublas::subrange( U, 0, n, 0, m ) , Vt );
 	}
 	else
 	{
-		for ( unsigned i = 0; i < n; i++ )
+		for ( size_type i = 0; i < n; i++ )
 			ublas::column( U, i ) *= s( i );
 
 		a = ublas::prod( U , ublas::subrange( Vt, 0, n, 0, m ) );
