@@ -50,7 +50,6 @@
 #include <utMath/Scalar.h>
 #include <utMath/RotationVelocity.h>
 
-
 namespace Ubitrack { namespace Measurement {
 
 // forward declaration of Measurement
@@ -74,6 +73,7 @@ typedef Measurement< std::vector < Math::Scalar< double > > > DistanceList;
 typedef Measurement< std::vector < Math::Vector< 3 > > > PositionList;
 typedef Measurement< std::vector < Math::Vector< 2 > > > PositionList2;
 typedef Measurement< std::vector < Math::Pose > > PoseList;
+typedef Measurement< std::vector < Math::ErrorPose > > ErrorPoseList;
 typedef Measurement< Math::RotationVelocity > RotationVelocity;
 typedef Measurement< Math::ErrorVector< 3 > > ErrorPosition;
 
@@ -226,6 +226,8 @@ class Measurement
 
 
 } } // namespace Ubitrack::Measurement
+
+
 
 #endif // _Ubitrack_Measurement_Measurement_INCLUDED_
 

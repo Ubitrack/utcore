@@ -111,6 +111,7 @@ public:
 		, m_bInitialized( false )
 		, m_nRuns( 0 )
 		, m_nTicks( 0 )
+		, m_startTime( getHighPerformanceCounter() )
 	{}
 
 	/** 
@@ -157,6 +158,9 @@ public:
 		
 	/** Initialization at end of first run */
 	void initializeEnd();
+
+	unsigned long long m_startTime;
+	
 		
 protected:
 	std::string m_sName;
@@ -164,6 +168,7 @@ protected:
 	std::string m_sCodeFile;
 	unsigned m_nCodeLine;
 	bool m_bInitialized;
+	
 	
 	unsigned m_nRuns;
 	unsigned long long m_nTicks;

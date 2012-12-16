@@ -120,6 +120,7 @@ UBITRACK_EXPORT Math::Vector< 3, float > get3DPosition( const std::vector< Math:
 
 UBITRACK_EXPORT Math::Vector< 3, double > get3DPosition( const std::vector< Math::Matrix< 3, 4, double > > &P, const std::vector< Math::Vector< 2, double > >& points, unsigned flag = 0 );
 
+UBITRACK_EXPORT Math::Vector< 3, double > get3DPositionWithResidual( const std::vector< Math::Matrix< 3, 4, double > > &P, const std::vector< Math::Vector< 2, double > >& points, unsigned flag = 0, double* residual = 0 );
 #endif
 
 } } // namespace Ubitrack::Calibration

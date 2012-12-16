@@ -62,12 +62,18 @@ void BlockTimer::initializeEnd()
 }
 
 
+
+
 std::ostream& operator<<( std::ostream& s, const BlockTimer& t )
-{
+{		
+	unsigned long long totalRunTime = getHighPerformanceCounter() - t.m_startTime;
 	return s << std::setw( 30 ) << t.getName()
 		<< " runs: " << std::setw( 6 ) << t.getRuns()
 		<< ", total: " << std::setw( 7 ) << t.getTotalTime()
-		<< "ms, avg: " << std::setw( 7 ) << t.getAvgTime() << "ms";
+		<< "ms, avg: " << std::setw( 7 ) << t.getAvgTime() << "ms"
+		<< "ms, totalRuntime: " << std::setw( 7 ) << totalRunTime << "ms"
+		<< "ms, call per second: " << std::setw( 7 ) << totalRunTime/1000.0 /  t.getRuns() << "ms";
+		
 }
 
 } } // namespace Ubitrack::Util

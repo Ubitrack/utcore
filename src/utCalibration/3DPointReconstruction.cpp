@@ -170,7 +170,7 @@ Math::Vector< 3, typename std::iterator_traits< ForwardIterator2 >::value_type::
 
 /** internal non-linear optimization function for 3d point reconstruction */
 template< typename ForwardIterator1, typename ForwardIterator2 >
-Math::Vector< 3, typename std::iterator_traits< ForwardIterator1 >::value_type::value_type  > optimize3DPositionImpl( const ForwardIterator1 iBegin, const ForwardIterator1 iEnd, ForwardIterator2 iPoints, const Math::Vector< 3, typename std::iterator_traits< ForwardIterator2 >::value_type::value_type > &initialPoint )
+Math::Vector< 3, typename std::iterator_traits< ForwardIterator1 >::value_type::value_type  > optimize3DPositionImpl( const ForwardIterator1 iBegin, const ForwardIterator1 iEnd, ForwardIterator2 iPoints, const Math::Vector< 3, typename std::iterator_traits< ForwardIterator2 >::value_type::value_type > &initialPoint, double *pResidual = 0)
 {
 	// shortcut to double/float
 	typedef typename std::iterator_traits< ForwardIterator1 >::value_type::value_type Type;
@@ -189,13 +189,15 @@ Math::Vector< 3, typename std::iterator_traits< ForwardIterator1 >::value_type::
 	parameters = initialPoint;
 	
 	// perform optimization
-	Type residual = Ubitrack::Math::levenbergMarquardt( func, parameters, measurement, Math::OptTerminate( 200, 1e-6 ), Math::OptNoNormalize() );
+	Type residual = Ubitrack::Math::levenbergMarquardt( func, parameters, measurement, Math::OptTerminate( 200, 1e-6 ), Math::OptNoNormalize() );	
+	if(pResidual)
+		*pResidual = (double)residual;
 
 	return Math::Vector< 3 , Type >( parameters );
 	
 }
 
-Math::Vector< 3, float > get3DPosition( const std::vector< Math::Matrix< 3, 4, float > > &P, const std::vector< Math::Vector< 2, float > > &points, unsigned flag )
+Math::Vector< 3, float > get3DPosition( const std::vector< Math::Matrix< 3, 4, float > > &P, const std::vector< Math::Vector< 2, float > > &points, unsigned flag)
 {
 	if( P.size() != points.size() )
 		UBITRACK_THROW( "no equal amount of camera projections and corresponding points." );
@@ -205,13 +207,26 @@ Math::Vector< 3, float > get3DPosition( const std::vector< Math::Matrix< 3, 4, f
 	return result;
 }
 
-Math::Vector< 3, double > get3DPosition( const std::vector< Math::Matrix< 3, 4, double > > &P, const std::vector< Math::Vector< 2, double > >& points, unsigned flag )
+Math::Vector< 3, double > get3DPosition( const std::vector< Math::Matrix< 3, 4, double > > &P, const std::vector< Math::Vector< 2, double > >& points, unsigned flag)
 {
 	if( P.size() != points.size() )
 		UBITRACK_THROW( "no equal amount of camera projections and corresponding points." );
 	Math::Vector< 3, double > result = get3DPositionImpl( P.begin(), P.end(), points.begin() );
 	if( flag > 0 )
 		result = optimize3DPositionImpl( P.begin(), P.end(), points.begin(), result );
+	
+	return result;
+}
+
+Math::Vector< 3, double > get3DPositionWithResidual( const std::vector< Math::Matrix< 3, 4, double > > &P, const std::vector< Math::Vector< 2, double > >& points, unsigned flag, double* pResidual)
+{
+	if( P.size() != points.size() )
+		UBITRACK_THROW( "no equal amount of camera projections and corresponding points." );
+	Math::Vector< 3, double > result = get3DPositionImpl( P.begin(), P.end(), points.begin() );
+	
+	if( flag > 0 )
+		result = optimize3DPositionImpl( P.begin(), P.end(), points.begin(), result, pResidual );
+		
 	
 	return result;
 }
