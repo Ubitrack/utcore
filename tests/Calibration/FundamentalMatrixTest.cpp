@@ -1,18 +1,18 @@
-#include <boost/test/unit_test.hpp>
-#include <math.h>
-#include <boost/test/floating_point_comparison.hpp>
-#include <utCalibration/FundamentalMatrix.h>
-#include "../tools.h"
-#include <Math/MatrixOperations.h>
-#include <boost/numeric/bindings/lapack/gesvd.hpp>
-#include <boost/numeric/ublas/vector_proxy.hpp>
 #include <vector>
-
 #include <iostream>
+#include <math.h>
+
+#include <boost/test/unit_test.hpp>
+#include <boost/test/floating_point_comparison.hpp>
+#include <boost/numeric/ublas/vector_proxy.hpp>
+
+#include <utCalibration/FundamentalMatrix.h>
+#include <utMath/MatrixOperations.h>
+#include "../tools.h"
 
 using namespace Ubitrack;
 namespace ublas = boost::numeric::ublas;
-namespace lapack = boost::numeric::bindings::lapack;
+
 
 void TestFundamentalMatrix()
 {

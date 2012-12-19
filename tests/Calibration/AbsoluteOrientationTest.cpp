@@ -2,9 +2,9 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
-#include <Math/Matrix.h>
-#include <Math/Pose.h>
-#include <Util/Exception.h>
+#include <utMath/Matrix.h>
+#include <utMath/Pose.h>
+#include <utUtil/Exception.h>
 #include <utCalibration/AbsoluteOrientation.h>
 #include "../tools.h"
 #include <cmath>

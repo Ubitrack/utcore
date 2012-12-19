@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include <Util/Logging.h>
+#include <utUtil/Logging.h>
 #include "Math/MathTest.h"
 #include "Calibration/CalibTest.h"
 

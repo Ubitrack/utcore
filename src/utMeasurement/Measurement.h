@@ -76,6 +76,7 @@ typedef Measurement< std::vector < Math::Pose > > PoseList;
 typedef Measurement< std::vector < Math::ErrorPose > > ErrorPoseList;
 typedef Measurement< Math::RotationVelocity > RotationVelocity;
 typedef Measurement< Math::ErrorVector< 3 > > ErrorPosition;
+typedef Measurement< std::vector < Math::ErrorPose > > ErrorPoseList;
 
 typedef Measurement< std::vector < Math::ErrorVector< 2 > > > ErrorPositionList2;
 typedef Measurement< std::vector < Math::ErrorVector< 3 > > > ErrorPositionList;

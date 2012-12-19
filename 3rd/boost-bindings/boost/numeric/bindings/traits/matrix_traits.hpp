@@ -99,23 +99,23 @@ namespace boost { namespace numeric { namespace bindings { namespace traits {
   
   template <typename M>
   inline
-  int matrix_size1 (M& m) { return matrix_traits<M>::size1 (m); }
+  int matrix_size1 (M& m) { return static_cast< int > ( matrix_traits<M>::size1 (m) ); }
   
   template <typename M>
   inline
-  int matrix_size2 (M& m) { return matrix_traits<M>::size2 (m); }
+  int matrix_size2 (M& m) { return static_cast< int > ( matrix_traits<M>::size2 (m) ); }
   
   template <typename M>
   inline
-  int matrix_storage_size (M& m) { return matrix_traits<M>::storage_size (m); }
+  int matrix_storage_size (M& m) { return static_cast< int > ( matrix_traits<M>::storage_size (m) ); }
   
   template <typename M>
   inline
-  int matrix_stride1 (M& m) { return matrix_traits<M>::stride1 (m); }
+  int matrix_stride1 (M& m) { return static_cast< int > ( matrix_traits<M>::stride1 (m) ); }
 
   template <typename M>
   inline
-  int matrix_stride2 (M& m) { return matrix_traits<M>::stride2 (m); }
+  int matrix_stride2 (M& m) { return static_cast< int > ( matrix_traits<M>::stride2 (m) ); }
 
   template <typename M>
   inline
@@ -128,7 +128,7 @@ namespace boost { namespace numeric { namespace bindings { namespace traits {
   template <typename M>
   inline
   int leading_dimension (M& m) { 
-    return matrix_traits<M>::leading_dimension (m); 
+    return static_cast< int > ( matrix_traits<M>::leading_dimension (m) ); 
   }
   
   namespace detail {

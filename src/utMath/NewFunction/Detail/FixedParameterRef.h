@@ -37,7 +37,7 @@ namespace Ubitrack { namespace Math { namespace Function { namespace Detail {
 /**
  * class for fixed parameters with referenced values.
  */
-template< unsigned Size, class CVector >
+template< std::size_t Size, class CVector >
 class FixedParameterRef
 {
 public:
@@ -45,20 +45,20 @@ public:
 		: m_v( v )
 	{}
 
-	unsigned size() const
+	std::size_t size() const
 	{ return m_v.size(); }
 
 private:
 	template< class, class > friend class Binder;
 	
-	static const unsigned staticSize = Size;
+	static const std::size_t staticSize = Size;
 	static const bool wantsJacobian = false;
 
 	template< class ParameterVector >
 	const CVector& value( const ParameterVector&  ) const
 	{ return m_v; }
 
-	template< unsigned LHSize, class ParameterVector, class LeftHand, class DestinationMatrix >
+	template< std::size_t LHSize, class ParameterVector, class LeftHand, class DestinationMatrix >
 	void i_multiplyJacobian( const ParameterVector&, const LeftHand&, DestinationMatrix& ) const
 	{}
 

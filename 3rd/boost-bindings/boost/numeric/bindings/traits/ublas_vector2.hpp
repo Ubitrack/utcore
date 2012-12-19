@@ -59,10 +59,10 @@ namespace boost { namespace numeric { namespace bindings { namespace traits {
       typedef typename detail::generate_const<V,ArrT>::type array_type;
       return vector_traits<array_type>::storage (v.data()); 
     }
-    static int size1 (matrix_type& v) { return v.size(); } 
+    static int size1 (matrix_type& v) { return static_cast< int >( v.size() ); } 
     static int size2 (matrix_type&) { return 1; }
-    static int storage_size (matrix_type& v) { return v.size(); }
-    static int leading_dimension (matrix_type& v) { return v.size(); }
+    static int storage_size (matrix_type& v) { return static_cast< int >( v.size() ); }
+    static int leading_dimension (matrix_type& v) { return static_cast< int >( v.size() ); }
   }; 
 
 
