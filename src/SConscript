@@ -40,6 +40,12 @@ if ( sys.platform != 'win32' ):
 
 # b)	
 # Merge all options in one "ubitrack" option. Note that some options might be empty if its module is not available	
+if not( have_boost and have_tinyxml and have_log4cpp):
+	print "Boost missing -- not building core libraries"
+	have_utcore = False
+	utcore_options = {}
+	Export( 'utcore_options', 'have_utcore' )
+	Return ('have_utcore')
 utcore_options = mergeOptions( boost_options, tinyxml_options, log4cpp_options, lapack_options)
 #if have_lapack:
 #	utcore_options['CPPDEFINES'] += ['HAVE_LAPACK']
@@ -61,14 +67,19 @@ libs = setupLibraryBuild(env, sources, libName, libName)
 
 # e)
 # clear all 3rd-party dependencies in the case of linking against ubitrack.dll
+utcore_all_options = utcore_options.copy()
 utcore_options[ 'LIBS' ] = []
 utcore_options[ 'LIBPATH' ] = []
 # add the ubitrack library to the link options.
 utcore_options[ 'LIBS' ] += libs
 utcore_options[ 'LIBPATH' ] += [ install_library_prefix ]
 
+utcore_all_options[ 'LIBS' ] += libs
+utcore_all_options[ 'LIBPATH' ] += [ install_library_prefix ]
+
+
 # f)
-Export( 'utcore_options' )
+Export( 'utcore_options', 'utcore_all_options' )
 generateHelp(utcore_options)
 
 createVisualStudioProject(env, sources, headers, libName)

@@ -84,43 +84,43 @@ if sys.platform == 'win32':
 
 
 have_boost = configHelper.haveLib()
+boost_have_asio = False
 if have_boost:
 	boost_options[ 'CPPDEFINES' ] += [ ('BOOST_FILESYSTEM_VERSION', 2) ]
 
-boost_have_asio = False
-if not configHelper.hasOption('have_asio'):
-	cenv = masterEnv.Clone()		
-	cenv.Append( **boost_options )
-	conf = Configure( cenv )
+	if not configHelper.hasOption('have_asio'):
+		cenv = masterEnv.Clone()		
+		cenv.Append( **boost_options )
+		conf = Configure( cenv )
 
 
-	# do not check for asio to avoid confusion. Re-enable this check again when ASIO has been included in the official boost distribution.
-	if not conf.CheckCXXHeader( "boost/asio.hpp" ):
-		print "System Boost asio not found. Using our own version in 3rd/asio."
-		boost_have_asio = True		
-		boostIncludes = configHelper.getOption('CPPPATH')
-		boostIncludes.append( Dir('#').abspath+"/3rd/asio" )
-		configHelper.setOption('CPPPATH',boostIncludes)		
-		configHelper.setOption('have_asio',True)		
-		configHelper.saveConfigSettings()
-		boost_options = configHelper.getLibraryOptions()
-		
+		# do not check for asio to avoid confusion. Re-enable this check again when ASIO has been included in the official boost distribution.
+		if not conf.CheckCXXHeader( "boost/asio.hpp" ):
+			print "System Boost asio not found. Using our own version in 3rd/asio."
+			boost_have_asio = True		
+			boostIncludes = configHelper.getOptionArray('CPPPATH')
+			boostIncludes.append( Dir('#').abspath+"/3rd/asio" )
+			configHelper.setOptionArray('CPPPATH',boostIncludes)		
+			configHelper.setOptionBool('have_asio',True)		
+			configHelper.saveConfigSettings()
+			boost_options = configHelper.getLibraryOptions()
+			
+		else:
+			configHelper.setOptionBool('have_asio',True)		
+			configHelper.saveConfigSettings()
+			boost_have_asio = True
+
+		conf.Finish()
 	else:
-		configHelper.setOption('have_asio',True)		
+		boost_have_asio = configHelper.getOptionBool('have_asio')
+
+	if not configHelper.hasOption('have_lapackbindings'):	
+		# no longer check for lapack bindings. Our own version of the bindings is now modified heavily anyways.
+		boostIncludes = configHelper.getOptionArray('CPPPATH')
+		boostIncludes.append( Dir('#').abspath+"/3rd/boost-bindings" )
+		configHelper.setOptionArray('CPPPATH',boostIncludes)
+		configHelper.setOptionBool('have_lapackbindings',True)
 		configHelper.saveConfigSettings()
-		boost_have_asio = True
-
-	conf.Finish()
-else:
-	boost_have_asio = configHelper.getOption('have_asio')
-
-if not configHelper.hasOption('have_lapackbindings'):	
-	# no longer check for lapack bindings. Our own version of the bindings is now modified heavily anyways.
-	boostIncludes = configHelper.getOption('CPPPATH')
-	boostIncludes.append( Dir('#').abspath+"/3rd/boost-bindings" )
-	configHelper.setOption('CPPPATH',boostIncludes)
-	configHelper.setOption('have_lapackbindings',True)
-	configHelper.saveConfigSettings()
 
 # export results
 Export( [ 'have_boost', 'boost_options', 'boost_libs', 'boost_have_asio' ] )

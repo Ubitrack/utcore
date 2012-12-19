@@ -30,6 +30,11 @@ tinyxml_options[ 'LIBPATH' ] = []
 tinyxml_options[ 'LIBS' ] += libs
 tinyxml_options[ 'LIBPATH' ] += [ install_library_prefix ]
 
-Export( [ 'tinyxml_options' ] )
 success = libs
+have_tinyxml = success != 0
+
+Export( [ 'tinyxml_options', 'have_tinyxml' ] )
+
+
+
 Return('success')

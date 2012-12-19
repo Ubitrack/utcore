@@ -35,6 +35,10 @@ log4cpp_options[ 'LIBPATH' ] = []
 log4cpp_options[ 'LIBS' ] += libs
 log4cpp_options[ 'LIBPATH' ] += [ install_library_prefix ]
 
-Export( [ 'log4cpp_options' ] )
 success = libs
+have_log4cpp = success != 0
+
+Export( [ 'log4cpp_options', 'have_log4cpp' ] )
+
+
 Return('success')
