@@ -69,7 +69,7 @@ namespace Ubitrack { namespace Util {
 #define UBITRACK_STATIC_ASSERT(test, errormsg)                        \
   do {                                                                \
     struct ERROR_##errormsg {};                                       \
-    typedef Ubitrack::Util::CompileTimeCheck< (test) != 0 > tmplimpl; \
+    typedef typename Ubitrack::Util::CompileTimeCheck< (test) != 0 > tmplimpl; \
     tmplimpl aTemp = tmplimpl(ERROR_##errormsg());                    \
     int tmp;                                                          \
     tmp = sizeof(aTemp);                                              \

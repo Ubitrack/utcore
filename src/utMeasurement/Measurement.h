@@ -181,7 +181,7 @@ class Measurement
 		 * returns a measurement that does NOT hold a reference to this object
 		 */
 		Measurement clone() const
-		{ if ( get() != 0 )
+		{ if ( this->get() != 0 )
             return Measurement( m_timestamp, *(this->get()) ); 
         else
             return Measurement( m_timestamp );

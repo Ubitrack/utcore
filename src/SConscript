@@ -32,8 +32,8 @@ for dir in subdirs:
 	headers += globSourceFiles( dir + '/*.h' )
 	sources += globSourceFiles( dir + '/*.cpp' )
 
-if ( sys.platform != 'win32' ):
-	extra_options[ 'LIBS' ] += [ 'dl' ]
+#if ( sys.platform != 'win32' ):
+#	extra_options[ 'LIBS' ] += [ 'dl' ]
 
 
 

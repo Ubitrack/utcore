@@ -62,9 +62,9 @@ public:
 	{
 	}
 
-	typedef typename std::vector< typename EventType > EventList;
+	typedef typename std::vector< EventType > EventList;
 	
-	typename ResultType mean( const EventList &eList )
+	ResultType mean( const EventList &eList )
 	{
 		ResultType tmp;
 		size_t size = eList.size();
@@ -79,7 +79,7 @@ protected:
 	
 
 	
-	typename ResultType incrementalEstimate( typename EventType& perturbed );
+	ResultType incrementalEstimate( EventType& perturbed );
 		
 	ublas::vector< double > meanv;
 	ublas::matrix< double > outProd;

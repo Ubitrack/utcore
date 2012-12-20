@@ -124,7 +124,7 @@ std::pair < Math::ErrorPose , double >
 		if (!hasInitialPoseProvided) {
 			LOG4CPP_DEBUG( logger, "Compute initial pose with "<<p2dLocal.at(maxObsIndex).size() << " observations for camera " << maxObsIndex );
 			initialPose = camPoses.at( maxObsIndex ) * Calibration::computePose( p2dLocal.at( maxObsIndex) , p3dLocalFiltered.at( maxObsIndex) ,
-				camMatrices.at( maxObsIndex ), Calibration::InitializationMethod_t::PLANAR_HOMOGRAPHY );
+				camMatrices.at( maxObsIndex ), PLANAR_HOMOGRAPHY ); // there are no scoped enums in C++98 (only in C++0x onwards)
 			LOG4CPP_DEBUG( logger, "Initial pose "<<initialPose );
 		}
 
@@ -266,6 +266,6 @@ void multipleCameraPoseEstimation (
 	poseWeight = estimate.second;
 }
 
-#endif HAVE_LAPACK
+#endif // HAVE_LAPACK
 
 } } // namespace Ubitrack::Calibration

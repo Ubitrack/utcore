@@ -7,7 +7,7 @@ Import ( '*' )
 sources = globSourceFiles( os.path.join ('src', '*.cpp' ) )
 
 # export cc flags for usage with log4cpp
-log4cpp_options = { 'CPPPATH' : [ os.path.join (getCurrentPath(), 'include' ) ] }
+log4cpp_options = { 'CPPPATH' : [ os.path.join (getCurrentPath(), 'include' ) ], 'LIBS': [] }
 
 if sys.platform == 'win32':
 	log4cpp_options[ 'CPPDEFINES' ] = [ 'LOG4CPP_HAS_DLL' ]

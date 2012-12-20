@@ -20,6 +20,9 @@ env.AppendUnique( **tinyxml_options )
 if sys.platform == 'win32':	
 	env.Append( CPPDEFINES = [ '_LIB', '_CRT_SECURE_NO_DEPRECATE' ] )
 	env.Append( LINKFLAGS = [ '/NODEFAULTLIB' ] )
+elif sys.platform.startswith( 'linux' ):
+	env.Append( CPPFLAGS = [ '-fPIC' ] )
+
 
 libs = setupStaticLibraryBuild(env, sources, 'tinyxml', 'utCore')
 

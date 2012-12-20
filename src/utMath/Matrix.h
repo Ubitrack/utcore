@@ -260,10 +260,11 @@ template< std::size_t M, std::size_t N, typename T > class Matrix
  * @param matrix the matrix to be converted
  */
 
-template< class M >
-void leftHandToRightHandMatrix(M& matrix)
+template< class Ma >
+void leftHandToRightHandMatrix(Ma& matrix)
 {
-	UBITRACK_STATIC_ASSERT( (M==3)&&(N==3), MATRIX_3x3_REQUIRED );
+	// TODO: Assert does not work this way..
+	// UBITRACK_STATIC_ASSERT( (M==3)&&(N==3), MATRIX_3x3_REQUIRED );
 
 	matrix( 2, 0 ) *= -1;
 	matrix( 2, 1 ) *= -1;

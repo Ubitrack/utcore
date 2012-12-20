@@ -42,6 +42,8 @@
 #include <utMath/Scalar.h>
 #include <vector>
 
+#include <utUtil/Exception.h>
+
 namespace Ubitrack { namespace Calibration {
 
 UBITRACK_EXPORT Math::Scalar< double > calculateAbsoluteOrientationScale ( const std::vector< Math::Vector< 3, double > >& m_left,

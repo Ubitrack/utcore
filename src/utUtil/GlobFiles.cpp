@@ -33,7 +33,7 @@ static log4cpp::Category& logger( log4cpp::Category::getInstance( "Ubitrack.Util
 
 void globFiles( const std::string& directory, const std::string & patternString, std::list< boost::filesystem::path >& files, bool globDirectories)
 {
-	boost::filesystem::path testPath( directory, boost::filesystem::native );
+	boost::filesystem::path testPath( directory );
 	if ( boost::filesystem::is_directory( testPath ) && boost::filesystem::exists( testPath ) )
 	{
 		boost::regex ext( patternString.c_str() );
