@@ -6,6 +6,7 @@
 #include <boost/numeric/ublas/vector_proxy.hpp>
 #include <utMath/RandomNumbers.h>
 #include <utMath/Functors/UniformDistribution.h>
+#include <utMath/Functors/GaussianDistribution.h>
 
 #include <iostream>
 #include <algorithm>
@@ -20,6 +21,8 @@ void TestOptimizePose( const std::size_t n_runs, const T epsilon )
 	Functors::uniform_quaternion<> randQuat;
 	Functors::uniform_distribution< 3, T > randVector( -0.4, 0.4 );
 	Functors::uniform_distribution< 3, T > randTranslation( -100, 100 );
+	Functors::gaussian_distribution< 3, T > randPositionNoise( 0, 0.2 );
+	
 	
 	for ( int iRun = 0; iRun < n_runs; iRun++ )
 	{
@@ -54,7 +57,7 @@ void TestOptimizePose( const std::size_t n_runs, const T epsilon )
 		Pose testPose( 
 			Quaternion( rot.x() + random( -0.1, 0.1 ), rot.y() + random( -0.1, 0.1 ), 
 				rot.z() + random( -0.1, 0.1 ), rot.w() + random( -0.1, 0.1 ) ),
-			trans + randomVector< 3 >( 0.2 ) );
+			trans + randPositionNoise() );
 			
 		Pose optimized( testPose );
 		

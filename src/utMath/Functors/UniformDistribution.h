@@ -52,10 +52,10 @@
 namespace Ubitrack { namespace Math { namespace Functors {
 
 /**
- * Function that generates a vector of uniformly distributed random numbers.
+ * Functor that generates a vector of uniformly distributed random numbers.
  * Depending on the constructor call you have two options to define the limits.
- * Either you specify the limits of thr rango to sample from for each dimension
- * or you specify one limit that
+ * Either you specify the limits once for all dimensions or you specify the 
+ * limits for each dimension seperately.
  */
 template< std::size_t N, typename T >
 struct uniform_distribution
