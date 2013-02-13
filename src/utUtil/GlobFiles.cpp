@@ -48,7 +48,7 @@ void globFiles( const std::string& directory, const std::string & patternString,
 			boost::filesystem::path p( *it );
 #endif
 			// check for files with suitable extension
-#ifdef BOOST_FILESYSTEM_I18N
+#ifdef WIN32
 			if ( boost::filesystem::exists( p ) && ! boost::filesystem::is_directory( p ) && boost::regex_match( p.filename().string(), ext ) )
 #else
 			if ( boost::filesystem::exists( p ) && ! boost::filesystem::is_directory( p ) && boost::regex_match( p.filename(), ext ) )
