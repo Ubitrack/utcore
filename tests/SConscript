@@ -31,4 +31,4 @@ createVisualStudioProject(env, sources, headers, 'utCore-Tests')
 # run tests if specified on the scons command line
 ###if 'test' in COMMAND_LINE_TARGETS:
 test = env.Test( "runtest.passed", runtests, ARGS = [ "--log_level=test_suite" ] )
-env.Alias( [ 'test', 'test-utcore' ], test )
+env.Alias( [ 'test', 'test-core' ], test )

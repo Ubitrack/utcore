@@ -1,5 +1,5 @@
 # CHANGELOG:
-# 2012-08-03 (frieder):
+# 2012-08-03 (Pankratz):
 # - change to common library import, asio makes it still more complicated
 
 import types
@@ -92,32 +92,25 @@ if have_boost:
 		cenv = masterEnv.Clone()		
 		cenv.Append( **boost_options )
 		conf = Configure( cenv )
-
-
-		# do not check for asio to avoid confusion. Re-enable this check again when ASIO has been included in the official boost distribution.
-		if not conf.CheckCXXHeader( "boost/asio.hpp" ):
-			print "System Boost asio not found. Using our own version in 3rd/asio."
-			boost_have_asio = True		
-			boostIncludes = configHelper.getOptionArray('CPPPATH')
-			boostIncludes.append( Dir('#').abspath+"/3rd/asio" )
-			configHelper.setOptionArray('CPPPATH',boostIncludes)		
-			configHelper.setOptionBool('have_asio',True)		
-			configHelper.saveConfigSettings()
-			boost_options = configHelper.getLibraryOptions()
-			
-		else:
+				
+		if conf.CheckCXXHeader( "boost/asio.hpp" ):
 			configHelper.setOptionBool('have_asio',True)		
 			configHelper.saveConfigSettings()
 			boost_have_asio = True
-
+		else:
+			configHelper.setOptionBool('have_asio',False)		
+			configHelper.saveConfigSettings()
+			boost_have_asio = False
+		
+		
 		conf.Finish()
 	else:
-		boost_have_asio = configHelper.getOptionBool('have_asio')
-
+		boost_have_asio = configHelper.getOptionBool('have_asio')	
+		
 	if not configHelper.hasOption('have_lapackbindings'):	
 		# no longer check for lapack bindings. Our own version of the bindings is now modified heavily anyways.
 		boostIncludes = configHelper.getOptionArray('CPPPATH')
-		boostIncludes.append( Dir('#').abspath+"/3rd/boost-bindings" )
+		boostIncludes.append( Dir('../').abspath+"/3rd/boost-bindings" )
 		configHelper.setOptionArray('CPPPATH',boostIncludes)
 		configHelper.setOptionBool('have_lapackbindings',True)
 		configHelper.saveConfigSettings()

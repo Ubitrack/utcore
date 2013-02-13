@@ -63,7 +63,7 @@ if sys.platform == 'win32':
 
 # d)	
 libName = 'utCore'
-libs = setupLibraryBuild(env, sources, libName, libName)
+libs = setupLibraryBuild(env, sources, libName, 'core')
 
 # e)
 # clear all 3rd-party dependencies in the case of linking against ubitrack.dll
