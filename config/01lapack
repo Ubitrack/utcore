@@ -12,7 +12,7 @@ Import( '*' )
 SConscript ( '#/config/libraryConfig.py' )
 Import('standardLibFinder', 'standardLibConfig')
 
-lapack_options = []
+lapack_options = {}
 have_lapack = False
 if have_boost:
 	if 'MKL_PATH' in opts :
