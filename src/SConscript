@@ -39,7 +39,8 @@ if not( have_boost and have_tinyxml and have_log4cpp):
 	print "Boost missing -- not building core libraries"
 	have_utcore = False
 	utcore_options = {}
-	Export( 'utcore_options', 'have_utcore' )
+	utcore_all_options = {}
+	Export( 'utcore_options', 'have_utcore', 'utcore_all_options' )
 	Return ('have_utcore')
 utcore_options = mergeOptions( boost_options, tinyxml_options, log4cpp_options, lapack_options)
 
@@ -70,9 +71,10 @@ utcore_options[ 'LIBPATH' ] += [ install_library_prefix ]
 utcore_all_options[ 'LIBS' ] += libs
 utcore_all_options[ 'LIBPATH' ] += [ install_library_prefix ]
 
+have_utcore = libs != 0
 
 # f)
-Export( 'utcore_options', 'utcore_all_options' )
+Export( 'have_utcore', 'utcore_options', 'utcore_all_options' )
 generateHelp(utcore_options)
 
 createVisualStudioProject(env, sources, headers, libName)
