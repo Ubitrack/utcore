@@ -4,7 +4,7 @@ import glob
 # import variables from other scons files
 Import( '*' )
 env = masterEnv.Clone()
-env.AppendUnique( **mergeOptions( utcore_options, boost_options, lapack_options, log4cpp_options ) )
+env.AppendUnique( **mergeOptions( utcore_all_options ) )
 
 # automatically glob files from subdirectories
 subdirs = [ 'Math', 'Calibration' ]
