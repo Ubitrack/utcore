@@ -32,11 +32,6 @@ for dir in subdirs:
 	headers += globSourceFiles( dir + '/*.h' )
 	sources += globSourceFiles( dir + '/*.cpp' )
 
-#if ( sys.platform != 'win32' ):
-#	extra_options[ 'LIBS' ] += [ 'dl' ]
-
-
-
 
 # b)	
 # Merge all options in one "ubitrack" option. Note that some options might be empty if its module is not available	
@@ -47,8 +42,6 @@ if not( have_boost and have_tinyxml and have_log4cpp):
 	Export( 'utcore_options', 'have_utcore' )
 	Return ('have_utcore')
 utcore_options = mergeOptions( boost_options, tinyxml_options, log4cpp_options, lapack_options)
-#if have_lapack:
-#	utcore_options['CPPDEFINES'] += ['HAVE_LAPACK']
 
 # Set ubitrack root source path explicitly that allows sources to access header files relative with #include <..> statements
 utcore_options ['CPPPATH'] += [ getCurrentPath() ]
