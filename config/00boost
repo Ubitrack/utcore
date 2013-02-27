@@ -70,7 +70,11 @@ opts.Add( 'BOOST_SUFFIX', 'Suffix to add to boost library names', default_lib_su
 libName = "BOOST"
 boost_libs = lambda l: boost_libs_proto( l, opts[ 'BOOST_SUFFIX' ] )
 
-compileSettings =  [{} , boost_libs( "thread" ), "boost/thread.hpp", "C++", "boost::mutex m; boost::mutex::scoped_lock l( m );"]
+if sys.platform == 'win32':
+	libs = boost_libs("thread")
+else:
+	libs = boost_libs("system")
+compileSettings =  [{} , libs, "boost/thread.hpp", "C++", "boost::mutex m; boost::mutex::scoped_lock l( m );"]
 libFinder = standardLibFinder(libName,compileSettings)
 
 
@@ -81,12 +85,17 @@ boost_options = configHelper.getLibraryOptions()
 # in windows boost libs are linked automatically
 if sys.platform == 'win32':
 	boost_options['LIBS'] = []
+else:
+	boost_options['LIBS'] += [ boost_libs("system") ]
 
 
 have_boost = configHelper.haveLib()
 boost_have_asio = False
 if have_boost:
-	boost_options[ 'CPPDEFINES' ] += [ ('BOOST_FILESYSTEM_VERSION', 2) ]
+	if sys.platform == "win32":
+		boost_options[ 'CPPDEFINES' ] += [ ('BOOST_FILESYSTEM_VERSION', 2) ]
+	else:
+		boost_options[ 'CPPDEFINES' ] += [ ('BOOST_FILESYSTEM_VERSION', 3) ]
 
 	if not configHelper.hasOption('have_asio'):
 		cenv = masterEnv.Clone()		
