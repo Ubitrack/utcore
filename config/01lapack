@@ -15,6 +15,7 @@ Import('standardLibFinder', 'standardLibConfig')
 lapack_options = {}
 have_lapack = False
 if have_boost:
+	lapack_libs = [ "" ]
 	if 'MKL_PATH' in opts :
 		if sys.platform != "win32":
 			print 'MKL library currently supported only under windows. MKL lapack functionality will not be provided in this build'
@@ -37,11 +38,13 @@ if have_boost:
 				default_lapack_libpath = getCurrentPath() +'/../3rd/lapack/win32'
 		elif sys.platform == 'darwin':
 			lapack_options[ 'FRAMEWORKS' ] = [ 'vecLib' ]
+		else:
+			lapack_libs = [ "lapack" ]
 
 	opts.Add( 'LAPACK_LIBS', 'Path to the lapack libraries', default_lapack_libpath )
 
 	libName = "LAPACK"
-	compileSettings =  [boost_options , "" , "C", "dgesvd_"]
+	compileSettings =  [boost_options , lapack_libs , "C", "dgesvd_"]
 	libFinder = standardLibFinder(libName,compileSettings)
 	configHelper = standardLibConfig(libName, libFinder)
 
