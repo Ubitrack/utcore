@@ -49,12 +49,14 @@
 #include <utMath/ErrorPose.h>
 #include <utMath/Scalar.h>
 #include <utMath/RotationVelocity.h>
+#include <utMath/CameraIntrinsics.h>
 
 namespace Ubitrack { namespace Measurement {
 
 // forward declaration of Measurement
 template< typename Type > class Measurement;
 
+//single measurements
 typedef Measurement< Math::Scalar< double > > Distance;
 typedef Measurement< Math::Vector< 2 >      > Position2D;
 typedef Measurement< Math::Vector< 3 >      > Position;
@@ -68,18 +70,20 @@ typedef Measurement< Math::Matrix< 4, 4 >   > Matrix4x4;
 typedef Measurement< Math::Scalar< int >    > Button;
 typedef Measurement< Math::Pose             > Pose;
 typedef Measurement< Math::ErrorPose        > ErrorPose;
-typedef Measurement< std::vector < Math::Scalar< unsigned long > > > IDList;
-typedef Measurement< std::vector < Math::Scalar< double > > > DistanceList;
-typedef Measurement< std::vector < Math::Vector< 3 > > > PositionList;
-typedef Measurement< std::vector < Math::Vector< 2 > > > PositionList2;
-typedef Measurement< std::vector < Math::Pose > > PoseList;
-typedef Measurement< std::vector < Math::ErrorPose > > ErrorPoseList;
-typedef Measurement< Math::RotationVelocity > RotationVelocity;
 typedef Measurement< Math::ErrorVector< 3 > > ErrorPosition;
-typedef Measurement< std::vector < Math::ErrorPose > > ErrorPoseList;
+typedef Measurement< Math::RotationVelocity > RotationVelocity;
+typedef Measurement< Math::CameraIntrinsics< double > > CameraIntrinsics;
 
+//multiple measurements
+typedef Measurement< std::vector < Math::Pose > > PoseList;
+typedef Measurement< std::vector < Math::Vector< 2 > > > PositionList2;
+typedef Measurement< std::vector < Math::Vector< 3 > > > PositionList;
+typedef Measurement< std::vector < Math::Scalar< double > > > DistanceList;
+typedef Measurement< std::vector < Math::Scalar< unsigned long > > > IDList;
+typedef Measurement< std::vector < Math::ErrorPose > > ErrorPoseList;
 typedef Measurement< std::vector < Math::ErrorVector< 2 > > > ErrorPositionList2;
 typedef Measurement< std::vector < Math::ErrorVector< 3 > > > ErrorPositionList;
+
 //typedef Measurement< Math::ErrorFeaturePosition< 3 > > ErrorFeaturePosition;
 //typedef Measurement< std::vector < Math::ErrorFeaturePosition< 3 , FeatureDescriptor> > > ErrorFeaturePositionList3D<class FeatureDescriptor> ;
 //typedef Measurement< std::vector < Math::ErrorFeaturePosition< 2 , class FeatureDescriptor> > > ErrorFeaturePositionList2D;
