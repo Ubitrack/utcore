@@ -28,6 +28,9 @@
  * @author Daniel Pustka <daniel.pustka@in.tum.de>
  */ 
 
+#ifndef __UBITRACK_UTIL_BLOCK_TIMER_H_INCLUDED__
+#define __UBITRACK_UTIL_BLOCK_TIMER_H_INCLUDED__
+ 
 #include <string>
 #include <iostream>
 #include <log4cpp/Category.hh>
@@ -189,3 +192,5 @@ protected:
 
  
  } } // namespace Ubitrack::Util
+ 
+ #endif //__UBITRACK_UTIL_BLOCK_TIMER_H_INCLUDED__
