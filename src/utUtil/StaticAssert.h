@@ -32,6 +32,8 @@
 #ifndef STATICASSERT_H
 #define STATICASSERT_H
 
+#include <cstddef>
+
 namespace Ubitrack { namespace Util {
 
 	/**
@@ -53,6 +55,13 @@ namespace Ubitrack { namespace Util {
 	template<> class CompileTimeCheck<false>
 	{
 	};
+	
+	/**
+	 * small template that takes the size of an object's memory
+	 * allocation as a template parameter. 
+	 * Useful to avoid ugly compile warnings.
+	 */
+	template< std::size_t x > struct static_sizeof{};
 
 } }
 
@@ -66,14 +75,12 @@ namespace Ubitrack { namespace Util {
  * code (at most one single variable assignment).
  */
 
-#define UBITRACK_STATIC_ASSERT(test, errormsg)                        \
-  do {                                                                \
-    struct ERROR_##errormsg {};                                       \
-    typedef typename Ubitrack::Util::CompileTimeCheck< (test) != 0 > tmplimpl; \
-    tmplimpl aTemp = tmplimpl(ERROR_##errormsg());                    \
-    int tmp;                                                          \
-    tmp = sizeof(aTemp);                                              \
-  } while (0)
+#define UBITRACK_STATIC_ASSERT(test, errormsg)							\
+	do {																\
+		struct ERROR_##errormsg {};										\
+		typedef typename Ubitrack::Util::CompileTimeCheck< (test) != 0 > tmplimpl;	\
+		tmplimpl temp = tmplimpl(ERROR_##errormsg());					\
+		typedef Ubitrack::Util::static_sizeof< sizeof( temp ) > assert_typedef_;	\
+	} while( 0 )
 
 #endif // STATICASSERT_H
-
