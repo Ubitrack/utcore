@@ -27,7 +27,7 @@ if sys.platform == 'win32':
 	env.Append( CCFLAGS = [ '/wd4290', '/wd4275' ] )
 	
 #use different name for release and debug build	
-libs = setupLibraryBuild(env, sources, 'log4cpp', 'utCore')
+libs = setupLibraryBuild(env, sources, 'log4cpp', 'core')
 
 log4cpp_options[ 'LIBS' ] = []
 log4cpp_options[ 'LIBPATH' ] = []

@@ -24,7 +24,7 @@ elif sys.platform.startswith( 'linux' ):
 	env.Append( CPPFLAGS = [ '-fPIC' ] )
 
 
-libs = setupStaticLibraryBuild(env, sources, 'tinyxml', 'utCore')
+libs = setupStaticLibraryBuild(env, sources, 'tinyxml', 'core')
 
 # clear all 3rd-party dependencies in the case of linking against ubitrack.dll
 tinyxml_options[ 'LIBS' ] = []
