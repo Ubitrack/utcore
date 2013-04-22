@@ -1,9 +1,0 @@
-#default values for some modules that might be missing
-
-have_utvision = False
-have_opencv = False
-have_utdataflow = False
-have_utfacade = False
-
-# export results
-Export( [ 'have_utvision', 'have_opencv', 'have_utdataflow', 'have_utfacade' ] )
