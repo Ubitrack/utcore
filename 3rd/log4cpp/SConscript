@@ -1,44 +1,64 @@
 import sys
-import os
+import os.path
 
 Import ( '*' )
 
-# specify files used by the library
+# HOW TO BUILD (A) LIBRAR-Y/IES FROM A MODULE
+# Building libraries from modules should be consistent for each module.
+# Use the following scheme for each new library created:
+#
+# a) Check for required libraries
+# b) Define the src-subdirectories for which the library should be compiled
+#    and glob all files in there
+# c) Define a [LIBRARY]_options variable for the library containing all dependencies
+#    from other libraries. Create a clone from the master environment and add those options.
+# d) Platform specific changes
+# e) Build the library!
+# f) Remove all entries for (at least) the LIBS and LIBPATH keys in the options and
+#    add only the newly-compiled library as a dependcy. This will avoid multiple includes
+#    of libraries. Also verify that the import/export-switch define is not set.
+# g) Export the options so that other libraries can base on this library. Optionally setup help and ide projects
+#
+# The use of options and possibility to export them makes hierarchical build environments
+# obsolete. Avoid exporting new environments to the build system.
+
+# a)
+# nothing to do this time
+
+# b)
 sources = globSourceFiles( os.path.join ('src', '*.cpp' ) )
 
-# export cc flags for usage with log4cpp
+# c)
 log4cpp_options = { 'CPPPATH' : [ os.path.join (getCurrentPath(), 'include' ) ], 'LIBS': [] }
 
+env = masterEnv.Clone()
+env.Append( CPPPATH = log4cpp_options[ 'CPPPATH' ] )	
+
+# d)
 if sys.platform == 'win32':
+	env.AppendUnique( CPPDEFINES = [ 'LOG4CPP_HAS_DLL', 'LOG4CPP_BUILD_DLL' ] )
 	log4cpp_options[ 'CPPDEFINES' ] = [ 'LOG4CPP_HAS_DLL' ]
+	
+	env.AppendUnique( LIBS = [ 'wsock32', 'advapi32' ] )
+	env.AppendUnique( CCFLAGS = [ '/wd4290', '/wd4275' ] )
 else:
+	env.AppendUnique( LIBS = [ log4cpp_options[ 'LIBS' ] + [ 'pthread' ] ] )
 	log4cpp_options[ 'LIBS' ] = log4cpp_options[ 'LIBS' ] + [ 'pthread' ]
 
-Export( [ 'log4cpp_options' ] )
 
-# import the global build environment
-env = masterEnv.Clone()
-env.Append( CPPPATH = log4cpp_options[ 'CPPPATH' ] )
-
-# build the library
-if sys.platform == 'win32':
-	env.Append( CPPDEFINES = log4cpp_options.get( 'CPPDEFINES', [] ) + [ 'LOG4CPP_BUILD_DLL' ] )
-	env.Append( LIBS = [ 'wsock32', 'advapi32' ] )
-	env.Append( CCFLAGS = [ '/wd4290', '/wd4275' ] )
-	
-#use different name for release and debug build	
+# e)
 libs = setupLibraryBuild(env, sources, 'log4cpp', 'core')
 
+# f)
 log4cpp_options[ 'LIBS' ] = []
 log4cpp_options[ 'LIBPATH' ] = []
 # add the ubitrack library to the link options.
 log4cpp_options[ 'LIBS' ] += libs
 log4cpp_options[ 'LIBPATH' ] += [ install_library_prefix ]
 
-success = libs
-have_log4cpp = success != 0
+have_log4cpp = libs != 0
 
+# g)
 Export( [ 'log4cpp_options', 'have_log4cpp' ] )
 
-
-Return('success')
+Return('have_log4cpp')
