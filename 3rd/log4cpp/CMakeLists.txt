@@ -1,23 +1,23 @@
-PROJECT (LOG4CPP)
+# ----------------------------------------------------------------------------
+#  CMake file for log4cpp. See root CMakeLists.txt
+#
+# ----------------------------------------------------------------------------
 
-# Set these variables so subdirectories ( added by ADD_SUBDIRECTORY ) can figure out where include files are.
-SET( LOG4CPP_INCLUDE_DIR "${LOG4CPP_SOURCE_DIR}/include" )
+project(${LOG4CPP_LIBRARY} CXX)
 
-# Make include files in paths like /usr/local/include have preference before
-# files in OSX frameworks. 
-SET(CMAKE_FIND_FRAMEWORK "LAST")
+include(CheckFunctionExists)
+include(CheckIncludeFile)
+include(CheckCSourceCompiles)
+include(CheckTypeSize)
 
-# make sure symbols are exported.
-SET( LOG4CPP_COMPILE_FLAGS "" )
-SET( LOG4CPP_LINK_FLAGS "" )
-SET( LOG4CPP_LINK_FLAGS_RELEASE "" )
-SET( LOG4CPP_LINK_FLAGS_DEBUG "" )
+ut_include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_BINARY_DIR}")
 
-
-# Version of UT API.
+# Version of LOG4CPP API.
 SET( LOG4CPP_MAJOR_VERSION 0 )
 SET( LOG4CPP_MINOR_VERSION 3 )
 SET( LOG4CPP_BUILD_VERSION 5 )
+
+SET(LOG4CPP_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
 # Version of project.
 SET( LOG4CPP_FULL_VERSION ${LOG4CPP_MAJOR_VERSION}.${LOG4CPP_MINOR_VERSION}.${LOG4CPP_BUILD_VERSION} ) 
@@ -32,37 +32,31 @@ FILE(GLOB LOG4CPP_HEADERS RELATIVE "${LOG4CPP_SOURCE_DIR}"
    "${LOG4CPP_SOURCE_DIR}/include/*.h"  "${LOG4CPP_SOURCE_DIR}/include/*/*.h"  
 )
 
-
 FIND_PACKAGE(PTHREAD REQUIRED)
 IF(PTHREAD_FOUND)
   INCLUDE_DIRECTORIES( ${PTHREAD_INCLUDE_DIR} ) 
   SET(requiredLibs ${requiredLibs} ${PTHREAD_LIBRARIES} )
 ENDIF(PTHREAD_FOUND)
 
-SET(LIB_NAME "log4cpp")
 
 # LOG4CPP shared library definition
-ADD_LIBRARY(${LIB_NAME} SHARED ${LOG4CPP_SRCS} ${LOG4CPP_HEADERS})
+ADD_LIBRARY(${LOG4CPP_LIBRARY} SHARED ${LOG4CPP_SRCS} ${LOG4CPP_HEADERS})
+set_target_properties(${LOG4CPP_LIBRARY} PROPERTIES DEFINE_SYMBOL LOG4CPP_DLL)
 
 # make the name of debug libraries end in _d.
-SET_TARGET_PROPERTIES( ${LIB_NAME} PROPERTIES DEBUG_POSTFIX "_d" )
+SET_TARGET_PROPERTIES( ${LOG4CPP_LIBRARY} PROPERTIES DEBUG_POSTFIX "_d" )
 
 # set the version of the library
-SET_TARGET_PROPERTIES( ${LIB_NAME} PROPERTIES VERSION ${LOG4CPP_FULL_VERSION} )
+SET_TARGET_PROPERTIES( ${LOG4CPP_LIBRARY} PROPERTIES VERSION ${LOG4CPP_FULL_VERSION} )
 
-IF(APPLE)
-  SET_TARGET_PROPERTIES (${LIB_NAME}
-                         PROPERTIES
-                         INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib")
-ENDIF(APPLE)
+if(UNIX)
+  if(CMAKE_COMPILER_IS_GNUCXX OR CV_ICC)
+     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+  endif()
+endif()
 
-# Set compile and linker flags for LOG4CPP.
-SET_TARGET_PROPERTIES( ${LIB_NAME}
-                       PROPERTIES  
-                       COMPILE_FLAGS "${LOG4CPP_COMPILE_FLAGS}"
-                       LINK_FLAGS "${LOG4CPP_LINK_FLAGS}"
-                       LINK_FLAGS_DEBUG "${LOG4CPP_LINK_FLAGS_DEBUG}"
-                       LINK_FLAGS_RELEASE "${LOG4CPP_LINK_FLAGS_RELEASE}"
-                       LINK_FLAGS_RELWITHDEBINFO "${LOG4CPP_LINK_FLAGS_RELEASE}"
-                       LINK_FLAGS_MINSIZEREL "${LOG4CPP_LINK_FLAGS_RELEASE}" )
-
+set_target_properties(${LOG4CPP_LIBRARY} PROPERTIES
+        OUTPUT_NAME ${LOG4CPP_LIBRARY}
+        DEBUG_POSTFIX "${UBITRACK_DEBUG_POSTFIX}"
+        ARCHIVE_OUTPUT_DIRECTORY ${3P_LIBRARY_OUTPUT_PATH}
+    )

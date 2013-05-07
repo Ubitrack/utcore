@@ -1,23 +1,23 @@
-PROJECT (TINYXML)
+# ----------------------------------------------------------------------------
+#  CMake file for tinyxml. See root CMakeLists.txt
+#
+# ----------------------------------------------------------------------------
 
-# Set these variables so subdirectories ( added by ADD_SUBDIRECTORY ) can figure out where include files are.
-SET( TINYXML_INCLUDE_DIR "${TINYXML_SOURCE_DIR}" )
+project(${TINYXML_LIBRARY} CXX)
 
-# Make include files in paths like /usr/local/include have preference before
-# files in OSX frameworks. 
-SET(CMAKE_FIND_FRAMEWORK "LAST")
+include(CheckFunctionExists)
+include(CheckIncludeFile)
+include(CheckCSourceCompiles)
+include(CheckTypeSize)
 
-# make sure symbols are exported.
-SET( TINYXML_COMPILE_FLAGS "" )
-SET( TINYXML_LINK_FLAGS "" )
-SET( TINYXML_LINK_FLAGS_RELEASE "" )
-SET( TINYXML_LINK_FLAGS_DEBUG "" )
+ut_include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_BINARY_DIR}")
 
-
-# Version of UT API.
+# Version of TINYXML API.
 SET( TINYXML_MAJOR_VERSION 2 )
 SET( TINYXML_MINOR_VERSION 5 )
 SET( TINYXML_BUILD_VERSION 3 )
+
+SET(TINYXML_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
 # Version of project.
 SET( TINYXML_FULL_VERSION ${TINYXML_MAJOR_VERSION}.${TINYXML_MINOR_VERSION}.${TINYXML_BUILD_VERSION} ) 
@@ -29,35 +29,33 @@ FILE(GLOB TINYXML_SRCS RELATIVE "${TINYXML_SOURCE_DIR}"
 
 # All header files for TINYXML
 FILE(GLOB TINYXML_HEADERS RELATIVE "${TINYXML_SOURCE_DIR}"
-   "${TINYXML_SOURCE_DIR}/*.h"
+   "${TINYXML_SOURCE_DIR}/*.h"  
 )
 
-SET(TINYXML_COMPILE_FLAGS "${TINYXML_COMPILE_FLAGS} -DTIXML_USE_STL -fPIC")
+FIND_PACKAGE(PTHREAD REQUIRED)
+IF(PTHREAD_FOUND)
+  SET(HAVE_PTHREAD 1)
+ENDIF(PTHREAD_FOUND)
 
-SET(LIB_NAME "tinyxml")
 
 # TINYXML shared library definition
-ADD_LIBRARY(${LIB_NAME} STATIC ${TINYXML_SRCS} ${TINYXML_HEADERS})
+ADD_LIBRARY(${TINYXML_LIBRARY} SHARED ${TINYXML_SRCS} ${TINYXML_HEADERS})
+set_target_properties(${TINYXML_LIBRARY} PROPERTIES DEFINE_SYMBOL TIXML_USE_STL)
 
 # make the name of debug libraries end in _d.
-SET_TARGET_PROPERTIES( ${LIB_NAME} PROPERTIES DEBUG_POSTFIX "_d" )
+SET_TARGET_PROPERTIES( ${TINYXML_LIBRARY} PROPERTIES DEBUG_POSTFIX "_d" )
 
 # set the version of the library
-SET_TARGET_PROPERTIES( ${LIB_NAME} PROPERTIES VERSION ${TINYXML_FULL_VERSION} )
+SET_TARGET_PROPERTIES( ${TINYXML_LIBRARY} PROPERTIES VERSION ${TINYXML_FULL_VERSION} )
 
-IF(APPLE)
-  SET_TARGET_PROPERTIES (${LIB_NAME}
-                         PROPERTIES
-                         INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib")
-ENDIF(APPLE)
+if(UNIX)
+  if(CMAKE_COMPILER_IS_GNUCXX OR CV_ICC)
+     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+  endif()
+endif()
 
-# Set compile and linker flags for TINYXML.
-SET_TARGET_PROPERTIES( ${LIB_NAME}
-                       PROPERTIES  
-                       COMPILE_FLAGS "${TINYXML_COMPILE_FLAGS}"
-                       LINK_FLAGS "${TINYXML_LINK_FLAGS}"
-                       LINK_FLAGS_DEBUG "${TINYXML_LINK_FLAGS_DEBUG}"
-                       LINK_FLAGS_RELEASE "${TINYXML_LINK_FLAGS_RELEASE}"
-                       LINK_FLAGS_RELWITHDEBINFO "${TINYXML_LINK_FLAGS_RELEASE}"
-                       LINK_FLAGS_MINSIZEREL "${TINYXML_LINK_FLAGS_RELEASE}" )
-
+set_target_properties(${TINYXML_LIBRARY} PROPERTIES
+        OUTPUT_NAME ${TINYXML_LIBRARY}
+        DEBUG_POSTFIX "${UBITRACK_DEBUG_POSTFIX}"
+        ARCHIVE_OUTPUT_DIRECTORY ${3P_LIBRARY_OUTPUT_PATH}
+    )
