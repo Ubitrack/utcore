@@ -1,43 +1,61 @@
 import sys
-import os
+import os.path
 
 Import ( '*' )
 
-# specify files used by the library
+# HOW TO BUILD (A) LIBRAR-Y/IES FROM A MODULE
+# Building libraries from modules should be consistent for each module.
+# Use the following scheme for each new library created:
+#
+# a) Check for required libraries
+# b) Define the src-subdirectories for which the library should be compiled
+#    and glob all files in there
+# c) Define a [LIBRARY]_options variable for the library containing all dependencies
+#    from other libraries. Create a clone from the master environment and add those options.
+# d) Platform specific changes
+# e) Build the library!
+# f) Remove all entries for (at least) the LIBS and LIBPATH keys in the options and
+#    add only the newly-compiled library as a dependcy. This will avoid multiple includes
+#    of libraries. Also verify that the import/export-switch define is not set.
+# g) Export the options so that other libraries can base on this library. Optionally setup help and ide projects
+#
+# The use of options and possibility to export them makes hierarchical build environments
+# obsolete. Avoid exporting new environments to the build system.
+
+# a)
+# nothing to do this time
+
+# b)
 headers = Split( "tinyxml.h" )
 sources = Split( "tinyxml.cpp tinyxmlerror.cpp tinyxmlparser.cpp" )
 
-env = masterEnv.Clone()
-
-# export cc flags for usage with tinyxml
+# c)
 tinyxml_options = { 'CPPDEFINES' : [ 'TIXML_USE_STL' ], 'CPPPATH' : [ getCurrentPath() ] }
 
-
-
+env = masterEnv.Clone()
 env.AppendUnique( **tinyxml_options )
 
-# build the library
+# d)
 if sys.platform == 'win32':	
-	env.Append( CPPDEFINES = [ '_LIB', '_CRT_SECURE_NO_DEPRECATE' ] )
-	env.Append( LINKFLAGS = [ '/NODEFAULTLIB' ] )
+	env.AppendUnique( CPPDEFINES = [ '_LIB', '_CRT_SECURE_NO_DEPRECATE' ] )
+	env.AppendUnique( LINKFLAGS = [ '/NODEFAULTLIB' ] )
 elif sys.platform.startswith( 'linux' ):
-	env.Append( CPPFLAGS = [ '-fPIC' ] )
+	env.AppendUnique( CPPFLAGS = [ '-fPIC' ] )
+	
 
+# e)	
+libs = setupStaticLibraryBuild(env, sources, 'tinyxml', 'core')
 
-libs = setupStaticLibraryBuild(env, sources, 'tinyxml', 'utCore')
-
-# clear all 3rd-party dependencies in the case of linking against ubitrack.dll
+# f)
 tinyxml_options[ 'LIBS' ] = []
 tinyxml_options[ 'LIBPATH' ] = []
 # add the ubitrack library to the link options.
 tinyxml_options[ 'LIBS' ] += libs
 tinyxml_options[ 'LIBPATH' ] += [ install_library_prefix ]
 
-success = libs
-have_tinyxml = success != 0
+have_tinyxml = libs != 0
 
+# g)
 Export( [ 'tinyxml_options', 'have_tinyxml' ] )
 
-
-
-Return('success')
+Return('have_tinyxml')

@@ -86,7 +86,7 @@ if sys.platform == 'win32':
 have_boost = configHelper.haveLib()
 boost_have_asio = False
 if have_boost:
-	boost_options[ 'CPPDEFINES' ] += [ ('BOOST_FILESYSTEM_VERSION', 2) ]
+	boost_options[ 'CPPDEFINES' ] += [ ('BOOST_FILESYSTEM_VERSION', 3) ]
 
 	if not configHelper.hasOption('have_asio'):
 		cenv = masterEnv.Clone()		

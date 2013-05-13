@@ -7,24 +7,33 @@ Import ( '*' )
 # Building libraries from modules should be consistent for each module.
 # Use the following scheme for each new library created:
 #
-# a) Define the src-subdirectories for which the library should be compiled
+# a) Check for required libraries
+# b) Define the src-subdirectories for which the library should be compiled
 #    and glob all files in there
-# b) Define a [LIBRARY]_options variable for the library containing all dependencies
+# c) Define a [LIBRARY]_options variable for the library containing all dependencies
 #    from other libraries. Create a clone from the master environment and add those options.
-# c) WINDOWS ONLY: Create a header file which implements dll interface functionality
+# d) WINDOWS ONLY: Create a header file which implements dll interface functionality
 #    dependent from a [LIBRARY]_DLL define. If the define is set, the dll should be exported,
 #    if not, the dll should be imported. Set the define in the preprocessor options for the environment.
-# d) Build the library!
-# e) Remove all entries for (at least) the LIBS and LIBPATH keys in the options and
+# e) Build the library!
+# f) Remove all entries for (at least) the LIBS and LIBPATH keys in the options and
 #    add only the newly-compiled library as a dependcy. This will avoid multiple includes
 #    of libraries. Also verify that the import/export-switch define is not set.
-# f) Export the options so that other libraries can base on this library.
+# g) Export the options so that other libraries can base on this library. Optionally setup help and ide projects
 #
 # The use of options and possibility to export them makes hierarchical build environments
 # obsolete. Avoid exporting new environments to the build system.
 
-
 # a)
+if not( have_boost and have_tinyxml and have_log4cpp):
+	print "Boost missing -- not building core libraries"
+	have_utcore = False
+	utcore_options = {}
+	utcore_all_options = {}
+	Export( 'utcore_options', 'have_utcore', 'utcore_all_options' )
+	Return ('have_utcore')
+	
+# b)
 subdirs = [  'utMath', 'utMeasurement', 'utCalibration', 'utTracking', 'utUtil' ]
 headers = globSourceFiles(  '*.h' )
 sources = globSourceFiles(  '*.cpp' )
@@ -33,15 +42,8 @@ for dir in subdirs:
 	sources += globSourceFiles( dir + '/*.cpp' )
 
 
-# b)	
-# Merge all options in one "ubitrack" option. Note that some options might be empty if its module is not available	
-if not( have_boost and have_tinyxml and have_log4cpp):
-	print "Boost missing -- not building core libraries"
-	have_utcore = False
-	utcore_options = {}
-	utcore_all_options = {}
-	Export( 'utcore_options', 'have_utcore', 'utcore_all_options' )
-	Return ('have_utcore')
+# c)	
+# Merge all options in one [LIBRARY]_option. Note that some options might be empty if its module is not available	
 utcore_options = mergeOptions( boost_options, tinyxml_options, log4cpp_options, lapack_options)
 
 # Set ubitrack root source path explicitly that allows sources to access header files relative with #include <..> statements
@@ -49,18 +51,16 @@ utcore_options ['CPPPATH'] += [ getCurrentPath() ]
 env = masterEnv.Clone()
 env.AppendUnique( **utcore_options )
 
-# c)
-if sys.platform == 'win32':
-	# On windows this statement will help the compiler to realize that it has to _export_ the library instead of importing it
+# d)
+if sys.platform == 'win32':	
 	env.Append( CPPDEFINES = 'UBITRACK_DLL' )
 
 
-# d)	
+# e)	
 libName = 'utCore'
 libs = setupLibraryBuild(env, sources, libName, 'core')
 
-# e)
-# clear all 3rd-party dependencies in the case of linking against ubitrack.dll
+# f)
 utcore_all_options = utcore_options.copy()
 utcore_options[ 'LIBS' ] = []
 utcore_options[ 'LIBPATH' ] = []
@@ -73,13 +73,12 @@ utcore_all_options[ 'LIBPATH' ] += [ install_library_prefix ]
 
 have_utcore = libs != 0
 
-# f)
+# g)
 Export( 'have_utcore', 'utcore_options', 'utcore_all_options' )
-generateHelp(utcore_options)
 
+generateHelp(utcore_options)
 createVisualStudioProject(env, sources, headers, libName)
 
 # return compile status
-success = libs
-Return ('success')
+Return ('have_utcore')
 
