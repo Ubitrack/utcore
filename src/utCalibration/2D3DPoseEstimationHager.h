@@ -44,7 +44,9 @@ namespace Ubitrack { namespace Calibration {
 
 /**
  * @ingroup tracking_algorithms
- * Hager's fast and globally convergent pose estimation.
+ * Hager's fast and globally convergent pose estimation @cite lu2000fast.
+ * 
+ *
  * Note: Also exists with \c double parameters.
  *
  * @param p the initial pose
