@@ -58,6 +58,10 @@ if(UNIX)
      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
   endif()
 endif()
+if(WIN32)
+  add_definitions("-DLOG4CPP_HAS_DLL")
+  add_definitions("-DLOG4CPP_BUILD_DLL")
+endif(WIN32)
 
 set_target_properties(${LOG4CPP_LIBRARY} PROPERTIES
         OUTPUT_NAME ${LOG4CPP_LIBRARY}

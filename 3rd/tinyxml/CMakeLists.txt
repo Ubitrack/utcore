@@ -53,6 +53,10 @@ if(UNIX)
      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
   endif()
 endif()
+if(WIN32)
+  add_definitions("-D_LIB")
+  add_definitions("_CRT_SECURE_NO_DEPRECATE")
+endif(WIN32)
 
 set_target_properties(${TINYXML_LIBRARY} PROPERTIES
         OUTPUT_NAME ${TINYXML_LIBRARY}
