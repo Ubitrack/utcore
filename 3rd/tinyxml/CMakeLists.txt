@@ -39,7 +39,7 @@ ENDIF(PTHREAD_FOUND)
 
 
 # TINYXML shared library definition
-ADD_LIBRARY(${TINYXML_LIBRARY} SHARED ${TINYXML_SRCS} ${TINYXML_HEADERS})
+ADD_LIBRARY(${TINYXML_LIBRARY} STATIC ${TINYXML_SRCS} ${TINYXML_HEADERS})
 set_target_properties(${TINYXML_LIBRARY} PROPERTIES DEFINE_SYMBOL TIXML_USE_STL)
 
 # make the name of debug libraries end in _d.
@@ -55,8 +55,9 @@ if(UNIX)
 endif()
 if(WIN32)
   add_definitions("-D_LIB")
-  add_definitions("_CRT_SECURE_NO_DEPRECATE")
+  add_definitions("-D_CRT_SECURE_NO_DEPRECATE")
 endif(WIN32)
+add_definitions("-DTIXML_USE_STL")
 
 set_target_properties(${TINYXML_LIBRARY} PROPERTIES
         OUTPUT_NAME ${TINYXML_LIBRARY}
