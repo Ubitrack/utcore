@@ -32,6 +32,10 @@
 #define __UBITRACK_H_INCLUDED__
 
 #ifdef _WIN32
+// fix for simplified build scripts (ulrich eck)
+#   ifdef UTCORE_DLL
+#       define UBITRACK_DLL
+#   endif
 #	ifdef UBITRACK_DLL
 #		define UBITRACK_EXPORT __declspec( dllexport )
 #	else
