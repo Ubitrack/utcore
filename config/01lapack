@@ -48,6 +48,12 @@ if have_boost:
 	lapack_options = configHelper.getLibraryOptions()
 	have_lapack = configHelper.haveLib()
 	
+	if platform == "android":
+		lapackdefines = configHelper.getOptionArray('CPPDEFINES')
+ 		if "BOOST_NUMERIC_BINDINGS_USE_CLAPACK" not in lapackdefines:
+			lapackdefines.append("BOOST_NUMERIC_BINDINGS_USE_CLAPACK")
+			configHelper.setOptionArray('CPPDEFINES',lapackdefines)
+			configHelper.saveConfigSettings()	
 
 # export results
 Export( [ 'lapack_options', 'have_lapack' ] )

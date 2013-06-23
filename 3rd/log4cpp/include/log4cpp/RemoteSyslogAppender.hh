@@ -130,7 +130,11 @@ namespace log4cpp {
 #else	
 		int		_socket;
 #endif
-        in_addr_t _ipAddr;
+#ifdef	ANDROID
+        int _ipAddr;
+#else
+ 	in_addr_t _ipAddr;
+#endif
         private:
         int _cludge;
     };

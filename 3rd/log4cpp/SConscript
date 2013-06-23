@@ -28,6 +28,11 @@ Import ( '*' )
 # b)
 sources = globSourceFiles( os.path.join ('src', '*.cpp' ) )
 
+if not platform == "android":
+	for src in [  os.path.join ('src', 'AndroidLogAppender.cpp') ]:
+		sources.remove( src );
+
+
 # c)
 log4cpp_options = { 'CPPPATH' : [ os.path.join (getCurrentPath(), 'include' ) ], 'LIBS': [] }
 
@@ -41,9 +46,9 @@ if sys.platform == 'win32':
 	
 	env.AppendUnique( LIBS = [ 'wsock32', 'advapi32' ] )
 	env.AppendUnique( CCFLAGS = [ '/wd4290', '/wd4275' ] )
-else:
-	env.AppendUnique( LIBS = [ log4cpp_options[ 'LIBS' ] + [ 'pthread' ] ] )
-	log4cpp_options[ 'LIBS' ] = log4cpp_options[ 'LIBS' ] + [ 'pthread' ]
+#else:
+#	env.AppendUnique( LIBS = [ log4cpp_options[ 'LIBS' ] + [ 'pthread' ] ] )
+#	log4cpp_options[ 'LIBS' ] = log4cpp_options[ 'LIBS' ] + [ 'pthread' ]
 
 
 # e)
@@ -55,7 +60,6 @@ log4cpp_options[ 'LIBPATH' ] = []
 # add the ubitrack library to the link options.
 log4cpp_options[ 'LIBS' ] += libs
 log4cpp_options[ 'LIBPATH' ] += [ install_library_prefix ]
-
 have_log4cpp = libs != 0
 
 # g)

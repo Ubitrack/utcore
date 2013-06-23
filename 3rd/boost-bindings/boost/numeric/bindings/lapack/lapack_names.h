@@ -18,9 +18,9 @@
 #define BOOST_NUMERIC_BINDINGS_LAPACK_LAPACK_NAMES_H
 
 #ifndef BOOST_NUMERIC_BINDINGS_USE_CLAPACK
-#  include <boost/numeric/bindings/traits/fortran.h>
+#include <boost/numeric/bindings/traits/fortran.h>
 #else
-#  define FORTRAN_ID( id ) id##_
+#define FORTRAN_ID( id ) id##_
 #endif 
 
 /* linear systems */
