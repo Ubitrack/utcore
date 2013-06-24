@@ -103,12 +103,12 @@
 
 
 
-#ifndef BOOST_NUMERIC_BINDINGS_USE_CLAPACK
-#include <boost/numeric/bindings/traits/fortran.h>
-#define FORTRAN_ID2( id ) FORTRAN_ID( id )
-#else
+//#ifndef BOOST_NUMERIC_BINDINGS_USE_CLAPACK
+//#include <boost/numeric/bindings/traits/fortran.h>
+//#define FORTRAN_ID2( id ) FORTRAN_ID( id )
+//#else
 #define FORTRAN_ID2( id ) f2c_##id
-#endif 
+//#endif 
 
 
 
