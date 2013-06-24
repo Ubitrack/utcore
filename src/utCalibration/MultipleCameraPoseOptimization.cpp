@@ -92,8 +92,8 @@ std::pair < Math::ErrorPose , double >
 
 			if ( points2dWeights[ cameraIndex ][ pointIndex ] != 0.0 )
 			{
-				OPT_LOG_TRACE( logger, "Observation: marker corner " << pointIndex << " -> camera " << cameraIndex << ", weight=" << points2dWeights[ cameraIndex ][ pointIndex ] << ", m=" << points2d[ cameraIndex ][ pointIndex ] );
-				OPT_LOG_TRACE( logger, "According 3D Point: "<< points3d.at ( pointIndex ) );
+				OPT_LOG_TRACE( "Observation: marker corner " << pointIndex << " -> camera " << cameraIndex << ", weight=" << points2dWeights[ cameraIndex ][ pointIndex ] << ", m=" << points2d[ cameraIndex ][ pointIndex ] );
+				OPT_LOG_TRACE( "According 3D Point: "<< points3d.at ( pointIndex ) );
 				observations.push_back( std::make_pair( pointIndex - startIndex, cameraIndex ) );			
 				p2dLocal.at(cameraIndex).push_back ( points2d.at(cameraIndex).at(pointIndex) );
 				p3dLocalFiltered.at(cameraIndex).push_back ( points3d.at(pointIndex) );
@@ -109,7 +109,7 @@ std::pair < Math::ErrorPose , double >
 		}
 	}
 
-	OPT_LOG_DEBUG( logger, observationCountTotal<<" observations found.");
+	OPT_LOG_DEBUG( observationCountTotal<<" observations found.");
 
 	std::vector < int >::iterator minElement = std::min_element ( observationCount.begin(), observationCount.end());
 	int minObs = *minElement;
@@ -122,10 +122,10 @@ std::pair < Math::ErrorPose , double >
 
 		// Compute initial pose
 		if (!hasInitialPoseProvided) {
-			OPT_LOG_DEBUG( logger, "Compute initial pose with "<<p2dLocal.at(maxObsIndex).size() << " observations for camera " << maxObsIndex );
+			OPT_LOG_DEBUG(  "Compute initial pose with "<<p2dLocal.at(maxObsIndex).size() << " observations for camera " << maxObsIndex );
 			initialPose = camPoses.at( maxObsIndex ) * Calibration::computePose( p2dLocal.at( maxObsIndex) , p3dLocalFiltered.at( maxObsIndex) ,
 				camMatrices.at( maxObsIndex ), PLANAR_HOMOGRAPHY ); // there are no scoped enums in C++98 (only in C++0x onwards)
-			OPT_LOG_DEBUG( logger, "Initial pose "<<initialPose );
+			OPT_LOG_DEBUG(  "Initial pose "<<initialPose );
 		}
 
 		// Now create the measurement vector from the local 2d points for LM optimization
@@ -134,7 +134,7 @@ std::pair < Math::ErrorPose , double >
 		for ( unsigned cameraIndex = 0; cameraIndex < numberCameras; cameraIndex++ ) {
 			for ( unsigned pointIndex = 0; pointIndex < p2dLocal.at(cameraIndex).size(); pointIndex++ ) {
 				ublas::subrange( measurements, 2 * iIndex, 2 * (iIndex+1) ) = p2dLocal.at( cameraIndex ).at( pointIndex );
-				LOG4CPP_TRACE( logger, "Index: "<<iIndex << " pointIndex: "<<pointIndex);
+				OPT_LOG_TRACE( "Index: "<<iIndex << " pointIndex: "<<pointIndex);
 				iIndex++;
 			}
 		}
@@ -144,15 +144,15 @@ std::pair < Math::ErrorPose , double >
 		std::vector< Math::Vector< 3 > > camTranslations( camPoses.size() );
 		for ( unsigned cameraIndex = 0; cameraIndex < numberCameras; cameraIndex++ )
 		{
-			OPT_LOG_DEBUG( logger, "Camera "<<cameraIndex<<" pose:"  << camPoses[ cameraIndex ] );
-			OPT_LOG_DEBUG( logger, "Camera "<<cameraIndex<<" matrix:"  << camMatrices[ cameraIndex ] );
+			OPT_LOG_DEBUG( "Camera "<<cameraIndex<<" pose:"  << camPoses[ cameraIndex ] );
+			OPT_LOG_DEBUG( "Camera "<<cameraIndex<<" matrix:"  << camMatrices[ cameraIndex ] );
 
 			camRotations[ cameraIndex ] = Math::Matrix< 3, 3 >( camPoses[ cameraIndex ].rotation() );
 			camTranslations[ cameraIndex ] = camPoses[ cameraIndex ].translation();
 		}
 
 		// starting optimization
-		OPT_LOG_DEBUG( logger, "Optimizing pose over " << numberCameras << " cameras using " << observationCountTotal << " observations" );
+		OPT_LOG_DEBUG( "Optimizing pose over " << numberCameras << " cameras using " << observationCountTotal << " observations" );
 
 		ObjectiveFunction< double > f( p3dLocal, camRotations, camTranslations, camMatrices, observations );
 		Math::Vector< 6 > param;
@@ -163,7 +163,7 @@ std::pair < Math::ErrorPose , double >
 
         // Create an error pose with convariance matrix that has the residual on its diagonal entries
 		Math::ErrorPose finalPose( Math::Quaternion::fromLogarithm( ublas::subrange( param, 3, 6 ) ), ublas::subrange( param, 0, 3 ), Math::Matrix< 6, 6 >::identity( ) * res );
-		OPT_LOG_DEBUG( logger, "Estimated pose: " << finalPose << ", residual: " << res );
+		OPT_LOG_DEBUG( "Estimated pose: " << finalPose << ", residual: " << res );
 
 		// Everthing went fine -  set weight to 1.0 and return pose
 		return std::make_pair < Math::ErrorPose, double > (finalPose, res);
