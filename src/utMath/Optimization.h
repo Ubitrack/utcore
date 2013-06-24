@@ -32,7 +32,7 @@
 #ifndef __UBITRACK_MATH_OPTIMIZATION_H_INCLUDED__
 #define __UBITRACK_MATH_OPTIMIZATION_H_INCLUDED__
 
-
+#include <math.h>
 
 // to turn on logging of internal processing, create a log4cpp::Category object called "optLogger"
 // and #define OPTIMIZATION_LOGGING before including this header 
