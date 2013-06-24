@@ -34,9 +34,9 @@
 
 // get a logger
 static log4cpp::Category& logger( log4cpp::Category::getInstance( "Ubitrack.Calibration.2D6DPoseEstimation" ) );
-static log4cpp::Category& optLogger( log4cpp::Category::getInstance( "Ubitrack.Calibration.2D6DPoseEstimation.LM" ) );
+//static log4cpp::Category& optLogger( log4cpp::Category::getInstance( "Ubitrack.Calibration.2D6DPoseEstimation.LM" ) );
 
-#define OPTIMIZATION_LOGGING
+//#define OPTIMIZATION_LOGGING
 #include <utMath/LevenbergMarquardt.h>
 #include <utCalibration/2D3DPoseEstimation.h>
 #include <utUtil/Exception.h>
@@ -92,8 +92,8 @@ std::pair < Math::ErrorPose , double >
 
 			if ( points2dWeights[ cameraIndex ][ pointIndex ] != 0.0 )
 			{
-				LOG4CPP_TRACE( logger, "Observation: marker corner " << pointIndex << " -> camera " << cameraIndex << ", weight=" << points2dWeights[ cameraIndex ][ pointIndex ] << ", m=" << points2d[ cameraIndex ][ pointIndex ] );
-				LOG4CPP_TRACE( logger, "According 3D Point: "<< points3d.at ( pointIndex ) );
+				OPT_LOG_TRACE( logger, "Observation: marker corner " << pointIndex << " -> camera " << cameraIndex << ", weight=" << points2dWeights[ cameraIndex ][ pointIndex ] << ", m=" << points2d[ cameraIndex ][ pointIndex ] );
+				OPT_LOG_TRACE( logger, "According 3D Point: "<< points3d.at ( pointIndex ) );
 				observations.push_back( std::make_pair( pointIndex - startIndex, cameraIndex ) );			
 				p2dLocal.at(cameraIndex).push_back ( points2d.at(cameraIndex).at(pointIndex) );
 				p3dLocalFiltered.at(cameraIndex).push_back ( points3d.at(pointIndex) );
@@ -109,7 +109,7 @@ std::pair < Math::ErrorPose , double >
 		}
 	}
 
-	LOG4CPP_DEBUG( logger, observationCountTotal<<" observations found.");
+	OPT_LOG_DEBUG( logger, observationCountTotal<<" observations found.");
 
 	std::vector < int >::iterator minElement = std::min_element ( observationCount.begin(), observationCount.end());
 	int minObs = *minElement;
@@ -122,10 +122,10 @@ std::pair < Math::ErrorPose , double >
 
 		// Compute initial pose
 		if (!hasInitialPoseProvided) {
-			LOG4CPP_DEBUG( logger, "Compute initial pose with "<<p2dLocal.at(maxObsIndex).size() << " observations for camera " << maxObsIndex );
+			OPT_LOG_DEBUG( logger, "Compute initial pose with "<<p2dLocal.at(maxObsIndex).size() << " observations for camera " << maxObsIndex );
 			initialPose = camPoses.at( maxObsIndex ) * Calibration::computePose( p2dLocal.at( maxObsIndex) , p3dLocalFiltered.at( maxObsIndex) ,
 				camMatrices.at( maxObsIndex ), PLANAR_HOMOGRAPHY ); // there are no scoped enums in C++98 (only in C++0x onwards)
-			LOG4CPP_DEBUG( logger, "Initial pose "<<initialPose );
+			OPT_LOG_DEBUG( logger, "Initial pose "<<initialPose );
 		}
 
 		// Now create the measurement vector from the local 2d points for LM optimization
@@ -144,15 +144,15 @@ std::pair < Math::ErrorPose , double >
 		std::vector< Math::Vector< 3 > > camTranslations( camPoses.size() );
 		for ( unsigned cameraIndex = 0; cameraIndex < numberCameras; cameraIndex++ )
 		{
-			LOG4CPP_DEBUG( logger, "Camera "<<cameraIndex<<" pose:"  << camPoses[ cameraIndex ] );
-			LOG4CPP_DEBUG( logger, "Camera "<<cameraIndex<<" matrix:"  << camMatrices[ cameraIndex ] );
+			OPT_LOG_DEBUG( logger, "Camera "<<cameraIndex<<" pose:"  << camPoses[ cameraIndex ] );
+			OPT_LOG_DEBUG( logger, "Camera "<<cameraIndex<<" matrix:"  << camMatrices[ cameraIndex ] );
 
 			camRotations[ cameraIndex ] = Math::Matrix< 3, 3 >( camPoses[ cameraIndex ].rotation() );
 			camTranslations[ cameraIndex ] = camPoses[ cameraIndex ].translation();
 		}
 
 		// starting optimization
-		LOG4CPP_DEBUG( logger, "Optimizing pose over " << numberCameras << " cameras using " << observationCountTotal << " observations" );
+		OPT_LOG_DEBUG( logger, "Optimizing pose over " << numberCameras << " cameras using " << observationCountTotal << " observations" );
 
 		ObjectiveFunction< double > f( p3dLocal, camRotations, camTranslations, camMatrices, observations );
 		Math::Vector< 6 > param;
@@ -163,7 +163,7 @@ std::pair < Math::ErrorPose , double >
 
         // Create an error pose with convariance matrix that has the residual on its diagonal entries
 		Math::ErrorPose finalPose( Math::Quaternion::fromLogarithm( ublas::subrange( param, 3, 6 ) ), ublas::subrange( param, 0, 3 ), Math::Matrix< 6, 6 >::identity( ) * res );
-		LOG4CPP_DEBUG( logger, "Estimated pose: " << finalPose << ", residual: " << res );
+		OPT_LOG_DEBUG( logger, "Estimated pose: " << finalPose << ", residual: " << res );
 
 		// Everthing went fine -  set weight to 1.0 and return pose
 		return std::make_pair < Math::ErrorPose, double > (finalPose, res);

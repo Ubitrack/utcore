@@ -38,8 +38,8 @@
 #include <log4cpp/Category.hh>
 static log4cpp::Category& logger( log4cpp::Category::getInstance( "Ubitrack.Calibration.BundleAdjustment" ) );
 
-#define OPTIMIZATION_LOGGING
-static log4cpp::Category& optLogger( log4cpp::Category::getInstance( "Ubitrack.Calibration.BundleAdjustment" ) );
+//#define OPTIMIZATION_LOGGING
+//static log4cpp::Category& optLogger( log4cpp::Category::getInstance( "Ubitrack.Calibration.BundleAdjustment" ) );
 
 #include <utMath/GaussNewton.h>
 #include <utMath/LevenbergMarquardt.h>
