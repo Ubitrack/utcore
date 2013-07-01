@@ -30,15 +30,16 @@ if have_boost:
 		# set default directory
 		default_lapack_libpath = None
 		# set default configuration options
-		if sys.platform == 'win32':
-			if platform == 'x64':
-				default_lapack_libpath = getCurrentPath() +'/../3rd/lapack/win64'
-			else:
-				default_lapack_libpath = getCurrentPath() +'/../3rd/lapack/win32'
-		elif sys.platform == 'darwin':
+		#if sys.platform == 'win32':
+		#	if platform == 'x64':
+		#		default_lapack_libpath = getCurrentPath() +'/../3rd/lapack/win64'
+		#	else:
+		#		default_lapack_libpath = getCurrentPath() +'/../3rd/lapack/win32'
+		#elif sys.platform == 'darwin':
+		if sys.platform == 'darwin':
 			lapack_options[ 'FRAMEWORKS' ] = [ 'vecLib' ]
 
-	opts.Add( 'LAPACK_LIBS', 'Path to the lapack libraries', default_lapack_libpath )
+	opts.Add( 'LAPACK_LIBPATH', 'Path to the lapack libraries', default_lapack_libpath )
 
 	libName = "LAPACK"
 	compileSettings =  [boost_options , "" , "C", "dgesvd_"]
@@ -48,6 +49,12 @@ if have_boost:
 	lapack_options = configHelper.getLibraryOptions()
 	have_lapack = configHelper.haveLib()
 	
+	if platform == "android":
+		lapackdefines = configHelper.getOptionArray('CPPDEFINES')
+ 		if "BOOST_NUMERIC_BINDINGS_USE_CLAPACK" not in lapackdefines:
+			lapackdefines.append("BOOST_NUMERIC_BINDINGS_USE_CLAPACK")
+			configHelper.setOptionArray('CPPDEFINES',lapackdefines)
+			configHelper.saveConfigSettings()	
 
 # export results
 Export( [ 'lapack_options', 'have_lapack' ] )

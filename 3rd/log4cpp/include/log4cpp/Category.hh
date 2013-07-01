@@ -838,6 +838,51 @@ namespace log4cpp {
 #define LOG4CPP_EMERG( logger, message ) LOG4CPP_LOG( logger, log4cpp::Priority::EMERG, message, __FILE__, __LINE__ )
 
 
+/**
+* Disable Logging partially by setting the minimum log level
+* LOG4CPP_MIN_LOGGING_INFO
+* LOG4CPP_MIN_LOGGING_WARN
+* LOG4CPP_MIN_LOGGING_ERROR
+* PaF
+*/
+
+#ifdef LOG4CPP_MIN_LOGGING_INFO
+
+#undef LOG4CPP_TRACE
+#define LOG4CPP_TRACE( logger, message ) {}
+
+#undef LOG4CPP_DEBUG
+#define LOG4CPP_DEBUG( logger, message ) {}
+#endif
+
+#ifdef LOG4CPP_MIN_LOGGING_WARN
+
+#undef LOG4CPP_TRACE
+#define LOG4CPP_TRACE( logger, message ) {}
+
+#undef LOG4CPP_DEBUG
+#define LOG4CPP_DEBUG( logger, message ) {}
+
+#undef LOG4CPP_INFO
+#define LOG4CPP_INFO( logger, message ) {}
+#endif
+
+#ifdef LOG4CPP_MIN_LOGGING_ERROR
+
+#undef LOG4CPP_TRACE
+#define LOG4CPP_TRACE( logger, message ) {}
+
+#undef LOG4CPP_DEBUG
+#define LOG4CPP_DEBUG( logger, message ) {}
+
+#undef LOG4CPP_INFO
+#define LOG4CPP_INFO( logger, message ) {}
+
+#undef LOG4CPP_WARN
+#define LOG4CPP_WARN( logger, message ) {}
+#endif
+
+
 #ifdef _MSC_VER
 #pragma warning( pop )
 #endif

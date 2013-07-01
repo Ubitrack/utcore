@@ -53,8 +53,8 @@
 #include <boost/numeric/bindings/lapack/gesvd.hpp>
 #endif
 
-#define OPTIMIZATION_LOGGING
-static log4cpp::Category& optLogger( log4cpp::Category::getInstance( "Ubitrack.Calibration.2D3DPoseEstimation" ) );
+//#define OPTIMIZATION_LOGGING
+//static log4cpp::Category& optLogger( log4cpp::Category::getInstance( "Ubitrack.Calibration.2D3DPoseEstimation" ) );
 #include <utMath/LevenbergMarquardt.h>
 
 
@@ -315,9 +315,9 @@ Math::ErrorPose computePose(
 		UBITRACK_THROW( "2D3D pose estimation configured to use at least 4 points" );
 	}
 	
-	LOG4CPP_DEBUG( optLogger, "Performing pose estimation using " << p2d.size() << " points" );
-	LOG4CPP_TRACE( optLogger, "2D points: " << p2d );
-	LOG4CPP_TRACE( optLogger, "3D points: " << p3d );
+	OPT_LOG_DEBUG( "Performing pose estimation using " << p2d.size() << " points" );
+	OPT_LOG_TRACE( "2D points: " << p2d );
+	OPT_LOG_TRACE( "3D points: " << p3d );
 
 	// invert camera matrix
 	Math::Matrix< 3, 3 > invK( Math::invert_matrix( cam ) );
@@ -331,17 +331,17 @@ Math::ErrorPose computePose(
 		// initialize from 3x4 projection matrix
 		Math::Matrix< 3, 4 > P( Calibration::projectionDLT( p3d, p2d ) );
 		Math::Matrix< 3, 4 > Rt( ublas::prod( invK, P ) );
-		LOG4CPP_TRACE( optLogger, "inital [R|t]: " << std::endl << Rt );
+		OPT_LOG_TRACE( "inital [R|t]: " << std::endl << Rt );
 
 		//TODO ### Just a check
 		Math::Matrix< 3, 3, float > kTest;
 		Math::Matrix< 3, 3, float > rTest;
 		Math::Vector< 3, float > tTest;
 		decomposeProjection( kTest, rTest, tTest, P ); 
-		LOG4CPP_TRACE( optLogger, "K (given): " << std::endl << cam );
-		LOG4CPP_TRACE( optLogger, "K from decomposition of P: " << std::endl << kTest );
-		LOG4CPP_TRACE( optLogger, "R from decomposition of P: " << std::endl << rTest );
-		LOG4CPP_TRACE( optLogger, "t from decomposition of P: " << std::endl << tTest );
+		OPT_LOG_TRACE( "K (given): " << std::endl << cam );
+		OPT_LOG_TRACE( "K from decomposition of P: " << std::endl << kTest );
+		OPT_LOG_TRACE( "R from decomposition of P: " << std::endl << rTest );
+		OPT_LOG_TRACE( "t from decomposition of P: " << std::endl << tTest );
 
 		// perform svd decomposition to get a pure rotation matrix
 		Math::Matrix< 3, 3 > u;
@@ -354,9 +354,9 @@ Math::ErrorPose computePose(
 			Rt *= -1;
 
 		boost::numeric::bindings::lapack::gesvd( 'A', 'A', R, s, u, vt );
-		LOG4CPP_TRACE( optLogger, "s: " << s );
-		LOG4CPP_TRACE( optLogger, "U: " << std::endl << u );
-		LOG4CPP_TRACE( optLogger, "V^T: " << std::endl << vt );
+		OPT_LOG_TRACE( "s: " << s );
+		OPT_LOG_TRACE( "U: " << std::endl << u );
+		OPT_LOG_TRACE( "V^T: " << std::endl << vt );
 
 		// Compute condition number to check the "orthonormality" of the obtained rotation matrix
 		if ( ( s( 0 ) / s( 2 ) ) < 2 )
@@ -367,11 +367,11 @@ Math::ErrorPose computePose(
 			pose = Math::Pose( Math::Quaternion( R ), t );
 			bInitialized = true;
 
-			LOG4CPP_TRACE( optLogger, "Pose from projection matrix: " << pose );
+			OPT_LOG_TRACE( "Pose from projection matrix: " << pose );
 		}
 		else 
 		{
-			LOG4CPP_DEBUG( optLogger, "3x4 DLT was unstable (planar target?)" );
+			OPT_LOG_DEBUG( "3x4 DLT was unstable (planar target?)" );
 		}
 	}
 
@@ -391,11 +391,11 @@ Math::ErrorPose computePose(
 				H =  Calibration::homographyDLT( p3dAs2d, std::vector< Math::Vector< 2 > >( p2d.begin(), p2d.begin() + 4 ) );
 			else
 				H =  Calibration::homographyDLT( p3dAs2d, p2d );
-			LOG4CPP_TRACE( optLogger, "Homography: " << H );
+			OPT_LOG_TRACE( "Homography: " << H );
 
 			// compute initial pose from homography
 			pose = Calibration::poseFromHomography( H, invK );
-			LOG4CPP_TRACE( optLogger, "Pose from homography: " << pose );
+			OPT_LOG_TRACE( "Pose from homography: " << pose );
 		}
 		else
 		{
@@ -410,9 +410,9 @@ Math::ErrorPose computePose(
 
 			// Check whether first three points are colinear
 			double colinearity = inner_prod( vX, vZ ) > 0.8;
-			LOG4CPP_TRACE( optLogger, "Checking colinearity constraint (should be lower than 0.8): " << colinearity );
+			OPT_LOG_TRACE( "Checking colinearity constraint (should be lower than 0.8): " << colinearity );
 			if ( colinearity ) {
-				LOG4CPP_TRACE( optLogger, "Points are colinear" );
+				OPT_LOG_TRACE( "Points are colinear" );
 				UBITRACK_THROW( "Pose estimation requires four coplanar points in general position but three of them are colinear" );
 			}
 
@@ -428,15 +428,15 @@ Math::ErrorPose computePose(
 			// compute a translation
 			Math::Vector< 3 > t( -ublas::prod( P, p3d[ 0 ] ) );
 
-			LOG4CPP_TRACE( optLogger, "Computed alignment, now checking coplanarity constraint..." );
+			OPT_LOG_TRACE( "Computed alignment, now checking coplanarity constraint..." );
 
 			std::vector< Math::Vector< 2 > > p3dAs2d;
 			for ( unsigned i = 0; i < 4; i++ )
 			{
 				Math::Vector< 3 > p3dtrans = ublas::prod( P, p3d[ i ] ) + t;
-				LOG4CPP_TRACE( optLogger, "z-value of point " << i << ": " << fabs( p3dtrans( 2 ) ) );
+				OPT_LOG_TRACE( "z-value of point " << i << ": " << fabs( p3dtrans( 2 ) ) );
 				if ( fabs( p3dtrans( 2 ) ) > 1e-2 ) {
-					LOG4CPP_TRACE( optLogger, "Points are NOT very coplanar" );
+					OPT_LOG_TRACE( "Points are NOT very coplanar" );
 					//TODO ### UBITRACK_THROW( "Pose estimation requires four coplanar points" );
 				}
 				p3dAs2d.push_back( Math::Vector< 2 >( p3dtrans( 0 ), p3dtrans( 1 ) ) );
@@ -453,10 +453,10 @@ Math::ErrorPose computePose(
 			// compute initial pose from homography
 			pose = Calibration::poseFromHomography( H, invK ) * Math::Pose( Math::Quaternion( P ), t );
 			
-			LOG4CPP_TRACE( optLogger, "Pose from homography (rotated): " << pose );
+			OPT_LOG_TRACE( "Pose from homography (rotated): " << pose );
 			Math::Matrix< 3, 3 > rotMat;
 			pose.rotation().toMatrix( rotMat );
-			LOG4CPP_TRACE( optLogger, "Rotation matrix (rotated): " << rotMat );
+			OPT_LOG_TRACE( "Rotation matrix (rotated): " << rotMat );
 		}
 	}
 	
@@ -465,12 +465,12 @@ Math::ErrorPose computePose(
 	if ( optimize )
 	{
 		residual = Calibration::optimizePose( pose, p2d, p3d, cam );
-		LOG4CPP_DEBUG( optLogger, "Refined pose: " << pose << ", residual of 2D image measurements: " << residual);
+		OPT_LOG_DEBUG( "Refined pose: " << pose << ", residual of 2D image measurements: " << residual);
 	}
 	else
 	{
 		residual = reprojectionError( p2d, p3d, pose, cam );
-		LOG4CPP_DEBUG( optLogger, "NOT refined pose: " << pose << ", residual of 2D image measurements: " << residual);	
+		OPT_LOG_DEBUG( "NOT refined pose: " << pose << ", residual of 2D image measurements: " << residual);	
 	}
 	
 	covMatrix = Calibration::singleCameraPoseError( pose, p3d, cam, residual );	

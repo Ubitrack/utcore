@@ -33,7 +33,14 @@
 #pragma warning( disable: 4290 )
 #endif
 
+#ifdef ANDROID
+#include <log4cpp/AndroidLogAppender.hh>
+#else 
 #include <log4cpp/OstreamAppender.hh>
+#endif
+
+
+
 #include <log4cpp/PatternLayout.hh>
 #include <log4cpp/Category.hh>
 #include <log4cpp/PropertyConfigurator.hh>
@@ -46,11 +53,25 @@
 #include "Logging.h"
 
 
+
 namespace Ubitrack { namespace Util {
 
 // Initializes the logger
 void initLogging( const char* sConfigFile )
 {
+	#ifdef ANDROID
+	log4cpp::Appender* app = new log4cpp::AndroidLogAppender( "stderr");
+	log4cpp::PatternLayout* layout = new log4cpp::PatternLayout();
+	layout->setConversionPattern( "%d{%H:%M:%S.%l} %6p %20f:%-3l %m   (%c)%n" );
+//	layout->setConversionPattern( "%R %p %c %x: %m%n" );
+	app->setLayout( layout );
+
+	log4cpp::Category::getRoot().setAdditivity( false );
+	log4cpp::Category::getRoot().addAppender( app );
+	log4cpp::Category::getRoot().setPriority( log4cpp::Priority::INFO ); // default: INFO
+	log4cpp::Category::getInstance( "Ubitrack.Events" ).setPriority( log4cpp::Priority::NOTICE ); // default: NOTICE
+
+	#else
 	// try to initialize logging from file
 	try
 	{ 
@@ -71,6 +92,7 @@ void initLogging( const char* sConfigFile )
 	log4cpp::Category::getRoot().addAppender( app );
 	log4cpp::Category::getRoot().setPriority( log4cpp::Priority::INFO ); // default: INFO
 	log4cpp::Category::getInstance( "Ubitrack.Events" ).setPriority( log4cpp::Priority::NOTICE ); // default: NOTICE
+	#endif
 }
 
 } } // namespace Ubitrack::Util
