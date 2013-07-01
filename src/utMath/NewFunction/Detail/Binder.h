@@ -119,13 +119,20 @@ private:
 	{
 		// assume evaluate() has already been called
 		// first, pass on to jacobian of parameter to left
+#ifdef __clang__
+		m_func.template i_multiplyJacobian< LHSize >( p, l, j, m_param.value( p ) );
+#else
 		m_func.i_multiplyJacobian< LHSize >( p, l, j, m_param.value( p ) );
-
+#endif
 		if ( CParam::wantsJacobian )
 		{
 			Detail::ResultMatrix< LHSize * CParam::staticSize, LHSize, CParam::staticSize > jResult( j.size1(), m_param.size() );
 			m_func.i_multiplyJacobian1( p, l, jResult, m_param.value( p ) );
+#ifdef __clang__
+			m_param.template i_multiplyJacobian< LHSize >( p, jResult, j );
+#else
 			m_param.i_multiplyJacobian< LHSize >( p, jResult, j );
+#endif
 		}
 	}
 	
@@ -135,13 +142,21 @@ private:
 	{
 		// assume evaluate() has already been called
 		// first, pass on to jacobian of parameter to left
+#ifdef __clang__
+		m_func.template i_multiplyJacobian< LHSize >( p, l, j, m_param.value( p ), p1 );
+#else
 		m_func.i_multiplyJacobian< LHSize >( p, l, j, m_param.value( p ), p1 );
+#endif 
 		
 		if ( CParam::wantsJacobian )
 		{
 			Detail::ResultMatrix< LHSize * CParam::staticSize, LHSize, CParam::staticSize > jResult( j.size1(), m_param.size() );
 			m_func.i_multiplyJacobian1( p, l, jResult, m_param.value( p ), p1 );
+#ifdef __clang__
+			m_param.template i_multiplyJacobian< LHSize >( p, jResult, j );
+#else
 			m_param.i_multiplyJacobian< LHSize >( p, jResult, j );
+#endif
 		}
 	}
 	
