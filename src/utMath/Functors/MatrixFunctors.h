@@ -88,6 +88,7 @@ public:
 		return val1-val2-val3+val4+val5-val6;
     }
 	
+#ifdef HAVE_LAPACK
 	/**
 	 * @ingroup math
 	 * Calculates the determinant of a nxn matrix.
@@ -100,6 +101,7 @@ public:
     {
 		return Math::determinant( matrix );
 	}
+#endif
 };
 
 
@@ -129,7 +131,7 @@ public:
 		const T determinant(A1_1*A2_2-A1_2*A2_1);
 		
 		T pInverse[ 4 ]; //(row-major)
-		pInverse[ 0 ] = A2_2/determinant;
+		pInverse[ 0 ] =  A2_2/determinant;
 		pInverse[ 1 ] = -A1_2/determinant;
 		pInverse[ 2 ] = -A2_1/determinant;
 		pInverse[ 3 ] =  A1_1/determinant;
@@ -173,7 +175,7 @@ public:
 		
 		return Math::Matrix< 3, 3, T >( pInverse );
     }
-	
+#ifdef HAVE_LAPACK
 	/**
 	 * @ingroup math
 	 * Calculates the inverse of a nxn matrix.
@@ -186,6 +188,7 @@ public:
     {
 		return Math::invert_matrix( matrix );
 	}
+#endif
 };
 
 } } } //Ubitrack::Math::Functors
