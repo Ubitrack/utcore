@@ -33,6 +33,9 @@
 #ifndef __CAMERA_INTRINSICS_H_INCLUDED__
 #define __CAMERA_INTRINSICS_H_INCLUDED__
 
+//std
+#include <ostream>
+
 //Boost
 #include <boost/serialization/access.hpp>
 
@@ -122,6 +125,19 @@ public:
 		, tangential_params( _tangential )
 		{
 		}
+		
+		
+	CameraIntrinsics& operator= ( const CameraIntrinsics< T >& rhs )
+	{
+		///@todo maybe use a swap function
+		this->dimension = rhs.dimension;
+		this->matrix = rhs.matrix;
+		this->matrix_inv = rhs.matrix_inv;
+		this->radial_size = rhs.radial_size;
+		this->radial_params = rhs.radial_params;
+		this->tangential_params = rhs.tangential_params;
+		return *this;
+	}
 
 protected:
 	friend class ::boost::serialization::access;
@@ -139,7 +155,7 @@ protected:
 		
 		ar & dimension( 0 );
 		ar & dimension( 1 );		
-		ar & radial_size );
+		ar & radial_size;
 		
 		for( std::size_t i = 0; i < radial_size; ++i )
 			ar & radial_params[ i ];
@@ -151,6 +167,21 @@ protected:
 		ar & tangential_params[ 1 ];
 	}
 };
+
+/** stream output operator */
+template< typename T >
+std::ostream& operator<<( std::ostream& s, const CameraIntrinsics< T >& intrCam )
+{
+	s << "Matrix:\n";
+	s << intrCam.matrix;
+	s << "Resolution: " << intrCam.dimension[ 0 ] << "x" << intrCam.dimension[ 1 ] << "\n";
+	s << "Distortion radial: ";
+	for( std::size_t i( 0 ); i<intrCam.radial_size-1; ++i )
+		s << intrCam.radial_params[ 0 ] << ", ";
+	s << intrCam.radial_params[ intrCam.radial_size-1 ] << "\n";
+	s << "Distortion tangential: " << intrCam.tangential_params[ 0 ] << ", " << intrCam.tangential_params[ 1 ] <<" \n";
+	return s;
+}
 
 } } // namespace Ubitrack::Math
 
