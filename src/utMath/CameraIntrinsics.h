@@ -33,6 +33,9 @@
 #ifndef __CAMERA_INTRINSICS_H_INCLUDED__
 #define __CAMERA_INTRINSICS_H_INCLUDED__
 
+//std
+#include <ostream>
+
 //Boost
 #include <boost/serialization/access.hpp>
 
@@ -72,26 +75,27 @@ public:
 	 * cameras' image calibration dimensions
 	 * due to normalisation this should be 1, 1
 	 */
-	const Ubitrack::Math::Vector< 2, std::size_t > dimension;
+	Ubitrack::Math::Vector< 2, std::size_t > dimension;
 	
 	/** cameras' 3x3-intrinsic matrix (normalized) */
-	const matrix_type matrix;
+	matrix_type matrix;
 	
 	/** inverse of cameras' 3x3-intrinsic matrix (normalized) */
-	const matrix_type matrix_inv;
+	matrix_type matrix_inv;
 	
 	/** signs how many distortion parameters are actually used */
-	const std::size_t radial_size;
+	std::size_t radial_size;
 	
 	/** radial distortion parameters */
-	const radial_type radial_params;
+	radial_type radial_params;
 	
 	/** tangential distortion parameters */
-	const tangential_type tangential_params;
+	tangential_type tangential_params;
 		
 	/** Standard Constructor */
 	CameraIntrinsics(  )
-		: dimension( Math::Vector< 2, std::size_t >( 1, 1 ) )
+		: m_inverter()
+		, dimension( Math::Vector< 2, std::size_t >( 1, 1 ) )
 		, matrix( matrix_type::identity() )
 		, matrix_inv( matrix_type::identity() )
 		, radial_size( 0 )
@@ -101,7 +105,8 @@ public:
 	
 	/** Constructor to use with old OpenCV values (2 radial distortion parameters) */	
 	CameraIntrinsics( const Math::Matrix< 3, 3, T > &intrinsicMatrix, const Math::Vector< 2, T > &_radial, const Math::Vector< 2, T > &_tangential )
-		: dimension( Math::Vector< 2, std::size_t >( 1, 1 ) )
+		: m_inverter()
+		, dimension( Math::Vector< 2, std::size_t >( 1, 1 ) )
 		, matrix( intrinsicMatrix )
 		, matrix_inv( m_inverter( intrinsicMatrix ) )
 		, radial_size( 2 )
@@ -114,7 +119,8 @@ public:
 	
 	/** Constructor to use with newer OpenCV values (6 radial distortion parameters) */	
 	CameraIntrinsics( const Math::Matrix< 3, 3, T > &intrinsicMatrix, const Math::Vector< 6, T > &_radial, const Math::Vector< 2, T > &_tangential )
-		: dimension( Math::Vector< 2, std::size_t >( 1, 1 ) )
+		: m_inverter()
+		, dimension( Math::Vector< 2, std::size_t >( 1, 1 ) )
 		, matrix( intrinsicMatrix )
 		, matrix_inv( m_inverter( intrinsicMatrix ) )
 		, radial_size( 6 )
@@ -122,6 +128,19 @@ public:
 		, tangential_params( _tangential )
 		{
 		}
+		
+		
+	CameraIntrinsics& operator= ( const CameraIntrinsics< T >& rhs )
+	{
+		///@todo maybe use a swap function
+		this->dimension = rhs.dimension;
+		this->matrix = rhs.matrix;
+		this->matrix_inv = rhs.matrix_inv;
+		this->radial_size = rhs.radial_size;
+		this->radial_params = rhs.radial_params;
+		this->tangential_params = rhs.tangential_params;
+		return *this;
+	}
 
 protected:
 	friend class ::boost::serialization::access;
@@ -132,22 +151,40 @@ protected:
 	{
 		//the casts are necessary to set const values...
 		for( std::size_t i = 0; i < 9; ++i )
-			ar & static_cast< T >( matrix( ( i / 3 ), ( i % 3 ) ) );
+			ar & matrix( ( i / 3 ), ( i % 3 ) );
 		
-		ar & static_cast< std::size_t > ( dimension( 0 ) );
-		ar & static_cast< std::size_t > ( dimension( 1 ) );		
-		ar & static_cast< std::size_t > ( radial_size );
+		// only necessary when loading:
+		matrix_inv = m_inverter( matrix );
+		
+		ar & dimension( 0 );
+		ar & dimension( 1 );		
+		ar & radial_size;
 		
 		for( std::size_t i = 0; i < radial_size; ++i )
-			ar & static_cast< T > ( radial_params[ i ] );
+			ar & radial_params[ i ];
 		
 		std::size_t tan_dim = 2;
-		ar & static_cast< std::size_t > ( tan_dim );
+		ar & tan_dim;
 		
-		ar & static_cast< T > ( tangential_params[ 0 ] );
-		ar & static_cast< T > ( tangential_params[ 1 ] );
+		ar & tangential_params[ 0 ];
+		ar & tangential_params[ 1 ];
 	}
 };
+
+/** stream output operator */
+template< typename T >
+std::ostream& operator<<( std::ostream& s, const CameraIntrinsics< T >& intrCam )
+{
+	s << "Matrix:\n";
+	s << intrCam.matrix;
+	s << "Resolution: " << intrCam.dimension[ 0 ] << "x" << intrCam.dimension[ 1 ] << "\n";
+	s << "Distortion radial: ";
+	for( std::size_t i( 0 ); i<intrCam.radial_size-1; ++i )
+		s << intrCam.radial_params[ 0 ] << ", ";
+	s << intrCam.radial_params[ intrCam.radial_size-1 ] << "\n";
+	s << "Distortion tangential: " << intrCam.tangential_params[ 0 ] << ", " << intrCam.tangential_params[ 1 ] <<" \n";
+	return s;
+}
 
 } } // namespace Ubitrack::Math
 
