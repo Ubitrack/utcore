@@ -94,7 +94,8 @@ public:
 		
 	/** Standard Constructor */
 	CameraIntrinsics(  )
-		: dimension( Math::Vector< 2, std::size_t >( 1, 1 ) )
+		: m_inverter()
+		, dimension( Math::Vector< 2, std::size_t >( 1, 1 ) )
 		, matrix( matrix_type::identity() )
 		, matrix_inv( matrix_type::identity() )
 		, radial_size( 0 )
@@ -104,7 +105,8 @@ public:
 	
 	/** Constructor to use with old OpenCV values (2 radial distortion parameters) */	
 	CameraIntrinsics( const Math::Matrix< 3, 3, T > &intrinsicMatrix, const Math::Vector< 2, T > &_radial, const Math::Vector< 2, T > &_tangential )
-		: dimension( Math::Vector< 2, std::size_t >( 1, 1 ) )
+		: m_inverter()
+		, dimension( Math::Vector< 2, std::size_t >( 1, 1 ) )
 		, matrix( intrinsicMatrix )
 		, matrix_inv( m_inverter( intrinsicMatrix ) )
 		, radial_size( 2 )
@@ -117,7 +119,8 @@ public:
 	
 	/** Constructor to use with newer OpenCV values (6 radial distortion parameters) */	
 	CameraIntrinsics( const Math::Matrix< 3, 3, T > &intrinsicMatrix, const Math::Vector< 6, T > &_radial, const Math::Vector< 2, T > &_tangential )
-		: dimension( Math::Vector< 2, std::size_t >( 1, 1 ) )
+		: m_inverter()
+		, dimension( Math::Vector< 2, std::size_t >( 1, 1 ) )
 		, matrix( intrinsicMatrix )
 		, matrix_inv( m_inverter( intrinsicMatrix ) )
 		, radial_size( 6 )
