@@ -1,0 +1,134 @@
+/*
+ * Ubitrack - Library for Ubiquitous Tracking
+ * Copyright 2006, Technische Universitaet Muenchen, and individual
+ * contributors as indicated by the @authors tag. See the
+ * copyright.txt in the distribution for a full listing of individual
+ * contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+
+/**
+ * @ingroup math
+ * @file
+ * Implements functors for generating randomly distributed vectors.
+ *
+ * The type of distribution can be either normal or uniform.
+ * Ideally this functor is combined with \c std::generate_n.
+ *
+ * @author Christian Waechter <christian.waechter@in.tum.de>
+ */
+
+#ifndef __UBITRACK_RANDOM_VECTOR_H_INCLUDED__
+#define __UBITRACK_RANDOM_VECTOR_H_INCLUDED__ 
+
+// std
+#include <iterator>
+#include <functional>
+
+// boost
+#include <boost/numeric/ublas/vector.hpp>
+
+// Ubitrack
+#include "Numbers.h"
+#include <utMath/Vector.h>
+
+
+namespace Ubitrack { namespace Math { namespace Random {
+
+
+ 
+template< std::size_t N, typename T >
+struct Vector
+{
+	/**
+	 * Functor that generates a vector of normally distributed random numbers.
+	 *
+	 * Depending on the constructor call you have two options to define the limits.
+	 * Either you specify the mean value and standard deviation once for all dimensions
+	 * or your specify the mean value and standard deviation for each dimension separately.
+	 */
+	struct Normal
+		: public std::unary_function< void, Math::Vector< N, T > >
+	{
+		protected:
+			const Math::Vector< N, T > m_mu;
+			const Math::Vector< N, T > m_sigma;
+			
+		public :
+			Normal( const T mu, const T sigma )
+				: std::unary_function< void, Math::Vector< N, T > >( )
+				, m_mu( boost::numeric::ublas::scalar_vector< T >( N, mu ) )
+				, m_sigma( boost::numeric::ublas::scalar_vector< T >( N, sigma ) )
+				{ };
+		
+			Normal( const Math::Vector< N, T >& mu, const Math::Vector< N, T >& sigma )
+				: std::unary_function< void, Math::Vector< N, T > >( )
+				, m_mu( mu )
+				, m_sigma( sigma )
+				{ };
+
+			const Math::Vector< N, T > operator()( void ) const
+			{
+				Math::Vector< N, T > vec; 
+				for( std::size_t n( 0 ); n < (N); ++n )
+					vec( n ) = distribute_normal< T >( m_mu( n ), m_sigma( n ) );
+				return Math::Vector< N, T >( vec );
+			}
+	};
+
+
+	/**
+	 * Functor that generates a vector of uniformly distributed random numbers.
+	 *
+	 * Depending on the constructor call you have two options to define the limits.
+	 * Either you specify the limits once for all dimensions or you specify the 
+	 * limits for each dimension separately.
+	 */
+
+	struct Uniform
+		: public std::unary_function< void, Math::Vector< N, T > >
+	{
+		protected:
+			const Math::Vector< N, T > m_min_range;
+			const Math::Vector< N, T > m_max_range;
+			
+		public :
+			Uniform( const T min_range , const T max_range )
+				: std::unary_function< void, Math::Vector< N, T > >( )
+				, m_min_range( boost::numeric::ublas::scalar_vector< T >( N, std::min( min_range, max_range ) ) )
+				, m_max_range( boost::numeric::ublas::scalar_vector< T >( N, std::max( min_range, max_range ) ) )
+				{ };
+				
+			Uniform( const Math::Vector< N, T > &min_range, const Math::Vector< N, T > &max_range )
+				: std::unary_function< void, Math::Vector< N, T > >( )
+				, m_min_range( min_range )
+				, m_max_range( max_range )
+				{ };
+
+			const Math::Vector< N, T > operator()( void ) const
+			{
+				Math::Vector< N, T > vec; 
+				for( std::size_t n( 0 ); n < N; ++n )
+					vec( n ) = distribute_uniform< T >( m_min_range( n ), m_max_range( n ) );
+				return vec;
+			}
+	};
+};
+
+}}} //Ubitrack::Math::Random
+
+#endif //__UBITRACK_RANDOM_VECTOR_H_INCLUDED__
