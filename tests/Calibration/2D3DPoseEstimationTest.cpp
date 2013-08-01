@@ -42,7 +42,7 @@ void TestOptimizePose( const std::size_t n_runs, const T epsilon )
 		
 		// random pose
 		Quaternion rot( randQuat( ) );
-		Vector< 3, T > trans ( randTranslation() );
+		Vector< 3, T > trans ( Random::distribute_uniform< T, 3 >( -100, 100 ) );
 		trans( 2 ) = Random::distribute_uniform< T >( 10, 100 );
 		
 		// some random 3d points

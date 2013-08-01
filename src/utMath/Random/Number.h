@@ -54,12 +54,12 @@ static boost::mt19937 RNG; // Random Number Generator
 #endif
 
 /** 
- * providing a one dimensional random number of a given normal distribution
+ * Function that produces a one dimensional random number of a given normal distribution
+ *
  * @param mu mean value of normal distribution
  * @param sigma standard deviation of normal distribution
  * @return the random number
  */
- 
 template< typename T >
 T distribute_normal( const T mu , const T sigma )
 {
@@ -74,11 +74,13 @@ T distribute_normal( const T mu , const T sigma )
 }
 
 /** 
- * providing a one dimensional random number of a given uniform distribution
- * this should return a number between min and max value
+ *
+ * Function that produces a one dimensional random number of a given uniform distribution
+ *
+ * @tparam T type of distribution ( e.g. \c double or \float )
  * @param min lower bound of uniform distribution
  * @param max upper bound of uniform distribution
- * @return the random number
+ * @return the random number between min and max
  */
 template< typename T >
 T distribute_uniform( const T min, const T max )

@@ -129,6 +129,36 @@ struct Vector
 	};
 };
 
+/** 
+ * Function that produces a N-dimensional random vector of a given normal distribution.
+ *
+ * @tparam T type of distribution ( e.g. \c double or \float )
+ * @tparam N dimension of the vector to be returned
+ * @param mu mean value of normal distribution
+ * @param sigma standard deviation of normal distribution
+ * @return the random vector from the normal distribution
+ */
+template< typename T, std::size_t N >
+Math::Vector< N, T > distribute_normal( const T mu , const T sigma )
+{
+	return Random::Vector< N, T >::Normal( mu, sigma )();
+}
+
+/** 
+ * Function that produces a N-dimensional random vector of a given uniform distribution.
+ *
+ * @tparam T type of distribution ( e.g. \c double or \float )
+ * @tparam N dimension of the vector to be returned
+ * @param min lower bound of uniform distribution
+ * @param max upper bound of uniform distribution
+ * @return the random vector with entries between min and max
+ */
+template< typename T, std::size_t N >
+Math::Vector< N, T > distribute_uniform( const T min, const T max )
+{
+	return Random::Vector< N, T >::Uniform( min, max )();
+}
+
 }}} //Ubitrack::Math::Random
 
 #endif //__UBITRACK_RANDOM_VECTOR_H_INCLUDED__
