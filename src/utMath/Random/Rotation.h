@@ -31,14 +31,14 @@
 
 #ifndef __H__RANDOM_ROTATIONS_H__
 #define __H__RANDOM_ROTATIONS_H__
+
 //std
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include <functional>
 
-//boost
-#include <boost/math/constants/constants.hpp> //PI
- 
 //Ubitrack
-#include "Numbers.h"
+#include "Number.h"
 #include <utMath/Quaternion.h>
 
 namespace Ubitrack { namespace Math { namespace Random {
@@ -50,7 +50,7 @@ namespace Ubitrack { namespace Math { namespace Random {
  * http://planning.cs.uiuc.edu/node198.html
  */
 
-template< typename T = double > 
+template< typename T > 
 struct Quaternion
 	: public std::unary_function< void, Math::Quaternion >
 {
@@ -68,8 +68,8 @@ struct Quaternion
 			
 			const T rootx = std::sqrt( x );
 			const T rootxinv = std::sqrt( 1 - x );
-			const T piz2 = 2 * boost::math::constants::pi< T >() * z;
-			const T piy2 = 2 * boost::math::constants::pi< T >() * y;
+			const T piz2 = 2 * z * M_PI;
+			const T piy2 = 2 * y * M_PI;
 			
 			return Math::Quaternion( rootxinv * std::sin( piy2 ), rootxinv * std::cos( piy2 ), rootx * std::sin( piz2 ), rootx * std::cos( piz2 ) );
 		}
