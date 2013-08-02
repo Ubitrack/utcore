@@ -33,33 +33,42 @@
 #define __H__RANDOM_ROTATIONS_H__
 
 //std
-#define _USE_MATH_DEFINES
-#include <math.h>
 #include <functional>
 
+#ifndef M_PI
+#define _USE_MATH_DEFINES
+#include <math.h>
+#endif
+
+
 //Ubitrack
-#include "Number.h"
+#include "Scalar.h"
 #include <utMath/Quaternion.h>
 
 namespace Ubitrack { namespace Math { namespace Random {
 
 /**
- * Function that generates a uniformly distributed quaternion.
- *
- * The functions implements the explanation regarding random unit quaternions from the following webside:
- * http://planning.cs.uiuc.edu/node198.html
+ * @ingroup math
+ * Functor to generate uniformly distributed random quaternions
+ * @todo add functionality to produce normally distributed random quaternions.
  */
-
 template< typename T > 
 struct Quaternion
 	: public std::unary_function< void, Math::Quaternion >
 {
 
 	public :
+		/** Standard Constructor */
 		Quaternion( )
 			: std::unary_function< void, Math::Quaternion >( )
 			{ };
 	
+		/**
+		 * Function that generates a uniformly distributed quaternion.
+		 *
+		 * The functions implements the explanation regarding random unit quaternions from the following webside:
+		 * http://planning.cs.uiuc.edu/node198.html
+		 */
 		const Math::Quaternion operator()( void ) const
 		{
 			const T x = distribute_uniform< T >( 0, 1 );

@@ -36,21 +36,23 @@
 #define __UBITRACK_RANDOM_VECTOR_H_INCLUDED__ 
 
 // std
-#include <iterator>
 #include <functional>
 
 // boost
 #include <boost/numeric/ublas/vector.hpp>
 
 // Ubitrack
-#include "Number.h"
+#include "Scalar.h"
 #include <utMath/Vector.h>
 
 
 namespace Ubitrack { namespace Math { namespace Random {
 
 
- 
+/**
+* @ingroup math
+* Functor to generate vectors of a random distribution
+*/
 template< std::size_t N, typename T >
 struct Vector
 {

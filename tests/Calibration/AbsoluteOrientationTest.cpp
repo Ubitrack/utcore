@@ -13,7 +13,7 @@
 #include <utMath/Matrix.h>
 #include <utMath/Functors/VectorFunctors.h>
 
-#include <utMath/Random/Number.h>
+#include <utMath/Random/Scalar.h>
 #include <utMath/Random/Vector.h>
 #include <utMath/Random/Rotation.h>
 
@@ -78,7 +78,7 @@ void testAbsoluteOrientationRandom( const std::size_t n_runs, const T epsilon )
 	
 	for ( std::size_t iRun = 0; iRun < n_runs; iRun++ )
 	{
-		const std::size_t n = Random::distribute_uniform< std::size_t >( 4, 30 );
+		const std::size_t n( Random::distribute_uniform< std::size_t >( 4, 30 ) );
 
 		std::vector< Vector< 3, T > > leftFrame;
 		leftFrame.reserve( n );

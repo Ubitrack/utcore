@@ -34,13 +34,15 @@
 #ifndef __H__RANDOM_NUMBERS_H__
 #define __H__RANDOM_NUMBERS_H__
 
+
 // boost random numbers available from version 1.31.xx on
 #if (BOOST_VERSION / 100000) > 0 && (BOOST_VERSION / 100 % 1000 ) > 30
 	#define RANDOM_BOOST
 	#include <boost/random/uniform_01.hpp>
+	#include <boost/random/uniform_int.hpp>
 	#include <boost/random/uniform_real.hpp>
-	#include <boost/random/variate_generator.hpp>
 	#include <boost/random/mersenne_twister.hpp>
+	#include <boost/random/variate_generator.hpp>
 	#include <boost/random/normal_distribution.hpp>
 #else
 ///@todo C++0x also offers random variables, add this as a possibility as well
@@ -50,15 +52,17 @@
 namespace Ubitrack { namespace Math { namespace Random {
 
 #ifdef RANDOM_BOOST
-static boost::mt19937 RNG; // Random Number Generator
+/// Random Number Generator used every call
+static boost::mt19937 RNG; 
 #endif
 
 /** 
  * Function that produces a one dimensional random number of a given normal distribution.
  *
+ * @tparam T type of distribution ( e.g. \c double or \c float )
  * @param mu mean value of normal distribution
  * @param sigma standard deviation of normal distribution
- * @return the random number from the normal distribution
+ * @return the random number drawn from the normal distribution
  */
 template< typename T >
 T distribute_normal( const T mu , const T sigma )
@@ -68,32 +72,66 @@ T distribute_normal( const T mu , const T sigma )
 	boost::variate_generator< boost::mt19937&, boost::normal_distribution< T > > Generator( RNG, normalDist );
 	return Generator();
 #else
-	/// @todo: change this, right now it's no good idea for normal distribution
-	return rand()
+	/// @todo: change this, right now it's no good idea for normal distribution if boost rng is not available
+	return rand();
 #endif
 }
 
+
 /** 
  *
- * Function that produces a one dimensional random number of a given uniform distribution.
+ * Function that produces a one dimensional random number of a given uniform distribution
  *
- * @tparam T type of distribution ( e.g. \c double or \float )
+ * @tparam T type of distribution ( e.g. \c double or \c float )
  * @param min lower bound of uniform distribution
  * @param max upper bound of uniform distribution
  * @return the random number between min and max
  */
 template< typename T >
-T distribute_uniform( const T min, const T max )
+inline T distribute_uniform( const T min, const T max )
 {
 #ifdef RANDOM_BOOST
-	boost::uniform_real< T > uniformDist( min, max ); // Uniform distribution
-	boost::variate_generator < boost::mt19937&, boost::uniform_real< T > > Generator( RNG, uniformDist );
+	boost::uniform_int< T > uniformDist( min, max ); // Uniform distribution
+	boost::variate_generator < boost::mt19937&, boost::uniform_int< T > > Generator( RNG, uniformDist );
 	return Generator();
 #else
-	/// @todo: change this, right now it's no good idea for uniform distribution
+	/// @todo: change this, /// @todo: change this, right now it's no good idea for uniform distribution if boost rng is not available
 	return rand()% max + min;
 #endif
 }
+
+
+///specialisation of the template function for \c float
+template< >
+inline float distribute_uniform< float >( const float min, const float max )
+{
+#ifdef RANDOM_BOOST
+	boost::uniform_real< float > uniformDist( min, max ); // Uniform distribution
+	boost::variate_generator < boost::mt19937&, boost::uniform_real< float > > Generator( RNG, uniformDist );
+	return Generator();
+
+#else
+	/// @todo: change this, right now it's no good idea for uniform distribution if boost rng is not available
+	return rand()% max + min;
+#endif
+}
+
+///specialisation of the template function for \c double
+template< >
+inline double distribute_uniform< double >( const double min, const double max )
+{
+#ifdef RANDOM_BOOST
+	boost::uniform_real< double > uniformDist( min, max ); // Uniform distribution
+	boost::variate_generator < boost::mt19937&, boost::uniform_real< double > > Generator( RNG, uniformDist );
+	return Generator();
+
+#else
+	/// @todo: change this, right now it's no good idea for uniform distribution if boost rng is not available
+	return rand()% max + min;
+#endif
+}
+
+
 
 }}} // namespace Ubitrack::Math::Random
 

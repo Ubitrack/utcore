@@ -10,7 +10,7 @@
 #include <utMath/Matrix.h>
 #include <utMath/Functors/VectorFunctors.h>
 
-#include <utMath/Random/Number.h>
+#include <utMath/Random/Scalar.h>
 #include <utMath/Random/Vector.h>
 #include <utMath/Random/Rotation.h>
 
