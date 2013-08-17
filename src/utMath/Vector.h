@@ -47,7 +47,6 @@
 
 #include <utUtil/StaticAssert.h>
 
-
 namespace Ubitrack { namespace Math {
 
 

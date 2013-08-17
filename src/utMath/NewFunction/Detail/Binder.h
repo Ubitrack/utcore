@@ -214,7 +214,7 @@ public:
 	{
 		assert( staticSize == 0 || j.size1() == staticSize );
 		i_evaluateParameters( p ); 
-		i_multiplyJacobian< staticSize >( p, ublas::identity_matrix< double >( size() ), j );
+		i_multiplyJacobian< staticSize >( p, boost::numeric::ublas::identity_matrix< double >( size() ), j );
 	}
 	
 	// top-level jacobian call
@@ -223,7 +223,7 @@ public:
 	{
 		assert( staticSize == 0 || j.size1() == staticSize );
 		i_evaluate( p, r ); 
-		i_multiplyJacobian< staticSize >( p, ublas::identity_matrix< double >( size() ), j );
+		i_multiplyJacobian< staticSize >( p, boost::numeric::ublas::identity_matrix< double >( size() ), j );
 	}
 	
 	

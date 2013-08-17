@@ -66,22 +66,22 @@ public:
 /** dynamically sized, heap-allocated vector for intermediate results */
 template<>
 class ResultVector< 0U >
-	: public ublas::vector< double >
+	: public boost::numeric::ublas::vector< double >
 {
 public:
 	ResultVector( std::size_t s )
-		: ublas::vector< double >( s )
+		: boost::numeric::ublas::vector< double >( s )
 	{}
 
 	template< class AE > 
 	ResultVector( const boost::numeric::ublas::vector_expression< AE >& e )
-		: ublas::vector< double >( e )
+		: boost::numeric::ublas::vector< double >( e )
 	{}
 	
 	template< class AE > 
-	ublas::vector< double >& operator=( const boost::numeric::ublas::vector_expression< AE >& e )
+	boost::numeric::ublas::vector< double >& operator=( const boost::numeric::ublas::vector_expression< AE >& e )
 	{
-		ublas::vector< double >::operator=( e );
+		boost::numeric::ublas::vector< double >::operator=( e );
 		return *this;
 	}
 };

@@ -61,17 +61,17 @@ public:
 /** dynamically sized, heap-allocated matrix for intermediate results */
 template< std::size_t Size1, std::size_t Size2 >
 class ResultMatrix< 0U, Size1, Size2 >
-	: public ublas::matrix< double >
+	: public boost::numeric::ublas::matrix< double >
 {
 public:
 	ResultMatrix( std::size_t s1, std::size_t s2 )
-		: ublas::matrix< double >( s1, s2 )
+		: boost::numeric::ublas::matrix< double >( s1, s2 )
 	{}
 	
 	template< class AE > 
-	ublas::matrix< double >& operator=( const boost::numeric::ublas::matrix_expression< AE >& e )
+	boost::numeric::ublas::matrix< double >& operator=( const boost::numeric::ublas::matrix_expression< AE >& e )
 	{
-		ublas::matrix< double >::operator=( e );
+		boost::numeric::ublas::matrix< double >::operator=( e );
 		return *this;
 	}
 };
