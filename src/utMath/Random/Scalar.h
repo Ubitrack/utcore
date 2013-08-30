@@ -96,7 +96,7 @@ inline T distribute_uniform( const T min, const T max )
 	return Generator();
 #else
 	/// @todo: change this, /// @todo: change this, right now it's no good idea for uniform distribution if boost rng is not available
-	return rand()% max + min;
+	return ( rand() / RAND_MAX ) * (max - min) + min;
 #endif
 }
 
@@ -112,7 +112,7 @@ inline float distribute_uniform< float >( const float min, const float max )
 
 #else
 	/// @todo: change this, right now it's no good idea for uniform distribution if boost rng is not available
-	return rand()% max + min;
+	return ( rand() / RAND_MAX ) * (max - min) + min;
 #endif
 }
 
@@ -127,7 +127,7 @@ inline double distribute_uniform< double >( const double min, const double max )
 
 #else
 	/// @todo: change this, right now it's no good idea for uniform distribution if boost rng is not available
-	return rand()% max + min;
+	return ( rand() / RAND_MAX ) * (max - min) + min;
 #endif
 }
 
