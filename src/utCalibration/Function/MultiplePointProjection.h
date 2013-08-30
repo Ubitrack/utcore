@@ -72,7 +72,7 @@ public:
 	/**
 	 * return the size of the result vector
 	 */
-	unsigned size() const
+	std::size_t size() const
 	{ return 2 * m_p3D.size(); }
 
 	/**
@@ -89,7 +89,7 @@ public:
 		Quaternion rotQ( Quaternion::fromVector( ublas::subrange( input, 3, 7 ) ) );
 		Matrix< 3, 3, VType > rot( rotQ );
 		
-		for ( unsigned i = 0; i < m_p3D.size(); i++ )
+		for ( std::size_t i ( 0 ); i < m_p3D.size(); ++i )
 		{
 			// rotate & project points
 			Vector< 3, VType > rotated( ublas::prod( rot, m_p3D[ i ] ) + ublas::subrange( input, 0, 3 ) );
