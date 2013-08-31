@@ -59,15 +59,15 @@ namespace Detail
 
 
 /** creates a parameter object to refer to a parameter that should be optimized */
-template< unsigned Size >
-Detail::ParameterWrapper< Detail::Parameter< Size > > parameter( unsigned nStart )
+template< std::size_t Size >
+Detail::ParameterWrapper< Detail::Parameter< Size > > parameter( std::size_t nStart )
 { return Detail::ParameterWrapper< Detail::Parameter< Size > >( Detail::Parameter< Size >( nStart ) ); }
 
 /** 
  * creates a parameter object to refer to a constant (non-optimized) parameter. 
  * The parameter value reference must stay constant during the lifetime of the object.
  */
-template< unsigned Size, class CVector >
+template< std::size_t Size, class CVector >
 Detail::ParameterWrapper< Detail::FixedParameterRef< Size, CVector > > fixedParameterRef( const CVector& v )
 { return Detail::ParameterWrapper< Detail::FixedParameterRef< Size, CVector > >( Detail::FixedParameterRef< Size, CVector >( v ) ); }
 
@@ -75,7 +75,7 @@ Detail::ParameterWrapper< Detail::FixedParameterRef< Size, CVector > > fixedPara
  * creates a parameter object to refer to a constant (non-optimized) parameter. 
  * The parameter value is copied to an internal vector.
  */
-template< unsigned Size, class CVector >
+template< std::size_t Size, class CVector >
 Detail::ParameterWrapper< Detail::FixedParameterCopy< Size > > fixedParameterCopy( const CVector& v )
 { return Detail::ParameterWrapper< Detail::FixedParameterCopy< Size > >( Detail::FixedParameterCopy< Size >( v ) ); }
 

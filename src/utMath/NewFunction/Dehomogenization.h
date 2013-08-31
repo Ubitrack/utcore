@@ -40,7 +40,7 @@ namespace Ubitrack { namespace Math { namespace Function {
  * Function that dehomogenizes a vector by dividing through the last element and then dropping it.
  * Given an N-vector it returns an (N-1)-Vector
  */
-template< unsigned N >
+template< std::size_t N >
 struct Dehomogenization
 	: public MultiVariateFunction< Dehomogenization< N >, N-1 >
 {
@@ -52,7 +52,7 @@ struct Dehomogenization
 	void evaluate( VT1& result, const VT2& input ) const
 	{
 		typename VT1::value_type f( 1 / input( N - 1 ) );
-		for ( unsigned i = 0; i < N - 1; i++ )
+		for ( std::size_t i( 0 ); i < N - 1; i++ )
 			result( i ) = input( i ) * f;
 	}
 	
@@ -61,9 +61,9 @@ struct Dehomogenization
 	{
 		typename LeftHand::value_type tz = 1 / input( N-1 );
 		typename LeftHand::value_type tz2 = tz * tz;
-		for ( unsigned r = 0; r < l.size1(); r++ )
+		for ( std::size_t r = 0; r < l.size1(); r++ )
 		{
-			for ( unsigned c = 0; c < N-1; c++ )
+			for ( std::size_t c = 0; c < (N-1); c++ )
 				j( r, c ) = tz * l( r, c );
 			j( r, N-1 ) = -boost::numeric::ublas::inner_prod( boost::numeric::ublas::row( l, r ), boost::numeric::ublas::subrange( input, 0, N-1 ) ) * tz2;
 			

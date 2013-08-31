@@ -39,7 +39,7 @@ namespace Ubitrack { namespace Math { namespace Function {
 /**
  * Function that adds two vectors.
  */
-template< unsigned N >
+template< std::size_t N >
 class Addition
 	: public MultiVariateFunction< Addition< N >, N >
 {
