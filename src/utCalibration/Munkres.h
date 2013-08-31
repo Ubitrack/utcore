@@ -500,7 +500,7 @@ std::vector< std::size_t > Munkres< T >::getColMatchList()
 			++row;
 		}
 		found = false;
-		row( 0 );
+		row = 0;
 	}
 
 	return list;
