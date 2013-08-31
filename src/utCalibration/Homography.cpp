@@ -44,8 +44,9 @@ namespace Ubitrack { namespace Calibration {
 template< typename T > Math::Matrix< 3, 3, T > homographyDLTImpl( const std::vector< Math::Vector< 2, T > >& fromPoints, 
 	const std::vector< Math::Vector< 2, T > >& toPoints )
 {
-	assert( fromPoints.size() == toPoints.size() );
-	assert( fromPoints.size() >= 4 );
+	const std::size_t n_points ( fromPoints.size() );
+	assert( n_points == toPoints.size() );
+	assert( n_points >= 4 );
 
 	// normalize input points
 	Math::Vector< 2, T > fromShift;
@@ -59,8 +60,8 @@ template< typename T > Math::Matrix< 3, 3, T > homographyDLTImpl( const std::vec
 	dltNormalizeVectors< 2, T >( toShift, toScale, toCorrect, true, toPoints );
 
 	// construct equation system
-	ublas::matrix< T, ublas::column_major > A( 2 * fromPoints.size(), 9 );
-	for ( unsigned i = 0; i < fromPoints.size(); i++ )
+	ublas::matrix< T, ublas::column_major > A( 2 * n_points, 9 );
+	for ( std::size_t i ( 0 ); i < n_points; ++i )
 	{
 		Math::Vector< 2, T > to = ublas::element_div( toPoints[ i ] - toShift, toScale );
 		Math::Vector< 2, T > from = ublas::element_div( fromPoints[ i ] - fromShift, fromScale );
@@ -82,10 +83,10 @@ template< typename T > Math::Matrix< 3, 3, T > homographyDLTImpl( const std::vec
 	}
 
 	// solve using SVD
-	unsigned nSingularValues = std::min( A.size1(), A.size2() );
+	const std::size_t nSingularValues ( std::min( A.size1(), A.size2() ) );
 	ublas::vector< T > s( nSingularValues );
 	Math::Matrix< 9, 9, T > Vt;
-	ublas::matrix< T, ublas::column_major > U( 2 * fromPoints.size(), 2 * fromPoints.size() );
+	ublas::matrix< T, ublas::column_major > U( 2 * n_points, 2 * n_points );
 	lapack::gesvd( 'N', 'A', A, s, U, Vt );
 
 	// copy result to 3x3 matrix
@@ -124,10 +125,10 @@ template< typename T > Math::Matrix< 3, 3, T > squareHomographyImpl( const std::
 	// subtract mean from points
 	Math::Vector< 2, T > c[ 4 ];
 	Math::Vector< 2, T > mean( ublas::zero_vector< T >( 2 ) );
-	for ( int i = 0; i < 4; i++ )
+	for ( std::size_t i ( 0 ); i < 4; ++i )
 		mean = mean + corners[ i ];
 	mean /= 4;
-	for ( int i = 0; i < 4; i++ )
+	for ( std::size_t i ( 0 ); i < 4; ++i )
 		c[ i ] = corners[ i ] - mean;
 
 	// build simplified matrix A
@@ -185,7 +186,7 @@ template< typename T > Math::Matrix< 3, 3, T > squareHomographyImpl( const std::
 	result( 2, 1 ) *= 2;
 
 	// multiply with shift to compensate mean subtraction
-	for ( int i = 0; i < 3; i++ )
+	for ( std::size_t i( 0 ); i < 3; ++i )
 	{
 		result( 0, i ) = result( 0, i ) + result( 2, i ) * mean[ 0 ];
 		result( 1, i ) = result( 1, i ) + result( 2, i ) * mean[ 1 ];
