@@ -126,14 +126,14 @@ Math::Vector< 3, typename std::iterator_traits< ForwardIterator2 >::value_type::
 	// since it is a value_type of a value_type :-(
 	typedef typename std::iterator_traits< ForwardIterator2 >::value_type::value_type Type;
 
-	//determening the size
-	unsigned n ( iEnd - iBegin );
+	//determining the size
+	const std::size_t n ( std::distance( iBegin, iEnd ) );
 	if( n < 2 )
 		UBITRACK_THROW( "3d point estimation requires at least 2 matrices and 2 image points." );
 
 	ublas::matrix< Type, ublas::column_major > A( n * 3, 4 );
 	
-	unsigned i( 0 );
+	std::size_t i( 0 );
 	for ( ForwardIterator1 it ( iBegin ); it != iEnd; ++i, ++it, ++iPoints )
 	{
 		// building Matrix to solve for null space
@@ -175,13 +175,13 @@ Math::Vector< 3, typename std::iterator_traits< ForwardIterator1 >::value_type::
 	// shortcut to double/float
 	typedef typename std::iterator_traits< ForwardIterator1 >::value_type::value_type Type;
 	
-	unsigned n ( iEnd - iBegin );
+	const std::size_t n ( std::distance( iBegin, iEnd ) );
 	Function::SinglePointMultiProjection< Type, ForwardIterator1 > func( iBegin, iEnd );
 	
 	// prepare the image measurement vector for the minimization
 	ublas::vector< Type > measurement( n * 2 );
 	ForwardIterator2 it( iPoints );
-	for ( unsigned i ( 0 ); i < n; ++i, ++it )
+	for ( std::size_t i ( 0 ); i < n; ++i, ++it )
 		ublas::subrange( measurement, i*2, (i*2)+2 ) = *it;
 
 	// prepare the input 3-vector to be optimized
@@ -238,15 +238,15 @@ std::vector< Math::Vector< 3, T > > reconstruct3DPointsImp( const std::vector< M
 																			const Math::Matrix< 3, 4, T > & P1, const Math::Matrix< 3, 4, T > & P2, const Math::Matrix< 3, 3, T > & fM )
 {
 	
-	unsigned int p1Size = p1.size();
-	unsigned int p2Size = p2.size();
+	const std::size_t p1Size = p1.size();
+	const std::size_t p2Size = p2.size();
 
 	//create match matrix
 	ublas::matrix< T > matrix( p1Size, p2Size );
 
-	for( unsigned int row=0; row < p1Size; row++ )
+	for( std::size_t row( 0 ); row < p1Size; ++row )
 	{
-		for( unsigned int col=0; col < p2Size; col++ )
+		for( std::size_t col( 0 ); col < p2Size; ++col )
 		{
 			matrix( row, col ) = pointToPointDist( p1.at( row ), p2.at( col ), fM );
 		}
@@ -258,7 +258,7 @@ std::vector< Math::Vector< 3, T > > reconstruct3DPointsImp( const std::vector< M
 
 	std::vector< Math::Vector< 3, T > > list;
 
-	for(unsigned int i=0; i < p1Size; i++ )
+	for( std::size_t i( 0 ); i < p1Size; ++i )
 	{
 		if( matchList.at( i ) < p2Size )
 		{
@@ -280,6 +280,7 @@ std::vector< Math::Vector< 3, double > > reconstruct3DPoints( const std::vector<
 {
 	return reconstruct3DPointsImp( p1, p2, P1, P2, fM );
 }
-#endif
+
+#endif // HAVE_LAPACK
 
 } } // namespace Ubitrack::Calibration
