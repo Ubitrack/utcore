@@ -44,7 +44,7 @@ public:
 		const std::vector< Math::Matrix< 3, 3 > >& cameraRotations, 
 		const std::vector< Math::Vector< 3 > >& cameraTranslations, 
 		const std::vector< Math::Matrix< 3, 3, VType > >& cameraIntrinsics, 
-		const std::vector< std::pair< unsigned, unsigned > > visibilities )
+		const std::vector< std::pair< std::size_t, std::size_t > > visibilities )
 		: m_p3D( p3D )
 		, m_camR( cameraRotations )
 		, m_camT( cameraTranslations )
@@ -55,7 +55,7 @@ public:
 	/**
 	 * return the size of the result vector
 	 */
-	unsigned size() const
+	std::size_t size() const
 	{ return 2 * m_vis.size(); }
 
 
@@ -69,8 +69,8 @@ public:
 	{
 		namespace NF = Math::Function;
 		namespace ublas = boost::numeric::ublas;
-		
-		for ( unsigned i = 0; i < m_vis.size(); i++ )
+		const std::size_t n_vis( m_vis.size() );
+		for ( std::size_t i( 0 ); i < n_vis; ++i )
 		{
 				ublas::vector_range< VT1 > subResult( result, ublas::range( i * 2, ( i + 1 ) * 2 ) );
 				ublas::matrix_range< MT > subJ( J, ublas::range( i * 2, ( i + 1 ) * 2 ), ublas::range( 0, 6 ) );
@@ -99,7 +99,7 @@ protected:
 	const std::vector< Math::Matrix< 3, 3 > >& m_camR;
 	const std::vector< Math::Vector< 3 > >& m_camT;
 	const std::vector< Math::Matrix< 3, 3, VType > >& m_camI;
-	const std::vector< std::pair< unsigned, unsigned > > m_vis;
+	const std::vector< std::pair< std::size_t, std::size_t > > m_vis;
 };
 
 
