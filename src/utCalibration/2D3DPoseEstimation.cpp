@@ -135,7 +135,7 @@ Math::Pose poseFromHomography( const Math::Matrix< 3, 3, double > H, const Math:
 /** \internal */	
 template< typename T > 
 T optimizePoseImpl( Pose& p, const std::vector< Vector< 2, T > >& p2D, const std::vector< Vector< 3, T > >& p3D, 
-	const Matrix< 3, 3, T >& cam, unsigned nIterations  )
+	const Matrix< 3, 3, T >& cam, const std::size_t nIterations  )
 {
 	// copy rot & trans to parameter vector
 	Vector< 7, T > params;
@@ -143,7 +143,7 @@ T optimizePoseImpl( Pose& p, const std::vector< Vector< 2, T > >& p2D, const std
 
 	// copy 2D points to measurement vector
 	ublas::vector< T >  measurements( 2 * p2D.size() );
-	for ( unsigned i = 0; i < p2D.size(); i++ )
+	for ( std::size_t i( 0 ); i < p2D.size(); i++ )
 		ublas::subrange( measurements, 2*i, (i+1)*2 ) = p2D[ i ];
 
 	// perform optimization
@@ -159,14 +159,14 @@ T optimizePoseImpl( Pose& p, const std::vector< Vector< 2, T > >& p2D, const std
 
 float optimizePose( Math::Pose& p, const std::vector< Math::Vector< 2, float > >& p2D, 
 	const std::vector< Math::Vector< 3, float > >& p3D, const Math::Matrix< 3, 3, float >& cam,
-	unsigned nIterations )
+	const std::size_t nIterations )
 {
 	return optimizePoseImpl( p, p2D, p3D, cam, nIterations );
 }
 
 double optimizePose( Math::Pose& p, const std::vector< Math::Vector< 2, double > >& p2D, 
 	const std::vector< Math::Vector< 3, double > >& p3D, const Math::Matrix< 3, 3, double >& cam,
-	unsigned nIterations )
+	const std::size_t nIterations )
 {
 	return optimizePoseImpl( p, p2D, p3D, cam, nIterations );
 }
@@ -208,7 +208,7 @@ template< typename T >
 Math::Matrix< 6, 6, T > multipleCameraPoseErrorImpl( const Math::Pose& p, 
 	const std::vector< Math::Vector< 3, T > >& p3D, 
 	const std::vector< Math::Matrix< 3, 4, T > >& cameras, 
-	const std::vector< std::pair< unsigned, unsigned > > observations, 
+	const std::vector< std::pair< std::size_t, std::size_t > > observations, 
 	T imageError )
 {
 	// copy rot & trans to parameter vector
@@ -227,7 +227,7 @@ Math::Matrix< 6, 6, T > multipleCameraPoseErrorImpl( const Math::Pose& p,
 Math::Matrix< 6, 6, float > multipleCameraPoseError( const Math::Pose& p, 
 	const std::vector< Math::Vector< 3, float > >& p3D, 
 	const std::vector< Math::Matrix< 3, 4, float > >& cameras, 
-	const std::vector< std::pair< unsigned, unsigned > > observations, 
+	const std::vector< std::pair< std::size_t, std::size_t > > observations, 
 	float imageError )
 {
 	return multipleCameraPoseErrorImpl( p, p3D, cameras, observations, imageError );
@@ -236,7 +236,7 @@ Math::Matrix< 6, 6, float > multipleCameraPoseError( const Math::Pose& p,
 Math::Matrix< 6, 6, double > multipleCameraPoseError( const Math::Pose& p, 
 	const std::vector< Math::Vector< 3, double > >& p3D, 
 	const std::vector< Math::Matrix< 3, 4, double > >& cameras, 
-	const std::vector< std::pair< unsigned, unsigned > > observations, 
+	const std::vector< std::pair< std::size_t, std::size_t > > observations, 
 	double imageError )
 {
 	return multipleCameraPoseErrorImpl( p, p3D, cameras, observations, imageError );
@@ -272,7 +272,8 @@ double reprojectionError(
 	
 	// 2D = P * 3D Point
 	// Reproject 3D-points to 2D points.
-	for( unsigned int i = 0; i < p3d.size(); i++) 
+	const std::size_t n_points( p3d.size() );
+	for( std::size_t i( 0 ); i < n_points; i++) 
 	{	
 		Math::Vector< 4 , double> hom( (p3d.at(i))[0], (p3d.at(i))[1], (p3d.at(i))[2], 1.0 );
 		Math::Vector< 3 , double> tmp;
@@ -311,11 +312,12 @@ Math::ErrorPose computePose(
 		enum InitializationMethod initMethod
 	)
 {
-	if ( p2d.size() < 4 ) {
+	const std::size_t n_points( p2d.size() );
+	if ( n_points < 4 ) {
 		UBITRACK_THROW( "2D3D pose estimation configured to use at least 4 points" );
 	}
 	
-	OPT_LOG_DEBUG( "Performing pose estimation using " << p2d.size() << " points" );
+	OPT_LOG_DEBUG( "Performing pose estimation using " << n_points << " points" );
 	OPT_LOG_TRACE( "2D points: " << p2d );
 	OPT_LOG_TRACE( "3D points: " << p3d );
 
@@ -326,7 +328,7 @@ Math::ErrorPose computePose(
 
 	bool bInitialized = false;
 	
-	if ( initMethod == NONPLANAR_PROJECTION && p2d.size() >= 6 )
+	if ( initMethod == NONPLANAR_PROJECTION && n_points >= 6 )
 	{
 		// initialize from 3x4 projection matrix
 		Math::Matrix< 3, 4 > P( Calibration::projectionDLT( p3d, p2d ) );
@@ -334,9 +336,9 @@ Math::ErrorPose computePose(
 		OPT_LOG_TRACE( "inital [R|t]: " << std::endl << Rt );
 
 		//TODO ### Just a check
-		Math::Matrix< 3, 3, float > kTest;
-		Math::Matrix< 3, 3, float > rTest;
-		Math::Vector< 3, float > tTest;
+		Math::Matrix< 3, 3, double > kTest;
+		Math::Matrix< 3, 3, double > rTest;
+		Math::Vector< 3, double > tTest;
 		decomposeProjection( kTest, rTest, tTest, P ); 
 		OPT_LOG_TRACE( "K (given): " << std::endl << cam );
 		OPT_LOG_TRACE( "K from decomposition of P: " << std::endl << kTest );
@@ -381,12 +383,12 @@ Math::ErrorPose computePose(
 		{
 			// markers already have z=0
 			std::vector< Math::Vector< 2 > > p3dAs2d;
-			for ( unsigned i = 0; i < 4; i++ )
+			for ( std::size_t i( 0 ); i < 4; i++ )
 				p3dAs2d.push_back( Math::Vector< 2 >( p3d[ i ]( 0 ), p3d[ i ]( 1 ) ) );
 
 			// compute homography
 			Math::Matrix< 3, 3 > H;
-			if ( p2d.size() > 4 )
+			if ( n_points > 4 )
 				// copy first four elements to new vector
 				H =  Calibration::homographyDLT( p3dAs2d, std::vector< Math::Vector< 2 > >( p2d.begin(), p2d.begin() + 4 ) );
 			else
@@ -431,7 +433,7 @@ Math::ErrorPose computePose(
 			OPT_LOG_TRACE( "Computed alignment, now checking coplanarity constraint..." );
 
 			std::vector< Math::Vector< 2 > > p3dAs2d;
-			for ( unsigned i = 0; i < 4; i++ )
+			for ( std::size_t i( 0 ); i < 4; i++ )
 			{
 				Math::Vector< 3 > p3dtrans = ublas::prod( P, p3d[ i ] ) + t;
 				OPT_LOG_TRACE( "z-value of point " << i << ": " << fabs( p3dtrans( 2 ) ) );
@@ -444,7 +446,7 @@ Math::ErrorPose computePose(
 
 			// compute homography
 			Math::Matrix< 3, 3 > H;
-			if ( p2d.size() > 4 )
+			if ( n_points > 4 )
 				// copy first four elements to new vector
 				H =  Calibration::homographyDLT( p3dAs2d, std::vector< Math::Vector< 2 > >( p2d.begin(), p2d.begin() + 4 ) );
 			else
@@ -474,7 +476,7 @@ Math::ErrorPose computePose(
 	}
 	
 	covMatrix = Calibration::singleCameraPoseError( pose, p3d, cam, residual );	
-	residual = sqrt( residual / ( p2d.size() * 2) );
+	residual = sqrt( residual / ( n_points * 2) );
 	
 	return Math::ErrorPose( pose, covMatrix );
 }

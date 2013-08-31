@@ -54,7 +54,7 @@ public:
 	/**
 	 * return the size of the result vector
 	 */
-	unsigned size() const
+	std::size_t size() const
 	{ return 3; }
 
 	/**

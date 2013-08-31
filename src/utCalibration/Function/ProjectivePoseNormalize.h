@@ -46,7 +46,7 @@ struct ProjectivePoseNormalize
 	/**
 	 * return the size of the result vector
 	 */
-	unsigned size() const
+	std::size_t size() const
 	{ return 7; }
 
 	template< class VT1, class VT2 > 
