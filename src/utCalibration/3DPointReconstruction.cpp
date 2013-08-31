@@ -197,7 +197,7 @@ Math::Vector< 3, typename std::iterator_traits< ForwardIterator1 >::value_type::
 	
 }
 
-Math::Vector< 3, float > get3DPosition( const std::vector< Math::Matrix< 3, 4, float > > &P, const std::vector< Math::Vector< 2, float > > &points, unsigned flag)
+Math::Vector< 3, float > get3DPosition( const std::vector< Math::Matrix< 3, 4, float > > &P, const std::vector< Math::Vector< 2, float > > &points, std::size_t flag)
 {
 	if( P.size() != points.size() )
 		UBITRACK_THROW( "no equal amount of camera projections and corresponding points." );
@@ -207,7 +207,7 @@ Math::Vector< 3, float > get3DPosition( const std::vector< Math::Matrix< 3, 4, f
 	return result;
 }
 
-Math::Vector< 3, double > get3DPosition( const std::vector< Math::Matrix< 3, 4, double > > &P, const std::vector< Math::Vector< 2, double > >& points, unsigned flag)
+Math::Vector< 3, double > get3DPosition( const std::vector< Math::Matrix< 3, 4, double > > &P, const std::vector< Math::Vector< 2, double > >& points, std::size_t flag)
 {
 	if( P.size() != points.size() )
 		UBITRACK_THROW( "no equal amount of camera projections and corresponding points." );
@@ -254,7 +254,7 @@ std::vector< Math::Vector< 3, T > > reconstruct3DPointsImp( const std::vector< M
 
 	Munkres< T > m( matrix );
 	m.solve();
-	std::vector< unsigned int > matchList = m.getRowMatchList();
+	std::vector< std::size_t > matchList = m.getRowMatchList();
 
 	std::vector< Math::Vector< 3, T > > list;
 

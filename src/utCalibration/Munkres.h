@@ -131,16 +131,16 @@ Munkres< T >::Munkres()
 template< typename T >
 Munkres< T >::Munkres(ublas::matrix< T > & matrix)
 {	
-	saverow( 0 ); 
-	savecol( 0 );
+	saverow = 0; 
+	savecol = 0;
 	setMatrix( matrix );
 }
 
 template< typename T >
 bool Munkres< T >::find_uncovered_in_matrix(T item, std::size_t & row, std::size_t & col) {
-	for ( row( 0 ) ; row < m_max ; ++row )
+	for ( std::size_t row( 0 ) ; row < m_max ; ++row )
 		if ( !row_mask[row] )
-			for ( col( 0 ) ; col < m_max ; ++col )
+			for ( std::size_t col( 0 ) ; col < m_max ; ++col )
 				if ( !col_mask[col] )
 					if ( m_matrix( row, col ) == item )
 						return true;
@@ -166,13 +166,13 @@ int Munkres< T >::step1()
 			if ( m_matrix( row, col ) == 0 ) 
 			{
 				bool isstarred = false;
-				for ( std::size_t nrow( 0 ) ; nrow < m_max ; n++row )
+				for ( std::size_t nrow( 0 ) ; nrow < m_max ; ++nrow )
 					if ( mask_matrix( nrow, col ) == Z_STAR )
 						isstarred = true;
 
 				if ( !isstarred ) 
 				{
-					for ( std::size_t ncol( 0 ) ; ncol < m_max ; n++col )
+					for ( std::size_t ncol( 0 ) ; ncol < m_max ; ++ncol )
 						if ( mask_matrix( row, ncol ) == Z_STAR )
 							isstarred = true;
 				}
@@ -217,7 +217,7 @@ int Munkres< T >::step3()
 		mask_matrix( saverow, savecol ) = Z_PRIME; // prime it.
 	else return 5;
 
-	for ( std::size_t ncol( 0 ) ; ncol < m_max ; n++col )
+	for ( std::size_t ncol( 0 ) ; ncol < m_max ; ++ncol )
 		if ( mask_matrix( saverow, ncol ) == Z_STAR )
 		{
 			row_mask[saverow] = true; //cover this row and
@@ -233,7 +233,7 @@ int Munkres< T >::step4()
 {
 	std::list<std::pair<int,int> > seq;
 	// use saverow, savecol from step 3.
-	std::pair<int,int> z0(saverow, savecol);
+	std::pair<int,int> z0( static_cast< int >( saverow ), static_cast< int >( savecol ) );
 	std::pair<int,int> z1(-1,-1);
 	std::pair<int,int> z2n(-1,-1);
 	seq.insert(seq.end(), z0);
@@ -253,10 +253,10 @@ int Munkres< T >::step4()
 	bool madepair;
 	do {
 		madepair = false;
-		for ( row( 0 ) ; row < m_max ; ++row )
+		for ( row = 0; row < m_max ; ++row )
 			if ( mask_matrix(row,col) == Z_STAR ) {
-				z1.first = row;
-				z1.second = col;
+				z1.first = static_cast< int >( row );
+				z1.second = static_cast< int >( col );
 				if ( pair_in_list(z1, seq) )
 					continue;
 				
@@ -270,10 +270,10 @@ int Munkres< T >::step4()
 
 		madepair = false;
 
-		for ( col( 0 ) ; col < m_max ; ++col )
+		for ( col = 0; col < m_max ; ++col )
 			if ( mask_matrix(row,col) == Z_PRIME ) {
-				z2n.first = row;
-				z2n.second = col;
+				z2n.first = static_cast< int >( row );
+				z2n.second = static_cast< int >( col );
 				if ( pair_in_list(z2n, seq) )
 					continue;
 				madepair = true;
@@ -475,7 +475,7 @@ std::vector< std::size_t > Munkres< T >::getRowMatchList()
 			++col;
 		}
 		found = false;
-		col( 0 );
+		col = 0;
 	}
 
 	return list;
