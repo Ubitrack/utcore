@@ -123,9 +123,10 @@ private:
 /** internal */
 template< typename T >
 Munkres< T >::Munkres()
+	: saverow( 0 )
+	, savecol( 0 )
 {
-	saverow( 0 ); 
-	savecol( 0 );
+	
 }
 
 template< typename T >
