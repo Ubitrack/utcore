@@ -68,8 +68,8 @@ OnlineRotHec::OnlineRotHec()
 void OnlineRotHec::addMeasurement( const Math::Quaternion& q, const Math::Quaternion& r )
 {
 	// make sure the signs of both w's are equal
-	double nq = q.w() < 0 ? -1 : 1;
-	double nr = r.w() < 0 ? -1 : 1;
+	const double nq = q.w() < 0 ? -1 : 1;
+	const double nr = r.w() < 0 ? -1 : 1;
 	
 	Math::ErrorVector< 3 > kalmanMeasurement;
 	kalmanMeasurement.value( 0 ) = r.x() * nr - q.x() * nq;
@@ -87,9 +87,9 @@ void OnlineRotHec::addMeasurement( const Math::Quaternion& q, const Math::Quater
 
 Math::Quaternion OnlineRotHec::computeResult() const
 {
-	double n = ublas::norm_2( m_state.value );
-	double s = 1.0 / sqrt( 1.0 + n * n );
-	double c = sqrt( 1.0 - ( n * s ) * ( n * s ) );
+	const double n = ublas::norm_2( m_state.value );
+	const double s = 1.0 / std::sqrt( 1.0 + n * n );
+	const double c = std::sqrt( 1.0 - ( n * s ) * ( n * s ) );
 	return Math::Quaternion( m_state.value( 0 ) * s, m_state.value( 1 ) * s, m_state.value( 2 ) * s, c );
 }
 

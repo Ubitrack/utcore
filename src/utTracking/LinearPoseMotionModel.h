@@ -57,7 +57,7 @@ public:
 	}
 	
 	/** returns the required size of the state vector */
-	int stateSize() const
+	std::size_t stateSize() const
 	{ return m_processNoise.size(); }
 	
 	/** returns the number of position derivatives */
