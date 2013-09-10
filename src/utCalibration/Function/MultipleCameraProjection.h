@@ -63,7 +63,7 @@ public:
 		const std::vector< Math::Pose >& cameraPoses, 
 		const std::vector< Math::Matrix< 3, 3, VType > >& cameraIntrinsics, 
 		const std::vector< Math::Vector< 4, VType > >& cameraDistortions, 
-		const std::vector< std::pair< unsigned, unsigned > > visibilities )
+		const std::vector< std::pair< std::size_t, std::size_t > > visibilities )
 		: m_p3D( p3D )
 		, m_camP( cameraPoses )
 		, m_camI( cameraIntrinsics )
@@ -74,7 +74,7 @@ public:
 	/**
 	 * return the size of the result vector
 	 */
-	unsigned size() const
+	std::size_t size() const
 	{ return 2 * m_vis.size(); }
 
 	/**
@@ -98,7 +98,7 @@ public:
 		Math::Vector< 2, VType > distorted;
 		Math::Vector< 2, VType > projected;
 		
-		for ( unsigned i = 0; i < m_vis.size(); i++ )
+		for ( std::size_t i( 0 ); i < m_vis.size(); i++ )
 		{
 			// shortcuts
 			const Math::Vector< 3, VType >& p3D( m_p3D[ m_vis[ i ].first ] );
@@ -208,7 +208,7 @@ protected:
 	const std::vector< Math::Pose >& m_camP;
 	const std::vector< Math::Matrix< 3, 3, VType > >& m_camI;
 	const std::vector< Math::Vector< 4, VType > >& m_camD;
-	const std::vector< std::pair< unsigned, unsigned > > m_vis;
+	const std::vector< std::pair< std::size_t, std::size_t > > m_vis;
 };
 
 } } } // namespace Ubitrack::Calibration::Function

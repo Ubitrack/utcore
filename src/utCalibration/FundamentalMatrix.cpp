@@ -54,11 +54,11 @@ void normalize(Math::Vector< 2, T >& shift, T& scale,
 	shift = Math::Vector< 2, T >( 0.0, 0.0 );
 	T meandist = 0.0;
 		
-	for( unsigned int i=0; i < pts.size(); i++ )
+	for( std::size_t i=0; i < pts.size(); i++ )
 		shift += pts.at( i );
 	shift = shift / pts.size();
 	
-	for( unsigned int i=0; i < pts.size(); i++ )
+	for( std::size_t i=0; i < pts.size(); i++ )
 	{
 		Math::Vector< 2, T > v = pts.at(i) - shift;
 		meandist += sqrt( v(0) * v(0) + v(1) * v(1) );
@@ -80,7 +80,7 @@ void normalize(Math::Vector< 2, T >& shift, T& scale,
 
 template< typename T >
 Math::Matrix< 3, 3, T > getFundamentalMatrixImp( const std::vector< Math::Vector< 2, T > > & fromPoints, 
-	const std::vector< Math::Vector< 2, T > > & toPoints, unsigned int stepSize )
+	const std::vector< Math::Vector< 2, T > > & toPoints, std::size_t stepSize )
 {
 	static log4cpp::Category& logger(log4cpp::Category::getInstance( "Ubitrack.Calibration.FundamentalMatrix" ));
 	
@@ -117,7 +117,7 @@ Math::Matrix< 3, 3, T > getFundamentalMatrixImp( const std::vector< Math::Vector
 	//Linear Solution
 	ublas::matrix< T, ublas::column_major > A( fromPoints.size() / stepSize, 9 );
 
-	for( unsigned int i=0; i < ( fromPoints.size() / stepSize ); i++ )
+	for( std::size_t i=0; i < ( fromPoints.size() / stepSize ); i++ )
 	{
 		T x = ( fromPoints.at( i * stepSize )( 0 ) - fromShift( 0 ) ) * fromScale;
 		T x_ = ( toPoints.at( i * stepSize )( 0 ) - toShift( 0 ) ) * toScale;
@@ -136,7 +136,7 @@ Math::Matrix< 3, 3, T > getFundamentalMatrixImp( const std::vector< Math::Vector
 	}
 
 	// solve using SVD
-	unsigned nSingularValues = std::min( A.size1(), A.size2() );
+	std::size_t nSingularValues = std::min( A.size1(), A.size2() );
 	ublas::vector< T > s1( nSingularValues );
 	Math::Matrix< 9, 9, T > Vt;
 	ublas::matrix< T, ublas::column_major > U( fromPoints.size() / stepSize, fromPoints.size() / stepSize );
@@ -167,7 +167,7 @@ Math::Matrix< 3, 3, T > getFundamentalMatrixImp( const std::vector< Math::Vector
 	}
 
 	s2( 2 ) = 0;
-	for ( unsigned i = 0; i < 3; i++ )
+	for ( std::size_t i = 0; i < 3; i++ )
 		ublas::column( U2, i ) *= s2( i );
 	
 	F = ublas::prod( U2, Vt2 );
@@ -176,13 +176,13 @@ Math::Matrix< 3, 3, T > getFundamentalMatrixImp( const std::vector< Math::Vector
 }
 
 Math::Matrix< 3, 3, float > getFundamentalMatrix( const std::vector< Math::Vector< 2, float > >& fromPoints, 
-	const std::vector< Math::Vector< 2, float > >& toPoints, unsigned int stepSize )
+	const std::vector< Math::Vector< 2, float > >& toPoints, std::size_t stepSize )
 { 
 	return getFundamentalMatrixImp( fromPoints, toPoints, stepSize );
 }
 
 Math::Matrix< 3, 3, double > getFundamentalMatrix( const std::vector< Math::Vector< 2, double > >& fromPoints, 
-	const std::vector< Math::Vector< 2, double > >& toPoints, unsigned int stepSize )
+	const std::vector< Math::Vector< 2, double > >& toPoints, std::size_t stepSize )
 {
 	return getFundamentalMatrixImp( fromPoints, toPoints, stepSize );
 }

@@ -65,11 +65,11 @@ std::pair < Math::ErrorPose , double >
 		endIndex = static_cast<int>( points3d.size() ) - 1 ;
 
 	namespace ublas = boost::numeric::ublas;
-	size_t numberCameras = points2dWeights.size();
+	const std::size_t numberCameras ( points2dWeights.size() );
 
 
 	// observation vector list which is used by the objective function
-	std::vector< std::pair< unsigned, unsigned > > observations;
+	std::vector< std::pair< std::size_t, std::size_t > > observations;
 
 	// local 3dpoints for all cameras
 	std::vector< Math::Vector<3> > p3dLocal;
@@ -81,14 +81,14 @@ std::pair < Math::ErrorPose , double >
 	std::vector< std::vector < Math::Vector<2> > > p2dLocal ( numberCameras );
 
 	// observationCountTotal will count the number of total observations (=corners with weight != 0) in all cameras
-	int observationCountTotal = 0;
+	std::size_t observationCountTotal( 0 );
 	// observations will count the number of observations (=corners with weight != 0) in each cameras
-	std::vector < int > observationCount ( numberCameras );
+	std::vector < std::size_t > observationCount ( numberCameras );
 	std::fill (observationCount.begin(), observationCount.end(), 0);
 
 
-	for ( size_t cameraIndex = 0; cameraIndex < numberCameras; cameraIndex++ ) {
-		for ( int pointIndex = startIndex; pointIndex <= endIndex; pointIndex++ ) {
+	for ( std::size_t cameraIndex = 0; cameraIndex < numberCameras; cameraIndex++ ) {
+		for ( std::size_t pointIndex = startIndex; pointIndex <= endIndex; pointIndex++ ) {
 
 			if ( points2dWeights[ cameraIndex ][ pointIndex ] != 0.0 )
 			{
@@ -111,10 +111,10 @@ std::pair < Math::ErrorPose , double >
 
 	OPT_LOG_DEBUG( observationCountTotal<<" observations found.");
 
-	std::vector < int >::iterator minElement = std::min_element ( observationCount.begin(), observationCount.end());
-	int minObs = *minElement;
-	int maxObsIndex = (std::max_element (observationCount.begin(), observationCount.end())) - observationCount.begin();
-	int maxObs = observationCount.at ( maxObsIndex );
+	std::vector < std::size_t >::iterator minElement = std::min_element ( observationCount.begin(), observationCount.end());
+	std::size_t minObs = *minElement;
+	std::size_t maxObsIndex = (std::max_element (observationCount.begin(), observationCount.end())) - observationCount.begin();
+	std::size_t maxObs = observationCount.at ( maxObsIndex );
 
 	if (minObs >= minCorrespondences && (hasInitialPoseProvided || maxObs >= 4)) {
 		// For the initial pose use camera with most observations
@@ -130,9 +130,9 @@ std::pair < Math::ErrorPose , double >
 
 		// Now create the measurement vector from the local 2d points for LM optimization
 		ublas::vector< double > measurements( 2 * observationCountTotal );
-		int iIndex = 0;
-		for ( unsigned cameraIndex = 0; cameraIndex < numberCameras; cameraIndex++ ) {
-			for ( unsigned pointIndex = 0; pointIndex < p2dLocal.at(cameraIndex).size(); pointIndex++ ) {
+		std::size_t iIndex = 0;
+		for ( std::size_t cameraIndex = 0; cameraIndex < numberCameras; cameraIndex++ ) {
+			for ( std::size_t pointIndex = 0; pointIndex < p2dLocal.at(cameraIndex).size(); pointIndex++ ) {
 				ublas::subrange( measurements, 2 * iIndex, 2 * (iIndex+1) ) = p2dLocal.at( cameraIndex ).at( pointIndex );
 				OPT_LOG_TRACE( "Index: "<<iIndex << " pointIndex: "<<pointIndex);
 				iIndex++;
@@ -142,7 +142,7 @@ std::pair < Math::ErrorPose , double >
 		// create camera matrices and rotations for LM optimization
 		std::vector< Math::Matrix< 3, 3 > > camRotations( camPoses.size() );
 		std::vector< Math::Vector< 3 > > camTranslations( camPoses.size() );
-		for ( unsigned cameraIndex = 0; cameraIndex < numberCameras; cameraIndex++ )
+		for ( std::size_t cameraIndex = 0; cameraIndex < numberCameras; cameraIndex++ )
 		{
 			OPT_LOG_DEBUG( "Camera "<<cameraIndex<<" pose:"  << camPoses[ cameraIndex ] );
 			OPT_LOG_DEBUG( "Camera "<<cameraIndex<<" matrix:"  << camMatrices[ cameraIndex ] );
@@ -161,11 +161,11 @@ std::pair < Math::ErrorPose , double >
 
 		double res = Math::levenbergMarquardt( f, param, measurements, Math::OptTerminate( 10, 1e-6 ), Math::OptNoNormalize() );
 
-        // Create an error pose with convariance matrix that has the residual on its diagonal entries
+        // Create an error pose with covariance matrix that has the residual on its diagonal entries
 		Math::ErrorPose finalPose( Math::Quaternion::fromLogarithm( ublas::subrange( param, 3, 6 ) ), ublas::subrange( param, 0, 3 ), Math::Matrix< 6, 6 >::identity( ) * res );
 		OPT_LOG_DEBUG( "Estimated pose: " << finalPose << ", residual: " << res );
 
-		// Everthing went fine -  set weight to 1.0 and return pose
+		// Everything went fine -  set weight to 1.0 and return pose
 		return std::make_pair < Math::ErrorPose, double > (finalPose, res);
 	} else { // not enough observations
 

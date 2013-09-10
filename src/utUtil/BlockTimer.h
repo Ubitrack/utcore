@@ -128,6 +128,7 @@ public:
 		, m_bInitialized( false )
 		, m_nRuns( 0 )
 		, m_nTicks( 0 )
+		, m_startTime( 0 )
 	{}
 
 	/** destructor, prints result if a stream was given to the constructor */
@@ -149,8 +150,12 @@ public:
 	{ return m_nTicks / ( getHighPerformanceFrequency() * m_nRuns ) * 1000; }
 	
 	/** returns the number of times the timer was run */
-	unsigned getRuns() const
+	std::size_t getRuns() const
 	{ return m_nRuns; }
+	
+	/** returns the time when the timer was started */
+	unsigned long long getStartTime() const
+	{ return m_startTime; }
 	
 	/** Are the additional informations about the timer initialized? */
 	bool initialized() const
@@ -162,19 +167,17 @@ public:
 	/** Initialization at end of first run */
 	void initializeEnd();
 
-	unsigned long long m_startTime;
-	
-		
 protected:
-	std::string m_sName;
+	const std::string m_sName;
 	log4cpp::Category* m_pLogger;
 	std::string m_sCodeFile;
 	unsigned m_nCodeLine;
 	bool m_bInitialized;
 	
 	
-	unsigned m_nRuns;
+	std::size_t m_nRuns;
 	unsigned long long m_nTicks;
+	const unsigned long long m_startTime;
 };
 
 

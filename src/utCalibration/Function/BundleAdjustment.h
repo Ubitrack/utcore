@@ -88,26 +88,26 @@ public:
 		namespace ublas = boost::numeric::ublas;
 		// precompute image rotation matrices
 		std::vector< Math::Matrix< 3, 3, T > > camRotations( m_net.images.size() );
-		unsigned iV = m_imageOffset;
-		for ( unsigned i = 0; i != m_net.images.size(); i++, iV += 6 )
+		std::size_t iV = m_imageOffset;
+		for ( std::size_t i = 0; i != m_net.images.size(); i++, iV += 6 )
 			Math::Quaternion::fromLogarithm( ublas::subrange( input, iV + 3, iV + 6 ) ).toMatrix( camRotations[ i ] );
 
 		// precompute body rotation matrices
 		std::vector< Math::Matrix< 3, 3, T > > bodyRotations( m_net.bodyPoses.size() );
 		iV = m_bodyPoseOffset;
-		for ( unsigned i = 1; i < m_net.bodyPoses.size(); i++, iV += 6 )
+		for ( std::size_t i = 1; i < m_net.bodyPoses.size(); i++, iV += 6 )
 			Math::Quaternion::fromLogarithm( ublas::subrange( input, iV + 3, iV + 6 ) ).toMatrix( bodyRotations[ i ] );
 
 		// clear jacobian
 		noalias( J ) = ublas::zero_matrix< T >( J.size1(), J.size2() );
 
-		unsigned iM = 0; // offset into measurement vector
+		std::size_t iM = 0; // offset into measurement vector
 
 		// free point measurements
 		for ( typename std::vector< typename BundleAdjustmentNetwork< T >::FreePointMeasurement >::const_iterator it = m_net.freePointMeasurements.begin();
 			it != m_net.freePointMeasurements.end(); it++, iM += 2 )
 		{
-			unsigned iP = m_pointOffset + 3 * it->iPoint; // offset into parameter vector
+			std::size_t iP = m_pointOffset + 3 * it->iPoint; // offset into parameter vector
 
 			ublas::vector_range< VT1 > resultRange( result, ublas::range( iM, iM + 2 ) );
 			ublas::matrix_range< MT > jRange1( J, ublas::range( iM, iM + 2 ), ublas::range( 0, J.size2() ) );
@@ -121,7 +121,7 @@ public:
 		for ( typename std::vector< typename BundleAdjustmentNetwork< T >::BodyPointMeasurement >::const_iterator it = m_net.bodyPointMeasurements.begin();
 			it != m_net.bodyPointMeasurements.end(); it++, iM += 2 )
 		{
-			unsigned iP = m_bodyPoseOffset + 6 * ( it->iBodyPose - 1 ); // offset into parameter vector
+			std::size_t iP = m_bodyPoseOffset + 6 * ( it->iBodyPose - 1 ); // offset into parameter vector
 
 			// transform point from body to world
 			Math::Vector< 3, T > worldPoint;
@@ -162,11 +162,11 @@ public:
 	// methods not part of the UnaryFunctionPrototype interface
 
 	/** size of the measurement vector */
-	unsigned measurementSize() const
+	std::size_t measurementSize() const
 	{ return 2 * ( m_net.freePointMeasurements.size() + m_net.bodyPointMeasurements.size() ); }
 
 	/** size of the parameter vector */
-	unsigned parameterSize() const
+	std::size_t parameterSize() const
 	{ 
 		return 
 			3 * m_net.points.size()
@@ -180,7 +180,7 @@ public:
 	void buildMeasurementVector( VT& v )
 	{
 		namespace ublas = boost::numeric::ublas;
-		unsigned iV = 0;
+		std::size_t iV = 0;
 
 		// free point measurements
 		for ( typename std::vector< typename BundleAdjustmentNetwork< T >::FreePointMeasurement >::iterator it = m_net.freePointMeasurements.begin();
@@ -199,7 +199,7 @@ public:
 	void buildParameterVector( VT& v )
 	{
 		namespace ublas = boost::numeric::ublas;
-		unsigned iV = 0;
+		std::size_t iV = 0;
 
 		// free point positions
 		for ( typename BundleAdjustmentNetwork< T >::PointsList::iterator it = m_net.points.begin(); 
@@ -253,7 +253,7 @@ public:
 	void updateParametersFromVector( VT& v )
 	{
 		namespace ublas = boost::numeric::ublas;
-		unsigned iV = 0;
+		std::size_t iV = 0;
 
 		// free point positions
 		for ( typename BundleAdjustmentNetwork< T >::PointsList::iterator it = m_net.points.begin(); 
@@ -315,12 +315,12 @@ protected:
 	void evaluateSingleWorldPointWithJacobian( VT1& result, const VT2& input, MT& J, VT3& pointJacobian, 
 		const std::vector< Math::Matrix< 3, 3, T > >& camRotations,
 		const std::vector< Math::Matrix< 3, 3, T > >& bodyRotations,
-		unsigned iCamera, unsigned iImage,
+		std::size_t iCamera, std::size_t iImage,
 		const Math::Vector< 3, T >& p3d ) const
 	{
 		namespace ublas = boost::numeric::ublas;
 		// index into the parameter vector (used at various places in this routine)
-		unsigned iP;
+		std::size_t iP;
 
 		// transform point into camera coordinate frame
 		iP = m_imageOffset + 6 * iImage;
@@ -414,16 +414,16 @@ protected:
 	// some offsets into the parameter vector
 	
 	/** offset of the first point in the parameter vector */
-	unsigned m_pointOffset;
+	std::size_t m_pointOffset;
 	
 	/** offset of the first body pose in the parameter vector */
-	unsigned m_bodyPoseOffset;
+	std::size_t m_bodyPoseOffset;
 	
 	/** offset of the first camera pose in the parameter vector */
-	unsigned m_imageOffset;
+	std::size_t m_imageOffset;
 	
 	/** offset of the first camera intrinsics value in the parameter vector */
-	unsigned m_intrinsicsOffset;
+	std::size_t m_intrinsicsOffset;
 	
 
 	/** reference to the network */

@@ -38,14 +38,14 @@ namespace Ubitrack { namespace Calibration { namespace Function {
  * Function that dehomogenizes a vector by dividing through the last element and then dropping it.
  * Given an N-vector it returns an (N-1)-Vector
  */
-template< unsigned N >
+template< std::size_t N >
 struct Dehomogenization
 {
 	/**
 	 * return the size of the result vector
 	 */
-	unsigned size() const
-	{ return N-1; }
+	std::size_t size() const
+	{ return (N-1); }
 
 	/*
 	 * @param result an N-1-vector
@@ -55,7 +55,7 @@ struct Dehomogenization
 	void evaluate( VT1& result, const VT2& input ) const
 	{
 		typename VT1::value_type f( 1 / input( N - 1 ) );
-		for ( unsigned i = 0; i < N - 1; i++ )
+		for ( std::size_t i( 0 ); i < (N-1); i++ )
 			result( i ) = input( i ) * f;
 	}
 	
@@ -83,7 +83,7 @@ struct Dehomogenization
 		boost::numeric::ublas::subrange( J, 0, N-1, 0, N-1 ) = 
 			boost::numeric::ublas::identity_matrix< typename MT::value_type >( N-1 ) * tz;
 		tz = tz * tz;
-		for ( unsigned i = 0; i < N-1; i++ )
+		for ( std::size_t i( 0 ); i < (N-1); i++ )
 			J( i, N-1 ) = -input( i ) * tz;
 	}
 };

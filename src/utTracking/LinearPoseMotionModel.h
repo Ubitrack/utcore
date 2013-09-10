@@ -57,7 +57,7 @@ public:
 	}
 	
 	/** returns the required size of the state vector */
-	int stateSize() const
+	std::size_t stateSize() const
 	{ return m_processNoise.size(); }
 	
 	/** returns the number of position derivatives */
@@ -73,9 +73,9 @@ public:
 	 * @param order number of derivative, 0 is the absolute position
 	 * @param value standard deviation per second in m/s, m/s^2, m/s^3, ..
 	 */
-	void setPosPN( int order, double value )
+	void setPosPN( const std::size_t order, const double value )
 	{ 
-		for ( int i = 3 * order; i < 3 + 3 * order; i++ )
+		for ( std::size_t i( 3 * order ); i < (3 + 3 * order); i++ )
 			m_processNoise( i ) = value * value;
 	}
 
@@ -84,13 +84,13 @@ public:
 	 * @param order number of derivative, 0 is the absolute orientation
 	 * @param value standard deviation per second in rad/s, rad/s^2, rad/s^3, ..
 	 */
-	void setOriPN( int order, double value )
+	void setOriPN( const std::size_t order, const double value )
 	{
 		if ( order == 0 )
-			for ( int i = 3 + 3 * m_posOrder; i < 7 + 3 * m_posOrder; i++ )
+			for ( std::size_t i ( 3 + 3 * m_posOrder  ); i < 7 + 3 * m_posOrder; i++ )
 				m_processNoise( i ) = value * value;
 		else
-			for ( int i = 4 + 3 * ( m_posOrder + order ); i < 7 + 3 * ( m_posOrder + order ); i++ )
+			for ( std::size_t i( 4 + 3 * ( m_posOrder + order ) ); i < 7 + 3 * ( m_posOrder + order ); i++ )
 				m_processNoise( i ) = value * value;
 	}
 

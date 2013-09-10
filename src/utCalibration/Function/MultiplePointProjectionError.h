@@ -67,7 +67,7 @@ public:
 	/**
 	 * return the size of the result vector
 	 */
-	unsigned size() const
+	std::size_t size() const
 	{ return 2 * m_p3D.size(); }
 
 	/**
@@ -90,7 +90,7 @@ public:
 		Vector< 3, VType > rotated;
 		Vector< 3, VType > projected;
 		
-		for ( unsigned i = 0; i < m_p3D.size(); i++ )
+		for ( std::size_t i( 0 ); i < m_p3D.size(); i++ )
 		{
 			// rotate & project points
 			noalias( rotated ) = ublas::prod( rot, m_p3D[ i ] ) + ublas::subrange( input, 0, 3 );

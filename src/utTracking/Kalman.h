@@ -70,7 +70,7 @@ namespace Ubitrack { namespace Tracking {
  */
 template< class VState, class MStateCov, class MF, class VMeas, class MMeasCov >
 void kalmanMeasurementUpdate( VState& state, MStateCov& stateCov, const MF& measurementFunction, 
-	const VMeas& measurement, const MMeasCov& measurementCov, unsigned iBegin, unsigned iEnd )
+	const VMeas& measurement, const MMeasCov& measurementCov, std::size_t iBegin, std::size_t iEnd )
 {
 	namespace ublas = boost::numeric::ublas;
 	namespace blas = boost::numeric::bindings::blas;
@@ -78,9 +78,9 @@ void kalmanMeasurementUpdate( VState& state, MStateCov& stateCov, const MF& meas
 
 	// some useful shortcuts
 	typedef typename VState::value_type VType;
-	const unsigned inSize = iEnd - iBegin;
-	const unsigned measSize = measurement.size();
-	const unsigned stateSize = state.size();
+	const std::size_t inSize( iEnd - iBegin );
+	const std::size_t measSize( measurement.size() );
+	const std::size_t stateSize( state.size() );
 	
 	KALMAN_LOG_DEBUG( "state before: " << state );
 	KALMAN_LOG_DEBUG( "covariance before: " << stateCov );
@@ -137,9 +137,9 @@ void kalmanMeasurementUpdate( VState& state, MStateCov& stateCov, const MF& meas
 /**
  * Overload for parameters of type \c ErrorVector.
  */
-template< unsigned N, unsigned M, class MF >
+template< std::size_t N, std::size_t M, class MF >
 void kalmanMeasurementUpdate( Math::ErrorVector< N >& state, const MF& measurementFunction, 
-	const Math::ErrorVector< M >& measurement, unsigned iBegin = 0, unsigned iEnd = N )
+	const Math::ErrorVector< M >& measurement, const std::size_t iBegin = 0, const std::size_t iEnd = N )
 {
 	kalmanMeasurementUpdate( state.value, state.covariance, measurementFunction, 
 		measurement.value, measurement.covariance, iBegin, iEnd );
@@ -160,7 +160,7 @@ void kalmanMeasurementUpdate( Math::ErrorVector< N >& state, const MF& measureme
  */
 template< class VState, class MStateCov, class VMeas, class MMeasCov >
 void kalmanMeasurementUpdateIdentity( VState& state, MStateCov& stateCov,  
-	const VMeas& measurement, const MMeasCov& measurementCov, unsigned iBegin, unsigned iEnd )
+	const VMeas& measurement, const MMeasCov& measurementCov, const std::size_t iBegin, const std::size_t iEnd )
 {
 	namespace ublas = boost::numeric::ublas;
 	namespace blas = boost::numeric::bindings::blas;
@@ -168,8 +168,8 @@ void kalmanMeasurementUpdateIdentity( VState& state, MStateCov& stateCov,
 
 	// some useful shortcuts
 	typedef typename VState::value_type VType;
-	const unsigned measSize = measurement.size();
-	const unsigned stateSize = state.size();
+	const std::size_t measSize( measurement.size() );
+	const std::size_t stateSize( state.size() );
 
 	KALMAN_LOG_DEBUG( "state before: " << state );
 	KALMAN_LOG_DEBUG( "covariance before: " << stateCov );
@@ -218,9 +218,9 @@ void kalmanMeasurementUpdateIdentity( VState& state, MStateCov& stateCov,
 /**
  * Overload for parameters of type \c ErrorVector.
  */
-template< unsigned N, unsigned M >
+template< std::size_t N, std::size_t M >
 void kalmanMeasurementUpdateIdentity( Math::ErrorVector< N >& state, 
-	const Math::ErrorVector< M >& measurement, unsigned iBegin, unsigned iEnd )
+	const Math::ErrorVector< M >& measurement, const std::size_t iBegin, const std::size_t iEnd )
 {
 	kalmanMeasurementUpdateIdentity( state.value, state.covariance,  
 		measurement.value, measurement.covariance, iBegin, iEnd );

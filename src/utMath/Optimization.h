@@ -63,21 +63,21 @@ public:
 	 * @param precision stops if the residual r changes from one iteration to the next by less 
 	 *    than r*precision.
 	 */
-	OptTerminate( unsigned maxIterations, double precision = 0.0 )
+	OptTerminate( const std::size_t maxIterations, double precision = 0.0 )
 		: m_maxIterations( maxIterations )
 		, m_precision( precision )
 	{}
 
 	/** this function is evaluated by the optimizer */
-	bool operator()( unsigned iterations, double resPrev, double resNow ) const
+	bool operator()( const std::size_t iterations, const double resPrev, const double resNow ) const
 	{ 
 		return ( m_maxIterations > 0 && iterations >= m_maxIterations ) ||
 			( m_precision != 0.0 && fabs( resPrev - resNow ) < m_precision * resNow );
 	}
 
 protected:
-	unsigned m_maxIterations;
-	double m_precision;
+	const std::size_t m_maxIterations;
+	const double m_precision;
 };
 
 

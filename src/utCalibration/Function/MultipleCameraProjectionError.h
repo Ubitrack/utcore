@@ -64,7 +64,7 @@ public:
 	 */
 	MultipleCameraProjectionError( const std::vector< Math::Vector< 3, VType > >& p3D, 
 		const std::vector< Math::Matrix< 3, 4, VType > >& cameras, 
-		const std::vector< std::pair< unsigned, unsigned > > visibilities )
+		const std::vector< std::pair< std::size_t, std::size_t > > visibilities )
 		: m_p3D( p3D )
 		, m_cam( cameras )
 		, m_vis( visibilities )
@@ -73,7 +73,7 @@ public:
 	/**
 	 * return the size of the result vector
 	 */
-	unsigned size() const
+	std::size_t size() const
 	{ return 2 * m_vis.size(); }
 
 	/**
@@ -96,7 +96,7 @@ public:
 		Vector< 3, VType > rotated;
 		Vector< 3, VType > projected;
 		
-		for ( unsigned i = 0; i < m_vis.size(); i++ )
+		for ( std::size_t i( 0 ); i < m_vis.size(); i++ )
 		{
 			// shortcuts
 			const Math::Vector< 3, VType >& p3D( m_p3D[ m_vis[ i ].first ] );
@@ -121,7 +121,7 @@ public:
 protected:
 	const std::vector< Math::Vector< 3, VType > >& m_p3D;
 	const std::vector< Math::Matrix< 3, 4, VType > >& m_cam;
-	const std::vector< std::pair< unsigned, unsigned > > m_vis;
+	const std::vector< std::pair< std::size_t, std::size_t > > m_vis;
 };
 
 } } } // namespace Ubitrack::Calibration::Function

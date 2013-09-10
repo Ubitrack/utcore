@@ -46,10 +46,10 @@ namespace Ubitrack { namespace Calibration {
 void tipCalibration( const std::vector< Math::Pose >& poses, 
 	Math::Vector< 3 >& pm, Math::Vector< 3 >& pw )
 {
-	unsigned nPoses = poses.size();
+	const std::size_t nPoses = ( poses.size() );
 	ublas::matrix< double, ublas::column_major > a( 3 * nPoses, 6 );
 	ublas::vector< double > v( 3 * nPoses );
-	for ( unsigned i = 0; i < nPoses; i++ )
+	for ( std::size_t i( 0 ); i < nPoses; i++ )
 	{
 		// set a
 		ublas::matrix_range< ublas::matrix< double, ublas::column_major > > r( 

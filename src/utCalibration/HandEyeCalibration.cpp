@@ -50,8 +50,8 @@ namespace lapack = boost::numeric::bindings::lapack;
 namespace Ubitrack { namespace Calibration {
 
 
-//helper class, wich is used ´to mainly store 2 vectors.
-template<typename T> 
+//helper class, which is used to mainly store 2 vectors.
+template< typename T >
 class TransformCont
 {
 	private:
@@ -59,26 +59,26 @@ class TransformCont
 		std::vector<Math::Matrix< 4, 4, T > > m_hc;
 		
 	public:
-		void setNumber( int i, bool bUseAllPairs )
+		void setNumber( const std::size_t i, bool bUseAllPairs )
 		{
-			int p = bUseAllPairs ? i * i / 2 : i;
+			const std::size_t p = bUseAllPairs ? i * i / 2 : i;
 			m_hg.reserve( p );
 			m_hc.reserve( p );
 		}
 		
-		int getNumber() const
+		std::size_t getNumber() const
 		{ return m_hg.size(); }
 		
-		void push_back_hg(Math::Matrix< 4, 4, T > hg)
+		void push_back_hg( const Math::Matrix< 4, 4, T > &hg )
 		{ m_hg.push_back( hg ); }
 		
-		void push_back_hc(Math::Matrix< 4, 4, T > hc)
+		void push_back_hc( const Math::Matrix< 4, 4, T > &hc )
 		{ m_hc.push_back( hc ); }
 			
-		const Math::Matrix< 4, 4, T >& hg_at(int i) const
+		const Math::Matrix< 4, 4, T >& hg_at( const std::size_t i ) const
 		{ return m_hg[ i ]; }
 		
-		const Math::Matrix< 4, 4, T >& hc_at(int i) const
+		const Math::Matrix< 4, 4, T >& hc_at( const std::size_t i ) const
 		{ return m_hc[ i ]; }
 };
 
@@ -182,7 +182,7 @@ Math::Matrix<3, 3, T> getMatrix(const Math::Vector<3, T>& source)
 
 	Math::Matrix<3, 3, T> skewT = skew(source);
 
-	T alpha = sqrt(4 - length);
+	T alpha = std::sqrt(4 - length);
 	
 	skewT *= T (alpha);
 	
@@ -210,7 +210,7 @@ Math::Matrix<3, 3, T> getRcg(const Math::Vector<3, T>& pcg_)
 		twice[i] = 2*pcg_(i);
 	}
 
-	double divisor = sqrt( 1.0 + (v[0] + v[1] + v[2]));
+	double divisor = std::sqrt( 1.0 + (v[0] + v[1] + v[2]));
 
 	for(int i=0; i<3; i++)
 	{
@@ -228,7 +228,7 @@ Math::Vector<3, T> getQuaternion(const Math::Matrix<3, 3, T>& source)
 
 	T q[4];
     T qoff[6];
-    int c = 0;
+    std::size_t c( 0 );
 
     q[0] = (1 + source(0, 0) + source(1, 1) + source(2, 2)) / 4;
     q[1] = (1 + source(0, 0) - source(1, 1) - source(2, 2)) / 4;
@@ -251,25 +251,25 @@ Math::Vector<3, T> getQuaternion(const Math::Matrix<3, 3, T>& source)
 
     if (c==0)
     {
-        quat[3] = sqrt(q[c]);
+        quat[3] = std::sqrt(q[c]);
         quat[0] = qoff[0] / quat[3];
         quat[1] = qoff[1] / quat[3];
         quat[2] = qoff[2] / quat[3];
     } else if (c==1)
     {
-        quat[0] = sqrt(q[c]);
+        quat[0] = std::sqrt(q[c]);
         quat[3] = qoff[0] / quat[0];
         quat[1] = qoff[3] / quat[0];
         quat[2] = qoff[4] / quat[0];
     } else if (c==2)
     {
-        quat[1] = sqrt(q[c]);
+        quat[1] = std::sqrt(q[c]);
         quat[3] = qoff[1] / quat[1];
         quat[0] = qoff[3] / quat[1];
         quat[2] = qoff[5] / quat[1];
     } else if (c==3)
     {
-        quat[2] = sqrt(q[c]);
+        quat[2] = std::sqrt(q[c]);
         quat[3] = qoff[2] / quat[2];
         quat[0] = qoff[4] / quat[2];
         quat[1] = qoff[5] / quat[2];
@@ -393,11 +393,11 @@ void fillTransformationVectors( TransformCont<T>& tc, const std::vector<Math::Ma
 	Math::Matrix< 4, 4, T> hij;
 	Math::Matrix< 4, 4, T> hi;
 	Math::Matrix< 4, 4, T> hj;
-
-	for(unsigned i=0; i<hand.size()-1; i++)
+	const std::size_t n_hands( hand.size() ) ;
+	for( std::size_t i( 0 ); i<(n_hands-1); ++i )
 	{
-		unsigned to = bUseAllPairs ? hand.size() : i + 2;
-		for(unsigned k=i+1; k<to; k++)
+		const std::size_t to = bUseAllPairs ? n_hands : i + 2;
+		for( std::size_t k( i+1 ); k<to; ++k )
 		{
 			//first we compute the hg
 			hi = hand.at(i);
@@ -421,22 +421,23 @@ template<typename T>
 Math::Pose performHandEyeCalibrationImp ( const std::vector<Math::Matrix< 4, 4, T > >& hand,  const std::vector<Math::Matrix< 4, 4, T > >& eye, bool bUseAllPairs )
 {
 	static log4cpp::Category& logger(log4cpp::Category::getInstance( "Ubitrack.Calibration.HandEyeCalibration" )); 
-	if(eye.size() != hand.size())
+	const std::size_t n_eyes( eye.size() );
+	if( n_eyes != hand.size())
 	{
 		LOG4CPP_ERROR ( logger, "Input sizes of the vectors do not match ");
 		UBITRACK_THROW ( "Input sizes do not match" );		
 	}
 
-	if(eye.size() <= 2)
+	if( n_eyes <= 2)
 	{
-		Math::Vector<3, T>* v = new Math::Vector<3, T>(0, 0, 0);
+		Math::Vector< 3, T >* v = new Math::Vector< 3, T >( 0, 0, 0 );
 		Math::Quaternion* q = new Math::Quaternion();
 		return Math::Pose( *q, *v);
 	}
 	
 	TransformCont<T> tc;
 
-	tc.setNumber( eye.size(), bUseAllPairs );
+	tc.setNumber( n_eyes, bUseAllPairs );
 
 	fillTransformationVectors( tc, hand, eye, bUseAllPairs );			//readies values //ai = eye, bi = hand
 	Math::Matrix<3, 3, T> rcg = computePcg<T>(tc);		//returns Rcg
@@ -460,27 +461,27 @@ Math::Pose performHandEyeCalibration ( const std::vector< Math::Matrix< 4, 4, do
 
 void fillTransformationVectors( TransformCont<double>& tc, const std::vector<Math::Pose>& hand, const std::vector<Math::Pose>& eye, bool bUseAllPairs )
 {
-	Math::Matrix< 4, 4, double> hij;
-	Math::Matrix< 4, 4, double> hi;
-	Math::Matrix< 4, 4, double> hj;
-
-	for(unsigned i=0; i<hand.size()-1; i++)
+	Math::Matrix< 4, 4, double > hij;
+	Math::Matrix< 4, 4, double > hi;
+	Math::Matrix< 4, 4, double > hj;
+	const std::size_t n_hands( hand.size() );
+	for( std::size_t i( 0 ) ; i<(n_hands-1); ++i )
 	{
-		unsigned to = bUseAllPairs ? hand.size() : i + 2;
-		for(unsigned k=i+1; k<to; k++)
+		const std::size_t to = bUseAllPairs ? n_hands : i + 2;
+		for( std::size_t k( i+1 ); k<to; ++k )
 		{
 			//first we compute the hg
-			hi = Math::Matrix<4, 4, double>(hand.at(i));
-			hj = Math::Matrix<4, 4, double>(hand.at(k));
+			hi = Math::Matrix< 4, 4, double >(hand.at(i));
+			hj = Math::Matrix< 4, 4, double >(hand.at(k));
 
 			hij = computeTransformation(hi, hj, 0);
 			tc.push_back_hg(hij);
 
 			//second we compute the hc
-			hi =  Math::Matrix<4, 4, double>(eye.at(i));
-			hj =  Math::Matrix<4, 4, double>(eye.at(k));
+			hi =  Math::Matrix< 4, 4, double >(eye.at(i));
+			hj =  Math::Matrix< 4, 4, double >(eye.at(k));
 
-			hij = computeTransformation(hi, hj, 1);
+			hij = computeTransformation( hi, hj, 1 );
 			tc.push_back_hc(hij);
 		}
 	}
@@ -490,13 +491,14 @@ void fillTransformationVectors( TransformCont<double>& tc, const std::vector<Mat
 Math::Pose performHandEyeCalibration ( const std::vector< Math::Pose >& hand,  const std::vector< Math::Pose >& eye, bool bUseAllPairs )
 {
 	static log4cpp::Category& logger(log4cpp::Category::getInstance( "Ubitrack.Calibration.HandEyeCalibration" )); 
-	if(eye.size() != hand.size())
+	const std::size_t n_eyes( eye.size() );
+	if( n_eyes != hand.size())
 	{
 		LOG4CPP_ERROR ( logger, "Input sizes of the vectors do not match ");
 		UBITRACK_THROW ( "Input sizes do not match" );		
 	}
 
-	if(eye.size() <= 2)
+	if( n_eyes <= 2 )
 	{
 		Math::Vector<3, double>* v = new Math::Vector<3, double>(0, 0, 0);
 		Math::Quaternion* q = new Math::Quaternion();
@@ -505,7 +507,7 @@ Math::Pose performHandEyeCalibration ( const std::vector< Math::Pose >& hand,  c
 
 	TransformCont<double> tc;
 
-	tc.setNumber( eye.size(), bUseAllPairs );
+	tc.setNumber( n_eyes, bUseAllPairs );
 
 	fillTransformationVectors( tc, hand, eye, bUseAllPairs );			//readies values //ai = eye, bi = hand
 	Math::Matrix<3, 3, double> rcg = computePcg<double>(tc);									//returns also Rcg

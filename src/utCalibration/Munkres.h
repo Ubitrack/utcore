@@ -91,20 +91,20 @@ public:
 	 * returns the result as a ordered list of matches
 	 * the order is corresponding to the old points ( rows )
 	 *
-	 * @return match list of colums to rows
+	 * @return match list of columns to rows
 	 */
-	std::vector< unsigned int > getRowMatchList();
+	std::vector< std::size_t > getRowMatchList();
 
 	/**
 	 * returns the result as a ordered list of matches
 	 * the order is corresponding to the current points ( columns )
 	 *
-	 * @return match list of colums to rows
+	 * @return match list of columns to rows
 	 */
-	std::vector< unsigned int > getColMatchList();
+	std::vector< std::size_t > getColMatchList();
 
 private:
-	inline bool find_uncovered_in_matrix( T item , unsigned int & row, unsigned int & col );
+	inline bool find_uncovered_in_matrix( T item , std::size_t & row, std::size_t & col );
 	inline bool pair_in_list( const std::pair<int,int> & needle, const std::list< std::pair< int, int > > & haystack );
 	int step1();
 	int step2();
@@ -116,16 +116,17 @@ private:
 	ublas::matrix< T > m_matrix;
 	bool *row_mask;
 	bool *col_mask;
-	unsigned int saverow, savecol;
-	unsigned int m_max;
+	std::size_t saverow, savecol;
+	std::size_t m_max;
 };
 
 /** internal */
 template< typename T >
 Munkres< T >::Munkres()
+	: saverow( 0 )
+	, savecol( 0 )
 {
-	saverow = 0; 
-	savecol = 0;
+	
 }
 
 template< typename T >
@@ -137,10 +138,10 @@ Munkres< T >::Munkres(ublas::matrix< T > & matrix)
 }
 
 template< typename T >
-bool Munkres< T >::find_uncovered_in_matrix(T item, unsigned int & row, unsigned int & col) {
-	for ( row = 0 ; row < m_max ; row++ )
+bool Munkres< T >::find_uncovered_in_matrix(T item, std::size_t & row, std::size_t & col) {
+	for ( std::size_t row( 0 ) ; row < m_max ; ++row )
 		if ( !row_mask[row] )
-			for ( col = 0 ; col < m_max ; col++ )
+			for ( std::size_t col( 0 ) ; col < m_max ; ++col )
 				if ( !col_mask[col] )
 					if ( m_matrix( row, col ) == item )
 						return true;
@@ -161,18 +162,18 @@ bool Munkres< T >::pair_in_list(const std::pair<int,int> &needle, const std::lis
 template< typename T >
 int Munkres< T >::step1() 
 {
-	for ( unsigned  int row = 0 ; row < m_max ; row++ )
-		for ( unsigned  int col = 0 ; col < m_max ; col++ )
+	for ( std::size_t row( 0 ) ; row < m_max ; ++row )
+		for ( std::size_t col( 0 ) ; col < m_max ; ++col )
 			if ( m_matrix( row, col ) == 0 ) 
 			{
 				bool isstarred = false;
-				for ( unsigned int nrow = 0 ; nrow < m_max ; nrow++ )
+				for ( std::size_t nrow( 0 ) ; nrow < m_max ; ++nrow )
 					if ( mask_matrix( nrow, col ) == Z_STAR )
 						isstarred = true;
 
 				if ( !isstarred ) 
 				{
-					for ( unsigned  int ncol = 0 ; ncol < m_max ; ncol++ )
+					for ( std::size_t ncol( 0 ) ; ncol < m_max ; ++ncol )
 						if ( mask_matrix( row, ncol ) == Z_STAR )
 							isstarred = true;
 				}
@@ -189,9 +190,9 @@ int Munkres< T >::step1()
 template< typename T >
 int Munkres< T >::step2() 
 {
-	unsigned int covercount = 0;
-	for ( unsigned int row = 0 ; row < m_max ; row++ )
-		for ( unsigned int col = 0 ; col < m_max ; col++ )
+	std::size_t covercount = 0;
+	for ( std::size_t row( 0 ) ; row < m_max ; ++row )
+		for ( std::size_t col( 0 ) ; col < m_max ; ++col )
 			if ( mask_matrix( row, col ) == Z_STAR ) 
 			{
 				col_mask[col] = true;
@@ -217,7 +218,7 @@ int Munkres< T >::step3()
 		mask_matrix( saverow, savecol ) = Z_PRIME; // prime it.
 	else return 5;
 
-	for ( unsigned int ncol = 0 ; ncol < m_max ; ncol++ )
+	for ( std::size_t ncol( 0 ) ; ncol < m_max ; ++ncol )
 		if ( mask_matrix( saverow, ncol ) == Z_STAR )
 		{
 			row_mask[saverow] = true; //cover this row and
@@ -233,11 +234,11 @@ int Munkres< T >::step4()
 {
 	std::list<std::pair<int,int> > seq;
 	// use saverow, savecol from step 3.
-	std::pair<int,int> z0(saverow, savecol);
+	std::pair<int,int> z0( static_cast< int >( saverow ), static_cast< int >( savecol ) );
 	std::pair<int,int> z1(-1,-1);
 	std::pair<int,int> z2n(-1,-1);
 	seq.insert(seq.end(), z0);
-	unsigned int row, col = savecol;
+	std::size_t row, col = savecol;
 	/*
 	Increment Set of Starred Zeros
 
@@ -253,10 +254,10 @@ int Munkres< T >::step4()
 	bool madepair;
 	do {
 		madepair = false;
-		for ( row = 0 ; row < m_max ; row++ )
+		for ( row = 0; row < m_max ; ++row )
 			if ( mask_matrix(row,col) == Z_STAR ) {
-				z1.first = row;
-				z1.second = col;
+				z1.first = static_cast< int >( row );
+				z1.second = static_cast< int >( col );
 				if ( pair_in_list(z1, seq) )
 					continue;
 				
@@ -270,10 +271,10 @@ int Munkres< T >::step4()
 
 		madepair = false;
 
-		for ( col = 0 ; col < m_max ; col++ )
+		for ( col = 0; col < m_max ; ++col )
 			if ( mask_matrix(row,col) == Z_PRIME ) {
-				z2n.first = row;
-				z2n.second = col;
+				z2n.first = static_cast< int >( row );
+				z2n.second = static_cast< int >( col );
 				if ( pair_in_list(z2n, seq) )
 					continue;
 				madepair = true;
@@ -296,16 +297,16 @@ int Munkres< T >::step4()
 	}
 
 	// 4. Erase all primes, uncover all columns and rows, 
-	for ( unsigned int row = 0 ; row < m_max ; row++ )
-		for ( unsigned int col = 0 ; col < m_max ; col++ )
+	for ( std::size_t row( 0 ); row < m_max ; ++row )
+		for ( std::size_t col( 0 ); col < m_max ; ++col )
 			if ( mask_matrix(row,col) == Z_PRIME )
 				mask_matrix(row,col) = Z_NORMAL;
 	
-	for ( unsigned int i = 0 ; i < m_max ; i++ ) {
+	for ( std::size_t i( 0 ) ; i < m_max ; ++i ) {
 		row_mask[i] = false;
 	}
 
-	for ( unsigned int i = 0 ; i < m_max ; i++ ) {
+	for ( std::size_t i( 0 ); i < m_max ; ++i ) {
 		col_mask[i] = false;
 	}
 
@@ -325,23 +326,23 @@ int Munkres< T >::step5()
    4. Return to Step 3, without altering stars, primes, or covers. 
 	*/
 	T h = 0;
-	for ( unsigned int row = 0 ; row < m_max ; row++ ) 
+	for ( std::size_t row( 0 ); row < m_max ; ++row )
 	{
 		if ( !row_mask[row] ) 
 		{
-			for ( unsigned int col = 0 ; col < m_max ; col++ ) 
+			for ( std::size_t col( 0 ) ; col < m_max ; ++col )
 			{
 				if ( !col_mask[col] ) 
 				{
-					if ( (h > m_matrix( row, col ) && m_matrix( row, col ) != 0) || h == 0 ) 
+					if ( (h > m_matrix( row, col ) && m_matrix( row, col ) != 0) || h == 0 )
 						h = m_matrix( row, col );
 				}
 			}
 		}
 	}
 
-	for ( unsigned int row = 0 ; row < m_max ; row++ )
-		for ( unsigned int col = 0 ; col < m_max ; col++ ) 
+	for ( std::size_t row( 0 ) ; row < m_max ; ++row )
+		for ( std::size_t col( 0 ) ; col < m_max ; ++col ) 
 		{
 			if ( row_mask[row] )
 				m_matrix( row, col ) += h;
@@ -358,9 +359,9 @@ void Munkres< T >::setMatrix( ublas::matrix< T > & matrix )
 {
 	//find maximum matrix value vMax
 	T vMax = static_cast< T >( 0 );
-	for( unsigned int row=0; row < matrix.size1(); row++ )
+	for( std::size_t row( 0 ); row < matrix.size1(); ++row )
 	{
-		for( unsigned int col=0; col < matrix.size2(); col++ )
+		for( std::size_t col( 0 ); col < matrix.size2(); ++col )
 		{
 			if( matrix( row, col ) > vMax )
 				vMax = matrix( row, col );
@@ -391,14 +392,14 @@ void Munkres< T >::setMatrix( ublas::matrix< T > & matrix )
 
 	//create a zero in every row
 	T min = vMax;	
-	for( unsigned int row=0; row<m_max; row++ )
+	for( std::size_t row( 0 ); row<m_max; ++row )
 	{
-		for( unsigned int col=0; col<m_max; col++ )
+		for( std::size_t col( 0 ); col<m_max; ++col )
 		{
 			if( m_matrix( row, col ) < min )
 				min = m_matrix( row, col );
 		}
-		for( unsigned int col=0; col<m_max; col++ )
+		for( std::size_t col( 0 ); col<m_max; ++col )
 		{
 			m_matrix( row, col ) = m_matrix( row, col ) - min;
 		}
@@ -412,13 +413,13 @@ void Munkres< T >::setMatrix( ublas::matrix< T > & matrix )
 template< typename T >
 void Munkres< T >::solve()
 {
-	bool notdone = true;
-	int step = 1;
+	bool notdone( true );
+	int step ( 1 );
 
 	// Z_STAR == 1 == starred, Z_PRIME == 2 == primed
 	row_mask = new bool[m_max];
 	col_mask = new bool[m_max];
-	for ( unsigned int i = 0 ; i < m_max ; i++ ) 
+	for ( std::size_t i( 0 ) ; i < m_max ; ++i ) 
 	{
 		row_mask[i] = false;
 		col_mask[i] = false;
@@ -457,13 +458,13 @@ ublas::matrix< T >  Munkres< T >::getMaskMatrix()
 }
 
 template< typename T >
-std::vector< unsigned int > Munkres< T >::getRowMatchList()
+std::vector< std::size_t > Munkres< T >::getRowMatchList()
 {
-	std::vector< unsigned int > list;
-	bool found = false;
-	unsigned int col = 0;
+	std::vector< std::size_t > list;
+	bool found( false );
+	std::size_t col( 0 );
 
-	for( unsigned int row=0; row<m_max; row++ )
+	for( std::size_t row( 0 ); row<m_max; ++row )
 	{
 		while( !found && col < m_max)
 		{
@@ -472,7 +473,7 @@ std::vector< unsigned int > Munkres< T >::getRowMatchList()
 				list.push_back( col );
 				found = true;
 			}
-			col++;
+			++col;
 		}
 		found = false;
 		col = 0;
@@ -482,13 +483,13 @@ std::vector< unsigned int > Munkres< T >::getRowMatchList()
 }
 
 template< typename T >
-std::vector< unsigned int > Munkres< T >::getColMatchList()
+std::vector< std::size_t > Munkres< T >::getColMatchList()
 {
-	std::vector< unsigned int > list;
-	bool found = false;
-	unsigned int row = 0;
+	std::vector< std::size_t > list;
+	bool found ( false );
+	std::size_t row ( 0 );
 
-	for( unsigned int col=0; col<m_max; col++ )
+	for( std::size_t col( 0 ); col<m_max; ++col )
 	{
 		while( !found && row < m_max)
 		{
@@ -497,7 +498,7 @@ std::vector< unsigned int > Munkres< T >::getColMatchList()
 				list.push_back( row );
 				found = true;
 			}
-			row++;
+			++row;
 		}
 		found = false;
 		row = 0;

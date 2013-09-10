@@ -66,7 +66,7 @@ void BlockTimer::initializeEnd()
 
 std::ostream& operator<<( std::ostream& s, const BlockTimer& t )
 {		
-	unsigned long long totalRunTime = getHighPerformanceCounter() - t.m_startTime;
+	unsigned long long totalRunTime = getHighPerformanceCounter() - t.getStartTime();
 	return s << std::setw( 30 ) << t.getName()
 		<< " runs: " << std::setw( 6 ) << t.getRuns()
 		<< ", total: " << std::setw( 7 ) << t.getTotalTime() << "ms"

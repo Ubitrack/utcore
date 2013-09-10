@@ -56,7 +56,8 @@ public:
 	template< class LeftHand, class DestinationMatrix, class Param1, class Param2 >
 	void multiplyJacobian1( const LeftHand& l, DestinationMatrix& j, const Param1& intr, const Param2& point ) const
 	{
-		for ( unsigned r = 0; r < l.size1(); r++ )
+		const std::size_t n_rows( l.size1() );
+		for ( std::size_t r ( 0 ); r < n_rows; r++ )
 		{
 			j( r, 0 ) = -point( 0 ) * l( r, 0 );
 			j( r, 1 ) = -point( 1 ) * l( r, 0 );
@@ -81,7 +82,8 @@ public:
 	template< class LeftHand, class DestinationMatrix, class Param1, class Param2 >
 	void multiplyJacobian2( const LeftHand& l, DestinationMatrix& j, const Param1& intr, const Param2& point ) const
 	{
-		for ( unsigned r = 0; r < l.size1(); r++ )
+		const std::size_t n_rows( l.size1() );
+		for ( std::size_t r ( 0 ); r < n_rows; r++ )
 		{
 			j( r, 0 ) = -  intr( 0 ) * l( r, 0 );
 			j( r, 1 ) = -( intr( 1 ) * l( r, 0 ) + intr( 3 ) * l( r, 1 ) );
