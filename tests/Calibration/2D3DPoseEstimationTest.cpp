@@ -5,60 +5,86 @@
 #include "../tools.h"
 #include <boost/numeric/ublas/vector_proxy.hpp>
 
+#include <utMath/Pose.h>
+#include <utMath/Vector.h>
+#include <utMath/Matrix.h>
+#include <utMath/Functors/VectorFunctors.h>
+
+#include <utMath/Random/Scalar.h>
+#include <utMath/Random/Vector.h>
+#include <utMath/Random/Rotation.h>
+
+
+
 #include <iostream>
+#include <algorithm>
 
 using namespace Ubitrack::Math;
 namespace ublas = boost::numeric::ublas;
 
-void TestOptimizePose()
+template< typename T >
+void TestOptimizePose( const std::size_t n_runs, const T epsilon )
 {
-	for ( int iRun = 0; iRun < 10; iRun++ )
+
+	Random::Quaternion< T > randQuat;
+	Random::Vector< 3, T >::Uniform randVector( -0.5, 0.5 ); // 3d Points
+	Random::Vector< 3, T >::Uniform randTranslation( -100, 100 ); //translation
+	// Random::Vector< 3, T >::Normal randPositionNoise( 0, 0.2 ); // translation gaussian noise
+	Random::Vector< 3, T >::Uniform randPositionNoise( -0.3, 0.3 ); // translation uniform noise
+	
+	
+	for ( int iRun = 0; iRun < n_runs; iRun++ )
 	{
 		// random intrinsics matrix
-		Matrix< 3, 3, double > cam( ublas::identity_matrix< double >( 3 ) );
-		cam( 0, 0 ) = random( 200, 800 );
-		cam( 1, 1 ) = random( 200, 800 );
+		Matrix< 3, 3, T > cam( ublas::identity_matrix< T >( 3 ) );
+		cam( 0, 0 ) = Random::distribute_uniform< T >( 200, 800 );
+		cam( 1, 1 ) = Random::distribute_uniform< T >( 200, 800 );
 		
 		// random pose
-		Quaternion rot( randomQuaternion() );
-		Vector< 3, double > trans( randomVector< 3, double >() );
-		trans( 2 ) = random( 1.0, 2.0 );
+		Quaternion rot( randQuat( ) );
+		Vector< 3, T > trans ( Random::distribute_uniform< T, 3 >( -100, 100 ) );
+		trans( 2 ) = Random::distribute_uniform< T >( 10, 100 );
 		
 		// some random 3d points
-		std::vector< Vector< 3, double > > p3D( 15 );
-		for ( unsigned i = 0; i < p3D.size(); i++ )
-			p3D[ i ] = randomVector< 3 >( 0.4 );
+		// const std::size_t n( 15 );
+		const std::size_t n( Random::distribute_uniform< std::size_t >( 15, 20 ) );
+		
+		
+		std::vector< Ubitrack::Math::Vector< 3, T > > p3D;
+		p3D.reserve( n );
+		std::generate_n ( std::back_inserter( p3D ), n,  randVector );
+		// std::copy( p3D.begin(), p3D.end(), std::ostream_iterator< Ubitrack::Math::Vector< 3 > > ( std::cout, ", ") );
 			
 		// project to 2D points 
-		std::vector< Vector< 2, double > > p2D( p3D.size() );
-		for ( unsigned i = 0; i < p3D.size(); i++ )
-		{
-			Vector< 3, double > tmp( rot * p3D[ i ] + trans );
-			tmp = ublas::prod( cam, tmp );
-			p2D[ i ] = ublas::subrange( tmp, 0, 2 ) / tmp( 2 );
-		}
+		Matrix< 3, 4, T > proj( rot, trans );
+		proj = boost::numeric::ublas::prod( cam, proj );
+		std::vector< Vector< 2, T > > p2D;
+		p2D.reserve( n );
+		std::transform( p3D.begin(), p3D.end(), std::back_inserter( p2D ), Functors::ProjectVector< T >( proj ) );
+		// std::copy( p2D.begin(), p2D.end(), std::ostream_iterator< Ubitrack::Math::Vector< 2 > > ( std::cout, ", ") );
 		
 		// add some noise to the pose
 		Pose testPose( 
-			Quaternion( rot.x() + random( -0.1, 0.1 ), rot.y() + random( -0.1, 0.1 ), 
-				rot.z() + random( -0.1, 0.1 ), rot.w() + random( -0.1, 0.1 ) ),
-			trans + randomVector< 3 >( 0.2 ) );
+			Quaternion( rot.x() + Random::distribute_uniform< T >( -0.1, 0.1 )
+						, rot.y() + Random::distribute_uniform< T >( -0.1, 0.1 )
+						, rot.z() + Random::distribute_uniform< T >( -0.1, 0.1 )
+						, rot.w() + Random::distribute_uniform< T >( -0.1, 0.1 ) )
+						, trans + randPositionNoise() );
 			
 		Pose optimized( testPose );
-			
-		// run optimizePose
+
 		Ubitrack::Calibration::optimizePose( optimized, p2D, p3D, cam );
 		
 		// check if pose is better than before
 		BOOST_CHECK( quaternionDiff( testPose.rotation(), rot ) >= quaternionDiff( optimized.rotation(), rot ) );
 		BOOST_CHECK( ublas::norm_2( testPose.translation() - trans ) >= ublas::norm_2( optimized.translation() - trans ) );
-		BOOST_CHECK_SMALL( quaternionDiff( optimized.rotation(), rot ), 1e-3 );
-		BOOST_CHECK_SMALL( ublas::norm_2( optimized.translation() - trans ), 1e-3 );
+		BOOST_CHECK_SMALL( quaternionDiff( optimized.rotation(), rot ), epsilon );
+		BOOST_CHECK_SMALL( ublas::norm_2( optimized.translation() - trans ), epsilon );
 	}
 }
 
 void Test2D3DPoseEstimation()
 {
-	TestOptimizePose();
+	TestOptimizePose< double >( 1000, 1e-3 );
 }
 

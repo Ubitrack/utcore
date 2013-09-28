@@ -47,7 +47,7 @@ template< int N, typename T >
 Ubitrack::Math::Vector< N, T > randomVector( T maxVal = 100.0 )
 {
 	Ubitrack::Math::Vector< N, T > v;
-	for ( unsigned i = 0; i < v.size(); i++ )
+	for ( std::size_t i = 0; i < v.size(); i++ )
 		v( i ) = random( T( -maxVal ), T( maxVal ) );
 	return v;
 }
@@ -56,8 +56,8 @@ template< class MA, class MB >
 double matrixDiff( const MA& ma, const MB& mb )
 {
 	double d = 0.0;
-	for ( unsigned i = 0; i < ma.size1(); i++ )
-		for ( unsigned j = 0; j < ma.size2(); j++ )
+	for ( std::size_t i = 0; i < ma.size1(); i++ )
+		for ( std::size_t j = 0; j < ma.size2(); j++ )
 			d += fabs( ma( i, j ) - mb( i, j ) );
 	return d / boost::numeric::ublas::norm_frobenius( ma );
 }
@@ -66,7 +66,7 @@ template< class VA, class VB >
 double vectorDiff( const VA& va, const VB& vb )
 {
 	double d = 0.0;
-	for ( unsigned i = 0; i < va.size(); i++ )
+	for ( std::size_t i = 0; i < va.size(); i++ )
 		d += fabs( va( i ) - vb( i ) );
 	return d / boost::numeric::ublas::norm_2( va );
 }
@@ -81,8 +81,8 @@ double homMatrixDiff( const MA& A, const MB& B )
 	
 	double dp = 0.0; // sum of differences A-B
 	double dm = 0.0; // sum of differences A+B (in case A ~ -B)
-	for ( unsigned i = 0; i < A.size1(); i++ )
-		for ( unsigned j = 0; j < A.size2(); j++ )
+	for ( std::size_t i = 0; i < A.size1(); i++ )
+		for ( std::size_t j = 0; j < A.size2(); j++ )
 		{
 			dp += fabs( A( i, j ) / normA - B( i, j ) / normB );
 			dm += fabs( A( i, j ) / normA + B( i, j ) / normB );

@@ -2,14 +2,25 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
-#include <utMath/Matrix.h>
-#include <utMath/Pose.h>
+
+
 #include <utUtil/Exception.h>
 #include <utCalibration/AbsoluteOrientation.h>
 #include "../tools.h"
-#include <cmath>
 
-using namespace Ubitrack;
+#include <utMath/Pose.h>
+#include <utMath/Vector.h>
+#include <utMath/Matrix.h>
+#include <utMath/Functors/VectorFunctors.h>
+
+#include <utMath/Random/Scalar.h>
+#include <utMath/Random/Vector.h>
+#include <utMath/Random/Rotation.h>
+
+
+
+
+using namespace Ubitrack::Math;
 
 #ifndef HAVE_LAPACK
 void TestAbsoluteOrientation()
@@ -18,7 +29,7 @@ void TestAbsoluteOrientation()
 }
 #else // HAVE_LAPACK
 
-void fillDemoVectorsDeterministic( Math::Vector<3>* left, Math::Vector<3>* right, Math::Quaternion q, Math::Vector< 3 > t )
+void fillDemoVectorsDeterministic( Vector<3>* left, Vector<3>* right, Quaternion q, Vector< 3 > t )
 {
 	left[0][0] = 1.0;
 	left[0][1] = 0.0;
@@ -42,60 +53,59 @@ void fillDemoVectorsDeterministic( Math::Vector<3>* left, Math::Vector<3>* right
 	right[3] = q*left[3]+t;
 }
 
-void doDeterministicTest()
+void testAbsoluteOrientationDeterministic()
 {
-	Math::Vector<3> axis ( 1.0, 1.0, 1.5 );
-	Math::Quaternion q ( axis, M_PI/6.0 );
-	Math::Vector<3> t ( -1.0, 3.0, 2.5 );
+	Vector<3> axis ( 1.0, 1.0, 1.5 );
+	Quaternion q ( axis, M_PI/6.0 );
+	Vector<3> t ( -1.0, 3.0, 2.5 );
 
-	Math::Vector< 3 > left[4];
-	Math::Vector< 3 > right[4];
+	Vector< 3 > left[4];
+	Vector< 3 > right[4];
 	fillDemoVectorsDeterministic ( left, right, q, t );
 
-	Math::Pose p = Calibration::calculateAbsoluteOrientation ( &left[0], &left[4], &right[0], &right[4] );
+	Pose p = Ubitrack::Calibration::calculateAbsoluteOrientation ( &left[0], &left[4], &right[0], &right[4] );
 
 	BOOST_CHECK_SMALL ( vectorDiff ( p.translation(), t ), 10e-6 );
 	BOOST_CHECK_SMALL ( quaternionDiff ( p.rotation(), q ), 10e-6 );
 }
 
-void doRandomizedTest()
+template< typename T >
+void testAbsoluteOrientationRandom( const std::size_t n_runs, const T epsilon )
 {
-	const int nPoints = 20;
 
-	std::vector< Math::Vector< 3 > > leftFrame;
-	std::vector< Math::Vector< 3 > > rightFrame;
-
-	double magnification = random (0.1, 10.0);
-
-	for (int j=0; j < nPoints; ++j)
+	Random::Quaternion< T > randQuat;
+	Random::Vector< 3, T >::Uniform randVector( -100, 100 );
+	
+	for ( std::size_t iRun = 0; iRun < n_runs; iRun++ )
 	{
-		leftFrame.push_back (randomVector<3, double>()*magnification);
+		const std::size_t n( Random::distribute_uniform< std::size_t >( 4, 30 ) );
+
+		std::vector< Vector< 3, T > > leftFrame;
+		leftFrame.reserve( n );
+		std::generate_n ( std::back_inserter( leftFrame ), n,  randVector );
+		
+		
+		Quaternion q = randQuat();
+		Vector < 3, T > t = randVector();
+		
+		std::vector< Vector< 3, T > > rightFrame;
+		rightFrame.reserve( n );
+		std::transform( leftFrame.begin(), leftFrame.end(), std::back_inserter( rightFrame ), Functors::TransformVector< T >( q, t ) );
+
+		Pose p = Ubitrack::Calibration::calculateAbsoluteOrientation ( leftFrame.begin(), leftFrame.end(), rightFrame.begin(), rightFrame.end() );
+		BOOST_CHECK_SMALL ( vectorDiff ( p.translation(), t ), epsilon );
+		BOOST_CHECK_SMALL ( quaternionDiff ( p.rotation(), q ), epsilon );
 	}
-
-	Math::Quaternion q = randomQuaternion();
-	Math::Vector < 3 > t = randomVector<3, double>();
-
-	for (int j=0; j < nPoints; ++j)
-	{
-		rightFrame.push_back ( q*leftFrame[j]+t );
-	}
-
-	Math::Pose p = Calibration::calculateAbsoluteOrientation ( leftFrame.begin(), leftFrame.end(), rightFrame.begin(), rightFrame.end() );
-	BOOST_CHECK_SMALL ( vectorDiff ( p.translation(), t ), 10e-6 );
-	BOOST_CHECK_SMALL ( quaternionDiff ( p.rotation(), q ), 10e-6 );
+	
 }
 
 void TestAbsoluteOrientation()
 {
 	// first do a deterministic test
-	doDeterministicTest();
-
+	testAbsoluteOrientationDeterministic();
+	
 	// do some iterations of random tests
-	const int nIterations = 100;
- 	for (int i=0; i < nIterations; ++i)
- 	{
-		doRandomizedTest();
-	}
+	testAbsoluteOrientationRandom< double >( 10000, 10e-6 );
 }
 
 #endif // HAVE_LAPACK
