@@ -27,13 +27,13 @@ void TestOptimizePose( const std::size_t n_runs, const T epsilon )
 {
 
 	Random::Quaternion< T > randQuat;
-	Random::Vector< 3, T >::Uniform randVector( -0.5, 0.5 ); // 3d Points
-	Random::Vector< 3, T >::Uniform randTranslation( -100, 100 ); //translation
-	// Random::Vector< 3, T >::Normal randPositionNoise( 0, 0.2 ); // translation gaussian noise
-	Random::Vector< 3, T >::Uniform randPositionNoise( -0.3, 0.3 ); // translation uniform noise
+	typename Random::Vector< 3, T >::Uniform randVector( -0.5, 0.5 ); // 3d Points
+	typename Random::Vector< 3, T >::Uniform randTranslation( -100, 100 ); //translation
+	// typename Random::Vector< 3, T >::Normal randPositionNoise( 0, 0.2 ); // translation gaussian noise
+	typename Random::Vector< 3, T >::Uniform randPositionNoise( -0.3, 0.3 ); // translation uniform noise
 	
 	
-	for ( int iRun = 0; iRun < n_runs; iRun++ )
+	for ( std::size_t iRun = 0; iRun < n_runs; iRun++ )
 	{
 		// random intrinsics matrix
 		Matrix< 3, 3, T > cam( ublas::identity_matrix< T >( 3 ) );

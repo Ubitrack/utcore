@@ -158,7 +158,7 @@ Math::Vector< N, T > distribute_normal( const T mu , const T sigma )
 template< typename T, std::size_t N >
 Math::Vector< N, T > distribute_uniform( const T min, const T max )
 {
-	return Random::Vector< N, T >::Uniform( min, max )();
+	return typename Random::Vector< N, T >::Uniform( min, max )();
 }
 
 }}} //Ubitrack::Math::Random
