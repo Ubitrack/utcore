@@ -143,7 +143,7 @@ struct Vector
 template< typename T, std::size_t N >
 Math::Vector< N, T > distribute_normal( const T mu , const T sigma )
 {
-	return Random::Vector< N, T >::Normal( mu, sigma )();
+	return typename Random::Vector< N, T >::Normal( mu, sigma )();
 }
 
 /** 
