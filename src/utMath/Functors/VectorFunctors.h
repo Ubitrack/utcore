@@ -153,27 +153,28 @@ public:
 
 /**
  * @ingroup math
- * Functor Class to calcualte the Euclidean distance
+ * Functor Class to the calculate the 1st norm
  * of a vector.
  *
- * Recursice implementation that fits all N
+ * Recursive implementation for a Math::Vector 
+ * of arbitrary dimension N.
  */
-struct Norm_2
+struct Norm_1
 {
 public:
 	/**
 	 * @ingroup math
-	 * Calculates the norm of a Math::Vector.
+	 * Calculates the length of a Math::Vector.
 	 *
 	 * @tparam N dimension of vector
 	 * @tparam T builtin-type of vector
-	 * @param vec the Math::Vector< N, T >
-	 * @return norm of the input 3-vector
+	 * @param vec the vector 
+	 * @return norm of the N-dimensional vector
 	 */
 	template< std::size_t N, typename T >
 	T operator() ( const Math::Vector< N, T >& vec ) const
 	{
-		return Norm_2::norm2_impl< N, T >().operator()( vec );
+		return Norm_1::norm1_impl< N, T >().operator()( vec );
 	}
 
 protected:
@@ -185,13 +186,13 @@ protected:
 	 * @tparam T builtin-type of vector
 	 */
 	template< std::size_t N, typename T >
-	struct norm2_impl
+	struct norm1_impl
 	{
 		template< typename VecType >
 		T operator() ( const VecType& vec, const T sqsum ) const
 		{
 			const T sq = sqsum + vec[ N-1 ] * vec[ N-1 ];
-			return norm2_impl< N-1, T >().operator()( vec, sq );
+			return norm1_impl< N-1, T >().operator()( vec, sq );
 		}
 	};
 
@@ -203,14 +204,41 @@ protected:
 	 * @tparam T builtin-type of vector
 	 */
 	template< typename T >
-	struct norm2_impl< 0, T >
+	struct norm1_impl< 0, T >
 	{
 		template< typename VecType >
 		T operator() ( const VecType& vec, const T sqsum ) const
 		{
-			return std::sqrt( sqsum );
+			return sqsum;
 		}
 	};
+};
+
+/**
+ * @ingroup math
+ * Functor Class to calcualte the Euclidean distance
+ * of a vector.
+ *
+ * Uses internally the functor that calcualtes the
+ * 1st norm of a vector.
+ */
+struct Norm_2
+{
+public:
+	/**
+	 * @ingroup math
+	 * Calculates the length of a Math::Vector.
+	 *
+	 * @tparam N dimension of vector
+	 * @tparam T builtin-type of vector
+	 * @param vec the vector 
+	 * @return norm of the N-dimensional vector
+	 */
+	template< std::size_t N, typename T >
+	T operator() ( const Math::Vector< N, T >& vec ) const
+	{
+		return std::sqrt( Norm_2().operator()( vec ) );
+	}
 };
 
 
