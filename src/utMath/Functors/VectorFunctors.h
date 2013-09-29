@@ -50,7 +50,7 @@
 
 
 
-namespace Ubitrack { namespace Math{ namespace Functors {
+namespace Ubitrack { namespace Math { namespace Functors {
 
 /**
  * @ingroup math
@@ -77,7 +77,7 @@ public:
 	{};
 
 	Ubitrack::Math::Vector< 3, T > operator() ( const Ubitrack::Math::Vector< 2, T > &vec ) const
-    {
+	{
 		const T e1 = m_transformation( 0, 0 ) * vec( 0 ) + m_transformation( 0, 1 ) * vec( 1 ) + m_transformation( 0, 2 );
 		const T e2 = m_transformation( 1, 0 ) * vec( 0 ) + m_transformation( 1, 1 ) * vec( 1 ) + m_transformation( 1, 2 );
 		const T e3 = m_transformation( 2, 0 ) * vec( 0 ) + m_transformation( 2, 1 ) * vec( 1 ) + m_transformation( 2, 2 );
@@ -85,7 +85,7 @@ public:
 	}
 	
 	Ubitrack::Math::Vector< 3, T > operator() ( const Ubitrack::Math::Vector< 3, T > &vec ) const
-    {
+	{
 		const T e1 = m_transformation( 0, 0 ) * vec( 0 ) + m_transformation( 0, 1 ) * vec( 1 ) + m_transformation( 0, 2 ) * vec( 2 ) + m_transformation( 0, 3 );
 		const T e2 = m_transformation( 1, 0 ) * vec( 0 ) + m_transformation( 1, 1 ) * vec( 1 ) + m_transformation( 1, 2 ) * vec( 2 ) + m_transformation( 1, 3 );
 		const T e3 = m_transformation( 2, 0 ) * vec( 0 ) + m_transformation( 2, 1 ) * vec( 1 ) + m_transformation( 2, 2 ) * vec( 2 ) + m_transformation( 2, 3 );
@@ -93,7 +93,7 @@ public:
 	}
 	
 	Ubitrack::Math::Vector< 3, T > operator() ( const Math::Vector< 4, T > &vec ) const
-    {
+	{
 		const T e1 = m_transformation( 0, 0 ) * vec( 0 ) + m_transformation( 0, 1 ) * vec( 1 ) + m_transformation( 0, 2 ) * vec( 2 ) + m_transformation( 0, 3 ) * vec( 3 );
 		const T e2 = m_transformation( 1, 0 ) * vec( 0 ) + m_transformation( 1, 1 ) * vec( 1 ) + m_transformation( 1, 2 ) * vec( 2 ) + m_transformation( 1, 3 ) * vec( 3 );
 		const T e3 = m_transformation( 2, 0 ) * vec( 0 ) + m_transformation( 2, 1 ) * vec( 1 ) + m_transformation( 2, 2 ) * vec( 2 ) + m_transformation( 2, 3 ) * vec( 3 );
@@ -103,7 +103,8 @@ public:
 
 /**
  * @ingroup math
- * Projects the Math::Vector< 3, T > with a 3x4 projection matrix.
+ * Projects a Math::Vector by a given 3x4 projection matrix.
+ * several overloads for 2, 3 and 4 vector are provided.
  */
 template< typename T >
 struct ProjectVector
@@ -126,7 +127,7 @@ public:
 	{};
 
 	Ubitrack::Math::Vector< 2, T > operator() ( const Ubitrack::Math::Vector< 2, T > &vec ) const
-    {
+	{
 		const T e1 = m_projection( 0, 0 ) * vec( 0 ) + m_projection( 0, 1 ) * vec( 1 ) + m_projection( 0, 2 );
 		const T e2 = m_projection( 1, 0 ) * vec( 0 ) + m_projection( 1, 1 ) * vec( 1 ) + m_projection( 1, 2 );
 		const T e3 = m_projection( 2, 0 ) * vec( 0 ) + m_projection( 2, 1 ) * vec( 1 ) + m_projection( 2, 2 );
@@ -134,7 +135,7 @@ public:
 	}
 	
 	Ubitrack::Math::Vector< 2, T > operator() ( const Ubitrack::Math::Vector< 3, T > &vec ) const
-    {
+	{
 		const T e1 = m_projection( 0, 0 ) * vec( 0 ) + m_projection( 0, 1 ) * vec( 1 ) + m_projection( 0, 2 ) * vec( 2 ) + m_projection( 0, 3 );
 		const T e2 = m_projection( 1, 0 ) * vec( 0 ) + m_projection( 1, 1 ) * vec( 1 ) + m_projection( 1, 2 ) * vec( 2 ) + m_projection( 1, 3 );
 		const T e3 = m_projection( 2, 0 ) * vec( 0 ) + m_projection( 2, 1 ) * vec( 1 ) + m_projection( 2, 2 ) * vec( 2 ) + m_projection( 2, 3 );
@@ -142,13 +143,55 @@ public:
 	}
 	
 	Ubitrack::Math::Vector< 2, T > operator() ( const Ubitrack::Math::Vector< 4, T > &vec ) const
-    {
+	{
 		const T e1 = m_projection( 0, 0 ) * vec( 0 ) + m_projection( 0, 1 ) * vec( 1 ) + m_projection( 0, 2 ) * vec( 2 ) + m_projection( 0, 3 ) * vec( 3 );
 		const T e2 = m_projection( 1, 0 ) * vec( 0 ) + m_projection( 1, 1 ) * vec( 1 ) + m_projection( 1, 2 ) * vec( 2 ) + m_projection( 1, 3 ) * vec( 3 );
 		const T e3 = m_projection( 2, 0 ) * vec( 0 ) + m_projection( 2, 1 ) * vec( 1 ) + m_projection( 2, 2 ) * vec( 2 ) + m_projection( 2, 3 ) * vec( 3 );
 		return Math::Vector< 2, T > ( e1/e3, e2/e3 );
 	}
 };
+
+/**
+ * @ingroup math
+ * Functor Class to calcualte the Euclidean distance
+ * of a vector.
+ *
+ * Recursice implementation that fits all N
+ */
+ 
+struct Norm_2
+{
+
+	/**
+	 * @ingroup math
+	 * Calculates the norm of a Math::Vector.
+	 *
+	 * @tparam N dimension of vector
+	 * @tparam T builtin-type of vector
+	 * @param vec the Math::Vector< N, T >
+	 * @return norm of the input 3-vector
+	 */
+
+public:
+	template< std::size_t N,  typename T >
+	T operator() ( const Math::Vector< N, T >& vec ) const
+	{
+		return this->operator()< N, Math::Vector< N, T >, T >( vec, 0 );
+	}
+
+
+protected:
+	template< std::size_t N,  typename VecType, typename T >
+	T operator() ( const VecType& vec, const T sqsum ) const
+	{
+		if ( N == 0 )
+			return std::sqrt( sqsum );
+
+		const T sq = sqsum + vec( N-1 ) * ( N-1 );
+		return this->operator()< N-1, VecType, T >( vec, sq );
+	}
+};
+
 
 } } } // namespace Ubitrack::Math::Functors
 
