@@ -158,10 +158,9 @@ public:
  *
  * Recursice implementation that fits all N
  */
- 
 struct Norm_2
 {
-
+public:
 	/**
 	 * @ingroup math
 	 * Calculates the norm of a Math::Vector.
@@ -171,25 +170,47 @@ struct Norm_2
 	 * @param vec the Math::Vector< N, T >
 	 * @return norm of the input 3-vector
 	 */
-
-public:
-	template< std::size_t N,  typename T >
+	template< std::size_t N, typename T >
 	T operator() ( const Math::Vector< N, T >& vec ) const
 	{
-		return this->operator()< N, Math::Vector< N, T >, T >( vec, 0 );
+		return Norm_2::norm2_impl< N, T >().operator()( vec );
 	}
-
 
 protected:
-	template< std::size_t N,  typename VecType, typename T >
-	T operator() ( const VecType& vec, const T sqsum ) const
+	/**
+	 * @ingroup math
+	 * Internal functor for recursive implementation.
+	 *
+	 * @tparam N dimension of vector
+	 * @tparam T builtin-type of vector
+	 */
+	template< std::size_t N, typename T >
+	struct norm2_impl
 	{
-		if ( N == 0 )
-			return std::sqrt( sqsum );
+		template< typename VecType >
+		T operator() ( const VecType& vec, const T sqsum ) const
+		{
+			const T sq = sqsum + vec[ N-1 ] * vec[ N-1 ];
+			return norm2_impl< N-1, T >().operator()( vec, sq );
+		}
+	};
 
-		const T sq = sqsum + vec( N-1 ) * ( N-1 );
-		return this->operator()< N-1, VecType, T >( vec, sq );
-	}
+	/**
+	 * @ingroup math
+	 * Partial specialization of functor for final element.
+	 *
+	 * @tparam N dimension of vector
+	 * @tparam T builtin-type of vector
+	 */
+	template< typename T >
+	struct norm2_impl< 0, T >
+	{
+		template< typename VecType >
+		T operator() ( const VecType& vec, const T sqsum ) const
+		{
+			return std::sqrt( sqsum );
+		}
+	};
 };
 
 
