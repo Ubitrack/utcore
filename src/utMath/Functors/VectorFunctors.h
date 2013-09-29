@@ -153,28 +153,29 @@ public:
 
 /**
  * @ingroup math
- * Functor Class to the calculate the 1st norm
+ * Functor class to calculate the 1st norm
  * of a vector.
  *
- * Recursive implementation for a Math::Vector 
- * of arbitrary dimension N.
+ * Recursive implementation that can be applied to 
+ * a Math::Vector of arbitrary dimension N.
+ *
+ * @tparam N dimension of vector
+ * @tparam T builtin-type of vector
  */
+template< std::size_t N, typename T >
 struct Norm_1
 {
 public:
 	/**
 	 * @ingroup math
-	 * Calculates the length of a Math::Vector.
+	 * Calculates the 1st norm of a Math::Vector.
 	 *
-	 * @tparam N dimension of vector
-	 * @tparam T builtin-type of vector
 	 * @param vec the vector 
 	 * @return norm of the N-dimensional vector
 	 */
-	template< std::size_t N, typename T >
 	T operator() ( const Math::Vector< N, T >& vec ) const
 	{
-		return Norm_1::norm1_impl< N, T >().operator()( vec );
+		return norm1_impl< N, Math::Vector< N, T > >()( vec, 0 );
 	}
 
 protected:
@@ -182,17 +183,14 @@ protected:
 	 * @ingroup math
 	 * Internal functor for recursive implementation.
 	 *
-	 * @tparam N dimension of vector
-	 * @tparam T builtin-type of vector
 	 */
-	template< std::size_t N, typename T >
+	template< std::size_t I, typename VecType >
 	struct norm1_impl
 	{
-		template< typename VecType >
 		T operator() ( const VecType& vec, const T sqsum ) const
 		{
-			const T sq = sqsum + vec[ N-1 ] * vec[ N-1 ];
-			return norm1_impl< N-1, T >().operator()( vec, sq );
+			const T sq = sqsum + ( vec[ I-1 ] * vec[ I-1 ] );
+			return norm1_impl< I-1, VecType >()( vec, sq );
 		}
 	};
 
@@ -200,13 +198,10 @@ protected:
 	 * @ingroup math
 	 * Partial specialization of functor for final element.
 	 *
-	 * @tparam N dimension of vector
-	 * @tparam T builtin-type of vector
 	 */
-	template< typename T >
-	struct norm1_impl< 0, T >
+	template< typename VecType >
+	struct norm1_impl< 0, VecType >
 	{
-		template< typename VecType >
 		T operator() ( const VecType& vec, const T sqsum ) const
 		{
 			return sqsum;
@@ -214,15 +209,49 @@ protected:
 	};
 };
 
+
 /**
  * @ingroup math
  * Functor Class to calcualte the Euclidean distance
  * of a vector.
  *
  * Uses internally the functor that calcualtes the
- * 1st norm of a vector.
+ * 1st norm of a vector and can be applied to
+ * a Math::Vector of arbitrary dimension N.
+ *
+ * @tparam N dimension of vector
+ * @tparam T builtin-type of vector
  */
+template< std::size_t N, typename T >
 struct Norm_2
+{
+public:
+	/**
+	 * @ingroup math
+	 * Calculates the length of a Math::Vector.
+	 *
+	 * @param vec the vector 
+	 * @return norm of the N-dimensional vector
+	 */
+	T operator() ( const Math::Vector< N, T >& vec ) const
+	{
+		return std::sqrt( Norm_1< N, T >().operator()( vec ) );
+	}
+};
+
+/**
+ * @ingroup math
+ * Functor Class to the calculate the inner-product 
+ * of two vectors.
+ *
+ * Recursive implementation for Vectors of
+ * arbitrary dimension N.
+ *
+ * @tparam N dimension of vector
+ * @tparam T builtin-type of vector
+ */
+template< std::size_t N, typename T >
+struct InnerProduct
 {
 public:
 	/**
@@ -234,11 +263,41 @@ public:
 	 * @param vec the vector 
 	 * @return norm of the N-dimensional vector
 	 */
-	template< std::size_t N, typename T >
-	T operator() ( const Math::Vector< N, T >& vec ) const
+	T operator() ( const Math::Vector< N, T >& vec1, const Math::Vector< N, T >& vec2 ) const
 	{
-		return std::sqrt( Norm_2().operator()( vec ) );
+		return inner_product_impl< N, Math::Vector< N, T > >()( vec1, vec2, 0 );
 	}
+
+protected:
+	/**
+	 * @ingroup math
+	 * Internal functor for recursive implementation 
+	 * of dot product.
+	 *
+	 */
+	template< std::size_t I, typename VecType >
+	struct inner_product_impl
+	{
+		T operator() ( const VecType& vec1, const VecType& vec2, const T sqsum ) const
+		{
+			const T sq = sqsum + ( vec1[ I-1 ] * vec2[ I-1 ] );
+			return inner_product_impl< I-1, VecType >()( vec1, vec2, sq );
+		}
+	};
+
+	/**
+	 * @ingroup math
+	 * Partial specialization of functor for final element.
+	 *
+	 */
+	template< typename VecType >
+	struct inner_product_impl< 0, VecType >
+	{
+		T operator() ( const VecType&, const VecType& , const T sqsum ) const
+		{
+			return sqsum;
+		}
+	};
 };
 
 
