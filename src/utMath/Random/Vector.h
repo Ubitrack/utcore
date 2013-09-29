@@ -40,10 +40,12 @@
 
 // boost
 #include <boost/numeric/ublas/vector.hpp>
+#include <boost/numeric/bindings/lapack/posv.hpp>
 
 // Ubitrack
 #include "Scalar.h"
 #include <utMath/Vector.h>
+#include <utMath/Matrix.h>
 
 
 namespace Ubitrack { namespace Math { namespace Random {
@@ -68,27 +70,56 @@ struct Vector
 	{
 		protected:
 			const Math::Vector< N, T > m_mu;
-			const Math::Vector< N, T > m_sigma;
+			Math::Matrix< N, N, T > m_sigma;
+
+			void prepareSigma()
+			{
+				//performs an inversion via cholesky decomposition
+				boost::numeric::bindings::lapack::potrf( 'L', m_sigma );
+
+				//set upper triangle of matrix to zero
+				for( std::size_t r( 0 ); r < (N); ++r )
+					for( std::size_t c ( r + 1 ); c < (N); ++c )
+						m_sigma( r, c ) = 0;
+			}
 			
 		public :
 			Normal( const T mu, const T sigma )
 				: std::unary_function< void, Math::Vector< N, T > >( )
 				, m_mu( boost::numeric::ublas::scalar_vector< T >( N, mu ) )
-				, m_sigma( boost::numeric::ublas::scalar_vector< T >( N, sigma ) )
-				{ };
+				, m_sigma( boost::numeric::ublas::identity_matrix< T >( N ) * sigma )
+				{ 
+					prepareSigma();
+				};
 		
 			Normal( const Math::Vector< N, T >& mu, const Math::Vector< N, T >& sigma )
 				: std::unary_function< void, Math::Vector< N, T > >( )
 				, m_mu( mu )
+				, m_sigma( boost::numeric::ublas::zero_matrix< T >( N ) )
+				{
+					for( std::size_t n( 0 ); n < N; ++n )
+						m_sigma( n, n ) = sigma( n );
+					prepareSigma();
+				};
+
+			Normal( const Math::Vector< N, T >& mu, const Math::Matrix< N, N, T >& sigma )
+				: std::unary_function< void, Math::Vector< N, T > >( )
+				, m_mu( mu )
 				, m_sigma( sigma )
-				{ };
+				{
+					prepareSigma();
+				};
 
 			const Math::Vector< N, T > operator()( void ) const
 			{
 				Math::Vector< N, T > vec; 
+				for( std::size_t n( 0 ); n < N; ++n )
+					vec( n ) = distribute_normal< T >( 0, 1 );
+				return ( m_mu + boost::numeric::ublas::prod( m_sigma, vec ) );
+				/*Math::Vector< N, T > vec; 
 				for( std::size_t n( 0 ); n < (N); ++n )
 					vec( n ) = distribute_normal< T >( m_mu( n ), m_sigma( n ) );
-				return Math::Vector< N, T >( vec );
+				return Math::Vector< N, T >( vec );*/
 			}
 	};
 
@@ -142,6 +173,21 @@ struct Vector
  */
 template< typename T, std::size_t N >
 Math::Vector< N, T > distribute_normal( const T mu , const T sigma )
+{
+	return typename Random::Vector< N, T >::Normal( mu, sigma )();
+}
+
+/** 
+ * Function that produces a N-dimensional random vector of a given normal distribution.
+ *
+ * @tparam T type of distribution ( e.g. \c double or \float )
+ * @tparam N dimension of the vector to be returned
+ * @param mu mean value of normal distribution
+ * @param sigma standard deviation of normal distribution
+ * @return the random vector from the normal distribution
+ */
+template< typename T, std::size_t N >
+Math::Vector< N, T > distribute_normal( const Math::Vector< N, T > &mu , const Math::Matrix< N, N, T>& sigma )
 {
 	return typename Random::Vector< N, T >::Normal( mu, sigma )();
 }
