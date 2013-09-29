@@ -252,6 +252,7 @@ public:
  */
 template< std::size_t N, typename T >
 struct InnerProduct
+	: public std::binary_function< Math::Vector< N, T >, Math::Vector< N, T >, T >
 {
 public:
 	/**
