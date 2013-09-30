@@ -75,6 +75,7 @@ void testAbsoluteOrientationRandom( const std::size_t n_runs, const T epsilon )
 
 	Random::Quaternion< T > randQuat;
 	typename Random::Vector< 3, T >::Uniform randVector( -100, 100 );
+	Random::UniformDistribution< Vector< 3, T > > randomizer;
 	
 	for ( std::size_t iRun = 0; iRun < n_runs; iRun++ )
 	{
