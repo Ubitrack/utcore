@@ -52,6 +52,7 @@
 
 namespace Ubitrack { namespace Math { namespace Functors {
 
+
 /**
  * @ingroup math
  * Transforms the Math::Vector< 3, T > with a 3x4 transformation matrix.
@@ -100,6 +101,7 @@ public:
 		return Ubitrack::Math::Vector< 3, T > ( e1, e2, e3 );
 	}
 };
+
 
 /**
  * @ingroup math
@@ -150,6 +152,7 @@ public:
 		return Math::Vector< 2, T > ( e1/e3, e2/e3 );
 	}
 };
+
 
 /**
  * @ingroup math
@@ -239,9 +242,41 @@ public:
 	}
 };
 
+
 /**
  * @ingroup math
- * Functor Class to the calculate the inner-product 
+ * Functor Class to the calculate a normalized vector.
+ *
+ * Recursive implementation for Vectors of
+ * arbitrary dimension N.
+ *
+ * @tparam N dimension of vector
+ * @tparam T builtin-type of vector
+ */
+template< std::size_t N, typename T >
+struct NormalizeVector
+	: public std::unary_function< Math::Vector< N, T >, Math::Vector< N, T > >
+{
+public:
+	/**
+	 * @ingroup math
+	 * Normalizes a Math::Vector such that his 
+	 * length equals to one.
+	 *
+	 * @param vec the N-dimensional vector 
+	 * @return norm of the N-dimensional vector
+	 */
+	Math::Vector< N, T > operator() ( const Math::Vector< N, T >& vec ) const
+	{
+		const T norm ( Norm_2< N, T >()( vec ) );
+		return vec * ( 1./ norm );
+	}
+};
+
+
+/**
+ * @ingroup math
+ * Functor Class to the calculate the inner product 
  * of two vectors.
  *
  * Recursive implementation for Vectors of
@@ -257,12 +292,11 @@ struct InnerProduct
 public:
 	/**
 	 * @ingroup math
-	 * Calculates the length of a Math::Vector.
+	 * Calculates the inner product of two vectors.
 	 *
-	 * @tparam N dimension of vector
-	 * @tparam T builtin-type of vector
-	 * @param vec the vector 
-	 * @return norm of the N-dimensional vector
+	 * @param vec1 the 1st vector 
+	 * @param vec2 the 2nd vector 
+	 * @return inner product of the two vectors
 	 */
 	T operator() ( const Math::Vector< N, T >& vec1, const Math::Vector< N, T >& vec2 ) const
 	{

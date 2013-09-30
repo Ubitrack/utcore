@@ -35,8 +35,10 @@
 #define __H__RANDOM_NUMBERS_H__
 
 
+#include <boost/version.hpp>
+
 // boost random numbers available from version 1.31.xx on
-#if (BOOST_VERSION / 100000) > 0 && (BOOST_VERSION / 100 % 1000 ) > 30
+#if BOOST_VERSION > 013100
 	#define RANDOM_BOOST
 	#include <boost/random/uniform_01.hpp>
 	#include <boost/random/uniform_int.hpp>
@@ -95,7 +97,7 @@ inline T distribute_uniform( const T min, const T max )
 	boost::variate_generator < boost::mt19937&, boost::uniform_int< T > > Generator( RNG, uniformDist );
 	return Generator();
 #else
-	/// @todo: change this, /// @todo: change this, right now it's no good idea for uniform distribution if boost rng is not available
+	/// @todo: change this, it will not work the way it is
 	return ( rand() / RAND_MAX ) * (max - min) + min;
 #endif
 }
@@ -112,7 +114,8 @@ inline float distribute_uniform< float >( const float min, const float max )
 
 #else
 	/// @todo: change this, right now it's no good idea for uniform distribution if boost rng is not available
-	return ( rand() / RAND_MAX ) * (max - min) + min;
+	const float rndnum = ( rand() / static_cast< float >( RAND_MAX ) );
+	return ( rndnum * (max - min) + min );
 #endif
 }
 
@@ -124,10 +127,10 @@ inline double distribute_uniform< double >( const double min, const double max )
 	boost::uniform_real< double > uniformDist( min, max ); // Uniform distribution
 	boost::variate_generator < boost::mt19937&, boost::uniform_real< double > > Generator( RNG, uniformDist );
 	return Generator();
-
 #else
 	/// @todo: change this, right now it's no good idea for uniform distribution if boost rng is not available
-	return ( rand() / RAND_MAX ) * (max - min) + min;
+	const double rndnum = ( rand() / static_cast< double >( RAND_MAX ) );
+	return ( rndnum * (max - min) + min );
 #endif
 }
 

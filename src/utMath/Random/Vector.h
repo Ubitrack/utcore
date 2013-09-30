@@ -157,7 +157,7 @@ struct Vector
 				Math::Vector< N, T > vec; 
 				for( std::size_t n( 0 ); n < N; ++n )
 					vec( n ) = distribute_uniform< T >( m_min_range( n ), m_max_range( n ) );
-				return vec;
+				return Math::Vector< N, T >( vec );
 			}
 	};
 };
