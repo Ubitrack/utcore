@@ -51,6 +51,9 @@
 #include <cstdlib>
 #endif
 
+
+#include <utUtil/StaticAssert.h>
+
 namespace Ubitrack { namespace Math { namespace Random {
 
 #ifdef RANDOM_BOOST
@@ -74,6 +77,7 @@ T distribute_normal( const T mu , const T sigma )
 	boost::variate_generator< boost::mt19937&, boost::normal_distribution< T > > Generator( RNG, normalDist );
 	return Generator();
 #else
+	UBITRACK_STATIC_ASSERT( 1 == 2, FUNCTION_NOT_IMPLEMENTED_YET );
 	/// @todo: change this, right now it's no good idea for normal distribution if boost rng is not available
 	return rand();
 #endif
@@ -98,6 +102,7 @@ inline T distribute_uniform( const T min, const T max )
 	return Generator();
 #else
 	/// @todo: change this, it will not work the way it is
+	UBITRACK_STATIC_ASSERT( 1 == 2, FUNCTION_NOT_IMPLEMENTED_YET );
 	return ( rand() / RAND_MAX ) * (max - min) + min;
 #endif
 }
