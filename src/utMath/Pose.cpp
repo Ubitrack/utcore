@@ -41,6 +41,21 @@ Pose Pose::operator*( const Pose& Q ) const
 	);
 }
 
+bool Pose::operator==( const Pose& other ) const
+{
+	if ((m_rotation == other.rotation()) && (m_translation == other.translation()))
+		return true;
+	return false;
+}
+
+bool Pose::operator!=( const Pose& other ) const
+{
+	if ((m_rotation == other.rotation()) && (m_translation == other.translation()))
+		return false;
+	return true;
+}
+
+
 Vector< 3 > Pose::operator*( const Vector< 3 >& x ) const
 {
 	return Vector< 3 >( ( m_rotation * x ) + m_translation );

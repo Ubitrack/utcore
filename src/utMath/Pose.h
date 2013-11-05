@@ -158,6 +158,18 @@ class UBITRACK_EXPORT Pose
 		 */
 		Pose operator~( ) const;
 
+		/**
+		 * test for equality of two poses (if rotation and translation match, the poses are equal
+		 * @return true if poses are equal
+		 */
+		bool operator==( const Pose & other ) const;
+
+		/**
+		 * test for inequality of two poses (if rotation, translation, or both differ the poses are not equal
+		 * @return true if poses are not equal
+		 */
+		bool operator!=( const Pose & other ) const;
+
 	protected:
 
 		/// serialize Pose object
