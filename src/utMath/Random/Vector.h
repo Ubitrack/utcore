@@ -70,52 +70,63 @@ struct Vector
 	{
 		protected:
 			const Math::Vector< N, T > m_mu;
-			Math::Matrix< N, N, T > m_sigma;
+			const Math::Vector< N, T > m_sigma;
+			// 2013-11-07 CW: Commented out the drawing number from a covariance 
+			// the intention was good, the realization was wrong
+			// actually there is already a function to draw from a normal distribution
+			// this function is used now.
+			//maybe some time later I will take here once more...
+			// Math::Matrix< N, N, T > m_sigma;
 
-			void prepareSigma()
-			{
-				//performs an inversion via cholesky decomposition
-				boost::numeric::bindings::lapack::potrf( 'L', m_sigma );
+			// void prepareSigma()
+			// {
+				// //performs an inversion via cholesky decomposition
+				// boost::numeric::bindings::lapack::potrf( 'L', m_sigma );
 
-				//set upper triangle of matrix to zero
-				for( std::size_t r( 0 ); r < (N); ++r )
-					for( std::size_t c ( r + 1 ); c < (N); ++c )
-						m_sigma( r, c ) = 0;
-			}
+				// //set upper triangle of matrix to lower triangle
+				// for( std::size_t r( 0 ); r < (N); ++r )
+					// for( std::size_t c ( r + 1 ); c < (N); ++c )
+						// m_sigma( r, c ) = m_sigma( c, r );
+			// }
 			
 		public :
 			Normal( const T mu, const T sigma )
 				: std::unary_function< void, Math::Vector< N, T > >( )
 				, m_mu( boost::numeric::ublas::scalar_vector< T >( N, mu ) )
-				, m_sigma( boost::numeric::ublas::identity_matrix< T >( N ) * sigma )
+				, m_sigma( boost::numeric::ublas::scalar_vector< T >( N, sigma ) )
+				// , m_sigma( boost::numeric::ublas::identity_matrix< T >( N ) * sigma )
 				{ 
-					prepareSigma();
+					// prepareSigma();
 				};
 		
 			Normal( const Math::Vector< N, T >& mu, const Math::Vector< N, T >& sigma )
 				: std::unary_function< void, Math::Vector< N, T > >( )
 				, m_mu( mu )
-				, m_sigma( boost::numeric::ublas::zero_matrix< T >( N ) )
+				, m_sigma( sigma )
+				// , m_sigma( boost::numeric::ublas::zero_matrix< T >( N ) )
 				{
-					for( std::size_t n( 0 ); n < N; ++n )
-						m_sigma( n, n ) = sigma( n );
-					prepareSigma();
+					// for( std::size_t n( 0 ); n < N; ++n )
+						// m_sigma( n, n ) = sigma( n );
+					// prepareSigma();
 				};
 
 			Normal( const Math::Vector< N, T >& mu, const Math::Matrix< N, N, T >& sigma )
 				: std::unary_function< void, Math::Vector< N, T > >( )
 				, m_mu( mu )
-				, m_sigma( sigma )
+				// , m_sigma( sigma )
 				{
-					prepareSigma();
+					///@TODO write correct algorithm how to draw from a random number from a given covariance
+					//right now this initialization would be wrong...
+					// prepareSigma();
 				};
 
 			const Math::Vector< N, T > operator()( void ) const
 			{
 				Math::Vector< N, T > vec; 
 				for( std::size_t n( 0 ); n < N; ++n )
-					vec( n ) = distribute_normal< T >( 0, 1 );
-				return ( m_mu + boost::numeric::ublas::prod( m_sigma, vec ) );
+					vec( n ) = distribute_normal< T >( m_mu[ n ], m_sigma[ n ] );
+				return vec;
+				// return ( m_mu + boost::numeric::ublas::prod( m_sigma, vec ) );
 				/*Math::Vector< N, T > vec; 
 				for( std::size_t n( 0 ); n < (N); ++n )
 					vec( n ) = distribute_normal< T >( m_mu( n ), m_sigma( n ) );
