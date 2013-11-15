@@ -3,9 +3,13 @@
 #include <utMath/Matrix.h>
 #include <utMath/Random/Scalar.h>
 #include <utMath/Random/Vector.h>
+#include <utMath/Random/Rotation.h>
 #include <utMath/Geometry/Conic.h>
+#include <utMath/Geometry/Quadric.h>
+#include <utMath/Functors/VectorFunctors.h>
 
-#include <algorithm>
+#include <algorithm> //std::transform
+#include <functional> //std::bind1st
 
 #include "../tools.h"
 #include <boost/test/unit_test.hpp>
@@ -106,10 +110,102 @@ void testBasicConicFunctors( const std::size_t n )
 }
 
 
+
+template< typename T >
+void testRandomQuadricProjection( const std::size_t n )
+{
+	Random::Quaternion< T > randQuat;
+	typename Random::Vector< 3, T >::Uniform randTranslation( -100, 100 );
+	Pose camPose( randQuat() , randTranslation() );
+	Matrix< 3, 4, T > projection( camPose );
+	
+	typename Random::Vector< 4, T >::Uniform randSpheroid( -5.0, 5.0 );
+	typename Random::Vector< 6, T >::Uniform randEllipsoid( -5.0, 5.0 );
+
+	// generate some random quadrics
+	std::vector< Ubitrack::Math::Vector< 6, T > > ellipsoids;
+	ellipsoids.reserve( n );
+	std::generate_n ( std::back_inserter( ellipsoids ), n,  randEllipsoid );
+
+	//std::copy( ellipsoids.begin(), ellipsoids.end(), std::ostream_iterator< Ubitrack::Math::Vector< 6, T > > ( std::cout, ", ") );
+
+	// project these ellipsoids
+	std::vector< Ubitrack::Math::Vector< 6, T > > conics1;
+	conics1.reserve( n );
+	std::transform( ellipsoids.begin(), ellipsoids.end(), std::back_inserter( conics1 ), std::bind1st( Geometry::ProjectEllipsoid< T >(), projection ) );
+	//std::transform( conics1.begin(), conics1.end(), conics1.begin(), Ubitrack::Math::Functors::NormalizeVector< 6, T >() );
+
+	//generate some quadrics
+	std::vector< Ubitrack::Math::Vector< 10, T > > quadrics1;
+	quadrics1.reserve( n );
+	std::transform( ellipsoids.begin(), ellipsoids.end(), std::back_inserter( quadrics1 ), Geometry::Ellipsoid2Quadric< T >() );
+
+	// project these quadrics
+	std::vector< Ubitrack::Math::Vector< 6, T > > conics2;
+	conics2.reserve( n );
+	std::transform( quadrics1.begin(), quadrics1.end(), std::back_inserter( conics2 ), std::bind1st( Geometry::ProjectQuadric< T >(), projection ) );
+	//std::transform( conics2.begin(), conics2.end(), conics2.begin(), Ubitrack::Math::Functors::NormalizeVector< 6, T >() );
+
+
+	// write out conics from ellipsoids and quadrics
+	/*std::cout << std::endl;
+	std::copy( conics1.begin(), conics1.end(), std::ostream_iterator< Ubitrack::Math::Vector< 6, T > > ( std::cout, ", ") );
+	std::cout << std::endl;
+	std::copy( conics2.begin(), conics2.end(), std::ostream_iterator< Ubitrack::Math::Vector< 6, T > > ( std::cout, ", ") );*/
+
+	//another test
+
+	// generate some random spheroids
+	std::vector< Ubitrack::Math::Vector< 4, T > > spheroids;
+	spheroids.reserve( n );
+	std::generate_n ( std::back_inserter( spheroids ), n,  randSpheroid );
+
+	
+	// project the spheroids
+	std::vector< Ubitrack::Math::Vector< 6, T > > conics3;
+	conics3.reserve( n );
+	std::transform( spheroids.begin(), spheroids.end(), std::back_inserter( conics3 ), std::bind1st( Geometry::ProjectSpheroid< T >(), projection ) );
+
+	/*
+	// commented out, since it does not really represent the same values.
+	// generate some corresponding quadrics
+	std::vector< Ubitrack::Math::Vector< 10, T > > quadrics2;
+
+	for( std::size_t i( 0 ); i<n; ++i )
+	{
+		Ubitrack::Math::Vector< 10, T > quadric;
+
+		quadric( 0 ) = spheroids[ i ]( 0 );
+		quadric( 1 ) = spheroids[ i ]( 0 );
+		quadric( 2 ) = spheroids[ i ]( 1 );
+		quadric( 3 ) = quadric( 4 ) = quadric( 5 ) = 0;
+		quadric( 6 ) = spheroids[ i ]( 2 );
+		quadric( 7 ) = spheroids[ i ]( 3 );
+		quadric( 8 ) = spheroids[ i ]( 1 );
+		quadric( 9 ) = -1;
+		quadrics2.push_back( quadric );
+	}
+
+	// project the quadrics
+	std::vector< Ubitrack::Math::Vector< 6, T > > conics4;
+	conics4.reserve( n );
+	std::transform( quadrics2.begin(), quadrics2.end(), std::back_inserter( conics4 ), std::bind1st( Geometry::ProjectQuadric< T >(), projection ) );
+	*/
+
+	// write out conics from spheroids and quadrics
+	/*std::cout << std::endl;
+	std::copy( conics3.begin(), conics3.end(), std::ostream_iterator< Ubitrack::Math::Vector< 6, T > > ( std::cout, ", ") );
+	std::cout << std::endl;
+	std::copy( conics4.begin(), conics4.end(), std::ostream_iterator< Ubitrack::Math::Vector< 6, T > > ( std::cout, ", ") );*/
+
+}
+
+
 void TestConic()
 {
-	testBasicConicFunctors< float >( 10000 );
+	// float is usually not sufficient here
 	testBasicConicFunctors< double >( 10000 );
+	testRandomQuadricProjection< double >( 2 );
 }
 
 
