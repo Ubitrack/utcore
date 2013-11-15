@@ -335,6 +335,12 @@ protected:
 
 public:
 
+	/** Standard constructor */
+	ProjectSpheroid()
+		: std::binary_function< Math::Matrix< 3, 4, T >, Math::Vector< 4, T >, Math::Vector< 6, T > >()
+		, m_Projector()
+		{}
+
 	/**
 	 * @ingroup math
 	 * Projects an spheroid onto the image plane by a 3x4 projection matrix.
