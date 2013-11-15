@@ -32,12 +32,12 @@ void testBasicConicFunctors( const std::size_t n )
 	// generate matrix representation
 	std::vector< Ubitrack::Math::Matrix< 3, 3, T > > conic_matrices;
 	conic_matrices.reserve( n );
-	std::transform( conics.begin(), conics.end(), std::back_inserter( conic_matrices ), Geometry::matrix_from_conic< T >() );
+	std::transform( conics.begin(), conics.end(), std::back_inserter( conic_matrices ), Geometry::MatrixFromConic< T >() );
 
 	// generate vector representation, again
 	std::vector< Ubitrack::Math::Vector< 6, T > > conics_again;
 	conics_again.reserve( n );
-	std::transform( conic_matrices.begin(), conic_matrices.end(), std::back_inserter( conics_again ), Geometry::conic_from_matrix< T >() );
+	std::transform( conic_matrices.begin(), conic_matrices.end(), std::back_inserter( conics_again ), Geometry::ConicFromMatrix< T >() );
 
 	//check if conic is still the same
 	for( std::size_t i( 0 ); i<n; ++i )
@@ -46,66 +46,66 @@ void testBasicConicFunctors( const std::size_t n )
 	// invert conics
 	std::vector< Ubitrack::Math::Vector< 6, T > > inv_conics;
 	inv_conics.reserve( n );
-	std::transform( conics.begin(), conics.end(), std::back_inserter( inv_conics ), Geometry::conic_inverse< T >() );
+	std::transform( conics.begin(), conics.end(), std::back_inserter( inv_conics ), Geometry::ConicInverse< T >() );
 	
 	// calculate conic determinants
 	std::vector< T > conic_determinant;
 	conic_determinant.reserve( n );
-	std::transform( conics.begin(), conics.end(), std::back_inserter( conic_determinant ), Geometry::conic_determinant< T >() );
+	std::transform( conics.begin(), conics.end(), std::back_inserter( conic_determinant ), Geometry::ConicDeterminant< T >() );
 
 	// estimate conic semi-axes
 	std::vector< Ubitrack::Math::Vector< 2, T > > semi_axes;
 	semi_axes.reserve( n );
-	std::transform( conics.begin(), conics.end(), std::back_inserter( semi_axes ), Geometry::conic_semi_axes< T >() );
+	std::transform( conics.begin(), conics.end(), std::back_inserter( semi_axes ), Geometry::ConicSemiAxes< T >() );
 
 	// estimate conic angles
 	std::vector< T > angles;
 	angles.reserve( n );
-	std::transform( conics.begin(), conics.end(), std::back_inserter( angles ), Geometry::conic_angle< T >() );
+	std::transform( conics.begin(), conics.end(), std::back_inserter( angles ), Geometry::ConicAngle< T >() );
 
 	// estimate conic center
 	std::vector< Ubitrack::Math::Vector< 2, T > > centers;
 	centers.reserve( n );
-	std::transform( conics.begin(), conics.end(), std::back_inserter( centers ), Geometry::conic_center< T >() );
+	std::transform( conics.begin(), conics.end(), std::back_inserter( centers ), Geometry::ConicCenter< T >() );
 
 	// estimate conic eccentricity
 	std::vector< T > eccentricities;
 	eccentricities.reserve( n );
-	std::transform( conics.begin(), conics.end(), std::back_inserter( eccentricities ), Geometry::conic_eccentricity< T >() );
+	std::transform( conics.begin(), conics.end(), std::back_inserter( eccentricities ), Geometry::ConicEccentricity< T >() );
 
 	// calculate conic determinantes
 	std::vector< T > conic_areas;
 	conic_areas.reserve( n );
-	std::transform( conics.begin(), conics.end(), std::back_inserter( conic_areas ), Geometry::conic_area< T >() );
+	std::transform( conics.begin(), conics.end(), std::back_inserter( conic_areas ), Geometry::ConicArea< T >() );
 
 	// scale the conics
 	std::vector< Ubitrack::Math::Vector< 6, T > > scaled_conics;
 	scaled_conics.reserve( n );
-	std::transform( conics.begin(), conics.end(), std::back_inserter( scaled_conics ), Geometry::scale_conic_unsafe< T >( 10.0 ) );
+	std::transform( conics.begin(), conics.end(), std::back_inserter( scaled_conics ), Geometry::ScaleConicUnsafe< T >( 10.0 ) );
 
 	// translate the conics
 	/*std::vector< Ubitrack::Math::Vector< 6, T > > translated_conics;
 	translated_conics.reserve( n );
-	std::transform( conics.begin(), conics.end(), std::back_inserter( translated_conics ), Geometry::translate_conic< T >() );
+	std::transform( conics.begin(), conics.end(), std::back_inserter( translated_conics ), Geometry::TranslateConic< T >() );
 	*/
 
 	// next steps are even more useless, just check if they compile
-	std::size_t n_c = std::count_if( conics.begin(), conics.end(), Geometry::is_conic_circle< T >() );
-	std::size_t n_d = std::count_if( conics.begin(), conics.end(), Geometry::is_conic_degenerate< T >() );
-	std::size_t n_e = std::count_if( conics.begin(), conics.end(), Geometry::is_conic_ellipse< T >() );
-	std::size_t n_p = std::count_if( conics.begin(), conics.end(), Geometry::is_conic_parabola< T >() );
+	std::size_t n_c = std::count_if( conics.begin(), conics.end(), Geometry::IsConicCircle< T >() );
+	std::size_t n_d = std::count_if( conics.begin(), conics.end(), Geometry::IsConicDegenerate< T >() );
+	std::size_t n_e = std::count_if( conics.begin(), conics.end(), Geometry::IsConicEllipse< T >() );
+	std::size_t n_p = std::count_if( conics.begin(), conics.end(), Geometry::IsConicParabola< T >() );
 
 	//std::cout << "Conics " << n_c << " " << n_d << " " << n_e << " " << n_p << std::endl;
 
 	// estimate conics' upper and lower limit
 	std::vector< Ubitrack::Math::Vector< 2, T > > conic_ull;
 	conic_ull.reserve( n );
-	std::transform( conics.begin(), conics.end(), std::back_inserter( conic_ull ), Geometry::conic_upper_lower_limit< T >() );
+	std::transform( conics.begin(), conics.end(), std::back_inserter( conic_ull ), Geometry::ConicUpperLowerLimit< T >() );
 
 	// estimate conics' left and right limit
 	std::vector< Ubitrack::Math::Vector< 2, T > > conic_lrl;
 	conic_lrl.reserve( n );
-	std::transform( conics.begin(), conics.end(), std::back_inserter( conic_lrl ), Geometry::conic_left_right_limit< T >() );
+	std::transform( conics.begin(), conics.end(), std::back_inserter( conic_lrl ), Geometry::ConicLeftRightLimit< T >() );
 
 }
 

@@ -106,8 +106,8 @@ public:
  * of conics via a STL-algorithms.
  */
 template< typename T >
-struct matrix_from_conic
-	: public std::unary_function< Geometry::Conic< T >, Math::Matrix< 3, 3, T > >
+struct MatrixFromConic
+	: public std::unary_function< Math::Vector< 6, T >, Math::Matrix< 3, 3, T > >
 {
 public:
 	/**
@@ -118,7 +118,7 @@ public:
 	 * @param conic the conic expressed as a vector
 	 * @return the 3x3-matrix representation of the conic
 	 */
-	Math::Matrix< 3, 3, T > operator() ( const Geometry::Conic< T > &conic ) const
+	Math::Matrix< 3, 3, T > operator() ( const Math::Vector< 6, T > &conic ) const
 	{
 		boost::numeric::ublas::matrix< T, boost::numeric::ublas::column_major > matrix( 3, 3 );
 		matrix( 0, 0 ) = conic[ 0 ];
@@ -139,8 +139,8 @@ public:
  * of conics via a STL-algorithms.
  */
 template< typename T >
-struct conic_from_matrix
-	: public std::unary_function< Math::Matrix< 3, 3, T >, Geometry::Conic< T > >
+struct ConicFromMatrix
+	: public std::unary_function< Math::Matrix< 3, 3, T >, Math::Vector< 6, T > >
 {
 public:
 
@@ -152,9 +152,9 @@ public:
 	 * @param matrix the 3x3-matrix representation of the conic
 	 * @return the conic as a 6-vector
 	 */
-	Geometry::Conic< T > operator() ( const Math::Matrix< 3, 3, T >  &matrix ) const
+	Math::Vector< 6, T > operator() ( const Math::Matrix< 3, 3, T >  &matrix ) const
 	{
-		Geometry::Conic< T > conic;
+		Math::Vector< 6, T > conic;
 		conic[ 0 ] = matrix( 0, 0 );
 		conic[ 1 ] = ( matrix( 1, 0 ) + matrix( 0, 1 ) );
 		conic[ 2 ] = matrix( 1, 1 );
@@ -174,8 +174,8 @@ public:
  * of conics via a STL-algorithms.
  */
 template< typename T >
-struct conic_inverse
-	: public std::unary_function< Geometry::Conic< T >, Geometry::Conic< T > >
+struct ConicInverse
+	: public std::unary_function< Math::Vector< 6, T >, Math::Vector< 6, T > >
 {
 public:
 
@@ -188,7 +188,7 @@ public:
 	 * @param conic the conic to be inverted
 	 * @return the dual (=inverse) conic
 	 */
-	Geometry::Conic< T > operator() ( const Geometry::Conic< T > &conic ) const
+	Math::Vector< 6, T > operator() ( const Math::Vector< 6, T > &conic ) const
 	{
 		const T a = conic( 0 );
 		const T b = conic( 1 );
@@ -198,14 +198,14 @@ public:
 		const T f = conic( 5 );
 		const T divisor =  1./( (a*(e*e)+c*(d*d)+(b*b)*f-a*c*f*static_cast< T >( 4.0 )-b*d*e) );
 		
-		Geometry::Conic< T > iConic;
+		Math::Vector< 6, T > iConic;
 		iConic( 0 ) = -(c*f*static_cast< T >( 4.0 ) -e*e) * divisor;
 		iConic( 1 ) =  2 * (b*f*static_cast< T >( 2.0 ) -d*e) * divisor;
 		iConic( 2 )  = -(a*f*static_cast< T >( 4.0 ) -d*d) * divisor;
 		iConic( 3 )  = 2 * (-(b*e-c*d*static_cast< T >( 2.0 ) ) * divisor );
 		iConic( 4 )  = 2 * (a*e*static_cast< T >( 2.0 ) -b*d) * divisor;
 		iConic( 5 )  = -(a*c*static_cast< T >( 4.0 ) -b*b) * divisor;
-		return Geometry::Conic< T >( iConic );
+		return Math::Vector< 6, T >( iConic );
 	};
 };
 
@@ -218,8 +218,8 @@ public:
  * of conics via a STL-algorithms.
  */
 template< typename T >
-struct conic_determinant
-	: public std::unary_function< Geometry::Conic< T >, T >
+struct ConicDeterminant
+	: public std::unary_function< Math::Vector< 6, T >, T >
 {
 public:
 	/**
@@ -229,7 +229,7 @@ public:
 	 * @param a 6-vector describing the conic parameters
 	 * @return the determinant of the conic
 	 */
-	T operator() ( const Geometry::Conic< T > &conic ) const
+	T operator() ( const Math::Vector< 6, T > &conic ) const
 	{
 		const T a = conic( 0 );
 		const T b = conic( 1 );
@@ -252,8 +252,8 @@ public:
  * of conics via a STL-algorithms.
  */
 template< typename T >
-struct conic_angle
-	: public std::unary_function< Geometry::Conic< T >, T >
+struct ConicAngle
+	: public std::unary_function< Math::Vector< 6, T >, T >
 {
 public:
 	/**
@@ -267,7 +267,7 @@ public:
 	 * @param conic the input conic.
 	 * @return the angle
 	 */
-	T operator() ( const Geometry::Conic< T > &conic ) const
+	T operator() ( const Math::Vector< 6, T > &conic ) const
 	{
 		const T a = conic( 0 );
 		const T b = conic( 1 );
@@ -286,11 +286,11 @@ public:
  * of conics via a STL-algorithms.
  */
 template< typename T >
-struct conic_semi_axes
-	: public std::unary_function< Geometry::Conic< T >, Math::Vector< 2, T > >
+struct ConicSemiAxes
+	: public std::unary_function< Math::Vector< 6, T >, Math::Vector< 2, T > >
 {
 protected:
-	conic_angle< T > m_angulator;
+	ConicAngle< T > m_angulator;
 public:
 
 	/**
@@ -301,7 +301,7 @@ public:
 	 * @param conic the input conic.
 	 * @return the size of the conics' semi-axes.
 	 */
-	Math::Vector< 2, T > operator() ( const Geometry::Conic< T > &conic ) const
+	Math::Vector< 2, T > operator() ( const Math::Vector< 6, T > &conic ) const
 	{
 		const T theta0 = m_angulator( conic );
 		const T a = conic( 0 );
@@ -345,7 +345,7 @@ public:
 	 * @param conic the input conic.
 	 * @return the size of the conics' semi-axes.
 	 */
-	/*Math::Vector< 2, T > operator() ( const Geometry::Conic< T > &conic ) const
+	/*Math::Vector< 2, T > operator() ( const Math::Vector< 6, T > &conic ) const
 	{
 		const T a = conic( 0 );
 		const T b = conic( 1 );// * 0.5;
@@ -374,8 +374,8 @@ public:
  * of conics via a STL-algorithms.
  */
 template< typename T >
-struct conic_center
-	: public std::unary_function< Geometry::Conic< T >, Math::Vector< 2, T > >
+struct ConicCenter
+	: public std::unary_function< Math::Vector< 6, T >, Math::Vector< 2, T > >
 {
 public:
 	/**
@@ -391,7 +391,7 @@ public:
 	 * @param conic the input conic.
 	 * @return the center of the conic
 	 */
-	Math::Vector< 2, T > operator() ( const Geometry::Conic< T >& conic ) const
+	Math::Vector< 2, T > operator() ( const Math::Vector< 6, T >& conic ) const
 	{
 		const T a = conic( 0 );
 		const T b = conic( 1 ) * 0.5;
@@ -421,17 +421,17 @@ public:
  * of conics via a STL-algorithms.
  */
 template< typename T >
-struct conic_eccentricity
-	: public std::unary_function< Geometry::Conic< T >, T >
+struct ConicEccentricity
+	: public std::unary_function< Math::Vector< 6, T >, T >
 {
 protected:
 	/// helper functor to estimate the determinant
-	const conic_determinant< T > m_determiner;
+	const ConicDeterminant< T > m_determiner;
 public:
 
 	/** Standard constructor */
-	conic_eccentricity( ) :
-		std::unary_function< Geometry::Conic< T >, T >()
+	ConicEccentricity( ) :
+		std::unary_function< Math::Vector< 6, T >, T >()
 		, m_determiner( )
 		{};
 	/**
@@ -441,7 +441,7 @@ public:
 	 * @param input conic
 	 * @return the eccentricity
 	 */
-	T operator() ( const Geometry::Conic< T > &conic ) const
+	T operator() ( const Math::Vector< 6, T > &conic ) const
 	{
 		const T a = conic( 0 );
 		const T b = conic( 1 ) * 0.5;
@@ -465,16 +465,16 @@ public:
  * of conics via a STL-algorithms.
  */
 template< typename T >
-struct conic_area
-	: public std::unary_function< Geometry::Conic< T >, T >
+struct ConicArea
+	: public std::unary_function< Math::Vector< 6, T >, T >
 {
 protected:
-	const Geometry::conic_semi_axes< T > m_axerer;
+	const Geometry::ConicSemiAxes< T > m_axerer;
 	
 public:
 	/** Standard constructor */
-	conic_area( ) :
-		std::unary_function< Geometry::Conic< T >, T >()
+	ConicArea( ) :
+		std::unary_function< Math::Vector< 6, T >, T >()
 		, m_axerer( )
 		{};
 	/**
@@ -485,7 +485,7 @@ public:
 	 * @param conic input conic
 	 * @return the area of the conic
 	 */
-	T operator() ( const Geometry::Conic< T > &conic ) const
+	T operator() ( const Math::Vector< 6, T > &conic ) const
 	{
 		const Math::Vector< 2, T > semi_axes = m_axerer( conic );
 		return ( M_PI * semi_axes( 0 ) * semi_axes( 1 ) );
@@ -501,8 +501,8 @@ public:
  * of conics via a STL-algorithms.
  */
 template< typename T >
-struct is_conic_circle
-	: public std::unary_function< Geometry::Conic< T >, bool >
+struct IsConicCircle
+	: public std::unary_function< Math::Vector< 6, T >, bool >
 {
 protected:
 	const T m_error;
@@ -514,8 +514,8 @@ public:
 	 * @tparam T type of conic ( e.g. \c double or \c float )
 	 * @param epsilon the minimal error to be tolerated for b being zero
 	 */
-	is_conic_circle( const T error = 0.01 )
-		: std::unary_function< Geometry::Conic< T >, bool >( )
+	IsConicCircle( const T error = 0.01 )
+		: std::unary_function< Math::Vector< 6, T >, bool >( )
 		, m_error( error )
 	{ }
 
@@ -527,7 +527,7 @@ public:
 	 * @param conic the input conic
 	 * @return flag if conic is circle or not 
 	 */
-	bool operator() ( const Geometry::Conic< T > &conic ) const
+	bool operator() ( const Math::Vector< 6, T > &conic ) const
 	{
 		// b ~ 0
 		if( std::abs( conic( 1 ) ) > m_error )
@@ -550,13 +550,13 @@ public:
  * of conics via a STL-algorithms.
  */
 template< typename T >
-struct is_conic_degenerate
-	: public std::unary_function< Geometry::Conic< T >, bool >
+struct IsConicDegenerate
+	: public std::unary_function< Math::Vector< 6, T >, bool >
 {
 protected:
 
 	const T m_epsilon;
-	const Geometry::conic_determinant< T > m_determiner;
+	const Geometry::ConicDeterminant< T > m_determiner;
 	
 public:
 	/**
@@ -566,8 +566,8 @@ public:
 	 * @tparam T type of conic ( e.g. \c double or \c float )
 	 * @param epsilon the minimal error to be tolerated for the determinant
 	 */
-	is_conic_degenerate( const T epsilon = 1e-5 )
-		: std::unary_function< Geometry::Conic< T >, bool >()
+	IsConicDegenerate( const T epsilon = 1e-5 )
+		: std::unary_function< Math::Vector< 6, T >, bool >()
 		, m_epsilon( epsilon )
 		, m_determiner( )
 		{}
@@ -579,7 +579,7 @@ public:
 	 * @param conic the input conic
 	 * @return signs if conic is degenerate or not
 	 */
-	bool operator() ( const Geometry::Conic< T > &conic ) const
+	bool operator() ( const Math::Vector< 6, T > &conic ) const
 	{
 		return std::abs( m_determiner( conic ) ) < m_epsilon ;
 	}
@@ -593,8 +593,8 @@ public:
  * of conics via a STL-algorithms.
  */
 template< typename T >
-struct is_conic_ellipse
-	: public std::unary_function< Geometry::Conic< T >, bool >
+struct IsConicEllipse
+	: public std::unary_function< Math::Vector< 6, T >, bool >
 {
 public:
 	/**
@@ -605,7 +605,7 @@ public:
 	 * @param conic the input conic
 	 * @return flag if conic is ellipse or not 
 	 */
-	bool operator() ( const Geometry::Conic< T > &conic ) const
+	bool operator() ( const Math::Vector< 6, T > &conic ) const
 	{
 		//ellipses must statisfy : bb-4ac < 0 
 		return ( conic( 1 ) * conic( 1 ) - 4 * conic( 0 ) * conic( 2 ) ) < 0 ? true : false;
@@ -621,8 +621,8 @@ public:
  * of conics via a STL-algorithms.
  */
 template< typename T >
-struct is_conic_parabola
-	: public std::unary_function< Geometry::Conic< T >, bool >
+struct IsConicParabola
+	: public std::unary_function< Math::Vector< 6, T >, bool >
 {
 protected:
 	const T m_epsilon;
@@ -635,8 +635,8 @@ public:
 	 * @tparam T type of conic ( e.g. \c double or \c float )
 	 * @param epsilon tolerance value for accepting a conic as parabola
 	 */
-	is_conic_parabola( const T epsilon = 1e-5 )
-		: std::unary_function< Geometry::Conic< T >, bool >()
+	IsConicParabola( const T epsilon = 1e-5 )
+		: std::unary_function< Math::Vector< 6, T >, bool >()
 		, m_epsilon( epsilon )
 		{}
 	
@@ -648,7 +648,7 @@ public:
 	 * @param conic the input conic
 	 * @return flag if conic is parabola or not 
 	 */
-	bool operator() ( const Geometry::Conic< T > &conic ) const
+	bool operator() ( const Math::Vector< 6, T > &conic ) const
 	{
 		// parabola statisfy : bb-4ac == 0 
 		// epsilon is applied since it might never be exactly zero
@@ -668,8 +668,8 @@ public:
  * of conics via a STL-algorithms.
  */
 template< typename T >
-struct scale_conic_unsafe
-	: public std::unary_function< Geometry::Conic< T >, Geometry::Conic< T > >
+struct ScaleConicUnsafe
+	: public std::unary_function< Math::Vector< 6, T >, Math::Vector< 6, T > >
 {
 protected:
 	/// scale for major semi-axes
@@ -691,8 +691,8 @@ public:
 	 * @param scaleA the scale for the major semi-axis
 	 * @param scaleB the scale for the minor semi-axis
 	 */
-	scale_conic_unsafe( const T scaleA, const T scaleB )
-		: std::unary_function< Geometry::Conic< T >, Geometry::Conic< T > >( )
+	ScaleConicUnsafe( const T scaleA, const T scaleB )
+		: std::unary_function< Math::Vector< 6, T >, Math::Vector< 6, T > >( )
 		, m_scaleA1(  1. / scaleA )
 		, m_scaleA2(  m_scaleA1 * m_scaleA1 )
 		, m_scaleB1(  1. / scaleB )
@@ -712,8 +712,8 @@ public:
 	 * @tparam T type of conic ( e.g. \c double or \c float )
 	 * @param scale the scale for the both the semi-axes
 	 */
-	scale_conic_unsafe( const T scale )
-		: std::unary_function< Geometry::Conic< T >, Geometry::Conic< T > >( )
+	ScaleConicUnsafe( const T scale )
+		: std::unary_function< Math::Vector< 6, T >, Math::Vector< 6, T > >( )
 		, m_scaleA1(  1. / scale )
 		, m_scaleA2(  m_scaleA1 * m_scaleA1 )
 		, m_scaleB1(  m_scaleA1 )
@@ -737,7 +737,7 @@ public:
 	 * @param conic the input conic.
 	 * @return the scaled conic. 
 	 */
-	Geometry::Conic< T > operator() ( const Geometry::Conic< T > &conic ) const
+	Math::Vector< 6, T > operator() ( const Math::Vector< 6, T > &conic ) const
 	{
 		Math::Vector< 6, T > vec;
 		const T a = conic[ 0 ];
@@ -752,7 +752,7 @@ public:
 		vec[ 3 ] = d * m_scaleA1;
 		vec[ 4 ] = e * m_scaleB1;
 		vec[ 5 ] = f;
-		return Geometry::Conic< T >( vec );
+		return Math::Vector< 6, T >( vec );
 	}
 };
 
@@ -765,8 +765,8 @@ public:
  * of conics via a STL-algorithms.
  */
 template< typename T >
-struct translate_conic
-	: public std::binary_function< Math::Vector< 2, T >, Geometry::Conic< T >, Geometry::Conic< T > >
+struct TranslateConic
+	: public std::binary_function< Math::Vector< 2, T >, Math::Vector< 6, T >, Math::Vector< 6, T > >
 {
 public:
 	/**
@@ -778,7 +778,7 @@ public:
 	 * @param conic the input conic.
 	 * @return the translated conic. 
 	 */
-	Geometry::Conic< T > operator() ( const Math::Vector< 2, T > &translation, const Geometry::Conic< T > &conic ) const
+	Math::Vector< 6, T > operator() ( const Math::Vector< 2, T > &translation, const Math::Vector< 6, T > &conic ) const
 	{
 		
 		const T a = conic( 0 );
@@ -805,7 +805,7 @@ public:
 		// T[2][1] = e-a31*b-a32*c;
 		// T[2][2] = f-a31*d-a32*e+a31*(-d+a*a31+a32*b)+a32*(-e+a31*b+a32*c);
 		
-		Geometry::Conic< T > vec;
+		Math::Vector< 6, T > vec;
 		vec( 0 ) = conic( 0 );
 		vec( 1 ) = conic( 1 );
 		vec( 2 ) = conic( 2 );
@@ -816,7 +816,7 @@ public:
 		
 		vec( 3 ) *= 2;
 		vec( 4 ) *= 2;
-		return Geometry::Conic< T >( vec );
+		return Math::Vector< 6, T >( vec );
 	}
 };
 
@@ -829,8 +829,8 @@ public:
  * of conics via a STL-algorithms.
  */
 template< typename T >
-struct conic_pixel
-	: public std::binary_function< Geometry::Conic< T >, Math::Vector< 2, T >, T >
+struct ConicPixel
+	: public std::binary_function< Math::Vector< 6, T >, Math::Vector< 2, T >, T >
 {
 public:
 	/**
@@ -846,7 +846,7 @@ public:
 	 * @param pixel input pixel
 	 * @return resulting product
 	 */
-	T operator() ( const Geometry::Conic< T > &conic, const Math::Vector< 2, T > &pixel  ) const
+	T operator() ( const Math::Vector< 6, T > &conic, const Math::Vector< 2, T > &pixel  ) const
 	{
 		const T x = pixel[ 0 ];
 		const T y = pixel[ 1 ];
@@ -870,8 +870,8 @@ public:
  * of conics via a STL-algorithms.
  */
 template< typename T >
-struct flip_conic_horizontal
-	: public std::unary_function< Geometry::Conic< T >, Geometry::Conic< T > >
+struct FlipConicHorizontal
+	: public std::unary_function< Math::Vector< 6, T >, Math::Vector< 6, T > >
 {
 protected:
 	/** signs where to reflect the conic at the y-axis */
@@ -891,12 +891,12 @@ public:
 	 * @tparam T type of conic ( e.g. \c double or \c float )
 	 * @param height the value of the y-axis, usually image height (will be subtracted by one)
 	 */
-	flip_conic_horizontal( const T height )
-		: std::unary_function< Geometry::Conic< T >, Geometry::Conic< T > >( )
+	FlipConicHorizontal( const T height )
+		: std::unary_function< Math::Vector< 6, T >, Math::Vector< 6, T > >( )
 		, m_y( height - 1  )
 	{ }
 	
-	Geometry::Conic< T > operator() ( const Geometry::Conic< T > &conic ) const
+	Math::Vector< 6, T > operator() ( const Math::Vector< 6, T > &conic ) const
 	{
 		const T a = conic[ 0 ];
 		const T b = conic[ 1 ] * 0.5;
@@ -919,7 +919,7 @@ public:
 		vec[ 1 ] *= 2;
 		vec[ 3 ] *= 2;
 		vec[ 4 ] *= 2;
-		return Geometry::Conic< T >( vec );
+		return Math::Vector< 6, T >( vec );
 	}
 };
 
@@ -932,8 +932,8 @@ public:
  * of conics via a STL-algorithms.
  */
 template< typename T >
-struct conic_upper_lower_limit
-	: public std::unary_function< Geometry::Conic< T >, Math::Vector< 2, T > >
+struct ConicUpperLowerLimit
+	: public std::unary_function< Math::Vector< 6, T >, Math::Vector< 2, T > >
 {
 public:
 	/**
@@ -947,7 +947,7 @@ public:
 	 * @param conic input conic
 	 * @return the upper and lower limits of the conic
 	 */
-	Math::Vector< 2, T > operator() ( const Geometry::Conic< T > &conic ) const
+	Math::Vector< 2, T > operator() ( const Math::Vector< 6, T > &conic ) const
 	{
 
 		const T a = conic( 0 );
@@ -981,8 +981,8 @@ public:
  * of conics via a STL-algorithms.
  */
 template< typename T >
-struct conic_left_right_limit
-	: public std::unary_function< Geometry::Conic< T >, Math::Vector< 2, T > >
+struct ConicLeftRightLimit
+	: public std::unary_function< Math::Vector< 6, T >, Math::Vector< 2, T > >
 {
 public:
 	/**
@@ -995,7 +995,7 @@ public:
 	 * @param conic input conic
 	 * @return the left and right limits of the conic
 	 */
-	Math::Vector< 2, T > operator() ( const Geometry::Conic< T > &conic ) const
+	Math::Vector< 2, T > operator() ( const Math::Vector< 6, T > &conic ) const
 	{
 		const T a = conic( 0 );
 		const T b = conic( 1 ) * 0.5;
@@ -1021,8 +1021,8 @@ public:
  * of conics via a STL-algorithms.
  */
 template< typename T >
-struct conic_horizontal_intersection
-	: public std::binary_function< Geometry::Conic< T >, T, Math::Vector< 2, T > >
+struct ConicHorizontalIntersection
+	: public std::binary_function< Math::Vector< 6, T >, T, Math::Vector< 2, T > >
 {
 public:
 	/**
@@ -1033,7 +1033,7 @@ public:
 	 * @param y the height of the line
 	 * @return the left/right x-values of the intersection
 	 */
-	Math::Vector< 2, T > operator() ( const Geometry::Conic< T > &conic, const T y ) const
+	Math::Vector< 2, T > operator() ( const Math::Vector< 6, T > &conic, const T y ) const
 	{
 		const T b = conic( 1 )*0.5 * y + conic( 3 ) * 0.5; 
 		const T c = ( conic( 2 ) * y + conic( 4 ) ) * y + conic( 5 );
