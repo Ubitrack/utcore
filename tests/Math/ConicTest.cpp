@@ -5,7 +5,7 @@
 #include <utMath/Random/Vector.h>
 #include <utMath/Random/Rotation.h>
 #include <utMath/Geometry/Conic.h>
-#include <utMath/Geometry/Quadric.h>
+#include <utMath/Geometry/QuadricFunctors.h>
 #include <utMath/Functors/VectorFunctors.h>
 
 #include <algorithm> //std::transform
@@ -204,8 +204,10 @@ void testRandomQuadricProjection( const std::size_t n )
 void TestConic()
 {
 	// float is usually not sufficient here
+	testBasicConicFunctors< float >( 10000 );
 	testBasicConicFunctors< double >( 10000 );
-	testRandomQuadricProjection< double >( 2 );
+	testRandomQuadricProjection< float >( 10000 );
+	testRandomQuadricProjection< double >( 10000 );
 }
 
 
