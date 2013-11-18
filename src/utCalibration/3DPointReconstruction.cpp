@@ -30,23 +30,18 @@
  */ 
 
 #include "3DPointReconstruction.h"
-#include <iostream>
-#include <iterator>
 
 #include <utUtil/Logging.h>
 #include <utUtil/Exception.h>
 #include <utMath/GaussNewton.h>
+#include <utMath/Graph/Munkres.h>
 #include <utMath/LevenbergMarquardt.h>
 #include <utCalibration/Function/SinglePointMultiProjection.h>
-
-
-#include <log4cpp/Category.hh>
 
 namespace ublas = boost::numeric::ublas;
 
 #ifdef HAVE_LAPACK
 #include <boost/numeric/bindings/lapack/gesvd.hpp>
-#include <utCalibration/Munkres.h>
 namespace lapack = boost::numeric::bindings::lapack;
 #endif
 
@@ -252,7 +247,7 @@ std::vector< Math::Vector< 3, T > > reconstruct3DPointsImp( const std::vector< M
 		}
 	}
 
-	Munkres< T > m( matrix );
+	Math::Graph::Munkres< T > m( matrix );
 	m.solve();
 	std::vector< std::size_t > matchList = m.getRowMatchList();
 
