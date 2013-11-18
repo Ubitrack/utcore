@@ -30,6 +30,7 @@
  */ 
 
 #include "Homography.h"
+#include <utMath/Geometry/PointNormalization.h>
 
 #ifdef HAVE_LAPACK
 #include <boost/numeric/bindings/lapack/gesvd.hpp>
@@ -41,7 +42,8 @@ namespace lapack = boost::numeric::bindings::lapack;
 namespace Ubitrack { namespace Calibration {
 
 /** \internal */
-template< typename T > Math::Matrix< 3, 3, T > homographyDLTImpl( const std::vector< Math::Vector< 2, T > >& fromPoints, 
+template< typename T >
+Math::Matrix< 3, 3, T > homographyDLTImpl( const std::vector< Math::Vector< 2, T > >& fromPoints, 
 	const std::vector< Math::Vector< 2, T > >& toPoints )
 {
 	const std::size_t n_points ( fromPoints.size() );
@@ -51,20 +53,18 @@ template< typename T > Math::Matrix< 3, 3, T > homographyDLTImpl( const std::vec
 	// normalize input points
 	Math::Vector< 2, T > fromShift;
 	Math::Vector< 2, T > fromScale;
-	Math::Matrix< 3, 3, T > fromCorrect;
-	dltNormalizeVectors< 2, T >( fromShift, fromScale, fromCorrect, false, fromPoints );
+	Math::Geometry::estimateNormalizationParameters( fromPoints.begin(), fromPoints.end(), fromShift, fromScale );
 
 	Math::Vector< 2, T > toShift;
 	Math::Vector< 2, T > toScale;
-	Math::Matrix< 3, 3, T > toCorrect;
-	dltNormalizeVectors< 2, T >( toShift, toScale, toCorrect, true, toPoints );
+	Math::Geometry::estimateNormalizationParameters( toPoints.begin(), toPoints.end(), toShift, toScale );
 
 	// construct equation system
 	ublas::matrix< T, ublas::column_major > A( 2 * n_points, 9 );
 	for ( std::size_t i ( 0 ); i < n_points; ++i )
 	{
-		Math::Vector< 2, T > to = ublas::element_div( toPoints[ i ] - toShift, toScale );
-		Math::Vector< 2, T > from = ublas::element_div( fromPoints[ i ] - fromShift, fromScale );
+		const Math::Vector< 2, T > to = ublas::element_div( toPoints[ i ] - toShift, toScale );
+		const Math::Vector< 2, T > from = ublas::element_div( fromPoints[ i ] - fromShift, fromScale );
 
 		A( i * 2, 0 ) = A( i * 2, 1 ) = A( i * 2, 2 ) = 0.0f;
 		A( i * 2, 3 ) = -from( 0 ); 
@@ -96,7 +96,9 @@ template< typename T > Math::Matrix< 3, 3, T > homographyDLTImpl( const std::vec
 	H( 2, 0 ) = Vt( 8, 6 ); H( 2, 1 ) = Vt( 8, 7 ); H( 2, 2 ) = Vt( 8, 8 );
 	
 	// reverse normalization
+	const Math::Matrix< 3, 3, T > toCorrect( Math::Geometry::generateNormalizationMatrix( toShift, toScale, true ) );
 	Math::Matrix< 3, 3, T > Htemp( ublas::prod( toCorrect, H ) );
+	const Math::Matrix< 3, 3, T > fromCorrect( Math::Geometry::generateNormalizationMatrix( fromShift, fromScale, false ) );
 	ublas::noalias( H ) = ublas::prod( Htemp, fromCorrect );
 	
 	return H;
@@ -117,7 +119,8 @@ Math::Matrix< 3, 3, double > homographyDLT( const std::vector< Math::Vector< 2, 
 
 
 /** \internal */
-template< typename T > Math::Matrix< 3, 3, T > squareHomographyImpl( const std::vector< Math::Vector< 2, T > >& corners )
+template< typename T >
+Math::Matrix< 3, 3, T > squareHomographyImpl( const std::vector< Math::Vector< 2, T > >& corners )
 {
 	// homography computation á la Harker & O'Leary, simplified for squares
 	assert( corners.size() == 4 );
