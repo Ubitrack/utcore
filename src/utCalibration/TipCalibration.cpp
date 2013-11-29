@@ -45,19 +45,20 @@ namespace lapack = boost::numeric::bindings::lapack;
 
 namespace Ubitrack { namespace Calibration {
 
+template< typename T >
 void tipCalibration( const std::vector< Math::Pose >& poses, 
-	Math::Vector< 3 >& pm, Math::Vector< 3 >& pw )
+	Math::Vector< 3, T >& pm, Math::Vector< 3, T >& pw )
 {
 	const std::size_t nPoses = ( poses.size() );
-	Math::Matrix< 0, 0, double >::base_type a( 3 * nPoses, 6 );
-	Math::Vector< 0, double >::base_type v( 3 * nPoses );
+	Math::Matrix< 0, 0, T >::base_type a( 3 * nPoses, 6 );
+	Math::Vector< 0, T >::base_type v( 3 * nPoses );
 	for ( std::size_t i( 0 ); i < nPoses; i++ )
 	{
 		// set a
-		ublas::matrix_range< Math::Matrix< 0, 0, double >::base_type > r( 
+		ublas::matrix_range< Math::Matrix< 0, 0, T >::base_type > r( 
 			a, ublas::range( i * 3, (i+1) * 3 ), ublas::range( 0, 3 ) );
 		poses[ i ].rotation().toMatrix( r );
-		ublas::subrange( a, i * 3, (i+1) * 3, 3, 6 ) = -ublas::identity_matrix< double >( 3 );
+		ublas::subrange( a, i * 3, (i+1) * 3, 3, 6 ) = -ublas::identity_matrix< T >( 3 );
 
 		// set v
 		ublas::subrange( v, i * 3, (i+1) * 3 ) = -poses[ i ].translation();
