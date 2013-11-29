@@ -70,7 +70,7 @@ Math::Matrix< 3, 4, T >projectionDLTImpl( const std::vector< Math::Vector< 3, T 
 	Math::Geometry::estimateNormalizationParameters( toPoints.begin(), toPoints.end(), toShift, toScale );
 
 	// construct equation system
-	ublas::matrix< T, ublas::column_major > A( 2 * fromPoints.size(), 12 );
+	Math::Matrix< 0, 0, T > A( 2 * fromPoints.size(), 12 );
 	for ( unsigned i = 0; i < fromPoints.size(); i++ )
 	{
 		Math::Vector< 2, T > to = ublas::element_div( toPoints[ i ] - toShift, toScale );
@@ -97,9 +97,9 @@ Math::Matrix< 3, 4, T >projectionDLTImpl( const std::vector< Math::Vector< 3, T 
 	}
 
 	// solve using SVD
-	ublas::vector< T > s( 12 );
+	Math::Vector< 0, T > s( 12 );
 	Math::Matrix< 12, 12, T > Vt;
-	ublas::matrix< T, ublas::column_major > U( 2 * fromPoints.size(), 2 * fromPoints.size() );
+	Math::Matrix< 0, 0, T > U( 2 * fromPoints.size(), 2 * fromPoints.size() );
 	lapack::gesvd( 'N', 'A', A, s, U, Vt );
 
 	// copy result to 3x4 matrix

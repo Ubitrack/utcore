@@ -81,8 +81,8 @@ protected:
 	
 	ResultType incrementalEstimate( EventType& perturbed );
 		
-	ublas::vector< double > meanv;
-	ublas::matrix< double > outProd;
+	Math::Vector< 0, double > meanv;
+	Math::Matrix< 0, 0, double > outProd;
 
 	int m_counter;
 };
@@ -104,8 +104,8 @@ template<>
 Math::ErrorVector< 3 > Average< Math::Vector< 3 >, Math::ErrorVector< 3 > >::mean( const std::vector< Math::Vector< 3 > > &eList )
 {
 	size_t size = eList.size();
-	ublas::vector< double > m_mean = ublas::zero_vector< double >( 3 );
-	ublas::matrix< double > m_outProd = ublas::zero_matrix< double >( 3, 3 );
+	Math::Vector< 0, double > m_mean = ublas::zero_vector< double >( 3 );
+	Math::Matrix< 0, 0, double > m_outProd = ublas::zero_matrix< double >( 3, 3 );
 
 	for (size_t i = 0; i < size; i++)
 	{
@@ -195,7 +195,7 @@ Math::Pose Average< Math::Pose, Math::Pose >::mean( const std::vector< Math::Pos
 }
 
 
-Math::ErrorPose incEstimate(  Math::Pose poseNew,  ublas::vector< double >& meanv,  ublas::matrix< double >& outProd, int m_counter)
+Math::ErrorPose incEstimate(  Math::Pose poseNew,  Math::Vector< 0, double >& meanv,  Math::Matrix< 0, 0, double >& outProd, int m_counter)
 {
 	ublas::vector_range< ublas::vector<double> > posMean( meanv, ublas::range( 0, 3 ) );
 	ublas::vector_range< ublas::vector<double> > rotMean( meanv, ublas::range( 3, 7 ) );
@@ -203,7 +203,7 @@ Math::ErrorPose incEstimate(  Math::Pose poseNew,  ublas::vector< double >& mean
 	//LOG4CPP_TRACE ( logger, "Update pose event: " << poseNew );
 
 	// The order is tx, ty, tz, qx, qy, qz, qw.
-	ublas::vector< double > poseNewVec( 7 );
+	Math::Vector< 0, double > poseNewVec( 7 );
 	poseNew.toVector( poseNewVec );
 	ublas::vector_range< ublas::vector<double> > posNew( poseNewVec, ublas::range( 0, 3 ) );
 	ublas::vector_range< ublas::vector<double> > rotNew( poseNewVec, ublas::range( 3, 7 ) );
@@ -260,7 +260,7 @@ Math::ErrorPose incEstimate(  Math::Pose poseNew,  ublas::vector< double >& mean
 	Math::Matrix< 6, 6 > covar = ep.covariance();
 	double posRms = sqrt ( covar (0,0) + covar (1,1) + covar (2,2) );
 	//LOG4CPP_INFO( logger, "RMS positional error [mm]: " << posRms );
-	ublas::vector< double > axis (3);
+	Math::Vector< 0, double > axis (3);
 	axis (0) = sqrt ( covar (3,3) );
 	axis (1) = sqrt ( covar (4,4) );
 	axis (2) = sqrt ( covar (5,5) );
@@ -293,8 +293,8 @@ Math::ErrorPose Average< Math::Pose, Math::ErrorPose >::mean( const std::vector<
 	Math::Vector< 3 > p_mean ( 0.0, 0.0, 0.0 );
 	Math::Quaternion q_mean ( 0.0, 0.0, 0.0, 0.0 );
 	
-	ublas::vector< double > m_mean = ublas::zero_vector< double >( 7 );
-	ublas::matrix< double > m_outProd = ublas::zero_matrix< double >( 7, 7 );
+	Math::Vector< 0, double > m_mean = ublas::zero_vector< double >( 7 );
+	Math::Matrix< 0, 0, double > m_outProd = ublas::zero_matrix< double >( 7, 7 );
 	
 	for( unsigned i = 0; i < size; i++ )
 	{
@@ -306,7 +306,7 @@ Math::ErrorPose Average< Math::Pose, Math::ErrorPose >::mean( const std::vector<
 		p_mean += eList[i].translation();
 		Math::Pose pose( q_mean, p_mean );
 		
-		ublas::vector< double > poseTmpVec( 7 );
+		Math::Vector< 0, double > poseTmpVec( 7 );
 		pose.toVector( poseTmpVec );
 		m_outProd = m_outProd + ublas::outer_prod( poseTmpVec, poseTmpVec );
 	}

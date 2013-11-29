@@ -30,8 +30,8 @@
  */
 
 
-#ifndef __Pose_h_INCLUDED__
-#define __Pose_h_INCLUDED__
+#ifndef __POSE_H_INCLUDED__
+#define __POSE_H_INCLUDED__
 
 #include <utCore.h>
 #include "cast_assign.h"
@@ -42,6 +42,9 @@
 
 
 namespace Ubitrack { namespace Math {
+
+//forward declaration to matrix template
+template< std::size_t M, std::size_t N, typename T > class Matrix;
 
 
 /**
@@ -76,14 +79,7 @@ class UBITRACK_EXPORT Pose
 		 * construct a pose from a 4x4 matrix
 		 * @param m a 4x4 matrix
 		 */
-		Pose( const  boost::numeric::ublas::matrix< double >& mat )
-		{
-			m_rotation = Quaternion( mat );
-
-			m_translation( 0 ) =  mat( 0, 3);
-			m_translation( 1 ) =  mat( 1, 3);
-			m_translation( 2 ) =  mat( 2, 3);
-		}
+		Pose( const Math::Matrix< 0, 0, double >& mat );
 		
 		/**
 		 * scale the pose
@@ -189,5 +185,5 @@ UBITRACK_EXPORT Pose linearInterpolate ( const Pose& x, const Pose& y, double t 
 
 } } // namespace Ubitrack::Math
 
-#endif
+#endif // __POSE_H_INCLUDED__
 

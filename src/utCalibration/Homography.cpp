@@ -60,7 +60,7 @@ Math::Matrix< 3, 3, T > homographyDLTImpl( const std::vector< Math::Vector< 2, T
 	Math::Geometry::estimateNormalizationParameters( toPoints.begin(), toPoints.end(), toShift, toScale );
 
 	// construct equation system
-	ublas::matrix< T, ublas::column_major > A( 2 * n_points, 9 );
+	Math::Matrix< 0, 0, T > A( 2 * n_points, 9 );
 	for ( std::size_t i ( 0 ); i < n_points; ++i )
 	{
 		const Math::Vector< 2, T > to = ublas::element_div( toPoints[ i ] - toShift, toScale );
@@ -84,9 +84,9 @@ Math::Matrix< 3, 3, T > homographyDLTImpl( const std::vector< Math::Vector< 2, T
 
 	// solve using SVD
 	const std::size_t nSingularValues ( std::min( A.size1(), A.size2() ) );
-	ublas::vector< T > s( nSingularValues );
+	Math::Vector< 0, T > s( nSingularValues );
 	Math::Matrix< 9, 9, T > Vt;
-	ublas::matrix< T, ublas::column_major > U( 2 * n_points, 2 * n_points );
+	Math::Matrix< 0, 0, T > U( 2 * n_points, 2 * n_points );
 	lapack::gesvd( 'N', 'A', A, s, U, Vt );
 
 	// copy result to 3x3 matrix

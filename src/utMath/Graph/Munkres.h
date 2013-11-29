@@ -41,9 +41,10 @@
 
 #include <utCore.h>
 #include <utMath/Vector.h>
+#include <utMath/Matrix.h>
 #include <list>
 #include <vector>
-#include <boost/numeric/ublas/matrix.hpp>
+
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 
 #define Z_NORMAL 0
@@ -68,7 +69,7 @@ public:
 	Munkres();
 
 	/** Constructor directly using a matrix which should be solved */
-	Munkres( boost::numeric::ublas::matrix< T > & matrix);
+	Munkres( Math::Matrix< 0, 0, T > & matrix);
 
 	/** this function must be called AFTER the input data was set*/
 	void solve();
@@ -77,13 +78,13 @@ public:
 	 * sets the input data
 	 * @param matrix the matrix to be solved
 	 */
-	void setMatrix( boost::numeric::ublas::matrix< T > & matrix );
+	void setMatrix( Math::Matrix< 0, 0, T > & matrix );
 
 	/**
 	 * returns the result as a masked Matrix
 	 * @return every 1 in the matrix represents a match
 	 */
-	boost::numeric::ublas::matrix< T >  getMaskMatrix();
+	Math::Matrix< 0, 0, T >  getMaskMatrix();
 
 	/**
 	 * returns the result as a ordered list of matches
@@ -111,7 +112,7 @@ private:
 	int step5();
 	int step6();
 	boost::numeric::ublas::matrix< int > mask_matrix;
-	boost::numeric::ublas::matrix< T > m_matrix;
+	Math::Matrix< 0, 0, T > m_matrix;
 	bool *row_mask;
 	bool *col_mask;
 	std::size_t saverow, savecol;
@@ -128,7 +129,7 @@ Munkres< T >::Munkres()
 }
 
 template< typename T >
-Munkres< T >::Munkres( boost::numeric::ublas::matrix< T > & matrix)
+Munkres< T >::Munkres( Math::Matrix< 0, 0, T > & matrix)
 {	
 	saverow = 0; 
 	savecol = 0;
@@ -353,7 +354,7 @@ int Munkres< T >::step5()
 }
 
 template< typename T >
-void Munkres< T >::setMatrix( boost::numeric::ublas::matrix< T > & matrix )
+void Munkres< T >::setMatrix( Math::Matrix< 0, 0, T > & matrix )
 {
 	//find maximum matrix value vMax
 	T vMax = static_cast< T >( 0 );
@@ -450,7 +451,7 @@ void Munkres< T >::solve()
 }
 
 template< typename T >
-boost::numeric::ublas::matrix< T >  Munkres< T >::getMaskMatrix()
+Math::Matrix< 0, 0, T >  Munkres< T >::getMaskMatrix()
 {
 	return mask_matrix;
 }

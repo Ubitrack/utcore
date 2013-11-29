@@ -31,6 +31,8 @@
 
 #include "TipCalibration.h"
 
+#include <utMath/Matrix.h>
+
 #ifdef HAVE_LAPACK
 #include <boost/numeric/bindings/traits/ublas_matrix.hpp>
 #include <boost/numeric/bindings/traits/ublas_vector2.hpp>
@@ -47,12 +49,12 @@ void tipCalibration( const std::vector< Math::Pose >& poses,
 	Math::Vector< 3 >& pm, Math::Vector< 3 >& pw )
 {
 	const std::size_t nPoses = ( poses.size() );
-	ublas::matrix< double, ublas::column_major > a( 3 * nPoses, 6 );
-	ublas::vector< double > v( 3 * nPoses );
+	Math::Matrix< 0, 0, double >::base_type a( 3 * nPoses, 6 );
+	Math::Vector< 0, double >::base_type v( 3 * nPoses );
 	for ( std::size_t i( 0 ); i < nPoses; i++ )
 	{
 		// set a
-		ublas::matrix_range< ublas::matrix< double, ublas::column_major > > r( 
+		ublas::matrix_range< Math::Matrix< 0, 0, double >::base_type > r( 
 			a, ublas::range( i * 3, (i+1) * 3 ), ublas::range( 0, 3 ) );
 		poses[ i ].rotation().toMatrix( r );
 		ublas::subrange( a, i * 3, (i+1) * 3, 3, 6 ) = -ublas::identity_matrix< double >( 3 );

@@ -142,7 +142,7 @@ T optimizePoseImpl( Pose& p, const std::vector< Vector< 2, T > >& p2D, const std
 	p.toVector( params );
 
 	// copy 2D points to measurement vector
-	ublas::vector< T >  measurements( 2 * p2D.size() );
+	Math::Vector< 0, T >  measurements( 2 * p2D.size() );
 	for ( std::size_t i( 0 ); i < p2D.size(); i++ )
 		ublas::subrange( measurements, 2*i, (i+1)*2 ) = p2D[ i ];
 

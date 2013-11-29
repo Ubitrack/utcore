@@ -95,7 +95,7 @@ Math::Vector< 3, T > get3DPositionImp( const Math::Matrix< 3, 4, T > & P1, const
 	ublas::row( A, 3 ) = ( x_( 1 ) * ublas::row( P2, 2 ) ) - ublas::row( P2, 1 );
 
 	//solving using svd
-	ublas::vector< T > s1( 4 );
+	Math::Vector< 0, T > s1( 4 );
 	Math::Matrix< 4, 4, T > Vt;
 	Math::Matrix< 4, 4, T > U;
 	lapack::gesvd( 'N', 'A', A, s1, U, Vt );
@@ -126,7 +126,7 @@ Math::Vector< 3, typename std::iterator_traits< ForwardIterator2 >::value_type::
 	if( n < 2 )
 		UBITRACK_THROW( "3d point estimation requires at least 2 matrices and 2 image points." );
 
-	ublas::matrix< Type, ublas::column_major > A( n * 3, 4 );
+	Math::Matrix< 0, 0, Type > A( n * 3, 4 );
 	
 	std::size_t i( 0 );
 	for ( ForwardIterator1 it ( iBegin ); it != iEnd; ++i, ++it, ++iPoints )
@@ -141,9 +141,9 @@ Math::Vector< 3, typename std::iterator_traits< ForwardIterator2 >::value_type::
 		ublas::subrange( A, i*3, i*3+3, 0, 4 ) = ublas::prod( skew, (*it) );
 	}
 
-	ublas::vector< Type > s( 4 );
+	Math::Vector< 0, Type > s( 4 );
 	Math::Matrix< 4, 4, Type > Vt;
-	ublas::matrix< Type, ublas::column_major > U( 3*n, 3*n );
+	Math::Matrix< 0, 0, Type > U( 3*n, 3*n );
 	if( lapack::gesvd( 'N', 'A', A, s, U, Vt ) != 0 )
 		UBITRACK_THROW ( "SVD for point reconstruction failed." );
 		
@@ -174,13 +174,13 @@ Math::Vector< 3, typename std::iterator_traits< ForwardIterator1 >::value_type::
 	Function::SinglePointMultiProjection< Type, ForwardIterator1 > func( iBegin, iEnd );
 	
 	// prepare the image measurement vector for the minimization
-	ublas::vector< Type > measurement( n * 2 );
+	Math::Vector< 0, Type > measurement( n * 2 );
 	ForwardIterator2 it( iPoints );
 	for ( std::size_t i ( 0 ); i < n; ++i, ++it )
 		ublas::subrange( measurement, i*2, (i*2)+2 ) = *it;
 
 	// prepare the input 3-vector to be optimized
-	ublas::vector< Type > parameters( 3 );
+	Math::Vector< 0, Type > parameters( 3 );
 	parameters = initialPoint;
 	
 	// perform optimization
@@ -237,7 +237,7 @@ std::vector< Math::Vector< 3, T > > reconstruct3DPointsImp( const std::vector< M
 	const std::size_t p2Size = p2.size();
 
 	//create match matrix
-	ublas::matrix< T > matrix( p1Size, p2Size );
+	Math::Matrix< 0, 0, T > matrix( p1Size, p2Size );
 
 	for( std::size_t row( 0 ); row < p1Size; ++row )
 	{

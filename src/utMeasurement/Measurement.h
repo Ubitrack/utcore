@@ -33,13 +33,6 @@
 #ifndef _Ubitrack_Measurement_Measurement_INCLUDED_
 #define _Ubitrack_Measurement_Measurement_INCLUDED_
 
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/shared_ptr.hpp>
-
-#include <iostream>
-#include <vector>
-
 #include "Timestamp.h"
 
 #include <utMath/Vector.h>
@@ -50,6 +43,13 @@
 #include <utMath/Scalar.h>
 #include <utMath/RotationVelocity.h>
 #include <utMath/CameraIntrinsics.h>
+#include <boost/shared_ptr.hpp>
+
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/vector.hpp>
+
+#include <vector>
+#include <iostream>
 
 namespace Ubitrack { namespace Measurement {
 
@@ -108,7 +108,7 @@ std::ostream& operator<< ( std::ostream& s, const Measurement< Type >& m )
  * M. aggregates the measurement value and a timestamp, provides (un-)serialization
  * and human-readable output.
  *
- * The \c Measurement class is derived from \c boost::shared_ptr< Type >, so use 
+ * The \c Measurement class is derived from \c Util::shared_ptr< Type >, so use 
  * pointer syntax to access the payload. Also notice that copying the measurement
  * does not copy data, but creates a reference to the old measurement, so
  * @verbatim 

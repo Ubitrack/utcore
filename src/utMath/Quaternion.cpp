@@ -32,7 +32,7 @@ namespace Ubitrack { namespace Math {
 
 
 // create quaternion from (assumed) rotation matrix
-Quaternion::Quaternion( const boost::numeric::ublas::matrix<double>& mat )
+Quaternion::Quaternion( const Math::Matrix< 0, 0, double >& mat )
 {
 	double S, X, Y, Z, W;
 	double T = 1.0 + mat(0,0) + mat(1,1) + mat(2,2);
@@ -88,8 +88,7 @@ Vector<3> Quaternion::getEulerAngles() const {
 	double ry = 0.0;
 	double rz = 0.0;
 
-	//boost::numeric::ublas::matrix<double> m(3,3);
-	Matrix<3,3,double> m;
+	Matrix< 3, 3, double > m;
 	toMatrix( m );
 
 	//std::cout << m << std::endl;
