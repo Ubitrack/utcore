@@ -114,7 +114,7 @@ void testBasicConicFunctors( const std::size_t n )
 template< typename T >
 void testRandomQuadricProjection( const std::size_t n )
 {
-	Random::Quaternion< T > randQuat;
+	typename Random::Quaternion< T >::Uniform randQuat;
 	typename Random::Vector< 3, T >::Uniform randTranslation( -100, 100 );
 	Pose camPose( randQuat() , randTranslation() );
 	Matrix< 3, 4, T > projection( camPose );

@@ -75,7 +75,7 @@ void TestMarkerBundleAdjustment( const std::size_t n_runs, const T epsilon )
 		// typename Random::Vector< 3, T >::Uniform randPositionNoise( -0.25, 0.25 ); // uniform noise	for 3d points
 		
 		// random poses for the estimation
-		Random::Quaternion< T > randQuat;
+		typename Random::Quaternion< T >::Uniform randQuat;
 		typename Random::Vector< 3, T >::Uniform randTranslation( -100, 100 ); //translation
 		//alternatively one could use a random pose:
 		// Random::Pose< T >::Uniform( -100, 100 );

@@ -26,7 +26,7 @@ template< typename T >
 void TestOptimizePose( const std::size_t n_runs, const T epsilon )
 {
 
-	Random::Quaternion< T > randQuat;
+	typename Random::Quaternion< T >::Uniform randQuat;
 	typename Random::Vector< 3, T >::Uniform randVector( -0.5, 0.5 ); // 3d Points
 	typename Random::Vector< 3, T >::Uniform randTranslation( -100, 100 ); //translation
 	// typename Random::Vector< 3, T >::Normal randPositionNoise( 0, 0.2 ); // translation gaussian noise
