@@ -63,10 +63,6 @@
 #include <math.h>
 #endif
 
-// Boost
-#include <boost/numeric/bindings/lapack/gels.hpp>
-#include <boost/numeric/bindings/lapack/syev.hpp>
-
 namespace Ubitrack { namespace Math { namespace Geometry {
 
 
@@ -122,10 +118,10 @@ public:
 	{
 		boost::numeric::ublas::matrix< T, boost::numeric::ublas::column_major > matrix( 3, 3 );
 		matrix( 0, 0 ) = conic[ 0 ];
-		matrix( 1, 0 ) = matrix( 0, 1 ) = conic[ 1 ] * 0.5;
+		matrix( 1, 0 ) = matrix( 0, 1 ) = conic[ 1 ] * static_cast< T > ( 0.5 );
 		matrix( 1, 1 ) = conic[ 2 ];
-		matrix( 2, 0 ) = matrix( 0, 2 ) = conic[ 3 ] * 0.5;
-		matrix( 2, 1 ) = matrix( 1, 2 ) = conic[ 4 ] * 0.5;
+		matrix( 2, 0 ) = matrix( 0, 2 ) = conic[ 3 ] * static_cast< T > ( 0.5 );
+		matrix( 2, 1 ) = matrix( 1, 2 ) = conic[ 4 ] * static_cast< T > ( 0.5 );
 		matrix( 2, 2 ) = conic[ 5 ];
 		return Math::Matrix< 3, 3, T >( matrix );
 	}
@@ -196,15 +192,15 @@ public:
 		const T d = conic( 3 );
 		const T e = conic( 4 );
 		const T f = conic( 5 );
-		const T divisor =  1./( (a*(e*e)+c*(d*d)+(b*b)*f-a*c*f*static_cast< T >( 4.0 )-b*d*e) );
+		const T divisor =  static_cast< T >( 1 ) /( (a*(e*e)+c*(d*d)+(b*b)*f-a*c*f*4-b*d*e) );
 		
 		Math::Vector< 6, T > iConic;
-		iConic( 0 ) = -(c*f*static_cast< T >( 4.0 ) -e*e) * divisor;
-		iConic( 1 ) =  2 * (b*f*static_cast< T >( 2.0 ) -d*e) * divisor;
-		iConic( 2 )  = -(a*f*static_cast< T >( 4.0 ) -d*d) * divisor;
-		iConic( 3 )  = 2 * (-(b*e-c*d*static_cast< T >( 2.0 ) ) * divisor );
-		iConic( 4 )  = 2 * (a*e*static_cast< T >( 2.0 ) -b*d) * divisor;
-		iConic( 5 )  = -(a*c*static_cast< T >( 4.0 ) -b*b) * divisor;
+		iConic( 0 ) = -(c*f*4-e*e) * divisor;
+		iConic( 1 ) =  2 * (b*f*2-d*e) * divisor;
+		iConic( 2 )  = -(a*f*4-d*d) * divisor;
+		iConic( 3 )  = 2 * (-(b*e-c*d*2) * divisor );
+		iConic( 4 )  = 2 * (a*e*2-b*d) * divisor;
+		iConic( 5 )  = -(a*c*4-b*b) * divisor;
 		return Math::Vector< 6, T >( iConic );
 	};
 };
@@ -237,7 +233,7 @@ public:
 		const T d = conic( 3 );
 		const T e = conic( 4 );
 		const T f = conic( 5 );
-		return a*c*f + 0.25 * (-b*b*f + b*e*d - c*d*d - a*e*e);
+		return a*c*f + (-b*b*f + b*e*d - c*d*d - a*e*e) * static_cast< T >( 0.25 );
 	}
 };
 
@@ -272,9 +268,9 @@ public:
 		const T a = conic( 0 );
 		const T b = conic( 1 );
 		const T c = conic( 2 );
-		const T angle = 0.5 * std::atan( b  / ( a - c ) ); 
+		const T angle = std::atan( b  / ( a - c ) ) * static_cast< T > ( 0.5 ); 
 		// return 0.5 * std::atan( ( 2.0 * b ) / ( a - c ) ); 
-		return ( a <= c ? angle : ( static_cast< T > ( M_PI * 0.5 ) ) + angle );
+		return ( a <= c ? angle : ( static_cast< T > ( M_PI * static_cast< T > ( 0.5 ) ) ) + angle );
 	}
 };
 
@@ -305,31 +301,31 @@ public:
 	{
 		const T theta0 = m_angulator( conic );
 		const T a = conic( 0 );
-		const T b = conic( 1 );// * 0.5;
+		const T b = conic( 1 );// * static_cast< T > ( 0.5 );
 		const T c = conic( 2 );
-		const T d = conic( 3 );// * 0.5;
-		const T e = conic( 4 );// * 0.5;
+		const T d = conic( 3 );// * static_cast< T > ( 0.5 );
+		const T e = conic( 4 );// * static_cast< T > ( 0.5 );
 		const T f = conic( 5 );
 
 		// computation shortcuts
-		double cot = std::cos(theta0);
-		double sit = std::sin(theta0);
+		const T cot = std::cos(theta0);
+		const T sit = std::sin(theta0);
 		// double co2t = std::cos(2*theta0);
 		// double si2t = std::sin(2*theta0);
-		double cot2 = cot*cot;
-		double sit2 = sit*sit;
+		const T cot2 = cot*cot;
+		const T sit2 = sit*sit;
 
 		// Compute coefficients of the conic rotated around origin
-		double a1 = a*cot2+b*sit*cot+c*sit2;
+		const T a1 = a*cot2+b*sit*cot+c*sit2;
 		// double b1 = si2t*(c-a)+b*co2t; // should be equal to zero
-		double c1 = a*sit2-b*sit*cot+c*cot2;
-		double d1 = d*cot+e*sit;
-		double e1 = -d*sit+e*cot;
-		double f1 = f;
+		const T c1 = a*sit2-b*sit*cot+c*cot2;
+		const T d1 = d*cot+e*sit;
+		const T e1 = -d*sit+e*cot;
+		const T f1 = f;
 
-		double num = (c1*d1*d1+a1*e1*e1-4*a1*c1*f1)/(4*a1*c1);
-		double at = std::sqrt( num/a1 );
-		double bt = std::sqrt( num/c1 );
+		const T num = (c1*d1*d1+a1*e1*e1-4*a1*c1*f1)/(4*a1*c1);
+		const T at = std::sqrt( num/a1 );
+		const T bt = std::sqrt( num/c1 );
 	
 		return Math::Vector< 2, T >( at,bt );
 	}
@@ -348,10 +344,10 @@ public:
 	/*Math::Vector< 2, T > operator() ( const Math::Vector< 6, T > &conic ) const
 	{
 		const T a = conic( 0 );
-		const T b = conic( 1 );// * 0.5;
+		const T b = conic( 1 );// * static_cast< T > ( 0.5 );
 		const T c = conic( 2 );
-		const T d = conic( 3 );// * 0.5;
-		const T e = conic( 4 );// * 0.5;
+		const T d = conic( 3 );// * static_cast< T > ( 0.5 );
+		const T e = conic( 4 );// * static_cast< T > ( 0.5 );
 		const T f = conic( 5 );		
 		const T upper = 2.0 * ( a*e*e + c*d*d + f*b*b - b*d*e - a*c*f );
 		const T lower1 = b*b - a*c;
@@ -394,14 +390,14 @@ public:
 	Math::Vector< 2, T > operator() ( const Math::Vector< 6, T >& conic ) const
 	{
 		const T a = conic( 0 );
-		const T b = conic( 1 ) * 0.5;
+		const T b = conic( 1 ) * static_cast< T > ( 0.5 );
 		const T c = conic( 2 );
-		const T d = conic( 3 ) * 0.5;
-		const T e = conic( 4 ) * 0.5;
+		const T d = conic( 3 ) * static_cast< T > ( 0.5 );
+		const T e = conic( 4 ) * static_cast< T > ( 0.5 );
 		// const T f = conic( 5 );
 	
 		// (b^2)-ac
-		const T divisor = 1. / ( b*b - a*c );
+		const T divisor = static_cast< T >( 1 ) / ( b*b - a*c );
 		if( divisor == 0 )
 			UBITRACK_THROW( "Could not calculate the center, divisor equals zero" );
 		// c*d-b*e / divisor
@@ -444,15 +440,15 @@ public:
 	T operator() ( const Math::Vector< 6, T > &conic ) const
 	{
 		const T a = conic( 0 );
-		const T b = conic( 1 ) * 0.5;
+		const T b = conic( 1 ) * static_cast< T > ( 0.5 );
 		const T c = conic( 2 );
-		// const T d = conic( 3 ) * 0.5;
-		// const T e = conic( 4 ) * 0.5;
+		// const T d = conic( 3 ) * static_cast< T > ( 0.5 );
+		// const T e = conic( 4 ) * static_cast< T > ( 0.5 );
 		// const T f = conic( 5 );
 		const T upper = std::sqrt( std::pow( a-c, 2 ) + b*b );
 		const T ac = (a+c);
 		const T det = m_determiner( conic );
-		return ( det < 0.0 ) ? std::sqrt( ( 2.0 * upper ) / (upper+ac) ) : std::sqrt( ( 2.0 * upper) / (upper-(ac) ) );
+		return ( det < 0 ) ? std::sqrt( ( 2 * upper ) / (upper+ac) ) : std::sqrt( ( 2 * upper) / (upper-(ac) ) );
 	}
 };
 
@@ -514,7 +510,7 @@ public:
 	 * @tparam T type of conic ( e.g. \c double or \c float )
 	 * @param epsilon the minimal error to be tolerated for b being zero
 	 */
-	IsConicCircle( const T error = 0.01 )
+	IsConicCircle( const T error = static_cast< T > ( 0.01 ) )
 		: std::unary_function< Math::Vector< 6, T >, bool >( )
 		, m_error( error )
 	{ }
@@ -530,14 +526,14 @@ public:
 	bool operator() ( const Math::Vector< 6, T > &conic ) const
 	{
 		// b ~ 0
-		if( std::abs( conic( 1 ) ) > m_error )
+		if( std::fabs( conic( 1 ) ) > m_error )
 			return false;
 		// |a-c| ~ 0
-		if( std::abs( conic( 0 ) - conic( 2 ) ) > m_error  )
+		if( std::fabs( conic( 0 ) - conic( 2 ) ) > m_error  )
 			return false;
 		
 		//bb-4ac < 0
-		return( ( conic( 1 ) *  conic( 1 ) - 4.0 *  conic( 0 ) *  conic( 2 ) ) < 0 );
+		return( ( conic( 1 ) *  conic( 1 ) - 4 *  conic( 0 ) *  conic( 2 ) ) < 0 );
 	}
 };
 
@@ -566,7 +562,7 @@ public:
 	 * @tparam T type of conic ( e.g. \c double or \c float )
 	 * @param epsilon the minimal error to be tolerated for the determinant
 	 */
-	IsConicDegenerate( const T epsilon = 1e-5 )
+	IsConicDegenerate( const T epsilon = static_cast< T > ( 1e-5 ) )
 		: std::unary_function< Math::Vector< 6, T >, bool >()
 		, m_epsilon( epsilon )
 		, m_determiner( )
@@ -581,7 +577,7 @@ public:
 	 */
 	bool operator() ( const Math::Vector< 6, T > &conic ) const
 	{
-		return std::abs( m_determiner( conic ) ) < m_epsilon ;
+		return std::fabs( m_determiner( conic ) ) < m_epsilon ;
 	}
 };
 
@@ -652,7 +648,7 @@ public:
 	{
 		// parabola statisfy : bb-4ac == 0 
 		// epsilon is applied since it might never be exactly zero
-		return std::abs( conic( 1 ) * conic( 1 ) - 4.0 * conic( 0 ) * conic( 2 ) ) < m_epsilon;
+		return std::fabs( conic( 1 ) * conic( 1 ) - 4 * conic( 0 ) * conic( 2 ) ) < m_epsilon;
 	}
 };
 
@@ -693,9 +689,9 @@ public:
 	 */
 	ScaleConicUnsafe( const T scaleA, const T scaleB )
 		: std::unary_function< Math::Vector< 6, T >, Math::Vector< 6, T > >( )
-		, m_scaleA1(  1. / scaleA )
+		, m_scaleA1(  static_cast< T >( 1 ) / scaleA )
 		, m_scaleA2(  m_scaleA1 * m_scaleA1 )
-		, m_scaleB1(  1. / scaleB )
+		, m_scaleB1(  static_cast< T >( 1 ) / scaleB )
 		, m_scaleB2(  m_scaleB1 * m_scaleB1 )
 	{
 		// just for illustration what happens here
@@ -714,7 +710,7 @@ public:
 	 */
 	ScaleConicUnsafe( const T scale )
 		: std::unary_function< Math::Vector< 6, T >, Math::Vector< 6, T > >( )
-		, m_scaleA1(  1. / scale )
+		, m_scaleA1( static_cast< T >( 1 ) / scale )
 		, m_scaleA2(  m_scaleA1 * m_scaleA1 )
 		, m_scaleB1(  m_scaleA1 )
 		, m_scaleB2(  m_scaleA2 )
@@ -782,10 +778,10 @@ public:
 	{
 		
 		const T a = conic( 0 );
-		const T b = conic( 1 ) * 0.5;
+		const T b = conic( 1 ) * static_cast< T > ( 0.5 );
 		const T c = conic( 2 );
-		const T d = conic( 3 ) * 0.5;
-		const T e = conic( 4 ) * 0.5;
+		const T d = conic( 3 ) * static_cast< T > ( 0.5 );
+		const T e = conic( 4 ) * static_cast< T > ( 0.5 );
 		const T f = conic( 5 );
 		const T tx ( translation( 0 ) );
 		const T ty ( translation( 1 ) );
@@ -852,10 +848,10 @@ public:
 		const T y = pixel[ 1 ];
 		
 		const T a = conic[ 0 ];
-		const T b = conic[ 1 ] * 0.5;
+		const T b = conic[ 1 ] * static_cast< T > ( 0.5 );
 		const T c = conic[ 2 ];
-		const T d = conic[ 3 ] * 0.5;
-		const T e = conic[ 4 ] * 0.5;
+		const T d = conic[ 3 ] * static_cast< T > ( 0.5 );
+		const T e = conic[ 4 ] * static_cast< T > ( 0.5 );
 		const T f = conic[ 5 ];
 		
 		return ( f + e*y + d*x + x*( d + a*x + b*y) + y *( e + b*x + c*y ) );
@@ -899,10 +895,10 @@ public:
 	Math::Vector< 6, T > operator() ( const Math::Vector< 6, T > &conic ) const
 	{
 		const T a = conic[ 0 ];
-		const T b = conic[ 1 ] * 0.5;
+		const T b = conic[ 1 ] * static_cast< T > ( 0.5 );
 		const T c = conic[ 2 ];
-		const T d = conic[ 3 ] * 0.5;
-		const T e = conic[ 4 ] * 0.5;
+		const T d = conic[ 3 ] * static_cast< T > ( 0.5 );
+		const T e = conic[ 4 ] * static_cast< T > ( 0.5 );
 		const T f = conic[ 5 ];
 		
 		// the following matrix expresses the conic flipping.
@@ -951,17 +947,17 @@ public:
 	{
 
 		const T a = conic( 0 );
-		const T b = conic( 1 ) * 0.5;
+		const T b = conic( 1 ) * static_cast< T > ( 0.5 );
 		const T c = conic( 2 );
-		const T d = conic( 3 ) * 0.5;
-		const T e = conic( 4 ) * 0.5;
+		const T d = conic( 3 ) * static_cast< T > ( 0.5 );
+		const T e = conic( 4 ) * static_cast< T > ( 0.5 );
 		const T f = conic( 5 );
 
-		T lower = 4.0 * ( b*b - a*c );
-		const T upper1 = 8.0 * ( b*d - a*e );
-		const T temp = 4.0 * ( d*d - a*f );
+		T lower = 4 * ( b*b - a*c );
+		const T upper1 = 8 * ( b*d - a*e );
+		const T temp = 4 * ( d*d - a*f );
 		const T upper2 = std::sqrt( upper1 * upper1 - ( 4 * lower * temp ) );
-		lower *= 2.0;
+		lower *= 2;
 		const T y1 = -( (upper1/lower) + (upper2/lower) );
 		const T y2 = -( (upper1/lower) - (upper2/lower) );
 	
@@ -998,14 +994,14 @@ public:
 	Math::Vector< 2, T > operator() ( const Math::Vector< 6, T > &conic ) const
 	{
 		const T a = conic( 0 );
-		const T b = conic( 1 ) * 0.5;
+		const T b = conic( 1 ) * static_cast< T > ( 0.5 );
 		const T c = conic( 2 );
-		const T d = conic( 3 ) * 0.5;
-		const T e = conic( 4 ) * 0.5;
+		const T d = conic( 3 ) * static_cast< T > ( 0.5 );
+		const T e = conic( 4 ) * static_cast< T > ( 0.5 );
 		const T f = conic( 5 );
 	
-		const T x1 = (b*e-c*d+c*std::sqrt((a*(e*e)+c*(d*d)+(b*b)*f-a*c*f-b*d*e*2.0)/c))/(a*c-b*b);
-		const T x2 = -(-b*e+c*d+c*std::sqrt((a*(e*e)+c*(d*d)+(b*b)*f-a*c*f-b*d*e*2.0)/c))/(a*c-b*b);
+		const T x1 = (b*e-c*d+c*std::sqrt((a*(e*e)+c*(d*d)+(b*b)*f-a*c*f-b*d*e*2)/c))/(a*c-b*b);
+		const T x2 = -(-b*e+c*d+c*std::sqrt((a*(e*e)+c*(d*d)+(b*b)*f-a*c*f-b*d*e*2)/c))/(a*c-b*b);
 
 		return ( x1 < x2 ) ? Math::Vector< 2, T >( x1, x2 ) : Math::Vector< 2, T >( x2, x1 );
     }
@@ -1035,7 +1031,7 @@ public:
 	 */
 	Math::Vector< 2, T > operator() ( const Math::Vector< 6, T > &conic, const T y ) const
 	{
-		const T b = conic( 1 )*0.5 * y + conic( 3 ) * 0.5; 
+		const T b = conic( 1 )*0.5 * y + conic( 3 ) * static_cast< T > ( 0.5 ); 
 		const T c = ( conic( 2 ) * y + conic( 4 ) ) * y + conic( 5 );
 		const T d = std::sqrt( b * b - conic( 0 ) * c );
 		const T x1 = ( (-b + d) / conic( 0 ) );
