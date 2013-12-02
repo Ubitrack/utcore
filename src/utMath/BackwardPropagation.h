@@ -78,7 +78,7 @@ void backwardPropagation( MT1& result, const MT2& input, const F& function, cons
 	namespace ublas = boost::numeric::ublas;
 
 	typedef typename MT1::value_type VType;
-	typedef ublas::matrix< VType, ublas::column_major > MatType;
+	typedef typename Math::Matrix< 0, 0, VType > MatType;
 
 	// evaluate jacobian
 	MatType jacobian( input.size1(), result.size1() );
@@ -86,7 +86,7 @@ void backwardPropagation( MT1& result, const MT2& input, const F& function, cons
 	
 	// factorize E into Q^T * T * Q
 	MatType Q( input );
-	ublas::vector< VType > t( input.size1() );
+	Math::Vector< 0, VType > t( input.size1() );
 	lapack::syev( 'V', 'U', Q, t, lapack::minimal_workspace() );
 	
 	// compute Q * J
@@ -108,7 +108,7 @@ void backwardPropagation( MT1& result, const MT2& input, const F& function, cons
 	// perform SVD on QJ
 	MatType dummyU( function.size(), function.size() );
 	MatType dummyVt( result.size1(), result.size1() );
-	ublas::vector< VType > s( result.size1() );
+	Math::Vector< 0, VType > s( result.size1() );
 	lapack::gesvd( 'N', 'O', QJ, s, dummyU, dummyVt );
 
 	// compute singular values of pseudo-inverse
@@ -154,12 +154,12 @@ void backwardPropagationIdentity( MT1& result, typename MT1::value_type s, MT3& 
 	namespace ublas = boost::numeric::ublas;
 
 	typedef typename MT1::value_type VType;
-	typedef ublas::matrix< VType, ublas::column_major > MatType;
+	typedef typename Math::Matrix< 0, 0, VType > MatType;
 
 	// perform SVD on the jacobian
 	MatType dummyU( jacobian.size1(), jacobian.size1() );
 	MatType dummyVt( result.size1(), result.size1() );
-	ublas::vector< VType > v( result.size1() );
+	Math::Vector< 0, VType > v( result.size1() );
 	lapack::gesvd( 'N', 'O', jacobian, v, dummyU, dummyVt );
 
 	// compute singular values of pseudo-inverse, multiplied by sqrt(s)
@@ -202,7 +202,7 @@ void backwardPropagationIdentity( MT1& result, typename MT1::value_type s, const
 	namespace ublas = boost::numeric::ublas;
 
 	typedef typename MT1::value_type VType;
-	typedef ublas::matrix< VType, ublas::column_major > MatType;
+	typedef typename Math::Matrix< 0, 0, VType > MatType;
 
 	// evaluate jacobian J
 	MatType jacobian( function.size(), result.size1() );
@@ -232,7 +232,7 @@ void backwardPropagationDiagonal( MT1& result, const VT2& input, MT3& jacobian )
 	namespace ublas = boost::numeric::ublas;
 
 	typedef typename MT1::value_type VType;
-	typedef ublas::matrix< VType, ublas::column_major > MatType;
+	typedef typename Math::Matrix< 0, 0, VType > MatType;
 
 	// multiply jacobian with E^(-1/2)
 	for ( unsigned i = 0; i < result.size1(); i++ )
@@ -241,7 +241,7 @@ void backwardPropagationDiagonal( MT1& result, const VT2& input, MT3& jacobian )
 	// perform SVD on jacobian
 	MatType dummyU( jacobian.size1(), jacobian.size1() );
 	MatType dummyVt( result.size1(), result.size1() );
-	ublas::vector< VType > s( result.size1() );
+	Math::Vector< 0, VType > s( result.size1() );
 	lapack::gesvd( 'N', 'O', jacobian, s, dummyU, dummyVt );
 
 	// compute singular values of pseudo-inverse
@@ -284,7 +284,7 @@ void backwardPropagationDiagonal( MT1& result, const VT2& input, const F& functi
 	namespace ublas = boost::numeric::ublas;
 
 	typedef typename MT1::value_type VType;
-	typedef ublas::matrix< VType, ublas::column_major > MatType;
+	typedef typename Math::Matrix< 0, 0, VType > MatType;
 
 	// evaluate jacobian
 	MatType jacobian( input.size(), result.size1() );

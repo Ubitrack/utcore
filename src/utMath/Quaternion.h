@@ -44,9 +44,10 @@
 #include "Vector.h"
 #include <math.h>
 
-
 namespace Ubitrack { namespace Math {
 
+//forward declaration to matrix template
+template< std::size_t M, std::size_t N, typename T > class Matrix;
 
 /**
  * @ingroup math
@@ -124,7 +125,7 @@ class UBITRACK_EXPORT Quaternion
 		 * rotation matrix constructor
 		 * @param mat a rotation matrix
 		 */
-		Quaternion( const boost::numeric::ublas::matrix< double >& mat );
+		Quaternion( const Math::Matrix< 0, 0, double >& mat );
 
 		/**
 		 * get the real part

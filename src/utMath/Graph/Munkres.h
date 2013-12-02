@@ -41,21 +41,20 @@
 
 #include <utCore.h>
 #include <utMath/Vector.h>
+#include <utMath/Matrix.h>
 #include <list>
 #include <vector>
-#include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/matrix_proxy.hpp>
 
-namespace ublas = boost::numeric::ublas;
+#include <boost/numeric/ublas/matrix_proxy.hpp>
 
 #define Z_NORMAL 0
 #define Z_STAR 1
 #define Z_PRIME 2
 
-namespace Ubitrack { namespace Calibration {
+namespace Ubitrack { namespace Math { namespace Graph {
 
 /**
- * @ingroup calibration
+ * @ingroup math
  * The actual Munkres class
  * to solve various problems using the Hungarian Algorithm
  * @param T type of vector/matrix elements 
@@ -70,7 +69,7 @@ public:
 	Munkres();
 
 	/** Constructor directly using a matrix which should be solved */
-	Munkres(ublas::matrix< T > & matrix);
+	Munkres( Math::Matrix< 0, 0, T > & matrix);
 
 	/** this function must be called AFTER the input data was set*/
 	void solve();
@@ -79,13 +78,13 @@ public:
 	 * sets the input data
 	 * @param matrix the matrix to be solved
 	 */
-	void setMatrix( ublas::matrix< T > & matrix );
+	void setMatrix( Math::Matrix< 0, 0, T > & matrix );
 
 	/**
 	 * returns the result as a masked Matrix
 	 * @return every 1 in the matrix represents a match
 	 */
-	ublas::matrix< T >  getMaskMatrix();
+	Math::Matrix< 0, 0, T >  getMaskMatrix();
 
 	/**
 	 * returns the result as a ordered list of matches
@@ -112,8 +111,8 @@ private:
 	int step4();
 	int step5();
 	int step6();
-	ublas::matrix< int > mask_matrix;
-	ublas::matrix< T > m_matrix;
+	boost::numeric::ublas::matrix< int > mask_matrix;
+	Math::Matrix< 0, 0, T > m_matrix;
 	bool *row_mask;
 	bool *col_mask;
 	std::size_t saverow, savecol;
@@ -130,7 +129,7 @@ Munkres< T >::Munkres()
 }
 
 template< typename T >
-Munkres< T >::Munkres(ublas::matrix< T > & matrix)
+Munkres< T >::Munkres( Math::Matrix< 0, 0, T > & matrix)
 {	
 	saverow = 0; 
 	savecol = 0;
@@ -355,7 +354,7 @@ int Munkres< T >::step5()
 }
 
 template< typename T >
-void Munkres< T >::setMatrix( ublas::matrix< T > & matrix )
+void Munkres< T >::setMatrix( Math::Matrix< 0, 0, T > & matrix )
 {
 	//find maximum matrix value vMax
 	T vMax = static_cast< T >( 0 );
@@ -376,16 +375,16 @@ void Munkres< T >::setMatrix( ublas::matrix< T > & matrix )
 	else if ( matrix.size1() > matrix.size2() )
 	{
 		m_matrix.resize( matrix.size1(), matrix.size1() );
-		ublas::subrange( m_matrix, 0, matrix.size1(), 0, matrix.size2() ) = matrix;
-		ublas::subrange( m_matrix, 0, matrix.size1(), matrix.size2(), matrix.size1() - matrix.size2() ) = 
-			ublas::scalar_matrix< T >( matrix.size1(), matrix.size1() - matrix.size2(), vMax );
+		boost::numeric::ublas::subrange( m_matrix, 0, matrix.size1(), 0, matrix.size2() ) = matrix;
+		boost::numeric::ublas::subrange( m_matrix, 0, matrix.size1(), matrix.size2(), matrix.size1() - matrix.size2() ) = 
+			boost::numeric::ublas::scalar_matrix< T >( matrix.size1(), matrix.size1() - matrix.size2(), vMax );
 	}
 	else
 	{
 		m_matrix.resize( matrix.size2(), matrix.size2(), false );
-		ublas::subrange( m_matrix, 0, matrix.size1(), 0, matrix.size2() ) = matrix;
-		ublas::subrange( m_matrix, matrix.size1(), matrix.size2() - matrix.size1(), 0, matrix.size2() ) = 
-			ublas::scalar_matrix< T >( matrix.size2() - matrix.size1(), matrix.size2(), vMax );
+		boost::numeric::ublas::subrange( m_matrix, 0, matrix.size1(), 0, matrix.size2() ) = matrix;
+		boost::numeric::ublas::subrange( m_matrix, matrix.size1(), matrix.size2() - matrix.size1(), 0, matrix.size2() ) = 
+			boost::numeric::ublas::scalar_matrix< T >( matrix.size2() - matrix.size1(), matrix.size2(), vMax );
 	}
 
 	m_max = m_matrix.size1();
@@ -407,7 +406,7 @@ void Munkres< T >::setMatrix( ublas::matrix< T > & matrix )
 	}	
 
 	//initialize mask matrix
-	mask_matrix = ublas::scalar_matrix< int >( m_matrix.size1(), m_matrix.size1(), Z_NORMAL );
+	mask_matrix = boost::numeric::ublas::scalar_matrix< int >( m_matrix.size1(), m_matrix.size1(), Z_NORMAL );
 }
 
 template< typename T >
@@ -452,7 +451,7 @@ void Munkres< T >::solve()
 }
 
 template< typename T >
-ublas::matrix< T >  Munkres< T >::getMaskMatrix()
+Math::Matrix< 0, 0, T >  Munkres< T >::getMaskMatrix()
 {
 	return mask_matrix;
 }
@@ -507,6 +506,6 @@ std::vector< std::size_t > Munkres< T >::getColMatchList()
 	return list;
 }
 
-} } // namespace Ubitrack::Calibration
+}}} // namespace Ubitrack::math::Graph
 
 #endif

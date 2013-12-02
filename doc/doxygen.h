@@ -144,7 +144,28 @@ namespace Ubitrack {
 	 * Mathematical types and functions
 	 */
 
-	namespace Math {}
+	namespace Math {
+	
+	
+		/**
+		 * Geometric types and functions
+		 */
+		 
+		namespace Geometry {}
+		
+		/**
+		 * Graph based types and functions
+		 */
+		 
+		namespace Graph {}
+		
+		/**
+		 * Numeric types and functions
+		 */
+		 
+		namespace Numeric {}
+		
+	}
 
 	/**
 	 * Tracking measurement datastructures

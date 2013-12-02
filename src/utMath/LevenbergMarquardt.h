@@ -36,17 +36,20 @@
 
 #ifdef HAVE_LAPACK
 
-#include <utUtil/Exception.h>
 #include <utMath/Matrix.h>
 #include <utMath/Vector.h>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 #include <boost/numeric/ublas/vector_proxy.hpp>
+#include <utUtil/Exception.h>
+#include <boost/shared_ptr.hpp>
 
 #include <boost/numeric/bindings/blas/blas.hpp>
 #include <boost/numeric/bindings/lapack/posv.hpp>
 #include <boost/numeric/bindings/lapack/gels.hpp>
 #include <boost/numeric/bindings/lapack/gelss.hpp> // TODO: gels with blocking svd + optimal workspace query
 #include <boost/numeric/bindings/traits/ublas_vector2.hpp>
+
+
 
 namespace Ubitrack { namespace Math {
 
@@ -79,8 +82,8 @@ typename X::value_type weightedLevenbergMarquardt( P& problem, X& params, const 
 	namespace blas = boost::numeric::bindings::blas;
 	namespace ublas = boost::numeric::ublas;
 	typedef typename X::value_type T;
-	typedef ublas::matrix< T, ublas::column_major > MatType;
-	typedef ublas::vector< T > VecType;
+	typedef typename Math::Matrix< 0, 0, T >::base_type MatType;
+	typedef typename Math::Vector< 0, T >::base_type VecType;
 	
 	// create some matrices and vectors
 	boost::shared_ptr< MatType > pJacobian( new MatType( measurement.size(), params.size() ) );
@@ -153,7 +156,7 @@ typename X::value_type weightedLevenbergMarquardt( P& problem, X& params, const 
 
 		case lmUseSVD:
 			{
-				ublas::vector< T > sv( params.size() );
+				Math::Vector< 0, T > sv( params.size() );
 				int rank;
 				if ( lapack::gelss( matJacobiSquare, paramDiff, sv, T( -1 ), rank ) != 0 ) // result in paramDiff
 					UBITRACK_THROW( "lapack::gelss returned an error" );

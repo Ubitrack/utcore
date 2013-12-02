@@ -76,11 +76,11 @@ void transformWithCovariance( const F& f, VT1& resultVec, MT1& resultCov, const 
 	typedef typename VT1::value_type VType;
 
 	// compute result and jacobian
-	ublas::matrix< VType > jacobian( resultVec.size(), inVec.size() );
+	Math::Matrix< 0, 0, VType > jacobian( resultVec.size(), inVec.size() );
 	f.evaluateWithJacobian( resultVec, inVec, jacobian );
 	
 	// transform covariance
-	ublas::matrix< VType > im( ublas::prod( jacobian, inCov ) );
+	Math::Matrix< 0, 0, VType > im( ublas::prod( jacobian, inCov ) );
 	noalias( resultCov ) = ublas::prod( im, ublas::trans( jacobian ) );
 }
 
@@ -123,15 +123,15 @@ void transformRangeInternalWithCovariance( const F& f, VT& value, MT& covariance
 	
 	const unsigned nOutSize = iOutEnd - iOutBegin;
 	const unsigned nInSize = iInEnd - iInBegin;
-	ublas::vector< VType > result( nOutSize );
+	Math::Vector< 0, VType > result( nOutSize );
 	
 	// compute result and jacobian
-	ublas::matrix< VType > jacobian( nOutSize, nInSize );
+	Math::Matrix< 0, 0, VType > jacobian( nOutSize, nInSize );
 	f.evaluateWithJacobian( result, ublas::subrange( value, iInBegin, iInEnd ), jacobian );
 	ublas::subrange( value, iOutBegin, iOutEnd ) = result;
 	
 	// transform covariance in a block-matrix fashion
-	ublas::matrix< VType > im( ublas::prod( jacobian, ublas::subrange( covariance, iInBegin, iInEnd, 0, value.size() ) ) );
+	Math::Matrix< 0, 0, VType > im( ublas::prod( jacobian, ublas::subrange( covariance, iInBegin, iInEnd, 0, value.size() ) ) );
 	
 	// the left/upper row/column
 	if ( iOutBegin > 0 )
@@ -178,14 +178,14 @@ void binaryTransformWithCovariance( const F& f, VT1& resultVec, MT1& resultCov,
 	typedef typename VT1::value_type VType;
 
 	// compute result and jacobian
-	ublas::matrix< VType > jacobian1( resultVec.size(), inVec1.size() );
-	ublas::matrix< VType > jacobian2( resultVec.size(), inVec2.size() );
+	Math::Matrix< 0, 0, VType > jacobian1( resultVec.size(), inVec1.size() );
+	Math::Matrix< 0, 0, VType > jacobian2( resultVec.size(), inVec2.size() );
 	f.evaluateWithJacobian( resultVec, inVec1, inVec2, jacobian1, jacobian2 );
 	
 	// transform covariance
-	ublas::matrix< VType > im1( ublas::prod( jacobian1, inCov1 ) );
+	Math::Matrix< 0, 0, VType > im1( ublas::prod( jacobian1, inCov1 ) );
 	noalias( resultCov ) = ublas::prod( im1, ublas::trans( jacobian1 ) );
-	ublas::matrix< VType > im2( ublas::prod( jacobian2, inCov2 ) );
+	Math::Matrix< 0, 0, VType > im2( ublas::prod( jacobian2, inCov2 ) );
 	noalias( resultCov ) += ublas::prod( im2, ublas::trans( jacobian2 ) );
 }
 

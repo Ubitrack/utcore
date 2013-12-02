@@ -103,8 +103,8 @@ Math::Vector<3, T> computeSidesTrans(const Math::Matrix<4, 4, T>& hgij, const Ma
 template<typename T> 
 Math::Vector<3, T> computeTcg(TransformCont<T>& tc, const Math::Matrix<3, 3, T>& rcg)
 {
-	ublas::matrix< T, ublas::column_major > tA(3*tc.getNumber(), 3);
-	ublas::matrix< T, ublas::column_major > tB(3*tc.getNumber(), 1);
+	Math::Matrix< 0, 0, T > tA(3*tc.getNumber(), 3);
+	Math::Matrix< 0, 0, T > tB(3*tc.getNumber(), 1);
 
 	Math::Matrix<4, 4, T> hgij;
 	Math::Matrix<4, 4, T> hcij;
@@ -324,8 +324,8 @@ Math::Vector<3, T> computeSidesRot(const Math::Matrix<4, 4, T>& hgij, const Math
 template<typename T> 
 Math::Matrix<3, 3, T> computePcg(TransformCont<T>& tc)
 {
-	ublas::matrix< T, ublas::column_major > tA(3*tc.getNumber(), 3);
-	ublas::matrix< T, ublas::column_major > tB(3*tc.getNumber(), 1);
+	Math::Matrix< 0, 0, T > tA(3*tc.getNumber(), 3);
+	Math::Matrix< 0, 0, T > tB(3*tc.getNumber(), 1);
 
 	Math::Matrix<4, 4, T> hgij;
 	Math::Matrix<4, 4, T> hcij;

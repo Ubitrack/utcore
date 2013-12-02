@@ -81,55 +81,6 @@ UBITRACK_EXPORT Math::Matrix< 3, 3, float > squareHomography( const std::vector<
 
 UBITRACK_EXPORT Math::Matrix< 3, 3, double > squareHomography( const std::vector< Math::Vector< 2, double > >& corners );
 
-
-/**
- * Computes the normalization of a set of vectors required for DLT.
- * Mainly to be used internally by homography and projection matrix estimation.
- * The points have to be transformed according to p'=(p-shift)/scale
- *
- * @param shift returns the mean value of the vectors.
- * @param scale returns the non-isotropic extension of the vectors around the mean
- * @param modMatrix returns a matrix used to modify the computed transformation to correct the normalization
- * @param modInverse if true, the inverse matrix is returned
- * @param p the set of vectors to normalize
- */
-template< int N, typename T > void dltNormalizeVectors( Math::Vector< N, T >& shift, Math::Vector< N, T >& scale,
-	Math::Matrix< N+1, N+1, T >& modMatrix, bool modInverse, const std::vector< Math::Vector< N, T > >& p )
-{
-	namespace ublas = boost::numeric::ublas;
-
-	// compute mean and mean of square
-	shift = ublas::zero_vector< T >( N );
-	scale = ublas::zero_vector< T >( N );
-	for ( unsigned i = 0; i < p.size(); i++ )
-	{
-		shift = shift + p[ i ];
-		scale = scale + ublas::element_prod( p[ i ], p[ i ] );
-	}
-	shift *= T( 1 ) / p.size();
-	scale *= T( 1 ) / p.size();
-	
-	// compute standard deviation
-	for ( unsigned i = 0; i < N; i++ )
-		scale( i ) = std::sqrt( scale( i ) - ( shift( i ) * shift( i ) ) );
-		
-	// compute correction matrix
-	modMatrix = ublas::zero_matrix< T >( N+1, N+1 );
-	modMatrix( N, N ) = T( 1 );
-	if ( modInverse )
-		for ( unsigned i = 0; i < N; i++ )
-		{
-			modMatrix( i, i ) = scale( i );
-			modMatrix( i, N ) = shift( i );
-		}
-	else
-		for ( unsigned i = 0; i < N; i++ )
-		{
-			modMatrix( i, i ) = T( 1 ) / scale( i );
-			modMatrix( i, N ) = -modMatrix( i, i ) * shift( i );
-		}
-}
-
 } } // namespace Ubitrack::Calibration
 
 #endif // HAVE_LAPACK

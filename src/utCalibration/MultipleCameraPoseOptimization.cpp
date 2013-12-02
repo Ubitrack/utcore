@@ -129,7 +129,7 @@ std::pair < Math::ErrorPose , double >
 		}
 
 		// Now create the measurement vector from the local 2d points for LM optimization
-		ublas::vector< double > measurements( 2 * observationCountTotal );
+		Math::Vector< 0, double > measurements( 2 * observationCountTotal );
 		std::size_t iIndex = 0;
 		for ( std::size_t cameraIndex = 0; cameraIndex < numberCameras; cameraIndex++ ) {
 			for ( std::size_t pointIndex = 0; pointIndex < p2dLocal.at(cameraIndex).size(); pointIndex++ ) {

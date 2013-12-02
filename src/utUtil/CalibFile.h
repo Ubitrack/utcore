@@ -31,18 +31,21 @@
 #ifndef __UBITRACK_UTIL_CALIBFILE_H_INCLUDED__
 #define __UBITRACK_UTIL_CALIBFILE_H_INCLUDED__
 
+#include <utMeasurement/Measurement.h> //includes already SharedPtr
+#include <utUtil/Exception.h>
+
 #include <string>
 #include <fstream>
+
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
-#include <utUtil/Exception.h>
-#include <utMeasurement/Measurement.h>
+
+// get a logger
 #include <log4cpp/Category.hh>
+static log4cpp::Category& calibLogger( log4cpp::Category::getInstance( "Ubitrack.Utils.CalibFile" ) );
 
 namespace Ubitrack { namespace Util {
 
-// get a logger
-static log4cpp::Category& calibLogger( log4cpp::Category::getInstance( "Ubitrack.Utils.CalibFile" ) );
 
 /** 
  * read data from a calibration file.

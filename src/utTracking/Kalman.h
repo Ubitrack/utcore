@@ -86,15 +86,15 @@ void kalmanMeasurementUpdate( VState& state, MStateCov& stateCov, const MF& meas
 	KALMAN_LOG_DEBUG( "covariance before: " << stateCov );
 	
 	// compute predicted measurement and jacobian
-	ublas::vector< VType > predicted( measSize );
-	ublas::matrix< VType, ublas::column_major > jacobian( measSize, inSize );
+	Math::Vector< 0, VType > predicted( measSize );
+	Math::Matrix< 0, 0, VType > jacobian( measSize, inSize );
 	measurementFunction.evaluateWithJacobian( predicted, ublas::subrange( state, iBegin, iEnd ), jacobian );
 	KALMAN_LOG_DEBUG( "predicted: " << predicted );
 	KALMAN_LOG_TRACE( "jacobian: " << jacobian );
 	
 	// compute predicted measurement error
-	ublas::matrix< VType > im( ublas::prod( jacobian, ublas::subrange( stateCov, iBegin, iEnd, iBegin, iEnd ) ) );
-	ublas::matrix< VType, ublas::column_major > matInv( ublas::prod( im, ublas::trans( jacobian ) ) );
+	Math::Matrix< 0, 0, VType > im( ublas::prod( jacobian, ublas::subrange( stateCov, iBegin, iEnd, iBegin, iEnd ) ) );
+	Math::Matrix< 0, 0, VType > matInv( ublas::prod( im, ublas::trans( jacobian ) ) );
 	noalias( matInv ) += measurementCov;
 
 	KALMAN_LOG_TRACE( "before inversion: " << matInv );
@@ -110,18 +110,18 @@ void kalmanMeasurementUpdate( VState& state, MStateCov& stateCov, const MF& meas
 		noalias( matInv ) += measurementCov;
 		
 		// use general matrix inversion
-		ublas::vector< int > ipiv( measSize );			
+		Math::Vector< 0, int > ipiv( measSize );			
 		lapack::getrf( matInv, ipiv );
 		lapack::getri( matInv, ipiv );
 	}
 	KALMAN_LOG_TRACE( "after inversion: " << matInv );
 	
 	// matTemp = P * H^T
-	ublas::matrix< VType, ublas::column_major > matTemp( ublas::prod( 
+	Math::Matrix< 0, 0, VType > matTemp( ublas::prod( 
 		ublas::subrange( stateCov, 0, stateSize, iBegin, iEnd ), ublas::trans( jacobian ) ) );
 
 	// compute kalman gain
-	ublas::matrix< VType, ublas::column_major > kalmanGain( stateSize, measSize );
+	Math::Matrix< 0, 0, VType > kalmanGain( stateSize, measSize );
 	blas::symm( 'R', 'U', matInv, matTemp, kalmanGain );
 	KALMAN_LOG_DEBUG( "kalman gain: " << kalmanGain );
 
@@ -175,11 +175,11 @@ void kalmanMeasurementUpdateIdentity( VState& state, MStateCov& stateCov,
 	KALMAN_LOG_DEBUG( "covariance before: " << stateCov );
 	
 	// compute predicted measurement
-	ublas::vector< VType > predicted( ublas::subrange( state, iBegin, iEnd ) );
+	Math::Vector< 0, VType > predicted( ublas::subrange( state, iBegin, iEnd ) );
 	KALMAN_LOG_DEBUG( "predicted: " << predicted );
 	
 	// compute predicted measurement error
-	ublas::matrix< VType, ublas::column_major > matInv( ublas::subrange( stateCov, iBegin, iEnd, iBegin, iEnd ) + measurementCov );
+	Math::Matrix< 0, 0, VType > matInv( ublas::subrange( stateCov, iBegin, iEnd, iBegin, iEnd ) + measurementCov );
 
 	KALMAN_LOG_TRACE( "before inversion: " << matInv );
 	if ( lapack::potrf( 'U', matInv ) == 0 )
@@ -193,17 +193,17 @@ void kalmanMeasurementUpdateIdentity( VState& state, MStateCov& stateCov,
 		noalias( matInv ) = ublas::subrange( stateCov, iBegin, iEnd, iBegin, iEnd ) + measurementCov;
 		
 		// use general matrix inversion
-		ublas::vector< int > ipiv( measSize );			
+		Math::Vector< 0, int > ipiv( measSize );			
 		lapack::getrf( matInv, ipiv );
 		lapack::getri( matInv, ipiv );
 	}
 	KALMAN_LOG_TRACE( "after inversion: " << matInv );
 	
 	// matTemp = P * H^T
-	ublas::matrix< VType, ublas::column_major > matTemp( ublas::subrange( stateCov, 0, stateSize, iBegin, iEnd ) );
+	Math::Matrix< 0, 0, VType > matTemp( ublas::subrange( stateCov, 0, stateSize, iBegin, iEnd ) );
 	
 	// compute kalman gain
-	ublas::matrix< VType, ublas::column_major > kalmanGain( stateSize, measSize );
+	Math::Matrix< 0, 0, VType > kalmanGain( stateSize, measSize );
 	blas::symm( 'R', 'U', matInv, matTemp, kalmanGain );
 	KALMAN_LOG_DEBUG( "kalman gain: " << kalmanGain );
 	

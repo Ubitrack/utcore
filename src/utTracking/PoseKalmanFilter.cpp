@@ -279,8 +279,8 @@ Measurement::ErrorPose PoseKalmanFilter::predictPose( Measurement::Timestamp t )
 	LOG4CPP_DEBUG( logger, "predicting for t=" << t << ", dt=" << dt );
 
 	// update state
-	ublas::vector< double > newState( m_state.size() );
-	ublas::matrix< double, ublas::column_major > newCovariance( m_state.size(), m_state.size() );
+	Math::Vector< 0, double > newState( m_state.size() );
+	Math::Matrix< 0, 0, double > newCovariance( m_state.size(), m_state.size() );
 	if ( m_bInsideOut )
 		Math::transformWithCovariance( 
 			Function::InsideOutPoseTimeUpdate( dt, m_motionModel.posOrder() ), 

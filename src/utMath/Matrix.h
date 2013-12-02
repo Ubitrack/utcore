@@ -30,14 +30,8 @@
  */
 
 
-#ifndef _Ubitrack_Math_Matrix_INCLUDED_
-#define _Ubitrack_Math_Matrix_INCLUDED_
-
-// WARNING: all boost/serialization headers should be 
-//          included AFTER all boost/archive headers
-#include <boost/serialization/access.hpp>
-#include <boost/numeric/ublas/matrix.hpp>
-
+#ifndef __MATRIX_H_INCLUDED__
+#define __MATRIX_H_INCLUDED__
 
 #include <utUtil/StaticAssert.h>
 
@@ -45,46 +39,40 @@
 #include "Vector.h"
 #include "Pose.h"
 
+#include <cstddef> //  std::size_t
+//next include is only for output stuff -> remove to own header?
+#include <iostream> //std::ostream
+
+// WARNING: all boost/serialization headers should be 
+//          included AFTER all boost/archive headers
+#include <boost/serialization/access.hpp>
+#include <boost/numeric/ublas/matrix.hpp>
+
 namespace Ubitrack { namespace Math {
 
 	
-// forward declaration of Matrix class
+/// forward declaration of Matrix class
 template< std::size_t M, std::size_t N, typename T = double > class Matrix;
 
 
-/// stream output operator
-template< std::size_t M, std::size_t N, typename T > std::ostream& operator<<( std::ostream& s, const Matrix< M, N, T >& m )
-{
-	
-	
-	for( std::size_t i = 0; i < M; i++ ) {
-		s << "[ ";
-		for( std::size_t j = 0; j < N; j++ )
-			s << m(i,j) << " ";
-		s << "]\n";
-	}
-	return s;
-}
+
 
 /**
  * @ingroup math
  * Wraps a boost::numeric::ublas::matrix for convenience.
  * Provides stream output, serialization and additional mathematical operations.
  * Note: we are storing the matrix column-major for compatibility with fortran/lapack. Sorry for any confusion this may cause.
- * @param M number of rows
- * @param N number of columns
- * @param T type (defaults to double)
+ * @tparam M number of rows
+ * @tparam N number of columns
+ * @tparam T type (defaults to \c double)
  */
 template< std::size_t M, std::size_t N, typename T > class Matrix
  	: public boost::numeric::ublas::matrix< T, boost::numeric::ublas::column_major, boost::numeric::ublas::bounded_array< T, M*N > >
 {
-	friend std::ostream& operator<< <> ( std::ostream& s, const Matrix< M, N, T >& m );
-	friend class ::boost::serialization::access;
-
 	public:
-		
 		typedef boost::numeric::ublas::matrix< T, boost::numeric::ublas::column_major, boost::numeric::ublas::bounded_array< T, M*N > > base_type;
-	
+		typedef Math::Matrix< M, N, T >	self_type;
+		typedef T						value_type;
 		typedef typename base_type::size_type size_type;
 		
 		/** default constructor */
@@ -228,7 +216,7 @@ template< std::size_t M, std::size_t N, typename T > class Matrix
         /**
          * @return N*N square identity matrix
          */
-        static Matrix< M, N, T> identity()
+        static Matrix< M, N, T > identity()
         {
             return  boost::numeric::ublas::identity_matrix< T >( M );
         }
@@ -236,13 +224,15 @@ template< std::size_t M, std::size_t N, typename T > class Matrix
         /**
          * @return M*N zero matrix
          */
-        static Matrix< M, N, T> zeros()
+        static Matrix< M, N, T > zeros()
         {
             return  boost::numeric::ublas::zero_matrix< T >( M, N );
         }
 
 	protected:
 
+		friend class ::boost::serialization::access;
+		
 		/// serialize this Matrix
 		template< class Archive > 
 		void serialize( Archive& ar, const unsigned int version )
@@ -253,6 +243,111 @@ template< std::size_t M, std::size_t N, typename T > class Matrix
 		}
 
 };
+
+
+/**
+ * @ingroup math
+ * Specialization of Matrix-class for matrices of varying sizes.
+ * The size of the matrix is determined at runtime.
+ * Many functions are dropped since they are not neccessary yet( e.g. serialize ).
+ * @tparam T type of elements, defaults to \c double
+ */
+template< typename T >
+class Matrix< 0, 0, T >
+ 	: public boost::numeric::ublas::matrix< T, boost::numeric::ublas::column_major, boost::numeric::ublas::unbounded_array< T > >
+{
+	public:
+		
+		typedef boost::numeric::ublas::matrix< T, boost::numeric::ublas::column_major, boost::numeric::ublas::unbounded_array< T > > base_type;
+		typedef Math::Matrix< 0, 0, T >			self_type;
+		typedef T								value_type;
+		typedef typename base_type::size_type	size_type;
+		
+		/** Default constructor */
+		Matrix( )
+			: base_type( )
+		{ }
+		
+		/**
+		 * Constructor from given dimensions
+		 *
+		 * @param size1 first dimension (=M) of the M-by-N matrix (rows)
+		 * @param size2 second dimension (=N) of the M-by-N matrix (columns)
+		 */
+		Matrix( const size_type size1, const size_type size2 )
+			: base_type( size1, size2 )
+		{  }
+		/**
+		 * construct from ublas matrix expression
+		 * @param e a matrix_expression
+		 */
+		template< class ME > 
+		Matrix( const boost::numeric::ublas::matrix_expression< ME >& e )
+			: base_type( e )
+		{ }
+		/**
+		 * assign from ublas matrix_expression
+		 * @param e a matrix_expression
+		 */
+		template< class AE > 
+		Matrix< 0, 0, T >& operator=( const boost::numeric::ublas::matrix_expression< AE >& e )
+		{
+			base_type::operator=( e );
+			return *this;
+		}
+		/**
+		 * Zero Matrix
+		 *
+		 * All values of the matrix will be set to zero.
+		 * @param size1 first dimension (=M) of the M-by-N zero matrix (rows)
+		 * @param size2 second dimension (=N) of the M-by-N zero matrix (columns)
+         * @return M-by-N zero matrix
+         */
+        static Matrix< 0, 0, T > zeros( const size_type size1, const size_type size2 )
+        {
+            return boost::numeric::ublas::zero_matrix< T >( size1, size2 );
+        }
+		
+		/**
+		 * Identity Matrix
+		 *
+		 * All values of the diagonal of the matrix will be set to one,
+		 * all other values will be set to zero.
+		 * @param size dimension (=N) of the N-by-N identity matrix.
+         * @return N-by-N identity matrix
+         */
+        static Matrix< 0, 0, T > identity( const size_type size )
+        {
+            return boost::numeric::ublas::identity_matrix< T >( size );
+        }
+		
+		/**
+		 * Scalar Matrix
+		 *
+		 * All values of the matrix will be set to the scalar value.
+		 * @param size1 first dimension (=M) of the M-by-N scalar matrix (rows)
+		 * @param size2 second dimension (=N) of the M-by-N scalar matrix (columns)
+		 * @param value the scalar that is set on all matrix values
+         * @return M-by-N scalar matrix
+         */
+		static Matrix< 0, 0, T > scalar( const size_type size1, const size_type size2, const T value )
+        {
+            return boost::numeric::ublas::scalar_matrix< T >( size1, size2, value );
+        }
+};
+
+/// stream output operator for a single Matrix
+template< std::size_t M, std::size_t N, typename T >
+std::ostream& operator<<( std::ostream& s, const Matrix< M, N, T >& m )
+{
+	for( std::size_t i = 0; i < M; i++ ) {
+		s << "[ ";
+		for( std::size_t j = 0; j < N; j++ )
+			s << m(i,j) << " ";
+		s << "]\n";
+	}
+	return s;
+}
 
 /** 
  * converts a left-hand matrix into a right hand matrix
@@ -286,13 +381,23 @@ bool operator==( const Matrix< M, N, T >& a, const Matrix< M, N, T >& b )
 	return true;
 }
 
-// Some common used types
-// Note that the type qualifier is dropped and double is used
+/// typedef for a 2-by-2 Matrix of type \c double
+typedef Math::Matrix < 2, 2, double > Matrix2x2d;
+/// typedef for a 3-by-3 Matrix of type \c double
+typedef Math::Matrix < 3, 3, double > Matrix3x3d;
+/// typedef for a 4-by-4 (transformation) Matrix of type \c double
+typedef Math::Matrix < 4, 4, double > Matrix4x4d;
+/// typedef for a 3-by-4 (projection) Matrix of type \c double
+typedef Math::Matrix < 3, 4, double > Matrix3x4d;
 
-typedef Math::Matrix < 2, 2 > Matrix2x2;
-typedef Math::Matrix < 3, 3 > Matrix3x3;
-typedef Math::Matrix < 4, 4 > Matrix4x4;
-typedef Math::Matrix < 3, 4 > Matrix3x4;
+/// typedef for a 2-by-2 Matrix of type \c float
+typedef Math::Matrix < 2, 2, float > Matrix2x2f;
+/// typedef for a 3-by-3 Matrix of type \c float
+typedef Math::Matrix < 3, 3, float > Matrix3x3f;
+/// typedef for a 4-by-4 (transformation) Matrix of type \c float
+typedef Math::Matrix < 4, 4, float > Matrix4x4f;
+/// typedef for a 3-by-4 (projection) Matrix of type \c float
+typedef Math::Matrix < 3, 4, float > Matrix3x4f;
 
 
 } } // namespace Ubitrack::Math
@@ -312,5 +417,4 @@ struct matrix_detail_traits< Ubitrack::Math::Matrix< sM, sN, T >, M >
 
 } } } } // namespace boost::numeric::bindings::traits
 
-#endif // _Ubitrack_Math_Matrix_INCLUDED_
-
+#endif // __MATRIX_H_INCLUDED__

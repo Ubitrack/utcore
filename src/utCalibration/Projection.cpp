@@ -30,7 +30,7 @@
  */
 
 #include "Projection.h"
-#include "Homography.h"
+#include <utMath/Geometry/PointNormalization.h>
 
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 #include <boost/numeric/ublas/vector_proxy.hpp>
@@ -53,7 +53,8 @@ namespace blas = boost::numeric::bindings::blas;
 namespace Ubitrack { namespace Calibration {
 
 /** \internal */
-template< typename T > Math::Matrix< 3, 4, T > projectionDLTImpl( const std::vector< Math::Vector< 3, T > >& fromPoints,
+template< typename T >
+Math::Matrix< 3, 4, T >projectionDLTImpl( const std::vector< Math::Vector< 3, T > >& fromPoints,
 	const std::vector< Math::Vector< 2, T > >& toPoints )
 {
 	assert( fromPoints.size() == toPoints.size() );
@@ -62,16 +63,14 @@ template< typename T > Math::Matrix< 3, 4, T > projectionDLTImpl( const std::vec
 	// normalize input points
 	Math::Vector< 3, T > fromShift;
 	Math::Vector< 3, T > fromScale;
-	Math::Matrix< 4, 4, T > fromCorrect;
-	dltNormalizeVectors< 3, T >( fromShift, fromScale, fromCorrect, false, fromPoints );
-
+	Math::Geometry::estimateNormalizationParameters( fromPoints.begin(), fromPoints.end(), fromShift, fromScale );
+	
 	Math::Vector< 2, T > toShift;
 	Math::Vector< 2, T > toScale;
-	Math::Matrix< 3, 3, T > toCorrect;
-	dltNormalizeVectors< 2, T >( toShift, toScale, toCorrect, true, toPoints );
+	Math::Geometry::estimateNormalizationParameters( toPoints.begin(), toPoints.end(), toShift, toScale );
 
 	// construct equation system
-	ublas::matrix< T, ublas::column_major > A( 2 * fromPoints.size(), 12 );
+	Math::Matrix< 0, 0, T > A( 2 * fromPoints.size(), 12 );
 	for ( unsigned i = 0; i < fromPoints.size(); i++ )
 	{
 		Math::Vector< 2, T > to = ublas::element_div( toPoints[ i ] - toShift, toScale );
@@ -98,9 +97,9 @@ template< typename T > Math::Matrix< 3, 4, T > projectionDLTImpl( const std::vec
 	}
 
 	// solve using SVD
-	ublas::vector< T > s( 12 );
+	Math::Vector< 0, T > s( 12 );
 	Math::Matrix< 12, 12, T > Vt;
-	ublas::matrix< T, ublas::column_major > U( 2 * fromPoints.size(), 2 * fromPoints.size() );
+	Math::Matrix< 0, 0, T > U( 2 * fromPoints.size(), 2 * fromPoints.size() );
 	lapack::gesvd( 'N', 'A', A, s, U, Vt );
 
 	// copy result to 3x4 matrix
@@ -110,7 +109,9 @@ template< typename T > Math::Matrix< 3, 4, T > projectionDLTImpl( const std::vec
 	P( 2, 0 ) = Vt( 11, 8 ); P( 2, 1 ) = Vt( 11, 9 ); P( 2, 2 ) = Vt( 11, 10 ); P( 2, 3 ) = Vt( 11, 11 );
 
 	// reverse normalization
+	const Math::Matrix< 3, 3, T > toCorrect( Math::Geometry::generateNormalizationMatrix( toShift, toScale, true ) );
 	Math::Matrix< 3, 4, T > Ptemp( ublas::prod( toCorrect, P ) );
+	const Math::Matrix< 4, 4, T > fromCorrect( Math::Geometry::generateNormalizationMatrix( fromShift, fromScale, false ) );
 	ublas::noalias( P ) = ublas::prod( Ptemp, fromCorrect );
 
 	// normalize result to have a viewing direction of length 1 (optional)

@@ -61,19 +61,19 @@ typename VT1::value_type downhillSimplex( const P& problem, VT1& params, const V
 
 	// initialize the starting points of the simplex
 	unsigned ndim = params.size();
-	ublas::matrix< T > p( ndim + 1, ndim );
+	Math::Matrix< 0, 0, VType > p( ndim + 1, ndim );
 	ublas::row( p, 0 ) = params;
 	for ( unsigned i = 1; i <= ndim; i++ )
 	{
-		ublas::matrix_row< ublas::matrix< T > > subrow( p, i );
+		ublas::matrix_row< Math::Matrix< 0, 0, T > > subrow( p, i );
 		subrow = params;
 		p( i, i-1 ) *= T( 1.48529 );
 		normalize.evaluate( subrow, subrow );
 	}
 
 	// evaluate the function for these points
-	ublas::vector< T > y( ndim + 1 );
-	ublas::vector< T > eval( problem.size() );
+	Math::Vector< 0, T > y( ndim + 1 );
+	Math::Vector< 0, T > eval( problem.size() );
 	for ( unsigned i = 0; i <= ndim; i++ )
 	{
 		problem.evaluate( eval, ublas::row( p, i ) );
@@ -84,7 +84,7 @@ typename VT1::value_type downhillSimplex( const P& problem, VT1& params, const V
 	unsigned nfunk = 0;
 
 	// the sum of all simplex points
-	ublas::vector< T > psum( ublas::row( p, 0 ) );
+	Math::Vector< 0, T > psum( ublas::row( p, 0 ) );
 	for ( unsigned i = 1; i <= ndim; i++ )
 		noalias( psum ) += ublas::row( p, i );
 
@@ -135,7 +135,7 @@ typename VT1::value_type downhillSimplex( const P& problem, VT1& params, const V
 				for ( unsigned i = 0; i <= ndim; i++ )
 					if ( i != ilo )
 					{
-						ublas::matrix_row< ublas::matrix< T > > subrow( p, i );
+						ublas::matrix_row< Math::Matrix< 0, 0, T > > subrow( p, i );
 						noalias( subrow ) += ublas::row( p, ilo );
 						subrow *= T( 0.5 );
 						normalize.evaluate( subrow, subrow );
@@ -162,8 +162,8 @@ typename VT1::value_type downhillSimplex( const P& problem, VT1& params, const V
  * \internal
  */
 template<  class T, class P, class VT2, class NT > 
-T downhillSimplexTry( boost::numeric::ublas::matrix< T >& p, boost::numeric::ublas::vector< T >& y, 
-	boost::numeric::ublas::vector< T >& psum, P& problem, unsigned ihi, T fac, boost::numeric::ublas::vector< T >& eval, 
+T downhillSimplexTry( Math::Matrix< 0, 0, T >& p, Math::Vector< 0, T >& y, 
+	Math::Vector< 0, T >& psum, P& problem, unsigned ihi, T fac, Math::Vector< 0, T >& eval, 
 	const VT2& measurement, const NT& normalize )
 {
 	namespace ublas = boost::numeric::ublas;
@@ -172,7 +172,7 @@ T downhillSimplexTry( boost::numeric::ublas::matrix< T >& p, boost::numeric::ubl
 	T fac2 = fac1 - fac;
 
 	// compute the trial point
-	ublas::vector< T > ptry( psum * fac1 - ublas::row( p, ihi ) * fac2 );
+	Math::Vector< 0, T > ptry( psum * fac1 - ublas::row( p, ihi ) * fac2 );
 	normalize.evaluate( ptry, ptry );
 
 	// evaluate

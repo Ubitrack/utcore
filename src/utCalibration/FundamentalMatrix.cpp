@@ -115,7 +115,7 @@ Math::Matrix< 3, 3, T > getFundamentalMatrixImp( const std::vector< Math::Vector
 	normalize( toShift, toScale, toModMatrix, toPoints );
 
 	//Linear Solution
-	ublas::matrix< T, ublas::column_major > A( fromPoints.size() / stepSize, 9 );
+	Math::Matrix< 0, 0, T > A( fromPoints.size() / stepSize, 9 );
 
 	for( std::size_t i=0; i < ( fromPoints.size() / stepSize ); i++ )
 	{
@@ -137,9 +137,9 @@ Math::Matrix< 3, 3, T > getFundamentalMatrixImp( const std::vector< Math::Vector
 
 	// solve using SVD
 	std::size_t nSingularValues = std::min( A.size1(), A.size2() );
-	ublas::vector< T > s1( nSingularValues );
+	Math::Vector< 0, T > s1( nSingularValues );
 	Math::Matrix< 9, 9, T > Vt;
-	ublas::matrix< T, ublas::column_major > U( fromPoints.size() / stepSize, fromPoints.size() / stepSize );
+	Math::Matrix< 0, 0, T > U( fromPoints.size() / stepSize, fromPoints.size() / stepSize );
 	int info = lapack::gesvd( 'N', 'A', A, s1, U, Vt );
 
 	if ( info != 0 )
@@ -155,7 +155,7 @@ Math::Matrix< 3, 3, T > getFundamentalMatrixImp( const std::vector< Math::Vector
 	F( 2, 0 ) = Vt( 8, 6 ); F( 2, 1 ) = Vt( 8, 7 ); F( 2, 2 ) = Vt( 8, 8 );
 
 	// constraint enforcement
-	ublas::vector< T > s2( 3 );
+	Math::Vector< 0, T > s2( 3 );
 	Math::Matrix< 3, 3, T > U2;
 	Math::Matrix< 3, 3, T > Vt2;
 	info = lapack::gesvd( 'A', 'A', F, s2, U2, Vt2 );

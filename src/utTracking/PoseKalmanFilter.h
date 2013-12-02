@@ -108,10 +108,10 @@ public:
 	Measurement::ErrorPose predictPose( Measurement::Timestamp t );
 
 	/** type of internal state representation */
-	typedef boost::numeric::ublas::vector< double > StateType;
+	typedef Math::Vector< 0, double > StateType;
 
 	/** type of internal state representation */
-	typedef boost::numeric::ublas::matrix< double, boost::numeric::ublas::column_major > CovarianceType;
+	typedef Math::Matrix< 0, 0, double > CovarianceType;
 
 	/** returns the internal state */
 	const StateType& getState() const

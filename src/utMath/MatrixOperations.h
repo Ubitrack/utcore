@@ -33,7 +33,8 @@
 #ifndef _Ubitrack_Math_MatrixOperations_INCLUDED_
 #define _Ubitrack_Math_MatrixOperations_INCLUDED_
 
-#include <boost/numeric/ublas/matrix.hpp>
+#include "Vector.h"
+#include "Matrix.h"
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 
 
@@ -61,8 +62,8 @@ typename T::value_type determinant( const T& mat )
 	namespace ublas = boost::numeric::ublas;
 
 	// make a copy of mat, as the factorization will overwrite the contents	
-	ublas::matrix< typename T::value_type, boost::numeric::ublas::column_major > a( mat );
-	ublas::vector< int > ipiv( a.size1() );
+	Math::Matrix< 0, 0, typename T::value_type > a( mat );
+	Math::Vector< 0, int > ipiv( a.size1() );
 	typedef typename T::size_type size_type;
 	
 	boost::numeric::bindings::lapack::getrf( a, ipiv );
@@ -88,7 +89,7 @@ template< class T > T invert_matrix( const T& m )
 {
 	// make a copy of m, as the factorization will overwrite the contents
 	T a( m );
-	boost::numeric::ublas::vector< int > ipiv( a.size1() );
+	Math::Vector< 0, int > ipiv( a.size1() );
 
 	// factorize and compute inverse
 	boost::numeric::bindings::lapack::getrf( a, ipiv );
@@ -116,9 +117,9 @@ boost::numeric::ublas::matrix< T, boost::numeric::ublas::column_major, ST > pseu
 	size_type m = mat.size2();
 	size_type nSingularValues = std::min( n, m );
 	
-	ublas::vector< T > s( nSingularValues );
-	ublas::matrix< T, ublas::column_major > U( n, n );
-	ublas::matrix< T, ublas::column_major > Vt( m, m );
+	Math::Vector< 0, T > s( nSingularValues );
+	Math::Matrix< 0, 0, T > U( n, n );
+	Math::Matrix< 0, 0, T > Vt( m, m );
 
 	boost::numeric::bindings::lapack::gesvd( 'S', 'S', a, s, U, Vt );
 

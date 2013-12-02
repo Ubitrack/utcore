@@ -72,14 +72,14 @@ void gaussNewton( P& problem, VT1& params, const VT2& measurement, unsigned nIte
 	namespace blas = boost::numeric::bindings::blas;
 	namespace ublas = boost::numeric::ublas;
 	typedef typename VT1::value_type T;
-	typedef ublas::matrix< T, ublas::column_major > MatType;
+	typedef typename Math::Matrix< 0, 0, T > MatType;
 
 	// create some matrices and vectors
 	MatType matJacobian( measurement.size(), params.size() );
 	MatType matJacobiSquare( params.size(), params.size() );
-	ublas::vector< T > measurementDiff( measurement.size() );
-	ublas::vector< T > paramDiff( params.size() );
-	ublas::vector< T > estimatedMeasurement( measurement.size() );
+	Math::Vector< 0, T > measurementDiff( measurement.size() );
+	Math::Vector< 0, T > paramDiff( params.size() );
+	Math::Vector< 0, T > estimatedMeasurement( measurement.size() );
 
 	OPT_LOG_DEBUG( "Gauss-Newton entry params: " << params );
 

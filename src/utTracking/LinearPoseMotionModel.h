@@ -110,7 +110,7 @@ public:
 protected:
 	int m_posOrder;
 	int m_oriOrder;
-	boost::numeric::ublas::vector< double > m_processNoise;
+	Math::Vector< 0, double > m_processNoise;
 };
 
 } } // namespace Ubitrack::Tracking

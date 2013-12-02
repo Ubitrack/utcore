@@ -59,16 +59,16 @@ Math::Matrix< 6, 6 > unscentedTransform(
 	VType stddev = sqrt(variance);
 	
 	// Storage for optimized parameters
-	std::vector< ublas::vector< VType > > optimizedParameters;
+	std::vector< Math::Vector< 0, VType > > optimizedParameters;
 
 	// First guess of parameters
 	// TODO: better values than zero?
-	ublas::vector< VType > params = ublas::zero_vector< VType >( 7 );
+	Math::Vector< 0, VType > params = ublas::zero_vector< VType >( 7 );
 	// Avoid degenerate (absolute value of zero) quaternion
 	params( 4 ) = 1;
 
 	// Combine measurements into single vector
-	ublas::vector< VType > measurementsCombined ( 2 * measurements.size() );
+	Math::Vector< 0, VType > measurementsCombined ( 2 * measurements.size() );
 	for ( unsigned i = 0; i < measurements.size(); i++ )
 	{
 		measurementsCombined[ 2 * i ] = measurements[ i ][ 0 ];
@@ -76,7 +76,7 @@ Math::Matrix< 6, 6 > unscentedTransform(
 	}
 	
 	// Create undisturbed set
-	ublas::vector< VType > sigmaSet ( 2 * measurements.size() );
+	Math::Vector< 0, VType > sigmaSet ( 2 * measurements.size() );
 	sigmaSet = measurementsCombined;
 	
 	// LevenbergMarquadt on undisturbed set
@@ -130,7 +130,7 @@ Math::Matrix< 6, 6 > unscentedTransform(
 	
 	// Compute average pose
 	Math::Vector< 7 > avgPose( ublas::zero_vector< double >( 7 ) );
-	for ( typename std::vector< ublas::vector< VType > >::iterator it = optimizedParameters.begin();
+	for ( typename std::vector< Math::Vector< 0, VType > >::iterator it = optimizedParameters.begin();
 			it != optimizedParameters.end(); it++ )
 	{
 		if ( it != optimizedParameters.begin() && 
@@ -150,7 +150,7 @@ Math::Matrix< 6, 6 > unscentedTransform(
 	
 	// Compute covariance
 	Math::Matrix< 6, 6 > covariance( ublas::zero_matrix< double >( 6, 6 ) );
-	for ( typename std::vector< ublas::vector< VType > >::iterator it = optimizedParameters.begin();
+	for ( typename std::vector< Math::Vector< 0, VType > >::iterator it = optimizedParameters.begin();
 			it != optimizedParameters.end(); it++ )
 	{
 		Math::Vector< 6 > localError;

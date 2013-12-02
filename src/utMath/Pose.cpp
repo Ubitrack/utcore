@@ -23,9 +23,19 @@
 
 
 #include "Pose.h"
+#include "Matrix.h"
 
 namespace Ubitrack { namespace Math {
 
+
+Pose::Pose( const Matrix< 0, 0, double >& mat )
+{
+	m_rotation = Quaternion( mat );
+
+	m_translation( 0 ) =  mat( 0, 3 );
+	m_translation( 1 ) =  mat( 1, 3 );
+	m_translation( 2 ) =  mat( 2, 3 );
+}
 
 Pose Pose::operator~( ) const
 {
