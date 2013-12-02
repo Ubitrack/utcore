@@ -45,6 +45,8 @@ namespace lapack = boost::numeric::bindings::lapack;
 
 namespace Ubitrack { namespace Calibration {
 
+
+/** \internal */
 template< typename T >
 void tipCalibration( const std::vector< Math::Pose >& poses, 
 	Math::Vector< 3, T >& pm, Math::Vector< 3, T >& pw )
@@ -71,6 +73,13 @@ void tipCalibration( const std::vector< Math::Pose >& poses,
 	pm = ublas::subrange( v, 0, 3 );
 	pw = ublas::subrange( v, 3, 6 );
 }
+
+void tipCalibration( const std::vector< Math::Pose >& poses, 
+	Math::Vector< 3, double >& pm, Math::Vector< 3, double >& pw )
+{
+	return tipCalibration< double >(poses, pm, pw);
+}
+
 
 } } // namespace Ubitrack::Calibration
 
