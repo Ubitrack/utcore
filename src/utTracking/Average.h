@@ -105,7 +105,7 @@ Math::ErrorVector< 3 > Average< Math::Vector< 3 >, Math::ErrorVector< 3 > >::mea
 {
 	size_t size = eList.size();
 	Math::Vector< 0, double > m_mean = ublas::zero_vector< double >( 3 );
-	Math::Matrix< 0, 0, double > m_outProd = ublas::zero_matrix< double >( 3, 3 );
+	Math::Matrix< 3, 3, double > m_outProd ( Math::Matrix< 3, 3, double >::zeros() );
 
 	for (size_t i = 0; i < size; i++)
 	{
@@ -279,7 +279,7 @@ Math::ErrorPose Average< Math::Pose, Math::ErrorPose >::mean( const std::vector<
 	size_t size = eList.size();
 	
 	meanv = ublas::zero_vector< double >( 7 );
-	outProd = ublas::zero_matrix< double >( 7, 7 );
+	outProd = Math::Matrix< 7, 7, double >::zeros();
 
 	m_counter = 1;
 	Math::ErrorPose estimate;
@@ -294,7 +294,7 @@ Math::ErrorPose Average< Math::Pose, Math::ErrorPose >::mean( const std::vector<
 	Math::Quaternion q_mean ( 0.0, 0.0, 0.0, 0.0 );
 	
 	Math::Vector< 0, double > m_mean = ublas::zero_vector< double >( 7 );
-	Math::Matrix< 0, 0, double > m_outProd = ublas::zero_matrix< double >( 7, 7 );
+	Math::Matrix< 7, 7, double > m_outProd = Math::Matrix< 7, 7, double >::zeros();
 	
 	for( unsigned i = 0; i < size; i++ )
 	{

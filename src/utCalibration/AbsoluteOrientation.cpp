@@ -66,7 +66,7 @@ Math::Quaternion calculateRotation ( const ForwardIterator& leftBegin, const For
 {
 
 	// calculate the matrix M of sums of products
-	Math::Matrix< 3, 3, T > M ( ublas::zero_matrix< T >( 3, 3 ) );
+	Math::Matrix< 3, 3, T > M ( Math::Matrix< 3, 3, T >::zeros() );
 
 	ForwardIterator leftIterator = leftBegin;
 	ForwardIterator rightIterator = rightBegin;

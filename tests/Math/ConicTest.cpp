@@ -95,7 +95,7 @@ void testBasicConicFunctors( const std::size_t n )
 	std::size_t n_e = std::count_if( conics.begin(), conics.end(), Geometry::IsConicEllipse< T >() );
 	std::size_t n_p = std::count_if( conics.begin(), conics.end(), Geometry::IsConicParabola< T >() );
 
-	//std::cout << "Conics " << n_c << " " << n_d << " " << n_e << " " << n_p << std::endl;
+	std::cout << "Conics " << n_c << " " << n_d << " " << n_e << " " << n_p << std::endl;
 
 	// estimate conics' upper and lower limit
 	std::vector< Ubitrack::Math::Vector< 2, T > > conic_ull;

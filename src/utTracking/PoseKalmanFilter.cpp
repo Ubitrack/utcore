@@ -66,8 +66,8 @@ struct PoseMeasurement
 		ublas::subrange( result, 0, 3 ) = ublas::subrange( input, 0, 3 );
 		ublas::subrange( result, 3, 7 ) = ublas::subrange( input, m_rotStart, m_rotStart + 4 );
 		ublas::subrange( jacobian, 0, 3, 0, 3 ) = ublas::identity_matrix< double >( 3 );
-		ublas::subrange( jacobian, 0, 3, 3, m_rotStart + 4 ) = ublas::zero_matrix< double >( 3, m_rotStart + 4 - 3 );
-		ublas::subrange( jacobian, 3, 7, 0, m_rotStart ) = ublas::zero_matrix< double >( 4, m_rotStart );
+		ublas::subrange( jacobian, 0, 3, 3, m_rotStart + 4 ) = Ubitrack::Math::Matrix< 0, 0, double >::zeros( 3, m_rotStart + 4 - 3 );
+		ublas::subrange( jacobian, 3, 7, 0, m_rotStart ) = Ubitrack::Math::Matrix< 0, 0, double >::zeros( 4, m_rotStart );
 		ublas::subrange( jacobian, 3, 7, m_rotStart, m_rotStart + 4 ) = ublas::identity_matrix< double >( 4 );
 	}
 };

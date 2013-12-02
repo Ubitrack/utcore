@@ -319,7 +319,7 @@ Math::Matrix< 4, 4, double > offAxisProjectionMatrix( Math::Vector< 3, double >&
 	double C = -((f+n)/(f-n));
 	double D = -((2*f*n)/(f-n));
 
-	Math::Matrix<4, 4> proj = boost::numeric::ublas::zero_matrix<double>(4,4);
+	Math::Matrix< 4, 4, double > proj ( Math::Matrix< 4, 4, double >::zeros() );
 	proj(0,0) = (2*n)/(right-left);
 	proj(1,1) = (2*n)/(top-buttom);
 	proj(0,2) = A;
@@ -334,7 +334,7 @@ Math::Matrix< 4, 4, double > offAxisProjectionMatrix( Math::Vector< 3, double >&
 	translation(2, 3) = -eye(2);
 
 	// Build a rotation matrix.
-	Math::Matrix<4, 4> m = boost::numeric::ublas::zero_matrix<double>(4,4);
+	Math::Matrix< 4, 4, double > m = Math::Matrix< 4, 4, double >::zeros();
 	m(0, 0) = Xs(0); m(0, 1) = Ys(0); m(0, 2) = Zs(0);
 	m(1, 0) = Xs(1); m(1, 1) = Ys(1); m(1, 2) = Zs(1);
 	m(2, 0) = Xs(2); m(2, 1) = Ys(2); m(2, 2) = Zs(2);

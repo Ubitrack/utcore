@@ -149,7 +149,7 @@ Math::Matrix< 6, 6 > unscentedTransform(
 	avgQuat.normalize();
 	
 	// Compute covariance
-	Math::Matrix< 6, 6 > covariance( ublas::zero_matrix< double >( 6, 6 ) );
+	Math::Matrix< 6, 6 > covariance( Math::Matrix< 6, 6 >::zeros() );
 	for ( typename std::vector< Math::Vector< 0, VType > >::iterator it = optimizedParameters.begin();
 			it != optimizedParameters.end(); it++ )
 	{

@@ -76,7 +76,7 @@ Math::Vector< 3, T > shiftToCenter( std::vector < Math::Vector< 3, T > > &points
 template< typename T >
 Math::Matrix< 3, 3, T > calculateTFactorMatrix( const std::vector< Math::Matrix< 3, 3, T > > &los )
 {
-	Math::Matrix< 3, 3, T > tFactorMatrix( ublas::zero_matrix< T >( 3, 3 ) );
+	Math::Matrix< 3, 3, T > tFactorMatrix( Math::Matrix< 3, 3, T >::zeros() );
 	tFactorMatrix = std::accumulate( los.begin() , los.end(), tFactorMatrix );
 	tFactorMatrix /= los.size();
 	tFactorMatrix = ublas::identity_matrix< T > ( 3, 3 ) - tFactorMatrix;
@@ -93,7 +93,7 @@ Math::Matrix< 3, 3, T > absoluteOrientation( const std::vector< Math::Vector< 3,
 	std::transform( pointsA.begin(), pointsA.end(), pointsB.begin(), std::back_inserter( matrices )
 		, Math::Functors::distinct_outer_product< 3, T >() );
 	
-	Math::Matrix< 3, 3, T > B( ublas::zero_matrix< T > ( 3, 3 ) );
+	Math::Matrix< 3, 3, T > B( Math::Matrix< 3, 3, T >::zeros() );
 	B = std::accumulate( matrices.begin(), matrices.end(), B );
 	B /= pointsA.size();
 	
