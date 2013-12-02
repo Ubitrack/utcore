@@ -33,7 +33,8 @@
 #ifndef _Ubitrack_Math_MatrixOperations_INCLUDED_
 #define _Ubitrack_Math_MatrixOperations_INCLUDED_
 
-#include <boost/numeric/ublas/matrix.hpp>
+#include "Vector.h"
+#include "Matrix.h"
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 
 
