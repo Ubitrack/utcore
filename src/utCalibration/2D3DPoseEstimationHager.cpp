@@ -79,7 +79,7 @@ Math::Matrix< 3, 3, T > calculateTFactorMatrix( const std::vector< Math::Matrix<
 	Math::Matrix< 3, 3, T > tFactorMatrix( Math::Matrix< 3, 3, T >::zeros() );
 	tFactorMatrix = std::accumulate( los.begin() , los.end(), tFactorMatrix );
 	tFactorMatrix /= los.size();
-	tFactorMatrix = ublas::identity_matrix< T > ( 3, 3 ) - tFactorMatrix;
+	tFactorMatrix = Math::Matrix< 3, 3, T >::identity() - tFactorMatrix;
 	tFactorMatrix = Math::invert_matrix( tFactorMatrix );
 	return ( tFactorMatrix / los.size() );
 }
@@ -146,7 +146,7 @@ struct object_space_error
 public:
 	T operator() ( const Math::Matrix< 3, 3, T > &matrix, const Math::Vector< 3, T >& vec ) const
     {
-		Math::Matrix< 3, 3, T > tmp( ublas::identity_matrix< T > ( 3, 3 ) - matrix );
+		Math::Matrix< 3, 3, T > tmp( Math::Matrix< 3, 3, T >::identity() - matrix );
 		Math::Vector< 3, T > vec_tmp = ublas::prod( tmp, vec );
 		return ublas::inner_prod( vec_tmp, vec_tmp );
 	}

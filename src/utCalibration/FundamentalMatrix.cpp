@@ -256,12 +256,12 @@ Math::Pose poseFromFundamentalMatrix( const Math::Matrix< 3, 3 > & fM, const Mat
 		Wt *= -1.0;
 	
 	//check which is the correct Pose
-	Math::Matrix< 3, 4 > p1;
-	ublas::subrange( p1, 0, 3, 0, 3 ) = ublas::identity_matrix< double >(3);
+	Math::Matrix< 3, 4, double > p1;
+	ublas::subrange( p1, 0, 3, 0, 3 ) = Math::Matrix< 3, 3, double >::identity();
 	ublas::column( p1, 3 ) = Math::Vector< 3 >( 0.0, 0.0, 0.0 );
 	Math::Matrix< 3, 4 > P1 = ublas::prod( K1, p1 );
 
-	Math::Matrix< 4, 4 > inv = ublas::identity_matrix< double >(4);
+	Math::Matrix< 4, 4, double > inv = Math::Matrix< 4, 4, double >::identity();
 	ublas::subrange( inv, 0, 3, 0, 4 ) = p1;
 	inv = Math::invert_matrix( inv );
 

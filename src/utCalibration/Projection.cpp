@@ -328,7 +328,7 @@ Math::Matrix< 4, 4, double > offAxisProjectionMatrix( Math::Vector< 3, double >&
 	proj(3,2) = -1;
 	proj(2,3) = D;
 
-	Math::Matrix<4, 4> translation = boost::numeric::ublas::identity_matrix<double>(4);
+	Math::Matrix< 4, 4, double > translation = Math::Matrix< 4, 4, double >::identity();
 	translation(0, 3) = -eye(0);
 	translation(1, 3) = -eye(1);
 	translation(2, 3) = -eye(2);

@@ -88,13 +88,12 @@ template<typename T>
 Math::Vector<3, T> computeSidesTrans(const Math::Matrix<4, 4, T>& hgij, const Math::Matrix<4, 4, T>& hcij, Math::Matrix<3, 3, T> rcg, 
 	Math::Matrix<3, 3, T> & leftT)
 {
-	ublas::identity_matrix<T> identity(3);
 
 	Math::Matrix<3, 3, T> rgij = ublas::subrange(hgij, 0, 3, 0, 3);
 	Math::Vector<3, T> tgij = ublas::subrange(ublas::column(hgij, 3), 0, 3);
 	Math::Vector<3, T> tcij = ublas::subrange(ublas::column(hcij, 3), 0, 3);
 
-	leftT = rgij - identity;
+	leftT = rgij - Math::Matrix< 3, 3, T >::identity();
 
 	return (ublas::prod(rcg, tcij) - tgij);
 }
@@ -177,16 +176,16 @@ Math::Matrix<3, 3, T> getMatrix(const Math::Vector<3, T>& source)
 	T length = (v[0] + v[1] + v[2]);										//|Pr|²
 	T a = (T)1.0 - length/(T)2.0;											//(1 - |Pr|²/2)
 	
-	ublas::identity_matrix<T> id(3);
-	Math::Matrix<3, 3, T> identity = id * a;
+	// ublas::identity_matrix<T> id(3);
+	Math::Matrix< 3, 3, T > identity = Math::Matrix< 3, 3, T >::identity() * a;
 
-	Math::Matrix<3, 3, T> skewT = skew(source);
+	Math::Matrix< 3, 3, T > skewT = skew(source);
 
 	T alpha = std::sqrt(4 - length);
 	
 	skewT *= T (alpha);
 	
-	Math::Matrix<3, 3, T> right;
+	Math::Matrix< 3, 3, T > right;
 
 	right = outer_prod(source, source) + skewT;
 

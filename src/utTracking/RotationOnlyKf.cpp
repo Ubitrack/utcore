@@ -53,7 +53,7 @@ RotationOnlyKF::RotationOnlyKF()
 	// initialize state
 	m_state.value = Math::Vector< 7, double >::zeros();
 	m_state.value( 3 ) = 1;
-	m_state.covariance = ublas::identity_matrix< double >( 7 );
+	m_state.covariance = Math::Matrix< 7, 7, double >::identity();
 
 	m_time = 0;
 }
@@ -71,7 +71,7 @@ void RotationOnlyKF::addRotationMeasurement( const Measurement::Rotation& m )
 	// create measurement as ErrorVector
 	Math::ErrorVector< 4 > v;
 	m->negateIfCloser( Math::Quaternion::fromVector( m_state.value ) ).toVector( v.value );
-	v.covariance = ublas::identity_matrix< double >( 4 ) * 0.004; // magic number, tune here
+	v.covariance = Math::Matrix< 4, 4, double >::identity() * 0.004; // magic number, tune here
 	
 	// measurement update:
 	kalmanMeasurementUpdateIdentity< 7, 4 >( m_state, v, 0, 4 );
@@ -89,7 +89,7 @@ void RotationOnlyKF::addVelocityMeasurement( const Measurement::RotationVelocity
 	// create measurement as ErrorVector
 	Math::ErrorVector< 3 > v;
 	v.value = *m;
-	v.covariance = ublas::identity_matrix< double >( 3 ) * 0.00001; // magic number, tune here
+	v.covariance = Math::Matrix< 3, 3, double >::identity() * 0.00001; // magic number, tune here
 	
 	// measurement update:
 	kalmanMeasurementUpdateIdentity< 7, 3 >( m_state, v, 4, 7 );
@@ -116,8 +116,8 @@ void RotationOnlyKF::timeUpdate( Measurement::Timestamp t )
 	// TODO: better motion model
 	double fAbsNoise = 0.001 * ( dt * dt ); // tune here
 	double fVelNoise = 4.0 * ( dt * dt ); // tune here
-	ublas::subrange( m_state.covariance, 0, 4, 0, 4 ) += ublas::identity_matrix< double >( 4 ) * fAbsNoise;
-	ublas::subrange( m_state.covariance, 4, 7, 4, 7 ) += ublas::identity_matrix< double >( 3 ) * fVelNoise;
+	ublas::subrange( m_state.covariance, 0, 4, 0, 4 ) += Math::Matrix< 4, 4, double >::identity() * fAbsNoise;
+	ublas::subrange( m_state.covariance, 4, 7, 4, 7 ) += Math::Matrix< 3, 3, double >::identity() * fVelNoise;
 	
 	m_time = t;
 }

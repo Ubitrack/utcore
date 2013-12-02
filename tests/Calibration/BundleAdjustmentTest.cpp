@@ -63,7 +63,7 @@ void TestMarkerBundleAdjustment( const std::size_t n_runs, const T epsilon )
 		const std::size_t n_cams = Random::distribute_uniform( 3, 20 );
 		
 		// random intrinsics matrix, never changes, assume always the same camera
-		Matrix< 3, 3, T > cam( boost::numeric::ublas::identity_matrix< T >( 3 ) );
+		Matrix< 3, 3, T > cam( Matrix< 3, 3, T >::identity() );
 		cam( 0, 0 ) = Random::distribute_uniform< T >( 500, 800 );
 		cam( 1, 1 ) = Random::distribute_uniform< T >( 500, 800 );
 		cam( 0, 2 ) = screenResolution[ 0 ] * 0.5;

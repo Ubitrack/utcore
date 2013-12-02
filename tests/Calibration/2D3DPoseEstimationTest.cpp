@@ -36,7 +36,7 @@ void TestOptimizePose( const std::size_t n_runs, const T epsilon )
 	for ( std::size_t iRun = 0; iRun < n_runs; iRun++ )
 	{
 		// random intrinsics matrix
-		Matrix< 3, 3, T > cam( ublas::identity_matrix< T >( 3 ) );
+		Matrix< 3, 3, T > cam( Matrix< 3, 3, T >::identity() );
 		cam( 0, 0 ) = Random::distribute_uniform< T >( 200, 800 );
 		cam( 1, 1 ) = Random::distribute_uniform< T >( 200, 800 );
 		

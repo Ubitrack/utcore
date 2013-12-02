@@ -21,7 +21,7 @@ void Test3DPointReconstruction()
 		Math::Matrix< 3, 4, double > p1( CamPose1 );
 		Math::Matrix< 3, 4, double > p2( CamPose2 );
 
-		Math::Matrix< 3, 3, double > K = ublas::identity_matrix< double > ( 3, 3 );
+		Math::Matrix< 3, 3, double > K = Math::Matrix< 3, 3, double >::identity();
 		K( 0, 0 ) = K( 1, 1 ) = 500;
 		K( 0, 2 ) = 320;
 		K( 1, 2 ) = 240;

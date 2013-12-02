@@ -60,7 +60,7 @@ void tipCalibrationImpl( const std::vector< Math::Pose >& poses,
 		ublas::matrix_range< typename Math::Matrix< 0, 0, T >::base_type > r( 
 			a, ublas::range( i * 3, (i+1) * 3 ), ublas::range( 0, 3 ) );
 		poses[ i ].rotation().toMatrix( r );
-		ublas::subrange( a, i * 3, (i+1) * 3, 3, 6 ) = -ublas::identity_matrix< T >( 3 );
+		ublas::subrange( a, i * 3, (i+1) * 3, 3, 6 ) = - Math::Matrix< 3, 3, T >::identity();
 
 		// set v
 		ublas::subrange( v, i * 3, (i+1) * 3 ) = -poses[ i ].translation();

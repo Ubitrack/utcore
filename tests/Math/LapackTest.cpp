@@ -83,7 +83,7 @@ void TestLapack()
 {
 #ifdef HAVE_LAPACK
 	// check if singular value decomposition works
-	Matrix< 6, 6 > m( Math::Matrix< 6, 6, double >::zeros( ) );
+	Matrix< 6, 6 > m( Matrix< 6, 6, double >::zeros( ) );
 	for ( int i = 0; i < 6; i++ )
 		m( i, i ) = 10 - i;
 

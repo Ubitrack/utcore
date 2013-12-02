@@ -65,10 +65,10 @@ struct PoseMeasurement
 	{
 		ublas::subrange( result, 0, 3 ) = ublas::subrange( input, 0, 3 );
 		ublas::subrange( result, 3, 7 ) = ublas::subrange( input, m_rotStart, m_rotStart + 4 );
-		ublas::subrange( jacobian, 0, 3, 0, 3 ) = ublas::identity_matrix< double >( 3 );
+		ublas::subrange( jacobian, 0, 3, 0, 3 ) = Ubitrack::Math::Matrix< 3, 3, double >::identity();
 		ublas::subrange( jacobian, 0, 3, 3, m_rotStart + 4 ) = Ubitrack::Math::Matrix< 0, 0, double >::zeros( 3, m_rotStart + 4 - 3 );
 		ublas::subrange( jacobian, 3, 7, 0, m_rotStart ) = Ubitrack::Math::Matrix< 0, 0, double >::zeros( 4, m_rotStart );
-		ublas::subrange( jacobian, 3, 7, m_rotStart, m_rotStart + 4 ) = ublas::identity_matrix< double >( 4 );
+		ublas::subrange( jacobian, 3, 7, m_rotStart, m_rotStart + 4 ) = Ubitrack::Math::Matrix< 4, 4, double >::identity();
 	}
 };
 
@@ -80,7 +80,7 @@ PoseKalmanFilter::PoseKalmanFilter( const LinearPoseMotionModel& motionModel, bo
 	: m_motionModel( motionModel )
 	, m_bInsideOut( bInsideOut )
 	, m_state( Math::Vector< 0, double >::zeros( motionModel.stateSize() ) )
-	, m_covariance( ublas::identity_matrix< double >( motionModel.stateSize() ) )
+	, m_covariance( Math::Matrix< 0, 0, double >::identity( motionModel.stateSize() ) )
 	, m_time( 0 )
 {
 	if ( bInsideOut && ( m_motionModel.posOrder() > 1 || m_motionModel.oriOrder() != 1 ) )
@@ -143,7 +143,7 @@ void PoseKalmanFilter::addRotationMeasurement( const Measurement::Rotation& m )
 	// create measurement as ErrorVector
 	Math::ErrorVector< 4 > v;
 	m->toVector( v.value );
-	v.covariance = ublas::identity_matrix< double >( 4 ) * 0.004; // magic number, tune here
+	v.covariance = Math::Matrix< 4, 4, double >::identity() * 0.004; // magic number, tune here
 
 	// invert quaternion if necessary
 	if ( ublas::inner_prod( rotSubState, v.value ) < 0 )
@@ -170,7 +170,7 @@ void PoseKalmanFilter::addRotationVelocityMeasurement( const Measurement::Rotati
 	// create measurement as ErrorVector
 	Math::ErrorVector< 3 > v;
 	v.value = *m;
-	v.covariance = ublas::identity_matrix< double >( 3 ) * 1e-11; // magic number, tune here
+	v.covariance = Math::Matrix< 3, 3, double >::identity() * 1e-11; // magic number, tune here
 	
 	// measurement update:
 	int iV = 4 + 3 * ( m_motionModel.posOrder() + 1 ); // shortcut for first index of rotation velocity
@@ -194,7 +194,7 @@ void PoseKalmanFilter::addInverseRotationVelocityMeasurement( const Measurement:
 	// create measurement as ErrorVector
 	Math::ErrorVector< 3 > v;
 	v.value = *m;
-	v.covariance = ublas::identity_matrix< double >( 3 ) * 1e-11; // magic number, tune here
+	v.covariance = Math::Matrix< 3, 3, double >::identity() * 1e-11; // magic number, tune here
 	
 	// measurement update:
 	int iR = 3 * ( m_motionModel.posOrder() + 1 ); // shortcut for first index of orientation
@@ -259,7 +259,7 @@ void PoseKalmanFilter::normalize()
 		{
 			LOG4CPP_NOTICE( logger, "Kalman Filter position instability detected. Resetting." );
 			m_state = Math::Vector< 0, double >::zeros( m_motionModel.stateSize() );
-			m_covariance = ublas::identity_matrix< double >( m_motionModel.stateSize() );
+			m_covariance = Math::Matrix< 0, 0, double >::identity( m_motionModel.stateSize() );
 			m_time = 0;
 		}
  */	

@@ -60,8 +60,8 @@ static void skewMatrix( Math::Matrix< 3, 3 >& m, const Math::Vector< 3 > v )
 
 OnlineRotHec::OnlineRotHec()
 {
-	m_state.value = Math::Vector< 3 >( 0, 0, 0 );
-	m_state.covariance = ublas::identity_matrix< double >( 3, 3 ) * 1e6;
+	m_state.value = Math::Vector< 3, double >( 0, 0, 0 );
+	m_state.covariance = Math::Matrix< 3, 3, double >::identity() * 1e6;
 }
 
 
@@ -71,11 +71,11 @@ void OnlineRotHec::addMeasurement( const Math::Quaternion& q, const Math::Quater
 	const double nq = q.w() < 0 ? -1 : 1;
 	const double nr = r.w() < 0 ? -1 : 1;
 	
-	Math::ErrorVector< 3 > kalmanMeasurement;
+	Math::ErrorVector< 3, double > kalmanMeasurement;
 	kalmanMeasurement.value( 0 ) = r.x() * nr - q.x() * nq;
 	kalmanMeasurement.value( 1 ) = r.y() * nr - q.y() * nq;
 	kalmanMeasurement.value( 2 ) = r.z() * nr - q.z() * nq;
-	kalmanMeasurement.covariance = ublas::identity_matrix< double >( 3 );
+	kalmanMeasurement.covariance = Math::Matrix< 3, 3, double >::identity();
 
 	// do the filter update
 	Math::Matrix< 3, 3 > h;
