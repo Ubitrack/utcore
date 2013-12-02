@@ -194,16 +194,16 @@ Math::Pose Average< Math::Pose, Math::Pose >::mean( const std::vector< Math::Pos
 
 Math::ErrorPose incEstimate(  Math::Pose poseNew,  Math::Vector< 0, double >& meanv,  Math::Matrix< 0, 0, double >& outProd, int m_counter)
 {
-	ublas::vector_range< ublas::vector<double> > posMean( meanv, ublas::range( 0, 3 ) );
-	ublas::vector_range< ublas::vector<double> > rotMean( meanv, ublas::range( 3, 7 ) );
+	ublas::vector_range< Math::Vector< 0, double >::base_type > posMean( meanv, ublas::range( 0, 3 ) );
+	ublas::vector_range< Math::Vector< 0, double >::base_type > rotMean( meanv, ublas::range( 3, 7 ) );
 
 	//LOG4CPP_TRACE ( logger, "Update pose event: " << poseNew );
 
 	// The order is tx, ty, tz, qx, qy, qz, qw.
 	Math::Vector< 0, double > poseNewVec( 7 );
 	poseNew.toVector( poseNewVec );
-	ublas::vector_range< ublas::vector<double> > posNew( poseNewVec, ublas::range( 0, 3 ) );
-	ublas::vector_range< ublas::vector<double> > rotNew( poseNewVec, ublas::range( 3, 7 ) );
+	ublas::vector_range< Math::Vector< 0, double >::base_type > posNew( poseNewVec, ublas::range( 0, 3 ) );
+	ublas::vector_range< Math::Vector< 0, double >::base_type > rotNew( poseNewVec, ublas::range( 3, 7 ) );
 
 	// Take care of quaternion ambiguity
  	if ( ublas::inner_prod( rotNew, rotMean ) < 0 )
