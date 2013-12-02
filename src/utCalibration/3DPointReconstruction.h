@@ -46,7 +46,7 @@ namespace Ubitrack { namespace Calibration {
  *
  * The result is a relative distance of the two points
  *
- * Note: also exists with \c double parameters. You can either use 2D coordinates or homogenous coordinates ( 3D )
+ * Note: also exists with \c double parameters. You can either use 2D coordinates or homogeneous coordinates ( 3D )
  *
  * @param fromPoints Points x as inhomogeneous 2-vectors
  * @param toPoints Points x' as inhomogeneous 2-vectors
@@ -72,13 +72,14 @@ UBITRACK_EXPORT double pointToPointDist( const Math::Vector< 3, double > & from,
  *
  * @param P1 the projection matrix of the first camera
  * @param P2 the projection matrix of the second camera
- * @param x the postition of the point in the image of the first camera
- * @param x_ the postition of the point in the image of the second camera
- * @return extimatet 3D position
+ * @param p1 the position of the point in the image of the first camera
+ * @param p2 the position of the point in the image of the second camera
+ * @return estimated 3D position
  */
-UBITRACK_EXPORT Math::Vector< 3, float > get3DPosition( const Math::Matrix< 3, 4, float > & P1, const Math::Matrix< 3, 4, float > & P2, const Math::Vector< 2, float > & x, const Math::Vector< 2, float > & x_ );
 
-UBITRACK_EXPORT Math::Vector< 3, double > get3DPosition( const Math::Matrix< 3, 4, double > & P1, const Math::Matrix< 3, 4, double > & P2, const Math::Vector< 2, double > & x, const Math::Vector< 2, double > & x_ );
+UBITRACK_EXPORT Math::Vector< 3, float > get3DPosition( const Math::Matrix< 3, 4, float > & P1, const Math::Matrix< 3, 4, float > & P2, const Math::Vector< 2, float > & p1, const Math::Vector< 2, float > & p2 );
+
+UBITRACK_EXPORT Math::Vector< 3, double > get3DPosition( const Math::Matrix< 3, 4, double > & P1, const Math::Matrix< 3, 4, double > & P2, const Math::Vector< 2, double > & p1, const Math::Vector< 2, double > & p2 );
 
 /**
  * @ingroup tracking_algorithms
@@ -89,7 +90,7 @@ UBITRACK_EXPORT Math::Vector< 3, double > get3DPosition( const Math::Matrix< 3, 
  * Note: also exists with \c double parameters. You can either use 2D coordinates or homogenous coordinates ( 3D )
  *
  * @param p1 a vector of 2D points from the first camera
- * @param p2 a vector of 2D points from the scond camera
+ * @param p2 a vector of 2D points from the second camera
  * @param P1 the projection matrix of the first camera
  * @param P2 the projection matrix of the second camera
  * @param F the fundamental matrix
@@ -116,11 +117,12 @@ UBITRACK_EXPORT std::vector< Math::Vector< 3, double > > reconstruct3DPoints( co
  * flag == 0: algebraic(fast), flag == 1: non-linear (accurate)
  * @return a 3D points
  */
-UBITRACK_EXPORT Math::Vector< 3, float > get3DPosition( const std::vector< Math::Matrix< 3, 4, float > > &P, const std::vector< Math::Vector< 2, float > > &points, unsigned flag = 0 );
 
-UBITRACK_EXPORT Math::Vector< 3, double > get3DPosition( const std::vector< Math::Matrix< 3, 4, double > > &P, const std::vector< Math::Vector< 2, double > >& points, unsigned flag = 0 );
+UBITRACK_EXPORT Math::Vector< 3, float > get3DPosition( const std::vector< Math::Matrix< 3, 4, float > > &P, const std::vector< Math::Vector< 2, float > > &points, std::size_t flag );
 
-UBITRACK_EXPORT Math::Vector< 3, double > get3DPositionWithResidual( const std::vector< Math::Matrix< 3, 4, double > > &P, const std::vector< Math::Vector< 2, double > >& points, unsigned flag = 0, double* residual = 0 );
+UBITRACK_EXPORT Math::Vector< 3, double > get3DPosition( const std::vector< Math::Matrix< 3, 4, double > > &P, const std::vector< Math::Vector< 2, double > >& points, std::size_t flag );
+
+UBITRACK_EXPORT Math::Vector< 3, double > get3DPositionWithResidual( const std::vector< Math::Matrix< 3, 4, double > > &P, const std::vector< Math::Vector< 2, double > >& points, std::size_t flag = 0, double* residual = 0 );
 #endif
 
 } } // namespace Ubitrack::Calibration

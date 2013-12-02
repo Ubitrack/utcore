@@ -32,7 +32,9 @@
 #ifndef __UBITRACK_CALIBRATION_FUNDAMENTALMATRIX_H_INCLUDED__
 #define __UBITRACK_CALIBRATION_FUNDAMENTALMATRIX_H_INCLUDED__
 
-
+#include <utCore.h>
+#include <utMath/Vector.h>
+#include <utMath/Matrix.h>
 
 #ifdef HAVE_LAPACK
 #include <utCalibration/3DPointReconstruction.h>
@@ -54,10 +56,10 @@ namespace Ubitrack { namespace Calibration {
  * @return calculated fundamental matrix
  */
 UBITRACK_EXPORT Math::Matrix< 3, 3, float > getFundamentalMatrix( const std::vector< Math::Vector< 2, float > >& fromPoints, 
-	const std::vector< Math::Vector< 2, float > >& toPoints, unsigned int stepSize = 1 );
+	const std::vector< Math::Vector< 2, float > >& toPoints, std::size_t stepSize = 1 );
 
 UBITRACK_EXPORT Math::Matrix< 3, 3, double > getFundamentalMatrix( const std::vector< Math::Vector< 2, double > >& fromPoints, 
-	const std::vector< Math::Vector< 2, double > >& toPoints, unsigned int stepSize = 1 );
+	const std::vector< Math::Vector< 2, double > >& toPoints, std::size_t stepSize = 1 );
 
 /**
  * @ingroup tracking_algorithms

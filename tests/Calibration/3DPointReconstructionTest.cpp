@@ -78,7 +78,7 @@ void Test3DPointReconstruction()
 			pts.push_back( p2d );
 		}
 		
-		Math::Vector< 3, double > p3D = Calibration::get3DPosition( matrices, pts );
+		Math::Vector< 3, double > p3D = Calibration::get3DPosition( matrices, pts, 0 );
 		BOOST_CHECK_SMALL( vectorDiff( p3D, v ), 1e-05 );
 	}
 	

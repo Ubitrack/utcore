@@ -79,7 +79,7 @@ void normalize(Math::Vector< 2, T >& shift, T& scale,
 }
 
 template< typename T >
-Math::Matrix< 3, 3, T > getFundamentalMatrixImp( const std::vector< Math::Vector< 2, T > > & fromPoints, 
+Math::Matrix< 3, 3, T > getFundamentalMatrixImpl( const std::vector< Math::Vector< 2, T > > & fromPoints, 
 	const std::vector< Math::Vector< 2, T > > & toPoints, std::size_t stepSize )
 {
 	static log4cpp::Category& logger(log4cpp::Category::getInstance( "Ubitrack.Calibration.FundamentalMatrix" ));
@@ -155,7 +155,7 @@ Math::Matrix< 3, 3, T > getFundamentalMatrixImp( const std::vector< Math::Vector
 	F( 2, 0 ) = Vt( 8, 6 ); F( 2, 1 ) = Vt( 8, 7 ); F( 2, 2 ) = Vt( 8, 8 );
 
 	// constraint enforcement
-	Math::Vector< 0, T > s2( 3 );
+	Math::Vector< 3, T > s2;
 	Math::Matrix< 3, 3, T > U2;
 	Math::Matrix< 3, 3, T > Vt2;
 	info = lapack::gesvd( 'A', 'A', F, s2, U2, Vt2 );
@@ -178,13 +178,13 @@ Math::Matrix< 3, 3, T > getFundamentalMatrixImp( const std::vector< Math::Vector
 Math::Matrix< 3, 3, float > getFundamentalMatrix( const std::vector< Math::Vector< 2, float > >& fromPoints, 
 	const std::vector< Math::Vector< 2, float > >& toPoints, std::size_t stepSize )
 { 
-	return getFundamentalMatrixImp( fromPoints, toPoints, stepSize );
+	return getFundamentalMatrixImpl( fromPoints, toPoints, stepSize );
 }
 
 Math::Matrix< 3, 3, double > getFundamentalMatrix( const std::vector< Math::Vector< 2, double > >& fromPoints, 
 	const std::vector< Math::Vector< 2, double > >& toPoints, std::size_t stepSize )
 {
-	return getFundamentalMatrixImp( fromPoints, toPoints, stepSize );
+	return getFundamentalMatrixImpl( fromPoints, toPoints, stepSize );
 }
 
 Math::Matrix< 3, 3, double > fundamentalMatrixFromPoses( const Math::Pose & cam1, const Math::Pose & cam2, const Math::Matrix< 3, 3 > & K1, const Math::Matrix< 3, 3 > & K2 )

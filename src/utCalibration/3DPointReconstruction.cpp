@@ -86,7 +86,7 @@ double pointToPointDist( const Math::Vector< 3, double > & from, const Math::Vec
 /** internal of get3DPostion function */
 #ifdef HAVE_LAPACK
 template< typename T >
-Math::Vector< 3, T > get3DPositionImp( const Math::Matrix< 3, 4, T > & P1, const Math::Matrix< 3, 4, T > & P2, const Math::Vector< 2, T > & x, const Math::Vector< 2, T > & x_ )
+Math::Vector< 3, T > get3DPositionImpl( const Math::Matrix< 3, 4, T > & P1, const Math::Matrix< 3, 4, T > & P2, const Math::Vector< 2, T > & x, const Math::Vector< 2, T > & x_ )
 {
 	Math::Matrix< 4, 4, T > A;
 	ublas::row( A, 0 ) = ( x( 0 ) * ublas::row( P1, 2 ) ) - ublas::row( P1, 0 );
@@ -95,22 +95,22 @@ Math::Vector< 3, T > get3DPositionImp( const Math::Matrix< 3, 4, T > & P1, const
 	ublas::row( A, 3 ) = ( x_( 1 ) * ublas::row( P2, 2 ) ) - ublas::row( P2, 1 );
 
 	//solving using svd
-	Math::Vector< 0, T > s1( 4 );
+	Math::Vector< 4, T > s1;
 	Math::Matrix< 4, 4, T > Vt;
 	Math::Matrix< 4, 4, T > U;
 	lapack::gesvd( 'N', 'A', A, s1, U, Vt );
 
-	return ( Math::Vector< 3, T >( Vt( 3, 0 ) / Vt( 3, 3), Vt( 3, 1 ) / Vt( 3, 3), Vt( 3, 2 ) / Vt( 3, 3) ) );
+	return ( Math::Vector< 3, T >( Vt( 3, 0 ) / Vt( 3, 3), Vt( 3, 1 ) / Vt( 3, 3), Vt( 3, 2 ) / Vt( 3, 3 ) ) );
 }
 
 Math::Vector< 3, float > get3DPosition( const Math::Matrix< 3, 4, float > & P1, const Math::Matrix< 3, 4, float > & P2, const Math::Vector< 2, float > & x, const Math::Vector< 2, float > & x_ )
 {
-	return get3DPositionImp( P1, P2, x, x_ );
+	return get3DPositionImpl< float >( P1, P2, x, x_ );
 }
 
 Math::Vector< 3, double > get3DPosition( const Math::Matrix< 3, 4, double > & P1, const Math::Matrix< 3, 4, double > & P2, const Math::Vector< 2, double > & x, const Math::Vector< 2, double > & x_ )
 {
-	return get3DPositionImp( P1, P2, x, x_ );
+	return get3DPositionImpl< double >( P1, P2, x, x_ );
 }
 
 /** internal of reconstruct3DPoints function */
@@ -141,7 +141,7 @@ Math::Vector< 3, typename std::iterator_traits< ForwardIterator2 >::value_type::
 		ublas::subrange( A, i*3, i*3+3, 0, 4 ) = ublas::prod( skew, (*it) );
 	}
 
-	Math::Vector< 0, Type > s( 4 );
+	Math::Vector< 4, Type > s;
 	Math::Matrix< 4, 4, Type > Vt;
 	Math::Matrix< 0, 0, Type > U( 3*n, 3*n );
 	if( lapack::gesvd( 'N', 'A', A, s, U, Vt ) != 0 )
@@ -192,7 +192,7 @@ Math::Vector< 3, typename std::iterator_traits< ForwardIterator1 >::value_type::
 	
 }
 
-Math::Vector< 3, float > get3DPosition( const std::vector< Math::Matrix< 3, 4, float > > &P, const std::vector< Math::Vector< 2, float > > &points, std::size_t flag)
+Math::Vector< 3, float > get3DPosition( const std::vector< Math::Matrix< 3, 4, float > > &P, const std::vector< Math::Vector< 2, float > > &points, std::size_t flag )
 {
 	if( P.size() != points.size() )
 		UBITRACK_THROW( "no equal amount of camera projections and corresponding points." );
@@ -202,7 +202,7 @@ Math::Vector< 3, float > get3DPosition( const std::vector< Math::Matrix< 3, 4, f
 	return result;
 }
 
-Math::Vector< 3, double > get3DPosition( const std::vector< Math::Matrix< 3, 4, double > > &P, const std::vector< Math::Vector< 2, double > >& points, std::size_t flag)
+Math::Vector< 3, double > get3DPosition( const std::vector< Math::Matrix< 3, 4, double > > &P, const std::vector< Math::Vector< 2, double > >& points, std::size_t flag )
 {
 	if( P.size() != points.size() )
 		UBITRACK_THROW( "no equal amount of camera projections and corresponding points." );
@@ -213,7 +213,7 @@ Math::Vector< 3, double > get3DPosition( const std::vector< Math::Matrix< 3, 4, 
 	return result;
 }
 
-Math::Vector< 3, double > get3DPositionWithResidual( const std::vector< Math::Matrix< 3, 4, double > > &P, const std::vector< Math::Vector< 2, double > >& points, unsigned flag, double* pResidual)
+Math::Vector< 3, double > get3DPositionWithResidual( const std::vector< Math::Matrix< 3, 4, double > > &P, const std::vector< Math::Vector< 2, double > >& points, std::size_t flag, double* pResidual )
 {
 	if( P.size() != points.size() )
 		UBITRACK_THROW( "no equal amount of camera projections and corresponding points." );
@@ -229,7 +229,7 @@ Math::Vector< 3, double > get3DPositionWithResidual( const std::vector< Math::Ma
 
 /** internal of reconstruct3DPoints function */
 template< typename T >
-std::vector< Math::Vector< 3, T > > reconstruct3DPointsImp( const std::vector< Math::Vector< 2, T > > & p1, const std::vector< Math::Vector< 2, T > > & p2,
+std::vector< Math::Vector< 3, T > > reconstruct3DPointsImpl( const std::vector< Math::Vector< 2, T > > & p1, const std::vector< Math::Vector< 2, T > > & p2,
 																			const Math::Matrix< 3, 4, T > & P1, const Math::Matrix< 3, 4, T > & P2, const Math::Matrix< 3, 3, T > & fM )
 {
 	
@@ -267,13 +267,13 @@ std::vector< Math::Vector< 3, T > > reconstruct3DPointsImp( const std::vector< M
 std::vector< Math::Vector< 3, float > > reconstruct3DPoints( const std::vector< Math::Vector< 2, float > > & p1, const std::vector< Math::Vector< 2, float > > & p2,
 																			const Math::Matrix< 3, 4, float > & P1, const Math::Matrix< 3, 4, float > & P2, const Math::Matrix< 3, 3, float > & fM )
 {
-	return reconstruct3DPointsImp( p1, p2, P1, P2, fM );
+	return reconstruct3DPointsImpl( p1, p2, P1, P2, fM );
 }
 
 std::vector< Math::Vector< 3, double > > reconstruct3DPoints( const std::vector< Math::Vector< 2, double > > & p1, const std::vector< Math::Vector< 2, double > > & p2,
 																			const Math::Matrix< 3, 4, double > & P1, const Math::Matrix< 3, 4, double > & P2, const Math::Matrix< 3, 3, double > & fM )
 {
-	return reconstruct3DPointsImp( p1, p2, P1, P2, fM );
+	return reconstruct3DPointsImpl( p1, p2, P1, P2, fM );
 }
 
 #endif // HAVE_LAPACK
