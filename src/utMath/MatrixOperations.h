@@ -59,8 +59,6 @@ namespace Ubitrack { namespace Math {
 template< class T > 
 typename T::value_type determinant( const T& mat )
 {
-	namespace ublas = boost::numeric::ublas;
-
 	// make a copy of mat, as the factorization will overwrite the contents	
 	Math::Matrix< 0, 0, typename T::value_type > a( mat );
 	Math::Vector< 0, int > ipiv( a.size1() );
@@ -104,14 +102,14 @@ template< class T > T invert_matrix( const T& m )
  * @param mat a matrix of type M
  * @return the inverted matrix
  */
-template< typename T, typename ST > 
-boost::numeric::ublas::matrix< T, boost::numeric::ublas::column_major, ST > pseudoInvert_matrix( const boost::numeric::ublas::matrix< T, boost::numeric::ublas::column_major, ST >& mat )
+template< typename T, std::size_t M, std::size_t N > 
+Math::Matrix< N, M, T > pseudoInvert_matrix( const Math::Matrix< M, N, T >& mat )
 {
 	namespace ublas = boost::numeric::ublas;
-	typedef ublas::matrix< T, ublas::column_major, ST > M;
-	typedef typename M::size_type size_type;
+	typedef Math::Matrix< M, N, T > MatType;
+	typedef typename MatType::size_type size_type;
 	// make a copy of m, as the factorization will overwrite the contents
-	M a( mat );
+	MatType a( mat );
 	
 	size_type n = mat.size1();
 	size_type m = mat.size2();
@@ -146,7 +144,7 @@ boost::numeric::ublas::matrix< T, boost::numeric::ublas::column_major, ST > pseu
 		a = ublas::prod( U , ublas::subrange( Vt, 0, n, 0, m ) );
 	}
 
-	return M( ublas::trans( a ) );
+	return ublas::trans( a );
 }
 
 #endif // HAVE_LAPACK
