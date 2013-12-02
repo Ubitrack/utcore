@@ -32,8 +32,6 @@
 #ifndef __UBITRACK_MATH_DOWNHILLSIMPLEX_INCLUDED__
 #define __UBITRACK_MATH_DOWNHILLSIMPLEX_INCLUDED__
 
-#include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 
 #include "Optimization.h"

@@ -33,7 +33,6 @@
 #ifndef __UBITRACK_TRACKING_LINEARPOSEMOTIONMODEL_H_INCLUDED__
 #define __UBITRACK_TRACKING_LINEARPOSEMOTIONMODEL_H_INCLUDED__
 
-#include <boost/numeric/ublas/vector.hpp>
 
 namespace Ubitrack { namespace Tracking {
 

@@ -28,11 +28,10 @@
 #ifndef __UBITRACK_MATH_UNSCENTEDTRANSFORM_H_INCLUDED__
 #define __UBITRACK_MATH_UNSCENTEDTRANSFORM_H_INCLUDED__
  
-// #include "Dehomogenization.h"
-#include <utMath/Matrix.h>
+
 #include <utMath/Pose.h>
 #include <utMath/Vector.h>
-// #include "QuaternionRotation.h"
+#include <utMath/Matrix.h>
 #include <utMath/LevenbergMarquardt.h>
 
 // #include <boost/numeric/ublas/matrix_proxy.hpp>

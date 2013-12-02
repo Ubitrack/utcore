@@ -1,12 +1,12 @@
+#include <utCalibration/3DPointReconstruction.h>
+#include <utMath/Functors/Vector3Functors.h>
+#include "../tools.h"
+
 #include <vector>
 #include <iostream>
 
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
-
-#include <utCalibration/3DPointReconstruction.h>
-#include <utMath/Functors/Vector3Functors.h>
-#include "../tools.h"
 
 using namespace Ubitrack;
 namespace ublas = boost::numeric::ublas;

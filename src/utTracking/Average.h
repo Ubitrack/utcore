@@ -32,17 +32,14 @@
  */
 
 // Ubitrack
-#include <utUtil/Exception.h>
-
-// Boost
-#include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/vector.hpp>
-#include <boost/math/constants/constants.hpp>
-
 #include <utMath/Pose.h>
 #include <utMath/ErrorPose.h>
 #include <utMath/Vector.h>
 #include <utMath/ErrorVector.h>
+#include <utUtil/Exception.h>
+
+// Boost
+#include <boost/math/constants/constants.hpp>
 
 namespace Ubitrack { namespace Tracking {
 

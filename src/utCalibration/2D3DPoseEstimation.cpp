@@ -28,32 +28,33 @@
  *
  * @author Daniel Pustka <daniel.pustka@in.tum.de>
  */
+
  
-#include <iostream>
-#include <math.h>
-
-#include <log4cpp/Category.hh>
-#include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/matrix_proxy.hpp>
-#include <boost/numeric/ublas/vector_proxy.hpp>
-
-#include <utMath/MatrixOperations.h>
-#include <utMath/BackwardPropagation.h>
-#include <utCalibration/Homography.h>
-#include <utCalibration/Projection.h>
-
-
 #include "2D3DPoseEstimation.h"
 #include "Function/MultiplePointProjection.h"
 #include "Function/MultiplePointProjectionError.h"
 #include "Function/MultipleCameraProjectionError.h"
 #include "Function/ProjectivePoseNormalize.h"
 
+#include <utMath/MatrixOperations.h>
+#include <utMath/BackwardPropagation.h>
+#include <utCalibration/Homography.h>
+#include <utCalibration/Projection.h>
+
+#include <math.h>
+#include <iostream>
+
+
+#include <boost/numeric/ublas/matrix_proxy.hpp>
+#include <boost/numeric/ublas/vector_proxy.hpp>
+
+
 #ifdef HAVE_LAPACK
 #include <boost/numeric/bindings/lapack/gesvd.hpp>
 #endif
 
 //#define OPTIMIZATION_LOGGING
+// #include <log4cpp/Category.hh>
 //static log4cpp::Category& optLogger( log4cpp::Category::getInstance( "Ubitrack.Calibration.2D3DPoseEstimation" ) );
 #include <utMath/LevenbergMarquardt.h>
 

@@ -33,16 +33,16 @@
 #ifndef _Ubitrack_Math_Quaternion_INCLUDED_
 #define _Ubitrack_Math_Quaternion_INCLUDED_
 
-#include <boost/numeric/ublas/matrix.hpp>
-#include <boost/math/quaternion.hpp>
-
-// WARNING: all boost/serialization headers should be
-//          included AFTER all boost/archive headers
-#include <boost/serialization/access.hpp>
 
 #include <utCore.h>
 #include "Vector.h"
 #include <math.h>
+
+
+// WARNING: all boost/serialization headers should be
+//          included AFTER all boost/archive headers
+#include <boost/serialization/access.hpp>
+#include <boost/math/quaternion.hpp>
 
 namespace Ubitrack { namespace Math {
 

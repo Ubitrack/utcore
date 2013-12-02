@@ -37,7 +37,6 @@
 #include <utMath/Matrix.h>
 
 #ifdef HAVE_LAPACK
-#include <utCalibration/3DPointReconstruction.h>
 
 namespace Ubitrack { namespace Calibration {
 

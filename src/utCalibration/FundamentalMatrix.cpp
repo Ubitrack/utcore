@@ -39,6 +39,7 @@
 #include <boost/numeric/ublas/io.hpp>
 
 #ifdef HAVE_LAPACK
+#include "3DPointReconstruction.h"
 #include <boost/numeric/bindings/lapack/gesvd.hpp>
 
 // shortcuts to namespaces

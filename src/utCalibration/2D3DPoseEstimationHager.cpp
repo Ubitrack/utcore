@@ -41,7 +41,6 @@
 #include <utMath/Functors/VectorNFunctors.h>
 #include <utMath/Functors/Vector3Functors.h>
 
-#include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 
 #include <log4cpp/Category.hh>

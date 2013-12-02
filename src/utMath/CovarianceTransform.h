@@ -31,8 +31,6 @@
 #ifndef __UBITRACK_ERROR_COVARIANCETRANSFORM_H_INCLUDED__
 #define __UBITRACK_ERROR_COVARIANCETRANSFORM_H_INCLUDED__
  
-#include <boost/numeric/ublas/vector.hpp>
-#include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector_proxy.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 #include <boost/numeric/bindings/blas/blas3.hpp>
