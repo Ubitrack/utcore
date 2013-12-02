@@ -72,7 +72,7 @@ void TestProjectionDLT()
 
 		Matrix< 3, 4, float > P( Ubitrack::Calibration::projectionDLT( fromPoints, toPoints ) );
 
-		BOOST_CHECK_SMALL( homMatrixDiff( P, Ptest ), 1e-3 );
+		BOOST_CHECK_SMALL( homMatrixDiff( P, Ptest ), 1e-3f );
 	}
 }
 

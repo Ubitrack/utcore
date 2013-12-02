@@ -72,20 +72,22 @@ double vectorDiff( const VA& va, const VB& vb )
 }
 
 template< class MA, class MB > 
-double homMatrixDiff( const MA& A, const MB& B )
+typename MA::value_type homMatrixDiff( const MA& A, const MB& B )
 {
+
+	typedef typename MA::value_type value_type;
 	// normalize both H and Htest
 	// ublas is evil. Don't try this: Htest /= ublas::norm_frobenius( Htest )
-	double normA = boost::numeric::ublas::norm_frobenius( A );
-	double normB = boost::numeric::ublas::norm_frobenius( B );
+	const value_type normA = boost::numeric::ublas::norm_frobenius( A );
+	const value_type normB = boost::numeric::ublas::norm_frobenius( B );
 	
-	double dp = 0.0; // sum of differences A-B
-	double dm = 0.0; // sum of differences A+B (in case A ~ -B)
+	value_type dp = 0.0; // sum of differences A-B
+	value_type dm = 0.0; // sum of differences A+B (in case A ~ -B)
 	for ( std::size_t i = 0; i < A.size1(); i++ )
 		for ( std::size_t j = 0; j < A.size2(); j++ )
 		{
-			dp += fabs( A( i, j ) / normA - B( i, j ) / normB );
-			dm += fabs( A( i, j ) / normA + B( i, j ) / normB );
+			dp += std::fabs( A( i, j ) / normA - B( i, j ) / normB );
+			dm += std::fabs( A( i, j ) / normA + B( i, j ) / normB );
 		}
 		
 	return std::min( dp, dm );
