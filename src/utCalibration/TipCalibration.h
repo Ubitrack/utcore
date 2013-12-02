@@ -54,6 +54,20 @@ namespace Ubitrack { namespace Calibration {
  * @param pm returns the constant point in body coordinates
  * @param pw returns the constant point in world coordinates
  */
+ void tipCalibrationImpl( const std::vector< Math::Pose >& poses, 
+	Math::Vector< 3, double >& pm, Math::Vector< 3, double >& pw );
+
+/**
+ * @ingroup tracking_algorithms
+ * Computes the tip/hotspot calibration.
+ *
+ * The routine solves the following equation system, given a list of body poses (R_i, t_i):
+ *  (R_i -I) (p_m p_w) = -t_i
+ *
+ * @param poses the list of poses
+ * @param pm returns the constant point in body coordinates
+ * @param pw returns the constant point in world coordinates
+ */
 UBITRACK_EXPORT void tipCalibration( const std::vector< Math::Pose >& poses, 
 	Math::Vector< 3, double >& pm, Math::Vector< 3, double >& pw );
 
