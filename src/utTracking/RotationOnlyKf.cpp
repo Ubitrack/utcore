@@ -51,7 +51,7 @@ namespace Ubitrack { namespace Tracking {
 RotationOnlyKF::RotationOnlyKF()
 {
 	// initialize state
-	m_state.value = ublas::zero_vector< double >( 7 );
+	m_state.value = Math::Vector< 7, double >::zeros();
 	m_state.value( 3 ) = 1;
 	m_state.covariance = ublas::identity_matrix< double >( 7 );
 

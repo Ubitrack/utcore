@@ -51,7 +51,7 @@ RotationHecKalmanFilter::RotationHecKalmanFilter()
 void RotationHecKalmanFilter::addMeasurement( const Math::Quaternion& a, const Math::Quaternion& b )
 {
 	Math::ErrorVector< 4 > kalmanMeasurement;
-	kalmanMeasurement.value = ublas::zero_vector< double >( 4 );
+	kalmanMeasurement.value = Math::Vector< 4, double >::zeros();
 	kalmanMeasurement.covariance = ublas::identity_matrix< double >( 4 ) * 1e-2;
 	// TODO: for error propagation use RotHecCombine
 

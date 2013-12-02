@@ -63,7 +63,7 @@ Math::Matrix< 6, 6 > unscentedTransform(
 
 	// First guess of parameters
 	// TODO: better values than zero?
-	Math::Vector< 0, VType > params = ublas::zero_vector< VType >( 7 );
+	Math::Vector< 7, VType > params = Math::Vector< 7, VType >::zeros();
 	// Avoid degenerate (absolute value of zero) quaternion
 	params( 4 ) = 1;
 
@@ -94,7 +94,7 @@ Math::Matrix< 6, 6 > unscentedTransform(
 		sigmaSet[ i ] += stddev;
 
 		// Reset parameters
-		params = ublas::zero_vector< VType >( 7 );
+		params = Math::Vector< 7, VType >::zeros();
 		params( 4 ) = 1;
 
 		// LevenbergMarquadt on disturbed set
@@ -112,7 +112,7 @@ Math::Matrix< 6, 6 > unscentedTransform(
 		sigmaSet[ i ] -= stddev;
 
 		// Reset parameters
-		params = ublas::zero_vector< VType >( 7 );
+		params = Math::Vector< 7, VType >::zeros();
 		params( 4 ) = 1;
 
 		// LevenbergMarquadt on disturbed set
@@ -129,7 +129,7 @@ Math::Matrix< 6, 6 > unscentedTransform(
 	// std::cout << std::endl;
 	
 	// Compute average pose
-	Math::Vector< 7 > avgPose( ublas::zero_vector< double >( 7 ) );
+	Math::Vector< 7, double > avgPose( Math::Vector< 7, double >::zeros(); );
 	for ( typename std::vector< Math::Vector< 0, VType > >::iterator it = optimizedParameters.begin();
 			it != optimizedParameters.end(); it++ )
 	{

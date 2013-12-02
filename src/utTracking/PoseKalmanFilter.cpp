@@ -79,7 +79,7 @@ namespace Ubitrack { namespace Tracking {
 PoseKalmanFilter::PoseKalmanFilter( const LinearPoseMotionModel& motionModel, bool bInsideOut )
 	: m_motionModel( motionModel )
 	, m_bInsideOut( bInsideOut )
-	, m_state( ublas::zero_vector< double >( motionModel.stateSize() ) )
+	, m_state( Math::Vector< 0, double >::zeros( motionModel.stateSize() ) )
 	, m_covariance( ublas::identity_matrix< double >( motionModel.stateSize() ) )
 	, m_time( 0 )
 {
@@ -249,7 +249,7 @@ void PoseKalmanFilter::normalize()
 		if ( ublas::norm_2( ublas::subrange( m_state, iR + 4, iR + 7 ) ) > 10.0 )
 		{
 			LOG4CPP_NOTICE( logger, "Kalman Filter orientation instability detected. Resetting orientation derivatives." );
-			ublas::subrange( m_state, iR + 4, m_state.size() ) = ublas::zero_vector< double >( 3 * m_motionModel.oriOrder() );
+			ublas::subrange( m_state, iR + 4, m_state.size() ) = Math::Vector< 0, double >::zeros( 3 * m_motionModel.oriOrder() );
 		}
 	}
 	
@@ -258,7 +258,7 @@ void PoseKalmanFilter::normalize()
 		if ( fabs( m_state( 0 ) ) > 1e3 || fabs( m_state( 1 ) ) > 1e3 || fabs( m_state( 2 ) ) > 1e3 )
 		{
 			LOG4CPP_NOTICE( logger, "Kalman Filter position instability detected. Resetting." );
-			m_state = ublas::zero_vector< double >( m_motionModel.stateSize() );
+			m_state = Math::Vector< 0, double >::zeros( m_motionModel.stateSize() );
 			m_covariance = ublas::identity_matrix< double >( m_motionModel.stateSize() );
 			m_time = 0;
 		}

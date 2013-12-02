@@ -104,7 +104,7 @@ template<>
 Math::ErrorVector< 3 > Average< Math::Vector< 3 >, Math::ErrorVector< 3 > >::mean( const std::vector< Math::Vector< 3 > > &eList )
 {
 	size_t size = eList.size();
-	Math::Vector< 0, double > m_mean = ublas::zero_vector< double >( 3 );
+	Math::Vector< 3, double > m_mean( Math::Vector< 3, double >::zeros() );
 	Math::Matrix< 3, 3, double > m_outProd ( Math::Matrix< 3, 3, double >::zeros() );
 
 	for (size_t i = 0; i < size; i++)
@@ -278,7 +278,7 @@ Math::ErrorPose Average< Math::Pose, Math::ErrorPose >::mean( const std::vector<
 {
 	size_t size = eList.size();
 	
-	meanv = ublas::zero_vector< double >( 7 );
+	meanv = Math::Vector< 7, double >::zeros();
 	outProd = Math::Matrix< 7, 7, double >::zeros();
 
 	m_counter = 1;
@@ -293,7 +293,7 @@ Math::ErrorPose Average< Math::Pose, Math::ErrorPose >::mean( const std::vector<
 	Math::Vector< 3 > p_mean ( 0.0, 0.0, 0.0 );
 	Math::Quaternion q_mean ( 0.0, 0.0, 0.0, 0.0 );
 	
-	Math::Vector< 0, double > m_mean = ublas::zero_vector< double >( 7 );
+	Math::Vector< 0, double > m_mean = Math::Vector< 7, double >::zeros();
 	Math::Matrix< 7, 7, double > m_outProd = Math::Matrix< 7, 7, double >::zeros();
 	
 	for( unsigned i = 0; i < size; i++ )

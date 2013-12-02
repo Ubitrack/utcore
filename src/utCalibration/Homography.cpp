@@ -127,7 +127,7 @@ Math::Matrix< 3, 3, T > squareHomographyImpl( const std::vector< Math::Vector< 2
 	
 	// subtract mean from points
 	Math::Vector< 2, T > c[ 4 ];
-	Math::Vector< 2, T > mean( ublas::zero_vector< T >( 2 ) );
+	Math::Vector< 2, T > mean( Math::Vector< 2, T >::zeros() );
 	for ( std::size_t i ( 0 ); i < 4; ++i )
 		mean = mean + corners[ i ];
 	mean /= 4;
