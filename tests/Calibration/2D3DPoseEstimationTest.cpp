@@ -29,8 +29,8 @@ void TestOptimizePose( const std::size_t n_runs, const T epsilon )
 	typename Random::Quaternion< T >::Uniform randQuat;
 	typename Random::Vector< 3, T >::Uniform randVector( -0.5, 0.5 ); // 3d Points
 	typename Random::Vector< 3, T >::Uniform randTranslation( -100, 100 ); //translation
-	// typename Random::Vector< 3, T >::Normal randPositionNoise( 0, 0.2 ); // translation gaussian noise
-	typename Random::Vector< 3, T >::Uniform randPositionNoise( -0.3, 0.3 ); // translation uniform noise
+	typename Random::Vector< 3, T >::Normal randPositionNoise( 0, 0.2 ); // translation gaussian noise
+	// typename Random::Vector< 3, T >::Uniform randPositionNoise( -0.3, 0.3 ); // translation uniform noise
 	
 	
 	for ( std::size_t iRun = 0; iRun < n_runs; iRun++ )
@@ -42,12 +42,12 @@ void TestOptimizePose( const std::size_t n_runs, const T epsilon )
 		
 		// random pose
 		Quaternion rot( randQuat( ) );
-		Vector< 3, T > trans ( Random::distribute_uniform< T, 3 >( -100, 100 ) );
+		Vector< 3, T > trans ( randTranslation() );
 		trans( 2 ) = Random::distribute_uniform< T >( 10, 100 );
 		
 		// some random 3d points
 		// const std::size_t n( 15 );
-		const std::size_t n( Random::distribute_uniform< std::size_t >( 15, 20 ) );
+		const std::size_t n( Random::distribute_uniform< std::size_t >( 10, 50 ) );
 		
 		
 		std::vector< Ubitrack::Math::Vector< 3, T > > p3D;
@@ -86,5 +86,6 @@ void TestOptimizePose( const std::size_t n_runs, const T epsilon )
 void Test2D3DPoseEstimation()
 {
 	TestOptimizePose< double >( 1000, 1e-3 );
+	// TestOptimizePose< float >( 1000, 1e-2f );
 }
 
