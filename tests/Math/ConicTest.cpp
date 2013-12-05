@@ -73,7 +73,7 @@ void testBasicConicFunctors( const std::size_t n )
 	eccentricities.reserve( n );
 	std::transform( conics.begin(), conics.end(), std::back_inserter( eccentricities ), Geometry::ConicEccentricity< T >() );
 
-	// calculate conic determinantes
+	// calculate conic determinants
 	std::vector< T > conic_areas;
 	conic_areas.reserve( n );
 	std::transform( conics.begin(), conics.end(), std::back_inserter( conic_areas ), Geometry::ConicArea< T >() );
@@ -89,14 +89,7 @@ void testBasicConicFunctors( const std::size_t n )
 	std::transform( conics.begin(), conics.end(), std::back_inserter( translated_conics ), Geometry::TranslateConic< T >() );
 	*/
 
-	// next steps are even more useless, just check if they compile
-	std::size_t n_c = std::count_if( conics.begin(), conics.end(), Geometry::IsConicCircle< T >() );
-	std::size_t n_d = std::count_if( conics.begin(), conics.end(), Geometry::IsConicDegenerate< T >() );
-	std::size_t n_e = std::count_if( conics.begin(), conics.end(), Geometry::IsConicEllipse< T >() );
-	std::size_t n_p = std::count_if( conics.begin(), conics.end(), Geometry::IsConicParabola< T >() );
-
-	std::cout << "Conics " << n_c << " " << n_d << " " << n_e << " " << n_p << std::endl;
-
+	
 	// estimate conics' upper and lower limit
 	std::vector< Ubitrack::Math::Vector< 2, T > > conic_ull;
 	conic_ull.reserve( n );
@@ -106,6 +99,19 @@ void testBasicConicFunctors( const std::size_t n )
 	std::vector< Ubitrack::Math::Vector< 2, T > > conic_lrl;
 	conic_lrl.reserve( n );
 	std::transform( conics.begin(), conics.end(), std::back_inserter( conic_lrl ), Geometry::ConicLeftRightLimit< T >() );
+
+	std::transform( conics.begin(), conics.end(), conics.begin(), Ubitrack::Math::Functors::NormalizeVector< 6, T >() );
+	
+	// next steps are even more useless, just check if they compile
+	std::size_t n_c = std::count_if( conics.begin(), conics.end(), Geometry::IsConicCircle< T >() );
+	std::size_t n_d = std::count_if( conics.begin(), conics.end(), Geometry::IsConicDegenerate< T >() );
+	std::size_t n_e = std::count_if( conics.begin(), conics.end(), Geometry::IsConicEllipse< T >() );
+	std::size_t n_h = std::count_if( conics.begin(), conics.end(), Geometry::IsConicHyperbola< T >() );
+	std::size_t n_p = std::count_if( conics.begin(), conics.end(), Geometry::IsConicParabola< T >() );
+
+	// std::cout << "Conics " << n_c << " " << n_d << " " << n_e << " " << n_h << " " << n_p << std::endl;
+	const std::size_t n_sum = n_c + n_d + n_e + n_h + n_p;
+	BOOST_CHECK( n_sum >= n );
 
 }
 
