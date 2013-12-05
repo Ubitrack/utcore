@@ -55,7 +55,7 @@
 
 //#define OPTIMIZATION_LOGGING
 // #include <log4cpp/Category.hh>
-//static log4cpp::Category& optLogger( log4cpp::Category::getInstance( "Ubitrack.Calibration.2D3DPoseEstimation" ) );
+// static log4cpp::Category& optLogger( log4cpp::Category::getInstance( "Ubitrack.Calibration.2D3DPoseEstimation" ) );
 #include <utMath/LevenbergMarquardt.h>
 
 
@@ -67,33 +67,37 @@ namespace Ubitrack { namespace Calibration {
 
 /** \internal */
 template< typename T >
-Math::Pose poseFromHomographyImpl( const Matrix< 3, 3, T > H, const Matrix< 3, 3, T > invK )
+Math::Pose poseFromHomographyImpl( const Matrix< 3, 3, T >& H, const Matrix< 3, 3, T >& invK )
 {
 	// compute R = K^-1 H
-	Matrix< 3, 3 > R( ublas::prod( invK, H ) );
+	Matrix< 3, 3, T > R( ublas::prod( invK, H ) );
 	
-	// make sure the z-coordinate is negative
-	if ( R( 2, 2 ) > 0 )
+	// CW@2013-12-03 changed this lately from negative to positive
+	// due to serious problems in the estimation of poses.
+	// still do not know what is correct: positive or negative?
+	// all my tests seem to point to positive, therefore :
+	// make sure the z-coordinate is positive
+	if ( R( 2, 2 ) < 0 )
 		R *= -1.0;
 
 	// compute length of the first two colums
-	double fXLen = ublas::norm_2( ublas::column( R, 0 ) );
-	double fYLen = ublas::norm_2( ublas::column( R, 1 ) );
+	const T fXLen = ublas::norm_2( ublas::column( R, 0 ) );
+	const T fYLen = ublas::norm_2( ublas::column( R, 1 ) );
 	
 	// copy & normalize translation
-	double fTransScale = 2.0f / ( fXLen + fYLen );
-	Vector< 3 > t( ublas::column( R, 2 ) * fTransScale );
+	const T fTransScale = 2.0f / ( fXLen + fYLen );
+	Vector< 3, T > t( ublas::column( R, 2 ) * fTransScale );
 		
 #if defined( HAVE_LAPACK ) && !defined( __APPLE__ ) // APPLE vecLib sucks
 
 	// perform svd-based orthogonalization
-	Math::Matrix< 3, 3 > u;
-	Math::Matrix< 3, 3 > right;
-	Math::Vector< 2 > s;
-	ublas::matrix_range< Matrix< 3, 3 > > Rleft( R, ublas::range( 0, 3 ), ublas::range( 0, 2 ) );
-	ublas::matrix_range< Matrix< 3, 3 > > vt( right, ublas::range( 0, 2 ), ublas::range( 0, 2 ) );
+	Math::Matrix< 3, 3, T > u;
+	Math::Matrix< 3, 3, T > right;
+	Math::Vector< 3, T > s; // <- was previously set to 2, does  not make sense in my opinion. (unfortunately I could not find a paper about this)
+	ublas::matrix_range< Matrix< 3, 3, T > > Rleft( R, ublas::range( 0, 3 ), ublas::range( 0, 2 ) );
+	ublas::matrix_range< Matrix< 3, 3, T > > vt( right, ublas::range( 0, 2 ), ublas::range( 0, 2 ) );
 	boost::numeric::bindings::lapack::gesvd( 'A', 'A', Rleft, s, u, vt );
-
+	
 	right( 0, 2 ) = right( 1, 2 ) = 0;
 	right( 2, 0 ) = right( 2, 1 ) = 0;
 	right( 2, 2 ) = Math::determinant( vt ) * Math::determinant( u ); // should be -1 or +1
@@ -109,7 +113,7 @@ Math::Pose poseFromHomographyImpl( const Matrix< 3, 3, T > H, const Matrix< 3, 3
 	ublas::column( R, 2 ) = cross_prod( ublas::column( R, 0 ), ublas::column( R, 1 ) );
 	
 	// normalize cross product
-	double fZLen = ublas::norm_2( ublas::column( R, 2 ) );
+	const T fZLen = ublas::norm_2( ublas::column( R, 2 ) );
 	ublas::column( R, 2 ) /= fZLen;
 	
 	// recompute y vector from x and z
@@ -120,12 +124,12 @@ Math::Pose poseFromHomographyImpl( const Matrix< 3, 3, T > H, const Matrix< 3, 3
 	return Pose( Quaternion( R ), t );
 }
 
-Math::Pose poseFromHomography( const Math::Matrix< 3, 3, float > H, const Math::Matrix< 3, 3, float > invK )
+Math::Pose poseFromHomography( const Math::Matrix< 3, 3, float >& H, const Math::Matrix< 3, 3, float >& invK )
 {
 	return poseFromHomographyImpl( H, invK );
 }
 
-Math::Pose poseFromHomography( const Math::Matrix< 3, 3, double > H, const Math::Matrix< 3, 3, double > invK )
+Math::Pose poseFromHomography( const Math::Matrix< 3, 3, double >& H, const Math::Matrix< 3, 3, double >& invK )
 {
 	return poseFromHomographyImpl( H, invK );
 }

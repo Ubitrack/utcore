@@ -51,9 +51,9 @@ namespace Ubitrack { namespace Calibration {
  * @param invK the inverse of the camera intrinsics matrix K that maps camera coordinates to image coordinates
  * @return the camera pose
  */
-UBITRACK_EXPORT Math::Pose poseFromHomography( const Math::Matrix< 3, 3, float > H, const Math::Matrix< 3, 3, float > invK );
+UBITRACK_EXPORT Math::Pose poseFromHomography( const Math::Matrix< 3, 3, float >& H, const Math::Matrix< 3, 3, float >& invK );
 
-UBITRACK_EXPORT Math::Pose poseFromHomography( const Math::Matrix< 3, 3, double > H, const Math::Matrix< 3, 3, double > invK );
+UBITRACK_EXPORT Math::Pose poseFromHomography( const Math::Matrix< 3, 3, double >& H, const Math::Matrix< 3, 3, double >& invK );
 
 
 #ifdef HAVE_LAPACK
