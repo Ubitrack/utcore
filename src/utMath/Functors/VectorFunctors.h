@@ -130,9 +130,9 @@ public:
 
 	Ubitrack::Math::Vector< 2, T > operator() ( const Ubitrack::Math::Vector< 2, T > &vec ) const
 	{
-		const T e1 = m_projection( 0, 0 ) * vec( 0 ) + m_projection( 0, 1 ) * vec( 1 ) + m_projection( 0, 2 );
-		const T e2 = m_projection( 1, 0 ) * vec( 0 ) + m_projection( 1, 1 ) * vec( 1 ) + m_projection( 1, 2 );
-		const T e3 = m_projection( 2, 0 ) * vec( 0 ) + m_projection( 2, 1 ) * vec( 1 ) + m_projection( 2, 2 );
+		const T e1 = m_projection( 0, 0 ) * vec( 0 ) + m_projection( 0, 1 ) * vec( 1 ) + m_projection( 0, 3 );
+		const T e2 = m_projection( 1, 0 ) * vec( 0 ) + m_projection( 1, 1 ) * vec( 1 ) + m_projection( 1, 3 );
+		const T e3 = m_projection( 2, 0 ) * vec( 0 ) + m_projection( 2, 1 ) * vec( 1 ) + m_projection( 2, 3 );
 		return Ubitrack::Math::Vector< 2, T > ( e1/e3, e2/e3 );
 	}
 	
