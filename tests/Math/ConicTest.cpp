@@ -41,7 +41,7 @@ void testBasicConicFunctors( const std::size_t n )
 
 	//check if conic is still the same
 	for( std::size_t i( 0 ); i<n; ++i )
-		BOOST_CHECK_SMALL( vectorDiff( conics_again[ i ], conics[ i ] ), 10e-20 );
+		BOOST_CHECK_SMALL( vectorDiff( conics_again[ i ], conics[ i ] ), static_cast< T > ( 10e-20 ) );
 
 	// invert conics
 	std::vector< Ubitrack::Math::Vector< 6, T > > inv_conics;

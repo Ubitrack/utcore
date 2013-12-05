@@ -95,9 +95,9 @@ void TestDecomposeProjection()
 		Ubitrack::Calibration::decomposeProjection( kEst, rEst, tEst, p );
 		
 		// check
-		BOOST_CHECK_SMALL( matrixDiff( k, kEst ), 1e-3 );
-		BOOST_CHECK_SMALL( matrixDiff( r, rEst ), 1e-3 );
-		BOOST_CHECK_SMALL( vectorDiff( t, tEst ), 1e-3 );
+		BOOST_CHECK_SMALL( matrixDiff( k, kEst ), 1e-3f );
+		BOOST_CHECK_SMALL( matrixDiff( r, rEst ), 1e-3f );
+		BOOST_CHECK_SMALL( vectorDiff( t, tEst ), 1e-3f );
 	}
 }
 

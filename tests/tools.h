@@ -53,9 +53,10 @@ Ubitrack::Math::Vector< N, T > randomVector( T maxVal = 100.0 )
 }
 
 template< class MA, class MB > 
-double matrixDiff( const MA& ma, const MB& mb )
+typename MA::value_type matrixDiff( const MA& ma, const MB& mb )
 {
-	double d = 0.0;
+	typedef typename MA::value_type return_type;
+	return_type d = 0.0;
 	for ( std::size_t i = 0; i < ma.size1(); i++ )
 		for ( std::size_t j = 0; j < ma.size2(); j++ )
 			d += fabs( ma( i, j ) - mb( i, j ) );
@@ -63,9 +64,10 @@ double matrixDiff( const MA& ma, const MB& mb )
 }
 
 template< class VA, class VB > 
-double vectorDiff( const VA& va, const VB& vb )
+typename VA::value_type vectorDiff( const VA& va, const VB& vb )
 {
-	double d = 0.0;
+	typedef typename VA::value_type return_type;
+	return_type d = 0.0;
 	for ( std::size_t i = 0; i < va.size(); i++ )
 		d += fabs( va( i ) - vb( i ) );
 	return d / boost::numeric::ublas::norm_2( va );
