@@ -510,7 +510,7 @@ public:
 	 * @tparam T type of conic ( e.g. \c double or \c float )
 	 * @param epsilon the minimal error to be tolerated for b being zero
 	 */
-	IsConicCircle( const T error = static_cast< T > ( 0.01 ) )
+	IsConicCircle( const T error = static_cast< T > ( 1e-3 ) )
 		: std::unary_function< Math::Vector< 6, T >, bool >( )
 		, m_error( error )
 	{ }
@@ -562,7 +562,7 @@ public:
 	 * @tparam T type of conic ( e.g. \c double or \c float )
 	 * @param epsilon the minimal error to be tolerated for the determinant
 	 */
-	IsConicDegenerate( const T epsilon = static_cast< T > ( 1e-5 ) )
+	IsConicDegenerate( const T epsilon = static_cast< T > ( 1e-3 ) )
 		: std::unary_function< Math::Vector< 6, T >, bool >()
 		, m_epsilon( epsilon )
 		, m_determiner( )
@@ -570,7 +570,7 @@ public:
 	
 	/**
 	 * @ingroup math
-	 * Calculates if a conic is degenerated, by calcualting the detereminant.
+	 * Calculates if a conic is degenerated, by calculating the determinant.
 	 *
 	 * @param conic the input conic
 	 * @return signs if conic is degenerate or not
@@ -603,8 +603,35 @@ public:
 	 */
 	bool operator() ( const Math::Vector< 6, T > &conic ) const
 	{
-		//ellipses must statisfy : bb-4ac < 0 
+		//ellipses must satisfy : bb-4ac < 0 
 		return ( conic( 1 ) * conic( 1 ) - 4 * conic( 0 ) * conic( 2 ) ) < 0 ? true : false;
+	}
+};
+
+/**
+ * @ingroup math
+ * Signs if conic is an hyperbola.
+ *
+ * This functor class can be applied to STL-containers
+ * of conics via a STL-algorithms.
+ */
+template< typename T >
+struct IsConicHyperbola
+	: public std::unary_function< Math::Vector< 6, T >, bool >
+{
+public:
+	/**
+	 * @ingroup math
+	 * Signs if conic is an hyperbola.
+	 *
+	 * @tparam T type of conic ( e.g. \c double or \c float )
+	 * @param conic the input conic
+	 * @return flag if conic is hyperbola or not 
+	 */
+	bool operator() ( const Math::Vector< 6, T > &conic ) const
+	{
+		//ellipses must satisfy : bb-4ac > 0 
+		return ( conic( 1 ) * conic( 1 ) - 4 * conic( 0 ) * conic( 2 ) ) > 0 ? true : false;
 	}
 };
 
@@ -631,7 +658,7 @@ public:
 	 * @tparam T type of conic ( e.g. \c double or \c float )
 	 * @param epsilon tolerance value for accepting a conic as parabola
 	 */
-	IsConicParabola( const T epsilon = 1e-5 )
+	IsConicParabola( const T epsilon = 1e-2 )
 		: std::unary_function< Math::Vector< 6, T >, bool >()
 		, m_epsilon( epsilon )
 		{}
@@ -646,7 +673,7 @@ public:
 	 */
 	bool operator() ( const Math::Vector< 6, T > &conic ) const
 	{
-		// parabola statisfy : bb-4ac == 0 
+		// parabola satisfy : bb-4ac == 0 
 		// epsilon is applied since it might never be exactly zero
 		return std::fabs( conic( 1 ) * conic( 1 ) - 4 * conic( 0 ) * conic( 2 ) ) < m_epsilon;
 	}
