@@ -93,7 +93,10 @@ Math::Pose poseFromHomographyImpl( const Matrix< 3, 3, T >& H, const Matrix< 3, 
 	// perform svd-based orthogonalization
 	Math::Matrix< 3, 3, T > u;
 	Math::Matrix< 3, 3, T > right;
-	Math::Vector< 3, T > s; // <- was previously set to 2, does  not make sense in my opinion. (unfortunately I could not find a paper about this)
+	Math::Vector< 2, T > s;
+	//CW@2013-12-06:
+	// last change was wrong, s needs to be set to 2
+	// actually the svd looks like: R_3x2 * S_2 * Vt_2x2, although matrices are 3x3
 	ublas::matrix_range< Matrix< 3, 3, T > > Rleft( R, ublas::range( 0, 3 ), ublas::range( 0, 2 ) );
 	ublas::matrix_range< Matrix< 3, 3, T > > vt( right, ublas::range( 0, 2 ), ublas::range( 0, 2 ) );
 	boost::numeric::bindings::lapack::gesvd( 'A', 'A', Rleft, s, u, vt );
