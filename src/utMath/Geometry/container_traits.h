@@ -61,7 +61,7 @@ struct is_same< typeA, typeA >
 // can be used as well a simple value_type is not enough
 // -> therefore designed an own container_traits struct
 // might be moved later to another location, meant only for internal use
-template< typename iter_type, typename category = std::iterator_traits< iter_type >::iterator_category >
+template< typename iter_type, typename category = typename std::iterator_traits< iter_type >::iterator_category >
 struct container_traits
 {
 	typedef typename std::iterator_traits< iter_type >::value_type value_type;

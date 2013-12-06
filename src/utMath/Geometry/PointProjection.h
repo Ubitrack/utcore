@@ -145,6 +145,7 @@ public:
 template< typename T, std::size_t M, std::size_t N, typename ForwardIterator1, typename ForwardIterator2 >
 inline void project_points( const Math::Matrix< M, N, T > &projection, const ForwardIterator1 iBegin, const ForwardIterator1 iEnd, ForwardIterator2 iOut )
 {
+
 	// determine the types of the iterators.
 	// Since output iterators (e.g. std::back_insert_itertator via std::back_inserter)
 	// can be used as well a simple value_type is not enough
@@ -153,7 +154,7 @@ inline void project_points( const Math::Matrix< M, N, T > &projection, const For
 	typedef typename Ubitrack::Util::container_traits< ForwardIterator2 >::value_type vector_type_out;
 	typedef typename vector_type_in::value_type value_type_in;
 	typedef typename vector_type_out::value_type value_type_out;
-	
+
 	UBITRACK_STATIC_ASSERT( ( (M == 3) && (N == 4) ), EXPECTS_3_BY_4_PROJECTION_MATRIX );
 	UBITRACK_STATIC_ASSERT( ( Ubitrack::Util::is_same< value_type_in, T >::value ), MATRIX_AND_VECTORS_NEED_SAME_BUILTIN_TYPE ); // e.g. only float or only double
 	UBITRACK_STATIC_ASSERT( ( Ubitrack::Util::is_same< value_type_in, value_type_out >::value ), INPUT_AND_OUTPUT_VECTOR_NEED_SAME_BUILTIN_TYPE );

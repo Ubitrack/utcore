@@ -164,7 +164,7 @@ public:
 		const T e1 = transMat( 0, 0 ) * vec( 0 ) + transMat( 0, 1 ) * vec( 1 ) + transMat( 0, 2 ) * vec( 2 ) + transMat( 0, 3 );
 		const T e2 = transMat( 1, 0 ) * vec( 0 ) + transMat( 1, 1 ) * vec( 1 ) + transMat( 1, 2 ) * vec( 2 ) + transMat( 1, 3 );
 		const T e3 = transMat( 2, 0 ) * vec( 0 ) + transMat( 2, 1 ) * vec( 1 ) + transMat( 2, 2 ) * vec( 2 ) + transMat( 2, 3 );
-		const T e4 = transMat( 3, 0 ) * vec( 0 ) + transMat( 3, 1 ) * vec( 1 ) + transMat( 3, 3 ) * vec( 2 ) + transMat( 3, 3 );
+		const T e4 = transMat( 3, 0 ) * vec( 0 ) + transMat( 3, 1 ) * vec( 1 ) + transMat( 3, 2 ) * vec( 2 ) + transMat( 3, 3 );
 		return Math::Vector< 4, T > ( e1, e2, e3, e4 );
 	}
 	
@@ -225,6 +225,7 @@ public:
 template< typename T, std::size_t M, std::size_t N, typename ForwardIterator1, typename ForwardIterator2 >
 inline void transform_points( const Math::Matrix< M, N, T > &transformation, const ForwardIterator1 iBegin, const ForwardIterator1 iEnd, ForwardIterator2 iOut )
 {
+
 	// determine the types of the iterators.
 	// Since output iterators (e.g. std::back_insert_itertator via std::back_inserter)
 	// can be used as well a simple value_type is not enough
@@ -233,7 +234,7 @@ inline void transform_points( const Math::Matrix< M, N, T > &transformation, con
 	typedef typename Ubitrack::Util::container_traits< ForwardIterator2 >::value_type vector_type_out;
 	typedef typename vector_type_in::value_type value_type_in;
 	typedef typename vector_type_out::value_type value_type_out;
-	
+		
 	UBITRACK_STATIC_ASSERT( (((M == 2) && (N == 3)) || ((M == 3) && (N == 3)) || ((M == 3) && (N == 4)) || ((M == 4) && (N == 4))), USING_A_NON_STANDARD_TRANSFORMATION_MATRIX );
 	UBITRACK_STATIC_ASSERT( (Ubitrack::Util::is_same< value_type_in, T >::value ), MATRIX_AND_VECTORS_NEED_SAME_BUILTIN_TYPE ); // e.g. only float or only double
 	UBITRACK_STATIC_ASSERT( (Ubitrack::Util::is_same< value_type_in, value_type_out >::value ), INPUT_AND_OUTPUT_VECTOR_NEED_SAME_BUILTIN_TYPE );

@@ -24,18 +24,19 @@ void testBasicPointTransformations( const std::size_t n )
 	// random pose
 	Quaternion rot( randQuat( ) );
 	Vector< 3, T > trans ( randTranslation() );
-	
+
 	// transformation matrices
 	Matrix< 4, 4, T > mat4x4( rot, trans );
 	Matrix< 3, 4, T > mat3x4( rot, trans );
 	Matrix< 3, 3, T > mat3x3( rot );
+
 	// following matrix set to identity -> boring
 	Matrix< 2, 3, T > mat2x3; 
 	mat2x3( 0, 0 ) = mat2x3( 1, 1 ) =  1;
 	mat2x3( 0, 1 ) = mat2x3( 1, 0 ) =  0;
 	mat2x3( 0, 2 ) = trans( 0 );
 	mat2x3( 1, 2 ) = trans( 1 );
-	mat2x3( 2, 2 ) = trans( 2 );
+
 	{
 		// random 3D parameters (as 2D vector, last dimension as one)
 		typename Random::Vector< 2, T >::Uniform randPoints2D( -5, 5 ); 
