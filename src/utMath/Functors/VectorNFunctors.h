@@ -52,22 +52,22 @@ namespace Ubitrack { namespace Math { namespace Functors {
 /**
  * @ingroup math
  * Functor Class for STL algorithms.
- * Calculates the inner product of a given Math::Vector< N, T >
+ * Calculates the inner product of a given Math::Vector< T, N >
  */
  
 template< unsigned N, typename T >
 struct inner_product
-	: public std::unary_function< Math::Vector< N, T >, T >
+	: public std::unary_function< Math::Vector< T, N > , T >
 {
 public:
 	/**
 	 * @ingroup math
-	 * Calculates the inner product of a given Math::Vector< N, T >
+	 * Calculates the inner product of a given Math::Vector< T, N >
 	 *
 	 * @param v the input vector
 	 * @return inner product of the vector v
 	 */
-    T operator() ( const Math::Vector< N, T > &vec ) const
+    T operator() ( const Math::Vector< T, N > &vec ) const
     {
 		return static_cast< T > ( boost::numeric::ublas::inner_prod( vec, vec ) );
     }
@@ -76,24 +76,24 @@ public:
 /**
  * @ingroup math
  * Functor Class for STL algorithms.
- * Calculates the outer product of a Math::Vector< N, T >.
+ * Calculates the outer product of a Math::Vector< T, N >.
  */
 
 template< unsigned N, typename T >
 struct outer_product
-	: public std::unary_function< Math::Vector< N, T >, Math::Matrix< N, N, T > >
+	: public std::unary_function< Math::Vector< T, N >, Math::Matrix< N, N, T > >
 {
 public:
 	/**
 	 * @ingroup math
-	 * Calculates the outer product of a Math::Vector< N, T >.
+	 * Calculates the outer product of a Math::Vector< T, N >.
 	 *
 	 * The outer product is given as op = v * v^t.
 	 *
 	 * @param v the vector
 	 * @return outer product of vector v
 	 */
-	Math::Matrix< N, N, T > operator() ( const Math::Vector< N, T >& vec ) const
+	Math::Matrix< N, N, T > operator() ( const Math::Vector< T, N >& vec ) const
     {
 		return boost::numeric::ublas::outer_prod( vec, vec );
 	}
@@ -103,17 +103,17 @@ public:
 /**
  * @ingroup math
  * Functor Class for STL algorithms.
- * Calculates the outer product of two Math::Vector< N, T >.
+ * Calculates the outer product of two Math::Vector< T, N >.
  */
 
 template< unsigned N, typename T >
 struct distinct_outer_product
-	: public std::binary_function< Math::Vector< N, T >, Math::Vector< N, T >, Math::Matrix< N, N, T > >
+	: public std::binary_function< Math::Vector< T, N >, Math::Vector< T, N >, Math::Matrix< N, N, T > >
 {
 public:
 	/**
 	 * @ingroup math
-	 * Calculates the outer product of two Math::Vector< N, T > u and v.
+	 * Calculates the outer product of two Math::Vector< T, N > u and v.
 	 *
 	 * The outer product is given as op = u * v^t.
 	 *
@@ -121,7 +121,7 @@ public:
 	 * @param v the second vector
 	 * @return outer product of v and u
 	 */
-	Math::Matrix< N, N, T > operator() ( const Math::Vector< N, T >& v, const Math::Vector< N, T >& u ) const
+	Math::Matrix< N, N, T > operator() ( const Math::Vector< T, N >& v, const Math::Vector< T, N >& u ) const
     {
 		return boost::numeric::ublas::outer_prod( u, v );
 	}
@@ -130,17 +130,17 @@ public:
 /**
  * @ingroup math
  * Functor Class for STL algorithms.
- * Calculates the weighted outer product of a Math::Vector< N, T >.
+ * Calculates the weighted outer product of a Math::Vector< T, N >.
  */
  
 template< unsigned N, typename T >
 struct outer_product_weighted
-	: public std::binary_function< Math::Vector< N, T >, T, Math::Matrix< N, N, T > >
+	: public std::binary_function< Math::Vector< T, N >, T, Math::Matrix< N, N, T > >
 {
 public:
 	/**
 	 * @ingroup math
-	 * Calculates the weighted outer product of a Math::Vector< N, T >.
+	 * Calculates the weighted outer product of a Math::Vector< T, N >.
 	 *
 	 * The weighted outer product is given as op = ( v * v^t ) * w.
 	 *
@@ -148,9 +148,9 @@ public:
 	 * @param w weight of the vector v.
 	 * @return outer product of weighted vector v
 	 */
-    Math::Matrix< N, N, T > operator() ( const Math::Vector< N, T > &v, const T w ) const
+    Math::Matrix< N, N, T > operator() ( const Math::Vector< T, N > &v, const T w ) const
     {
-		Math::Vector< N, T > v_tmp = v * w;
+		Math::Vector< T, N > v_tmp = v * w;
 		return boost::numeric::ublas::outer_prod( v_tmp, v );
     }
 };
@@ -188,7 +188,7 @@ public:
 
 template< unsigned N, typename T >
 struct difference_vector
-	: public std::binary_function< Math::Vector< N, T >, Math::Vector< N, T >, Math::Vector< N, T > >
+	: public std::binary_function< Math::Vector< T, N >, Math::Vector< T, N >, Math::Vector< T, N > >
 {
 public:
 	/**
@@ -199,7 +199,7 @@ public:
 	 * @param vec2 the 2nd n-vector
 	 * @return difference vector
 	 */
-	Math::Vector< N, T > operator() ( const Math::Vector< N, T >& vec1, const Math::Vector< N, T >& vec2 ) const
+	Math::Vector< T, N > operator() ( const Math::Vector< T, N >& vec1, const Math::Vector< T, N >& vec2 ) const
     {
 		return vec1 - vec2;
 	}
@@ -209,22 +209,22 @@ public:
 /**
  * @ingroup math
  * Functor Class for STL algorithms.
- * Calculates the norm of the Math::Vector< N, T >.
+ * Calculates the norm of the Math::Vector< T, N >.
  */
  
 template< unsigned N, typename T >
 struct norm_vector
-	: public std::unary_function< Math::Vector< N, T >, T >
+	: public std::unary_function< Math::Vector< T, N >, T >
 {
 public:
 	/**
 	 * @ingroup math
-	 * Calculates the norm of the Math::Vector< N, T >.
+	 * Calculates the norm of the Math::Vector< T, N >.
 	 *
 	 * @param vec the n-vector
 	 * @return norm of the n-vector
 	 */
-	T operator() ( const Math::Vector< N, T >& vec ) const
+	T operator() ( const Math::Vector< T, N >& vec ) const
     {
 		return boost::numeric::ublas::norm_2( vec );
 	}

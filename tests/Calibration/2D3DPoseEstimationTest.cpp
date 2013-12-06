@@ -27,10 +27,10 @@ void TestOptimizePose( const std::size_t n_runs, const T epsilon )
 {
 
 	typename Random::Quaternion< T >::Uniform randQuat;
-	typename Random::Vector< 3, T >::Uniform randVector( -0.5, 0.5 ); // 3d Points
-	typename Random::Vector< 3, T >::Uniform randTranslation( -100, 100 ); //translation
-	typename Random::Vector< 3, T >::Normal randPositionNoise( 0, 0.2 ); // translation gaussian noise
-	// typename Random::Vector< 3, T >::Uniform randPositionNoise( -0.3, 0.3 ); // translation uniform noise
+	typename Random::Vector< T, 3 >::Uniform randVector( -0.5, 0.5 ); // 3d Points
+	typename Random::Vector< T, 3 >::Uniform randTranslation( -100, 100 ); //translation
+	typename Random::Vector< T, 3 >::Normal randPositionNoise( 0, 0.2 ); // translation gaussian noise
+	// typename Random::Vector< T, 3 >::Uniform randPositionNoise( -0.3, 0.3 ); // translation uniform noise
 	
 	
 	for ( std::size_t iRun = 0; iRun < n_runs; iRun++ )
@@ -42,7 +42,7 @@ void TestOptimizePose( const std::size_t n_runs, const T epsilon )
 		
 		// random pose
 		Quaternion rot( randQuat( ) );
-		Vector< 3, T > trans ( randTranslation() );
+		Vector< T, 3 > trans ( randTranslation() );
 		trans( 2 ) = Random::distribute_uniform< T >( 10, 100 );
 		
 		// some random 3d points
@@ -50,18 +50,18 @@ void TestOptimizePose( const std::size_t n_runs, const T epsilon )
 		const std::size_t n( Random::distribute_uniform< std::size_t >( 10, 50 ) );
 		
 		
-		std::vector< Ubitrack::Math::Vector< 3, T > > p3D;
+		std::vector< Ubitrack::Math::Vector< T, 3 > > p3D;
 		p3D.reserve( n );
 		std::generate_n ( std::back_inserter( p3D ), n,  randVector );
-		// std::copy( p3D.begin(), p3D.end(), std::ostream_iterator< Ubitrack::Math::Vector< 3 > > ( std::cout, ", ") );
+		// std::copy( p3D.begin(), p3D.end(), std::ostream_iterator< Ubitrack::Math::Vector< double, 3 > > ( std::cout, ", ") );
 			
 		// project to 2D points 
 		Matrix< 3, 4, T > proj( rot, trans );
 		proj = boost::numeric::ublas::prod( cam, proj );
-		std::vector< Vector< 2, T > > p2D;
+		std::vector< Vector< T, 2 > > p2D;
 		p2D.reserve( n );
 		std::transform( p3D.begin(), p3D.end(), std::back_inserter( p2D ), Functors::ProjectVector< T >( proj ) );
-		// std::copy( p2D.begin(), p2D.end(), std::ostream_iterator< Ubitrack::Math::Vector< 2 > > ( std::cout, ", ") );
+		// std::copy( p2D.begin(), p2D.end(), std::ostream_iterator< Ubitrack::Math::Vector< double, 2 > > ( std::cout, ", ") );
 		
 		// add some noise to the pose
 		Pose testPose( 

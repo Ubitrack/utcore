@@ -63,12 +63,12 @@ namespace Ubitrack { namespace Math { namespace Geometry {
  */
 template< std::size_t N, typename T, typename ForwardIterator >
 void estimateNormalizationParameters( const ForwardIterator iBegin, const ForwardIterator iEnd
-	, Math::Vector< N, T >& shift, Math::Vector< N, T >& scale )
+	, Math::Vector< T, N >& shift, Math::Vector< T, N >& scale )
 {
 	const std::size_t n_pts = std::distance( iBegin, iEnd );
 	// compute mean and mean of square
-	shift = Math::Vector< N, T >::zeros();
-	scale = Math::Vector< N, T >::zeros();
+	shift = Math::Vector< T, N >::zeros();
+	scale = Math::Vector< T, N >::zeros();
 	
 	for ( ForwardIterator it( iBegin ); it < iEnd; ++it )
 	{
@@ -100,7 +100,7 @@ void estimateNormalizationParameters( const ForwardIterator iBegin, const Forwar
  */
 
 template< std::size_t N, typename T >
-inline Math::Matrix< N+1, N+1, T > generateNormalizationMatrix( const Math::Vector< N, T >& shift, const Math::Vector< N, T >& scale, const bool modInverse )
+inline Math::Matrix< N+1, N+1, T > generateNormalizationMatrix( const Math::Vector< T, N >& shift, const Math::Vector< T, N >& scale, const bool modInverse )
 {
 	// compute correction matrix
 	Math::Matrix< N+1, N+1, T > modMatrix = Math::Matrix< N+1, N+1, T >::zeros();

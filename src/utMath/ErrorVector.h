@@ -48,10 +48,10 @@ namespace Ubitrack { namespace Math {
  * This class stores an N-vector with an associated covariance matrix 
  * and provides methods for transformations, etc.
  *
- * @param N size of the vector
- * @param VType type of vector/matrix elements
+ * @tparam T type of vector/matrix elements
+ * @tparam N size of the vector
  */
-template< int N, class VType = double >
+template< typename T, int N >
 struct ErrorVector
 {
 	/** default constructor */
@@ -66,15 +66,15 @@ struct ErrorVector
 	{}
 
 	/** vector contents */
-	Math::Vector< N, VType > value;
+	Math::Vector< T, N > value;
 
 	/** covariance matrix of \c value */
-	Math::Matrix< N, N, VType > covariance;
+	Math::Matrix< N, N, T > covariance;
 
 	/** compute RMS value (in this case: square-root of trace of covariance matrix) */
-	VType getRMS( void ) 
+	T getRMS( void ) 
 	{
-		VType trace = 0;
+		T trace = 0;
 		for ( int i = 0; i < N; i++ ) 
 		{
 			trace += covariance( i,i );
@@ -97,8 +97,8 @@ struct ErrorVector
 
 
 /// stream output operator
-template< int N, class VType >
-std::ostream& operator<<( std::ostream& s, const ErrorVector<N, VType>& v )
+template< typename T, int N >
+std::ostream& operator<<( std::ostream& s, const ErrorVector< T, N >& v )
 {
 	s << v.value << std::endl << v.covariance;
 	return s;

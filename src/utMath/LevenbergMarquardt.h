@@ -83,7 +83,7 @@ typename X::value_type weightedLevenbergMarquardt( P& problem, X& params, const 
 	namespace ublas = boost::numeric::ublas;
 	typedef typename X::value_type T;
 	typedef typename Math::Matrix< 0, 0, T >::base_type MatType;
-	typedef typename Math::Vector< 0, T >::base_type VecType;
+	typedef typename Math::Vector< T >::base_type VecType;
 	
 	// create some matrices and vectors
 	boost::shared_ptr< MatType > pJacobian( new MatType( measurement.size(), params.size() ) );
@@ -156,7 +156,7 @@ typename X::value_type weightedLevenbergMarquardt( P& problem, X& params, const 
 
 		case lmUseSVD:
 			{
-				Math::Vector< 0, T > sv( params.size() );
+				Math::Vector< T > sv( params.size() );
 				int rank;
 				if ( lapack::gelss( matJacobiSquare, paramDiff, sv, T( -1 ), rank ) != 0 ) // result in paramDiff
 					UBITRACK_THROW( "lapack::gelss returned an error" );

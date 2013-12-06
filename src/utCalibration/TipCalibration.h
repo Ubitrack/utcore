@@ -55,7 +55,7 @@ namespace Ubitrack { namespace Calibration {
  * @param pw returns the constant point in world coordinates
  */
  void tipCalibrationImpl( const std::vector< Math::Pose >& poses, 
-	Math::Vector< 3, double >& pm, Math::Vector< 3, double >& pw );
+	Math::Vector< double, 3 >& pm, Math::Vector< double, 3 >& pw );
 
 /**
  * @ingroup tracking_algorithms
@@ -69,7 +69,7 @@ namespace Ubitrack { namespace Calibration {
  * @param pw returns the constant point in world coordinates
  */
 UBITRACK_EXPORT void tipCalibration( const std::vector< Math::Pose >& poses, 
-	Math::Vector< 3, double >& pm, Math::Vector< 3, double >& pw );
+	Math::Vector< double, 3 >& pm, Math::Vector< double, 3 >& pw );
 
 } } // namespace Ubitrack::Calibration
 

@@ -77,9 +77,9 @@ void gaussNewton( P& problem, VT1& params, const VT2& measurement, unsigned nIte
 	// create some matrices and vectors
 	MatType matJacobian( measurement.size(), params.size() );
 	MatType matJacobiSquare( params.size(), params.size() );
-	Math::Vector< 0, T > measurementDiff( measurement.size() );
-	Math::Vector< 0, T > paramDiff( params.size() );
-	Math::Vector< 0, T > estimatedMeasurement( measurement.size() );
+	Math::Vector< T > measurementDiff( measurement.size() );
+	Math::Vector< T > paramDiff( params.size() );
+	Math::Vector< T > estimatedMeasurement( measurement.size() );
 
 	OPT_LOG_DEBUG( "Gauss-Newton entry params: " << params );
 

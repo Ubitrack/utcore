@@ -54,27 +54,27 @@ namespace Ubitrack { namespace Calibration {
 
 /** \internal */
 template< typename T >
-Math::Matrix< 3, 4, T >projectionDLTImpl( const std::vector< Math::Vector< 3, T > >& fromPoints,
-	const std::vector< Math::Vector< 2, T > >& toPoints )
+Math::Matrix< 3, 4, T >projectionDLTImpl( const std::vector< Math::Vector< T, 3 > >& fromPoints,
+	const std::vector< Math::Vector< T, 2 > >& toPoints )
 {
 	assert( fromPoints.size() == toPoints.size() );
 	assert( fromPoints.size() >= 6 );
 
 	// normalize input points
-	Math::Vector< 3, T > fromShift;
-	Math::Vector< 3, T > fromScale;
+	Math::Vector< T, 3 > fromShift;
+	Math::Vector< T, 3 > fromScale;
 	Math::Geometry::estimateNormalizationParameters( fromPoints.begin(), fromPoints.end(), fromShift, fromScale );
 	
-	Math::Vector< 2, T > toShift;
-	Math::Vector< 2, T > toScale;
+	Math::Vector< T, 2 > toShift;
+	Math::Vector< T, 2 > toScale;
 	Math::Geometry::estimateNormalizationParameters( toPoints.begin(), toPoints.end(), toShift, toScale );
 
 	// construct equation system
 	Math::Matrix< 0, 0, T > A( 2 * fromPoints.size(), 12 );
 	for ( unsigned i = 0; i < fromPoints.size(); i++ )
 	{
-		Math::Vector< 2, T > to = ublas::element_div( toPoints[ i ] - toShift, toScale );
-		Math::Vector< 3, T > from = ublas::element_div( fromPoints[ i ] - fromShift, fromScale );
+		Math::Vector< T, 2 > to = ublas::element_div( toPoints[ i ] - toShift, toScale );
+		Math::Vector< T, 3 > from = ublas::element_div( fromPoints[ i ] - fromShift, fromScale );
 
 		A( i * 2,  0 ) = A( i * 2, 1 ) = A( i * 2, 2 ) = A( i * 2, 3 ) = 0;
 		A( i * 2,  4 ) = -from( 0 );
@@ -97,7 +97,7 @@ Math::Matrix< 3, 4, T >projectionDLTImpl( const std::vector< Math::Vector< 3, T 
 	}
 
 	// solve using SVD
-	Math::Vector< 0, T > s( 12 );
+	Math::Vector< T > s( 12 );
 	Math::Matrix< 12, 12, T > Vt;
 	Math::Matrix< 0, 0, T > U( 2 * fromPoints.size(), 2 * fromPoints.size() );
 	lapack::gesvd( 'N', 'A', A, s, U, Vt );
@@ -118,7 +118,7 @@ Math::Matrix< 3, 4, T >projectionDLTImpl( const std::vector< Math::Vector< 3, T 
 	T fViewDirLen = sqrt( P( 2, 0 ) * P( 2, 0 ) + P( 2, 1 ) * P( 2, 1 ) + P( 2, 2 ) * P( 2, 2 ) );
 	
 	// if first point is projected onto a negative z value, negate matrix
-	const Math::Vector< 3, T > p1st = fromPoints[ 0 ];
+	const Math::Vector< T, 3 > p1st = fromPoints[ 0 ];
 	if ( P( 2, 0 ) * p1st( 0 ) + P( 2, 1 ) * p1st( 1 ) + P( 2, 2 ) * p1st( 2 ) + P( 2, 3 ) < 0 )
 		fViewDirLen = -fViewDirLen;
 	
@@ -127,14 +127,14 @@ Math::Matrix< 3, 4, T >projectionDLTImpl( const std::vector< Math::Vector< 3, T 
 	return P;
 }
 
-Math::Matrix< 3, 4, float > projectionDLT( const std::vector< Math::Vector< 3, float > >& fromPoints,
-	const std::vector< Math::Vector< 2, float > >& toPoints )
+Math::Matrix< 3, 4, float > projectionDLT( const std::vector< Math::Vector< float, 3 > >& fromPoints,
+	const std::vector< Math::Vector< float, 2 > >& toPoints )
 {
 	return projectionDLTImpl( fromPoints, toPoints );
 }
 
-Math::Matrix< 3, 4, double > projectionDLT( const std::vector< Math::Vector< 3, double > >& fromPoints,
-	const std::vector< Math::Vector< 2, double > >& toPoints )
+Math::Matrix< 3, 4, double > projectionDLT( const std::vector< Math::Vector< double, 3 > >& fromPoints,
+	const std::vector< Math::Vector< double, 2 > >& toPoints )
 {
 	return projectionDLTImpl( fromPoints, toPoints );
 }
@@ -142,7 +142,7 @@ Math::Matrix< 3, 4, double > projectionDLT( const std::vector< Math::Vector< 3, 
 
 /** \internal */
 template< typename T > void decomposeProjectionImpl( Math::Matrix< 3, 3, T >& k,
-	Math::Matrix< 3, 3, T >& r, Math::Vector< 3, T >& t, const Math::Matrix< 3, 4, T >& p_ )
+	Math::Matrix< 3, 3, T >& r, Math::Vector< T, 3 >& t, const Math::Matrix< 3, 4, T >& p_ )
 {
 	// copy matrix
 	Math::Matrix< 3, 4, T > P( p_ );
@@ -153,7 +153,7 @@ template< typename T > void decomposeProjectionImpl( Math::Matrix< 3, 3, T >& k,
 		P *= -1;
 
 	// perform RQ decomposition
-	Math::Vector< 3, T > tau;
+	Math::Vector< T, 3 > tau;
 	lapack::gerqf( A, tau );
 
 	// generate matrix k
@@ -167,7 +167,7 @@ template< typename T > void decomposeProjectionImpl( Math::Matrix< 3, 3, T >& k,
 	// do some normalization
 	// normalization is done by changing the product K R to (K S) (S^-1 R),
 	// where S(i,i) == +/- 1 and S(i,j) == 0 for i!=j. Thus, S == S^-1
-	Math::Vector< 3, T > scale( 1, 1, 1 );
+	Math::Vector< T, 3 > scale( 1, 1, 1 );
 
 	// det( R ) must be positive
 	if ( Math::determinant( r ) < 0 )
@@ -205,13 +205,13 @@ template< typename T > void decomposeProjectionImpl( Math::Matrix< 3, 3, T >& k,
 
 
 void decomposeProjection( Math::Matrix< 3, 3, float >& k,
-	Math::Matrix< 3, 3, float >& r, Math::Vector< 3, float >& t, const Math::Matrix< 3, 4, float >& p )
+	Math::Matrix< 3, 3, float >& r, Math::Vector< float, 3 >& t, const Math::Matrix< 3, 4, float >& p )
 {
 	decomposeProjectionImpl( k, r, t, p );
 }
 
 void decomposeProjection( Math::Matrix< 3, 3, double >& k,
-	Math::Matrix< 3, 3, double >& r, Math::Vector< 3, double >& t, const Math::Matrix< 3, 4, double >& p )
+	Math::Matrix< 3, 3, double >& r, Math::Vector< double, 3 >& t, const Math::Matrix< 3, 4, double >& p )
 {
 	decomposeProjectionImpl( k, r, t, p );
 }
@@ -293,13 +293,13 @@ Math::Matrix< 4, 4, float > projectionMatrixToOpenGL( float l, float r, float b,
 	return projectionMatrixToOpenGLimp( l, r, b, t, n, f, mat );
 }
 
-Math::Matrix< 4, 4, double > offAxisProjectionMatrix( Math::Vector< 3, double >& eye, Math::Vector< 3, double >& ll, Math::Vector< 3, double >& ul, Math::Vector< 3, double >& lr, double n, double f, double sw, double sh ) {
+Math::Matrix< 4, 4, double > offAxisProjectionMatrix( Math::Vector< double, 3 >& eye, Math::Vector< double, 3 >& ll, Math::Vector< double, 3 >& ul, Math::Vector< double, 3 >& lr, double n, double f, double sw, double sh ) {
 
-	Math::Vector<3> Xs = (lr - ll) / sw;
-	Math::Vector<3> Ys = (ul - ll) / sh;
-	Math::Vector<3> Zs = cross_prod(Xs, Ys);
+	Math::Vector< double, 3 > Xs = (lr - ll) / sw;
+	Math::Vector< double, 3 > Ys = (ul - ll) / sh;
+	Math::Vector< double, 3 > Zs = cross_prod(Xs, Ys);
 
-	Math::Vector<3> Es = eye - ll;
+	Math::Vector< double, 3 > Es = eye - ll;
 
 	double distance = inner_prod(Es, Zs);
 

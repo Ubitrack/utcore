@@ -53,13 +53,13 @@ namespace Ubitrack { namespace Calibration {
  * @param stepSize optional parameter, if you want to use e.g. only every second value for computation, then set stepSize to 2
  * @return calculated fundamental matrix
  */
-UBITRACK_EXPORT float pointToPointDist( const Math::Vector< 2, float > & from, const Math::Vector< 2, float > & to, const Math::Matrix< 3, 3, float > & fM  );
+UBITRACK_EXPORT float pointToPointDist( const Math::Vector< float, 2 > & from, const Math::Vector< float, 2 > & to, const Math::Matrix< 3, 3, float > & fM  );
 
-UBITRACK_EXPORT double pointToPointDist( const Math::Vector< 2, double > & from, const Math::Vector< 2, double > & to, const Math::Matrix< 3, 3, double > & fM  );
+UBITRACK_EXPORT double pointToPointDist( const Math::Vector< double, 2 > & from, const Math::Vector< double, 2 > & to, const Math::Matrix< 3, 3, double > & fM  );
 
-UBITRACK_EXPORT float pointToPointDist( const Math::Vector< 3, float > & from, const Math::Vector< 3, float > & to, const Math::Matrix< 3, 3, float > & fM  );
+UBITRACK_EXPORT float pointToPointDist( const Math::Vector< float, 3 > & from, const Math::Vector< float, 3 > & to, const Math::Matrix< 3, 3, float > & fM  );
 
-UBITRACK_EXPORT double pointToPointDist( const Math::Vector< 3, double > & from, const Math::Vector< 3, double > & to, const Math::Matrix< 3, 3, double > & fM  );
+UBITRACK_EXPORT double pointToPointDist( const Math::Vector< double, 3 > & from, const Math::Vector< double, 3 > & to, const Math::Matrix< 3, 3, double > & fM  );
 
 #ifdef HAVE_LAPACK
 /**
@@ -77,9 +77,9 @@ UBITRACK_EXPORT double pointToPointDist( const Math::Vector< 3, double > & from,
  * @return estimated 3D position
  */
 
-UBITRACK_EXPORT Math::Vector< 3, float > get3DPosition( const Math::Matrix< 3, 4, float > & P1, const Math::Matrix< 3, 4, float > & P2, const Math::Vector< 2, float > & p1, const Math::Vector< 2, float > & p2 );
+UBITRACK_EXPORT Math::Vector< float, 3 > get3DPosition( const Math::Matrix< 3, 4, float > & P1, const Math::Matrix< 3, 4, float > & P2, const Math::Vector< float, 2 > & p1, const Math::Vector< float, 2 > & p2 );
 
-UBITRACK_EXPORT Math::Vector< 3, double > get3DPosition( const Math::Matrix< 3, 4, double > & P1, const Math::Matrix< 3, 4, double > & P2, const Math::Vector< 2, double > & p1, const Math::Vector< 2, double > & p2 );
+UBITRACK_EXPORT Math::Vector< double, 3 > get3DPosition( const Math::Matrix< 3, 4, double > & P1, const Math::Matrix< 3, 4, double > & P2, const Math::Vector< double, 2 > & p1, const Math::Vector< double, 2 > & p2 );
 
 /**
  * @ingroup tracking_algorithms
@@ -96,10 +96,10 @@ UBITRACK_EXPORT Math::Vector< 3, double > get3DPosition( const Math::Matrix< 3, 
  * @param F the fundamental matrix
  * @return a vector of 3D points
  */
-UBITRACK_EXPORT std::vector< Math::Vector< 3, float > > reconstruct3DPoints( const std::vector< Math::Vector< 2, float > > & p1, const std::vector< Math::Vector< 2, float > > & p2,
+UBITRACK_EXPORT std::vector< Math::Vector< float, 3 > > reconstruct3DPoints( const std::vector< Math::Vector< float, 2 > > & p1, const std::vector< Math::Vector< float, 2 > > & p2,
 																			const Math::Matrix< 3, 4, float > & P1, const Math::Matrix< 3, 4, float > & P2, const Math::Matrix< 3, 3, float > & fM );
 
-UBITRACK_EXPORT std::vector< Math::Vector< 3, double > > reconstruct3DPoints( const std::vector< Math::Vector< 2, double > > & p1, const std::vector< Math::Vector< 2, double > > & p2,
+UBITRACK_EXPORT std::vector< Math::Vector< double, 3 > > reconstruct3DPoints( const std::vector< Math::Vector< double, 2 > > & p1, const std::vector< Math::Vector< double, 2 > > & p2,
 																			const Math::Matrix< 3, 4, double > & P1, const Math::Matrix< 3, 4, double > & P2, const Math::Matrix< 3, 3, double > & fM );
 
 
@@ -118,11 +118,11 @@ UBITRACK_EXPORT std::vector< Math::Vector< 3, double > > reconstruct3DPoints( co
  * @return a 3D points
  */
 
-UBITRACK_EXPORT Math::Vector< 3, float > get3DPosition( const std::vector< Math::Matrix< 3, 4, float > > &P, const std::vector< Math::Vector< 2, float > > &points, std::size_t flag );
+UBITRACK_EXPORT Math::Vector< float, 3 > get3DPosition( const std::vector< Math::Matrix< 3, 4, float > > &P, const std::vector< Math::Vector< float, 2 > > &points, std::size_t flag );
 
-UBITRACK_EXPORT Math::Vector< 3, double > get3DPosition( const std::vector< Math::Matrix< 3, 4, double > > &P, const std::vector< Math::Vector< 2, double > >& points, std::size_t flag );
+UBITRACK_EXPORT Math::Vector< double, 3 > get3DPosition( const std::vector< Math::Matrix< 3, 4, double > > &P, const std::vector< Math::Vector< double, 2 > >& points, std::size_t flag );
 
-UBITRACK_EXPORT Math::Vector< 3, double > get3DPositionWithResidual( const std::vector< Math::Matrix< 3, 4, double > > &P, const std::vector< Math::Vector< 2, double > >& points, std::size_t flag = 0, double* residual = 0 );
+UBITRACK_EXPORT Math::Vector< double, 3 > get3DPositionWithResidual( const std::vector< Math::Matrix< 3, 4, double > > &P, const std::vector< Math::Vector< double, 2 > >& points, std::size_t flag = 0, double* residual = 0 );
 #endif
 
 } } // namespace Ubitrack::Calibration

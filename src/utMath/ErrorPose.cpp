@@ -247,7 +247,7 @@ void multiplicationJacobians( Matrix< 6, 6 >& j1, Matrix< 6, 6 >& j2, const Pose
 }
 
 template< class MT >
-void errorPoseTimesVectorJacobian( MT& j, const Pose& p, const Vector< 3 >& v )
+void errorPoseTimesVectorJacobian( MT& j, const Pose& p, const Vector< double, 3 >& v )
 {
 	typedef typename MT::value_type VType;
 	VType t216 = p.rotation().y();
@@ -551,7 +551,7 @@ ErrorPose operator*( const ErrorPose& a, const Pose& b )
 }
 
 
-ErrorVector< 3 > operator*( const ErrorPose& a, const Math::Vector< 3 >& b )
+ErrorVector< double, 3 > operator*( const ErrorPose& a, const Math::Vector< double, 3 >& b )
 {
 	// covariance transform
 	Matrix< 3, 6 > jacobian;
@@ -563,12 +563,12 @@ ErrorVector< 3 > operator*( const ErrorPose& a, const Math::Vector< 3 >& b )
 	noalias( tmp ) = ublas::prod( jacobian, a.covariance() );
 	noalias( newCovariance ) = ublas::prod( tmp, ublas::trans( jacobian ) );
 
-	return ErrorVector< 3 >( static_cast< const Pose& >( a ) * b, newCovariance );
+	return ErrorVector< double, 3 >( static_cast< const Pose& >( a ) * b, newCovariance );
 }
 
 //TODO
 
-ErrorVector< 3 > operator*( const ErrorPose& a, const Math::ErrorVector< 3 >& b )
+ErrorVector< double, 3 > operator*( const ErrorPose& a, const Math::ErrorVector< double, 3 >& b )
 {
 	
 	// covariance transform
@@ -581,7 +581,7 @@ ErrorVector< 3 > operator*( const ErrorPose& a, const Math::ErrorVector< 3 >& b 
 	noalias( tmp ) = ublas::prod( jacobian, a.covariance() );
 	noalias( newCovariance ) = ublas::prod( tmp, ublas::trans( jacobian ) );
 
-	return ErrorVector< 3 >( static_cast< const Pose& >( a ) * b.value, newCovariance );
+	return ErrorVector< double, 3 >( static_cast< const Pose& >( a ) * b.value, newCovariance );
 }
 
 
@@ -604,7 +604,7 @@ ErrorPose invertMultiply( const ErrorPose& a, const ErrorPose& b )
 }
 
 
-void ErrorPose::toAdditiveErrorVector( ErrorVector< 7 >& v )
+void ErrorPose::toAdditiveErrorVector( ErrorVector< double, 7 >& v )
 {
 	Pose::toVector( v.value );
 
@@ -618,9 +618,9 @@ void ErrorPose::toAdditiveErrorVector( ErrorVector< 7 >& v )
 }
 
 
-ErrorPose ErrorPose::fromAdditiveErrorVector( const ErrorVector< 7 >& v )
+ErrorPose ErrorPose::fromAdditiveErrorVector( const ErrorVector< double, 7 >& v )
 {
-	Math::ErrorVector< 7 > p( v );
+	Math::ErrorVector< double, 7 > p( v );
 	Quaternion q( Quaternion::fromVector( ublas::subrange( v.value, 3, 7 ) ) );
 	transformRangeInternalWithCovariance< 7 >( ErrorConversion( ~q ), p, 3, 7, 3, 7 );
 	

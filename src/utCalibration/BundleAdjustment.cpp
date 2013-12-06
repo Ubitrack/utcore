@@ -54,9 +54,9 @@ namespace Ubitrack { namespace Calibration {
 
 std::pair < Math::ErrorPose , double > 
 	multipleCameraBundleAdjustment (
-	const std::vector < Math::Vector < 3 > >&  points3d,
-	const std::vector < std::vector < Math::Vector < 2 > > >& points2d,
-	const std::vector < std::vector < Math::Scalar < double > > >& points2dWeights,
+	const std::vector < Math::Vector< double, 3 > >&  points3d,
+	const std::vector < std::vector < Math::Vector< double, 2 > > >& points2d,
+	const std::vector < std::vector < Math::Scalar< double > > >& points2dWeights,
 	const std::vector < Math::Pose >& camPoses,
 	const std::vector < Math::Matrix< 3, 3 > >& camMatrices,
 	const int minCorrespondences,
@@ -76,13 +76,13 @@ std::pair < Math::ErrorPose , double >
 	std::vector< std::pair< std::size_t, std::size_t > > observations;
 
 	// local 3dpoints for all cameras
-	std::vector< Math::Vector<3> > p3dLocal;
+	std::vector< Math::Vector< double, 3 > > p3dLocal;
 
 	// local 3dpoints for each cameras (filtered - only available if observation exists)
-	std::vector< std::vector < Math::Vector<3> > > p3dLocalFiltered ( numberCameras );
+	std::vector< std::vector < Math::Vector< double, 3 > > > p3dLocalFiltered ( numberCameras );
 
 	// local 2d points for each camera
-	std::vector< std::vector < Math::Vector<2> > > p2dLocal ( numberCameras );
+	std::vector< std::vector < Math::Vector< double, 2 > > > p2dLocal ( numberCameras );
 
 	// observationCountTotal will count the number of total observations (=corners with weight != 0) in all cameras
 	std::size_t observationCountTotal( 0 );
@@ -133,7 +133,7 @@ std::pair < Math::ErrorPose , double >
 		}
 
 		// Now create the measurement vector from the local 2d points for LM optimization
-		Math::Vector< 0, double > measurements( 2 * observationCountTotal );
+		Math::Vector< double > measurements( 2 * observationCountTotal );
 		std::size_t iIndex = 0;
 		for ( std::size_t cameraIndex = 0; cameraIndex < numberCameras; cameraIndex++ ) {
 			for ( std::size_t pointIndex = 0; pointIndex < p2dLocal.at(cameraIndex).size(); pointIndex++ ) {
@@ -145,7 +145,7 @@ std::pair < Math::ErrorPose , double >
 
 		// create camera matrices and rotations for LM optimization
 		std::vector< Math::Matrix< 3, 3 > > camRotations( camPoses.size() );
-		std::vector< Math::Vector< 3 > > camTranslations( camPoses.size() );
+		std::vector< Math::Vector< double, 3 > > camTranslations( camPoses.size() );
 		for ( std::size_t cameraIndex = 0; cameraIndex < numberCameras; cameraIndex++ )
 		{
 			OPT_LOG_DEBUG( "Camera "<<cameraIndex<<" pose:"  << camPoses[ cameraIndex ] );
@@ -159,7 +159,7 @@ std::pair < Math::ErrorPose , double >
 		OPT_LOG_DEBUG( "Optimizing pose over " << numberCameras << " cameras using " << observationCountTotal << " observations" );
 
 		ObjectiveFunction< double > f( p3dLocal, camRotations, camTranslations, camMatrices, observations );
-		Math::Vector< 6 > param;
+		Math::Vector< double, 6 > param;
 		ublas::subrange( param, 0, 3 ) = initialPose.translation();
 		ublas::subrange( param, 3, 6 ) = initialPose.rotation().toLogarithm();
 
@@ -179,8 +179,8 @@ std::pair < Math::ErrorPose , double >
 }
 
 void checkConsistency2 (
-	const std::vector < Math::Vector < 3 > >&  points3d,
-	const std::vector < std::vector < Math::Vector < 2 > > >& points2d,
+	const std::vector < Math::Vector < double, 3 > >&  points3d,
+	const std::vector < std::vector < Math::Vector < double, 2 > > >& points2d,
 	const std::vector < std::vector < Math::Scalar < double > > >& points2dWeights,
 	const std::vector < Math::Pose >& camPoses,
 	const std::vector < Math::Matrix< 3, 3 > >& camMatrices
@@ -249,9 +249,9 @@ void checkConsistency2 (
 
 
 void bundleAdjustment (
-	const std::vector < Math::Vector < 3 > >&  points3d,
-	const std::vector < std::vector < Math::Vector < 2 > > >& points2d,
-	const std::vector < std::vector < Math::Scalar < double > > >& points2dWeights,
+	const std::vector < Math::Vector< double, 3 > >&  points3d,
+	const std::vector < std::vector < Math::Vector< double, 2 > > >& points2d,
+	const std::vector < std::vector < Math::Scalar< double > > >& points2dWeights,
 	const std::vector < Math::Pose >& camPoses,
 	const std::vector < Math::Matrix< 3, 3 > >& camMatrices,
 	const int minCorrespondences,

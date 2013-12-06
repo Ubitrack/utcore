@@ -49,11 +49,11 @@ namespace Ubitrack { namespace Calibration {
 /// general implementation of tipcalibration algorithm
 template< typename T >
 void tipCalibrationImpl( const std::vector< Math::Pose >& poses, 
-	Math::Vector< 3, T >& pm, Math::Vector< 3, T >& pw )
+	Math::Vector< T, 3 >& pm, Math::Vector< T, 3 >& pw )
 {
 	const std::size_t nPoses = ( poses.size() );
 	typename Math::Matrix< 0, 0, T >::base_type a( 3 * nPoses, 6 );
-	typename Math::Vector< 0, T >::base_type v( 3 * nPoses );
+	typename Math::Vector< T >::base_type v( 3 * nPoses );
 	for ( std::size_t i( 0 ); i < nPoses; i++ )
 	{
 		// set a
@@ -76,7 +76,7 @@ void tipCalibrationImpl( const std::vector< Math::Pose >& poses,
 
 /// Specialization of tipCalibration for type \c double
 void tipCalibration( const std::vector< Math::Pose >& poses, 
-	Math::Vector< 3, double >& pm, Math::Vector< 3, double >& pw )
+	Math::Vector< double, 3 >& pm, Math::Vector< double, 3 >& pw )
 {
 	tipCalibrationImpl< double >( poses, pm, pw );
 }

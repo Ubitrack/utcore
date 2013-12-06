@@ -70,12 +70,12 @@ UBITRACK_EXPORT Math::Pose poseFromHomography( const Math::Matrix< 3, 3, double 
  * @param nIterations number of levenberg-marquardt iterations
  * @return residual of the optimization
  */
-UBITRACK_EXPORT float optimizePose( Math::Pose& p, const std::vector< Math::Vector< 2, float > >& p2D, 
-	const std::vector< Math::Vector< 3, float > >& p3D, const Math::Matrix< 3, 3, float >& cam, 
+UBITRACK_EXPORT float optimizePose( Math::Pose& p, const std::vector< Math::Vector< float, 2 > >& p2D, 
+	const std::vector< Math::Vector< float, 3 > >& p3D, const Math::Matrix< 3, 3, float >& cam, 
 	const std::size_t nIterations = 6 );
 
-UBITRACK_EXPORT double optimizePose( Math::Pose& p, const std::vector< Math::Vector< 2, double > >& p2D, 
-	const std::vector< Math::Vector< 3, double > >& p3D, const Math::Matrix< 3, 3, double >& cam,
+UBITRACK_EXPORT double optimizePose( Math::Pose& p, const std::vector< Math::Vector< double, 2 > >& p2D, 
+	const std::vector< Math::Vector< double, 3 > >& p3D, const Math::Matrix< 3, 3, double >& cam,
 	const std::size_t nIterations = 6 );
 
 	
@@ -90,10 +90,10 @@ UBITRACK_EXPORT double optimizePose( Math::Pose& p, const std::vector< Math::Vec
  * @param cam camera intrinsics matrix
  * @param imageError variance of the measurement error in the image plane
  */
-UBITRACK_EXPORT Math::Matrix< 6, 6, float > singleCameraPoseError( const Math::Pose& p, const std::vector< Math::Vector< 3, float > >& p3D, 
+UBITRACK_EXPORT Math::Matrix< 6, 6, float > singleCameraPoseError( const Math::Pose& p, const std::vector< Math::Vector< float, 3 > >& p3D, 
 	const Math::Matrix< 3, 3, float >& cam, float imageError );
 	
-UBITRACK_EXPORT Math::Matrix< 6, 6, double > singleCameraPoseError( const Math::Pose& p, const std::vector< Math::Vector< 3, double > >& p3D, 
+UBITRACK_EXPORT Math::Matrix< 6, 6, double > singleCameraPoseError( const Math::Pose& p, const std::vector< Math::Vector< double, 3 > >& p3D, 
 	const Math::Matrix< 3, 3, double >& cam, double imageError );
 
 /**
@@ -112,13 +112,13 @@ UBITRACK_EXPORT Math::Matrix< 6, 6, double > singleCameraPoseError( const Math::
  *   cameras and image points.
  */
 UBITRACK_EXPORT Math::Matrix< 6, 6, float > multipleCameraPoseError( const Math::Pose& p, 
-	const std::vector< Math::Vector< 3, float > >& p3D, 
+	const std::vector< Math::Vector< float, 3 > >& p3D, 
 	const std::vector< Math::Matrix< 3, 4, float > >& cameras, 
 	const std::vector< std::pair< std::size_t, std::size_t > > observations, 
 	float imageError );
 	
 UBITRACK_EXPORT Math::Matrix< 6, 6, double > multipleCameraPoseError( const Math::Pose& p, 
-	const std::vector< Math::Vector< 3, double > >& p3D, 
+	const std::vector< Math::Vector< double, 3 > >& p3D, 
 	const std::vector< Math::Matrix< 3, 4, double > >& cameras, 
 	const std::vector< std::pair< std::size_t, std::size_t > > observations, 
 	double imageError );
@@ -143,8 +143,8 @@ UBITRACK_EXPORT typedef enum InitializationMethod {
  * @param initMethod Method used for initialization of the non-linear optimization
  */
 UBITRACK_EXPORT Math::ErrorPose computePose( 
-		const std::vector< Math::Vector< 2 > >& p2d,
-		const std::vector< Math::Vector< 3 > >& p3d,
+		const std::vector< Math::Vector< double, 2 > >& p2d,
+		const std::vector< Math::Vector< double, 3 > >& p3d,
 		const Math::Matrix< 3, 3 >& cam,
 		bool optimize = true,
 		enum InitializationMethod initMethod = (enum InitializationMethod)PLANAR_HOMOGRAPHY
@@ -160,8 +160,8 @@ UBITRACK_EXPORT Math::ErrorPose computePose(
  * @param initMethod Method used for initialization of the non-linear optimization
  */
 UBITRACK_EXPORT Math::ErrorPose computePose( 
-		const std::vector< Math::Vector< 2 > >& p2d,
-		const std::vector< Math::Vector< 3 > >& p3d,
+		const std::vector< Math::Vector< double, 2 > >& p2d,
+		const std::vector< Math::Vector< double, 3 > >& p3d,
 		const Math::Matrix< 3, 3 >& cam,
 		double& residual,
 		bool optimize = true,

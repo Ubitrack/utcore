@@ -59,7 +59,7 @@ public:
 	 * @param p reference to vector of 3D-points to be projected (must stay constant during lifetime of the object)
 	 * @param cam reference to 3x3 camera intrinsics matrix (must stay constant during lifetime of the object)
 	 */
-	MultiplePointProjectionError( const std::vector< Math::Vector< 3, VType > >& p3D, const Math::Matrix< 3, 3, VType >& cam )
+	MultiplePointProjectionError( const std::vector< Math::Vector< VType, 3 > >& p3D, const Math::Matrix< 3, 3, VType >& cam )
 		: m_p3D( p3D )
 		, m_cam( cam )
 	{}
@@ -87,8 +87,8 @@ public:
 		// create matrices
 		Matrix< 2, 3, VType > projJ;
 		Matrix< 3, 3, VType > rotJ;
-		Vector< 3, VType > rotated;
-		Vector< 3, VType > projected;
+		Vector< VType, 3 > rotated;
+		Vector< VType, 3 > projected;
 		
 		for ( std::size_t i( 0 ); i < m_p3D.size(); i++ )
 		{
@@ -109,7 +109,7 @@ public:
 	}
 	
 protected:
-	const std::vector< Math::Vector< 3, VType > >& m_p3D;
+	const std::vector< Math::Vector< VType, 3 > >& m_p3D;
 	const Math::Matrix< 3, 3, VType >& m_cam;
 };
 

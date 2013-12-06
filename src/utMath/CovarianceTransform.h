@@ -87,10 +87,10 @@ void transformWithCovariance( const F& f, VT1& resultVec, MT1& resultCov, const 
  * overload for \c ErrorVector objects.
  * Note: the size of the result (M) must be given explicitly as template parameter!
  */
-template< unsigned M, unsigned N, class F, class VType  > inline
-ErrorVector< M, VType > transformWithCovariance( const F& f, const ErrorVector< N, VType > in )
+template< unsigned M, unsigned N, class F, typename VType  > inline
+ErrorVector< VType, M > transformWithCovariance( const F& f, const ErrorVector< VType, N > in )
 {
-	ErrorVector< M, VType > result;
+	ErrorVector< VType, M > result;
 	transformWithCovariance( f, result.value, result.covariance, in.value, in.covariance );
 	return result;
 }
@@ -121,7 +121,7 @@ void transformRangeInternalWithCovariance( const F& f, VT& value, MT& covariance
 	
 	const unsigned nOutSize = iOutEnd - iOutBegin;
 	const unsigned nInSize = iInEnd - iInBegin;
-	Math::Vector< 0, VType > result( nOutSize );
+	Math::Vector< VType > result( nOutSize );
 	
 	// compute result and jacobian
 	Math::Matrix< 0, 0, VType > jacobian( nOutSize, nInSize );
@@ -157,7 +157,7 @@ void transformRangeInternalWithCovariance( const F& f, VT& value, MT& covariance
 
 /** Overload for \c ErrorVector */
 template< unsigned N, class F, class VType > inline 
-void transformRangeInternalWithCovariance( const F& f, ErrorVector< N, VType >& v,
+void transformRangeInternalWithCovariance( const F& f, ErrorVector< VType, N >& v,
 	unsigned iOutBegin, unsigned iOutEnd, unsigned iInBegin, unsigned iInEnd )
 {
 	transformRangeInternalWithCovariance( f, v.value, v.covariance, iOutBegin, iOutEnd, iInBegin, iInEnd );
@@ -190,9 +190,9 @@ void binaryTransformWithCovariance( const F& f, VT1& resultVec, MT1& resultCov,
 
 /** overload for \c ErrorVector objects */
 template< unsigned M, unsigned N, unsigned K, class F, class VType  > inline
-ErrorVector< M, VType > binaryTransformWithCovariance( const F& f, const ErrorVector< N, VType > in1, const ErrorVector< K, VType > in2 )
+ErrorVector< VType, M > binaryTransformWithCovariance( const F& f, const ErrorVector< VType, N > in1, const ErrorVector< VType, K > in2 )
 {
-	ErrorVector< M, VType > result;
+	ErrorVector< VType, M > result;
 	binaryTransformWithCovariance( f, result.value, result.covariance, in1.value, in1.covariance, in2.value, in2.covariance );
 	return result;
 }

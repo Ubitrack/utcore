@@ -23,11 +23,11 @@ void TestBasicEigenvalues()
 	                A ( 1, 1 ) = 2; A ( 1, 2 ) = 4;
 					                A ( 2, 2 ) = 5;
 
-	Math::Vector< 3 > W;
+	Math::Vector< double, 3 > W;
 	lapack::syev ( 'V', 'U', A, W, lapack::optimal_workspace() );
 
 	Math::Matrix< 3, 3 > Atruth;
-	Math::Vector< 3 > Wtruth;
+	Math::Vector< double, 3 > Wtruth;
 
 	Atruth ( 0, 0 ) =  0.23319198; Atruth ( 0, 1 ) =  0.88765034; Atruth ( 0, 2 ) =  0.39711255;
 	Atruth ( 1, 0 ) =  0.73923874; Atruth ( 1, 1 ) = -0.42713229; Atruth ( 1, 2 ) =  0.52065737;
@@ -87,7 +87,7 @@ void TestLapack()
 	for ( int i = 0; i < 6; i++ )
 		m( i, i ) = 10 - i;
 
-	Vector< 6 > s;
+	Vector< double, 6 > s;
 	lapack::gesvd( m, s );
 
 	for ( int i = 0; i < 6; i++ )

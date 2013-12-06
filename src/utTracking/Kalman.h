@@ -86,7 +86,7 @@ void kalmanMeasurementUpdate( VState& state, MStateCov& stateCov, const MF& meas
 	KALMAN_LOG_DEBUG( "covariance before: " << stateCov );
 	
 	// compute predicted measurement and jacobian
-	Math::Vector< 0, VType > predicted( measSize );
+	Math::Vector< VType > predicted( measSize );
 	Math::Matrix< 0, 0, VType > jacobian( measSize, inSize );
 	measurementFunction.evaluateWithJacobian( predicted, ublas::subrange( state, iBegin, iEnd ), jacobian );
 	KALMAN_LOG_DEBUG( "predicted: " << predicted );
@@ -110,7 +110,7 @@ void kalmanMeasurementUpdate( VState& state, MStateCov& stateCov, const MF& meas
 		noalias( matInv ) += measurementCov;
 		
 		// use general matrix inversion
-		Math::Vector< 0, int > ipiv( measSize );			
+		Math::Vector< int > ipiv( measSize );			
 		lapack::getrf( matInv, ipiv );
 		lapack::getri( matInv, ipiv );
 	}
@@ -138,8 +138,8 @@ void kalmanMeasurementUpdate( VState& state, MStateCov& stateCov, const MF& meas
  * Overload for parameters of type \c ErrorVector.
  */
 template< std::size_t N, std::size_t M, class MF >
-void kalmanMeasurementUpdate( Math::ErrorVector< N >& state, const MF& measurementFunction, 
-	const Math::ErrorVector< M >& measurement, const std::size_t iBegin = 0, const std::size_t iEnd = N )
+void kalmanMeasurementUpdate( Math::ErrorVector< double, N >& state, const MF& measurementFunction, 
+	const Math::ErrorVector< double, M >& measurement, const std::size_t iBegin = 0, const std::size_t iEnd = N )
 {
 	kalmanMeasurementUpdate( state.value, state.covariance, measurementFunction, 
 		measurement.value, measurement.covariance, iBegin, iEnd );
@@ -175,7 +175,7 @@ void kalmanMeasurementUpdateIdentity( VState& state, MStateCov& stateCov,
 	KALMAN_LOG_DEBUG( "covariance before: " << stateCov );
 	
 	// compute predicted measurement
-	Math::Vector< 0, VType > predicted( ublas::subrange( state, iBegin, iEnd ) );
+	Math::Vector< VType > predicted( ublas::subrange( state, iBegin, iEnd ) );
 	KALMAN_LOG_DEBUG( "predicted: " << predicted );
 	
 	// compute predicted measurement error
@@ -193,7 +193,7 @@ void kalmanMeasurementUpdateIdentity( VState& state, MStateCov& stateCov,
 		noalias( matInv ) = ublas::subrange( stateCov, iBegin, iEnd, iBegin, iEnd ) + measurementCov;
 		
 		// use general matrix inversion
-		Math::Vector< 0, int > ipiv( measSize );			
+		Math::Vector< int > ipiv( measSize );			
 		lapack::getrf( matInv, ipiv );
 		lapack::getri( matInv, ipiv );
 	}
@@ -219,8 +219,8 @@ void kalmanMeasurementUpdateIdentity( VState& state, MStateCov& stateCov,
  * Overload for parameters of type \c ErrorVector.
  */
 template< std::size_t N, std::size_t M >
-void kalmanMeasurementUpdateIdentity( Math::ErrorVector< N >& state, 
-	const Math::ErrorVector< M >& measurement, const std::size_t iBegin, const std::size_t iEnd )
+void kalmanMeasurementUpdateIdentity( Math::ErrorVector< double, N >& state, 
+	const Math::ErrorVector< double, M >& measurement, const std::size_t iBegin, const std::size_t iEnd )
 {
 	kalmanMeasurementUpdateIdentity( state.value, state.covariance,  
 		measurement.value, measurement.covariance, iBegin, iEnd );

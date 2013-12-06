@@ -43,28 +43,28 @@ namespace Ubitrack { namespace Calibration {
 
 /** \internal */
 template< typename T >
-Math::Matrix< 3, 3, T > homographyDLTImpl( const std::vector< Math::Vector< 2, T > >& fromPoints, 
-	const std::vector< Math::Vector< 2, T > >& toPoints )
+Math::Matrix< 3, 3, T > homographyDLTImpl( const std::vector< Math::Vector< T, 2 > >& fromPoints, 
+	const std::vector< Math::Vector< T, 2 > >& toPoints )
 {
 	const std::size_t n_points ( fromPoints.size() );
 	assert( n_points == toPoints.size() );
 	assert( n_points >= 4 );
 
 	// normalize input points
-	Math::Vector< 2, T > fromShift;
-	Math::Vector< 2, T > fromScale;
+	Math::Vector< T, 2 > fromShift;
+	Math::Vector< T, 2 > fromScale;
 	Math::Geometry::estimateNormalizationParameters( fromPoints.begin(), fromPoints.end(), fromShift, fromScale );
 
-	Math::Vector< 2, T > toShift;
-	Math::Vector< 2, T > toScale;
+	Math::Vector< T, 2 > toShift;
+	Math::Vector< T, 2 > toScale;
 	Math::Geometry::estimateNormalizationParameters( toPoints.begin(), toPoints.end(), toShift, toScale );
 
 	// construct equation system
 	Math::Matrix< 0, 0, T > A( 2 * n_points, 9 );
 	for ( std::size_t i ( 0 ); i < n_points; ++i )
 	{
-		const Math::Vector< 2, T > to = ublas::element_div( toPoints[ i ] - toShift, toScale );
-		const Math::Vector< 2, T > from = ublas::element_div( fromPoints[ i ] - fromShift, fromScale );
+		const Math::Vector< T, 2 > to = ublas::element_div( toPoints[ i ] - toShift, toScale );
+		const Math::Vector< T, 2 > from = ublas::element_div( fromPoints[ i ] - fromShift, fromScale );
 
 		A( i * 2, 0 ) = A( i * 2, 1 ) = A( i * 2, 2 ) = 0.0f;
 		A( i * 2, 3 ) = -from( 0 ); 
@@ -84,7 +84,7 @@ Math::Matrix< 3, 3, T > homographyDLTImpl( const std::vector< Math::Vector< 2, T
 
 	// solve using SVD
 	const std::size_t nSingularValues ( std::min( A.size1(), A.size2() ) );
-	Math::Vector< 0, T > s( nSingularValues );
+	Math::Vector< T > s( nSingularValues );
 	Math::Matrix< 9, 9, T > Vt;
 	Math::Matrix< 0, 0, T > U( 2 * n_points, 2 * n_points );
 	lapack::gesvd( 'N', 'A', A, s, U, Vt );
@@ -105,14 +105,14 @@ Math::Matrix< 3, 3, T > homographyDLTImpl( const std::vector< Math::Vector< 2, T
 }
 
 
-Math::Matrix< 3, 3, float > homographyDLT( const std::vector< Math::Vector< 2, float > >& fromPoints, 
-	const std::vector< Math::Vector< 2, float > >& toPoints )
+Math::Matrix< 3, 3, float > homographyDLT( const std::vector< Math::Vector< float, 2 > >& fromPoints, 
+	const std::vector< Math::Vector< float, 2 > >& toPoints )
 {
 	return homographyDLTImpl( fromPoints, toPoints );
 }
 
-Math::Matrix< 3, 3, double > homographyDLT( const std::vector< Math::Vector< 2, double > >& fromPoints, 
-	const std::vector< Math::Vector< 2, double > >& toPoints )
+Math::Matrix< 3, 3, double > homographyDLT( const std::vector< Math::Vector< double, 2 > >& fromPoints, 
+	const std::vector< Math::Vector< double, 2 > >& toPoints )
 {
 	return homographyDLTImpl( fromPoints, toPoints );
 }
@@ -120,14 +120,14 @@ Math::Matrix< 3, 3, double > homographyDLT( const std::vector< Math::Vector< 2, 
 
 /** \internal */
 template< typename T >
-Math::Matrix< 3, 3, T > squareHomographyImpl( const std::vector< Math::Vector< 2, T > >& corners )
+Math::Matrix< 3, 3, T > squareHomographyImpl( const std::vector< Math::Vector< T, 2 > >& corners )
 {
 	// homography computation á la Harker & O'Leary, simplified for squares
 	assert( corners.size() == 4 );
 	
 	// subtract mean from points
-	Math::Vector< 2, T > c[ 4 ];
-	Math::Vector< 2, T > mean( Math::Vector< 2, T >::zeros() );
+	Math::Vector< T, 2 > c[ 4 ];
+	Math::Vector< T, 2 > mean( Math::Vector< T, 2 >::zeros() );
 	for ( std::size_t i ( 0 ); i < 4; ++i )
 		mean = mean + corners[ i ];
 	mean /= 4;
@@ -151,7 +151,7 @@ Math::Matrix< 3, 3, T > squareHomographyImpl( const std::vector< Math::Vector< 2
 	matA( 3, 2 ) =  -2 * ( c[ 1 ][ 1 ] + c[ 3 ][ 1 ] );
 
 	// compute SVD
-	Math::Vector< 3, T > s;
+	Math::Vector< T, 3 > s;
 	Math::Matrix< 3, 3, T > Vt;
 	Math::Matrix< 4, 4, T > U;
 	lapack::gesvd( 'N', 'S', matA, s, U, Vt );
@@ -198,12 +198,12 @@ Math::Matrix< 3, 3, T > squareHomographyImpl( const std::vector< Math::Vector< 2
 	return result;
 }
 
-Math::Matrix< 3, 3, float > squareHomography( const std::vector< Math::Vector< 2, float > >& corners )
+Math::Matrix< 3, 3, float > squareHomography( const std::vector< Math::Vector< float, 2 > >& corners )
 {
 	return squareHomographyImpl( corners );
 }
 
-Math::Matrix< 3, 3, double > squareHomography( const std::vector< Math::Vector< 2, double > >& corners )
+Math::Matrix< 3, 3, double > squareHomography( const std::vector< Math::Vector< double, 2 > >& corners )
 {
 	return squareHomographyImpl( corners );
 }

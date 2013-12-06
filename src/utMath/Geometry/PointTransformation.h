@@ -75,7 +75,7 @@ namespace Ubitrack { namespace Math { namespace Geometry {
  */
 template< typename T, std::size_t M, std::size_t N, typename VecType >
 struct TransformPoint
-	: public std::binary_function< Math::Matrix< M, N, T >, VecType, Math::Vector< M, T > >
+	: public std::binary_function< Math::Matrix< M, N, T >, VecType, Math::Vector< T, M > >
 {
 
 public:
@@ -88,94 +88,94 @@ public:
 	}
 	
 	///* Specialization of bracket operator (\c operator() ) for \b 2-by-3 \b transformation of \b 2D \b points (as Vector2D) */
-	Math::Vector< 2, T > operator() ( const Math::Matrix< 2, 3, T > &transMat, const Math::Vector< 2, T > &vec ) const
+	Math::Vector< T, 2 > operator() ( const Math::Matrix< 2, 3, T > &transMat, const Math::Vector< T, 2 > &vec ) const
 	{
 		const T e1 = transMat( 0, 0 ) * vec( 0 ) + transMat( 0, 1 ) * vec( 1 ) + transMat( 0, 2 );
 		const T e2 = transMat( 1, 0 ) * vec( 0 ) + transMat( 1, 1 ) * vec( 1 ) + transMat( 1, 2 );
-		return Math::Vector< 2, T > ( e1, e2 );
+		return Math::Vector< T, 2 > ( e1, e2 );
 	}
 	
 	///* Specialization of bracket operator (\c operator() )for \b 2-by-3 \b transformation of \b 2D \b points (as Vector3D) */
-	Math::Vector< 2, T > operator() ( const Math::Matrix< 2, 3, T > &transMat, const Math::Vector< 3, T > &vec ) const
+	Math::Vector< T, 2 > operator() ( const Math::Matrix< 2, 3, T > &transMat, const Math::Vector< T, 3 > &vec ) const
 	{
 		const T e1 = transMat( 0, 0 ) * vec( 0 ) + transMat( 0, 1 ) * vec( 1 ) + transMat( 0, 2 ) * vec( 2 );
 		const T e2 = transMat( 1, 0 ) * vec( 0 ) + transMat( 1, 1 ) * vec( 1 ) + transMat( 1, 2 ) * vec( 2 );
-		return Math::Vector< 2, T > ( e1, e2 );
+		return Math::Vector< T, 2 > ( e1, e2 );
 	}
 
 	///* Specialization of bracket operator (\c operator() ) for \b 3-by-3 \b transformation of \b 2D \b points (as Vector2D) */
-	Math::Vector< 3, T > operator() ( const Math::Matrix< 3, 3, T > &transMat, const Math::Vector< 2, T > &vec ) const
+	Math::Vector< T, 3 > operator() ( const Math::Matrix< 3, 3, T > &transMat, const Math::Vector< T, 2 > &vec ) const
 	{
 		const T e1 = transMat( 0, 0 ) * vec( 0 ) + transMat( 0, 1 ) * vec( 1 ) + transMat( 0, 2 );
 		const T e2 = transMat( 1, 0 ) * vec( 0 ) + transMat( 1, 1 ) * vec( 1 ) + transMat( 1, 2 );
 		const T e3 = transMat( 2, 0 ) * vec( 0 ) + transMat( 2, 1 ) * vec( 1 ) + transMat( 2, 2 );
-		return Math::Vector< 3, T > ( e1, e2, e3 );
+		return Math::Vector< T, 3 > ( e1, e2, e3 );
 	}
 	
 	///* Specialization of bracket operator (\c operator() ) for \b 3-by-3 \b transformation of \b 2D \b points (as Vector3D)
-	Math::Vector< 3, T > operator() ( const Math::Matrix< 3, 3, T > &transMat, const Math::Vector< 3, T > &vec ) const
+	Math::Vector< T, 3 > operator() ( const Math::Matrix< 3, 3, T > &transMat, const Math::Vector< T, 3 > &vec ) const
 	{
 		const T e1 = transMat( 0, 0 ) * vec( 0 ) + transMat( 0, 1 ) * vec( 1 ) + transMat( 0, 2 ) * vec( 2 );
 		const T e2 = transMat( 1, 0 ) * vec( 0 ) + transMat( 1, 1 ) * vec( 1 ) + transMat( 1, 2 ) * vec( 2 );
 		const T e3 = transMat( 2, 0 ) * vec( 0 ) + transMat( 2, 1 ) * vec( 1 ) + transMat( 2, 2 ) * vec( 2 );
-		return Math::Vector< 3, T > ( e1, e2, e3 );
+		return Math::Vector< T, 3 > ( e1, e2, e3 );
 	}
 
 	///* Specialization of bracket operator (\c operator() ) for \b 3-by-4 \b transformation of \b 3D \b points (as Vector2D)
-	Math::Vector< 3, T > operator() ( const Math::Matrix< 3, 4, T > &transMat, const Math::Vector< 2, T > &vec ) const
+	Math::Vector< T, 3 > operator() ( const Math::Matrix< 3, 4, T > &transMat, const Math::Vector< T, 2 > &vec ) const
 	{
 		const T e1 = transMat( 0, 0 ) * vec( 0 ) + transMat( 0, 1 ) * vec( 1 ) + transMat( 0, 3 );
 		const T e2 = transMat( 1, 0 ) * vec( 0 ) + transMat( 1, 1 ) * vec( 1 ) + transMat( 1, 3 );
 		const T e3 = transMat( 2, 0 ) * vec( 0 ) + transMat( 2, 1 ) * vec( 1 ) + transMat( 2, 3 );
-		return Math::Vector< 3, T > ( e1, e2, e3 );
+		return Math::Vector< T, 3 > ( e1, e2, e3 );
 	}
 	
 	///* Specialization of bracket operator (\c operator() ) for \b 3-by-4 \b transformation of \b 3D \b points (as Vector3D)
-	Math::Vector< 3, T > operator() ( const Math::Matrix< 3, 4, T > &transMat, const Math::Vector< 3, T > &vec ) const
+	Math::Vector< T, 3 > operator() ( const Math::Matrix< 3, 4, T > &transMat, const Math::Vector< T, 3 > &vec ) const
 	{
 		const T e1 = transMat( 0, 0 ) * vec( 0 ) + transMat( 0, 1 ) * vec( 1 ) + transMat( 0, 2 ) * vec( 2 ) + transMat( 0, 3 );
 		const T e2 = transMat( 1, 0 ) * vec( 0 ) + transMat( 1, 1 ) * vec( 1 ) + transMat( 1, 2 ) * vec( 2 ) + transMat( 1, 3 );
 		const T e3 = transMat( 2, 0 ) * vec( 0 ) + transMat( 2, 1 ) * vec( 1 ) + transMat( 2, 2 ) * vec( 2 ) + transMat( 2, 3 );
-		return Math::Vector< 3, T > ( e1, e2, e3 );
+		return Math::Vector< T, 3 > ( e1, e2, e3 );
 	}
 	
 	///* Specialization of bracket operator (\c operator() ) for \b 3-by-4 \b transformation of \b 3D \b points (as 4D vector)
-	Math::Vector< 3, T > operator() ( const Math::Matrix< 3, 4, T > &transMat, const Math::Vector< 4, T > &vec ) const
+	Math::Vector< T, 3 > operator() ( const Math::Matrix< 3, 4, T > &transMat, const Math::Vector< T, 4 > &vec ) const
 	{
 		const T e1 = transMat( 0, 0 ) * vec( 0 ) + transMat( 0, 1 ) * vec( 1 ) + transMat( 0, 2 ) * vec( 2 ) + transMat( 0, 3 ) * vec( 3 );
 		const T e2 = transMat( 1, 0 ) * vec( 0 ) + transMat( 1, 1 ) * vec( 1 ) + transMat( 1, 2 ) * vec( 2 ) + transMat( 1, 3 ) * vec( 3 );
 		const T e3 = transMat( 2, 0 ) * vec( 0 ) + transMat( 2, 1 ) * vec( 1 ) + transMat( 2, 2 ) * vec( 2 ) + transMat( 2, 3 ) * vec( 3 );
-		return Math::Vector< 3, T > ( e1, e2, e3 );
+		return Math::Vector< T, 3 > ( e1, e2, e3 );
 	}
 	
 	///* Specialization of bracket operator (\c operator() ) for \b 4-by-4 \b transformation of \b 2D \b points
-	Math::Vector< 4, T > operator() ( const Math::Matrix< 4, 4, T > &transMat, const Math::Vector< 2, T > &vec ) const
+	Math::Vector< T, 4 > operator() ( const Math::Matrix< 4, 4, T > &transMat, const Math::Vector< T, 2 > &vec ) const
 	{
 		const T e1 = transMat( 0, 0 ) * vec( 0 ) + transMat( 0, 1 ) * vec( 1 ) + transMat( 0, 3 );
 		const T e2 = transMat( 1, 0 ) * vec( 0 ) + transMat( 1, 1 ) * vec( 1 ) + transMat( 1, 3 );
 		const T e3 = transMat( 2, 0 ) * vec( 0 ) + transMat( 2, 1 ) * vec( 1 ) + transMat( 2, 3 );
 		const T e4 = transMat( 3, 0 ) * vec( 0 ) + transMat( 3, 1 ) * vec( 1 ) + transMat( 3, 3 );
-		return Math::Vector< 4, T > ( e1, e2, e3, e4 );
+		return Math::Vector< T, 4 > ( e1, e2, e3, e4 );
 	}
 	
 	///* Specialization of bracket operator (\c operator() ) for \b 4-by-4 \b transformation of \b 3D \b points
-	Math::Vector< 4, T > operator() ( const Math::Matrix< 4, 4, T > &transMat, const Math::Vector< 3, T > &vec ) const
+	Math::Vector< T, 4 > operator() ( const Math::Matrix< 4, 4, T > &transMat, const Math::Vector< T, 3 > &vec ) const
 	{
 		const T e1 = transMat( 0, 0 ) * vec( 0 ) + transMat( 0, 1 ) * vec( 1 ) + transMat( 0, 2 ) * vec( 2 ) + transMat( 0, 3 );
 		const T e2 = transMat( 1, 0 ) * vec( 0 ) + transMat( 1, 1 ) * vec( 1 ) + transMat( 1, 2 ) * vec( 2 ) + transMat( 1, 3 );
 		const T e3 = transMat( 2, 0 ) * vec( 0 ) + transMat( 2, 1 ) * vec( 1 ) + transMat( 2, 2 ) * vec( 2 ) + transMat( 2, 3 );
 		const T e4 = transMat( 3, 0 ) * vec( 0 ) + transMat( 3, 1 ) * vec( 1 ) + transMat( 3, 2 ) * vec( 2 ) + transMat( 3, 3 );
-		return Math::Vector< 4, T > ( e1, e2, e3, e4 );
+		return Math::Vector< T, 4 > ( e1, e2, e3, e4 );
 	}
 	
 	///* Specialization of bracket operator (\c operator() ) for \b 4-by-4 \b transformation of \b 4D \b points
-	Math::Vector< 4, T > operator() ( const Math::Matrix< 4, 4, T > &transMat, const Math::Vector< 4, T > &vec ) const
+	Math::Vector< T, 4 > operator() ( const Math::Matrix< 4, 4, T > &transMat, const Math::Vector< T, 4 > &vec ) const
 	{
 		const T e1 = transMat( 0, 0 ) * vec( 0 ) + transMat( 0, 1 ) * vec( 1 ) + transMat( 0, 2 ) * vec( 2 ) + transMat( 0, 3 ) * vec( 3 );
 		const T e2 = transMat( 1, 0 ) * vec( 0 ) + transMat( 1, 1 ) * vec( 1 ) + transMat( 1, 2 ) * vec( 2 ) + transMat( 1, 3 ) * vec( 3 );
 		const T e3 = transMat( 2, 0 ) * vec( 0 ) + transMat( 2, 1 ) * vec( 1 ) + transMat( 2, 2 ) * vec( 2 ) + transMat( 2, 3 ) * vec( 3 );
 		const T e4 = transMat( 3, 0 ) * vec( 0 ) + transMat( 3, 1 ) * vec( 1 ) + transMat( 3, 3 ) * vec( 2 ) + transMat( 3, 3 ) * vec( 3 );
-		return Math::Vector< 4, T > ( e1, e2, e3, e4 );
+		return Math::Vector< T, 4 > ( e1, e2, e3, e4 );
 	}
 };
 
@@ -238,7 +238,7 @@ inline void transform_points( const Math::Matrix< M, N, T > &transformation, con
 	UBITRACK_STATIC_ASSERT( (((M == 2) && (N == 3)) || ((M == 3) && (N == 3)) || ((M == 3) && (N == 4)) || ((M == 4) && (N == 4))), USING_A_NON_STANDARD_TRANSFORMATION_MATRIX );
 	UBITRACK_STATIC_ASSERT( (Ubitrack::Util::is_same< value_type_in, T >::value ), MATRIX_AND_VECTORS_NEED_SAME_BUILTIN_TYPE ); // e.g. only float or only double
 	UBITRACK_STATIC_ASSERT( (Ubitrack::Util::is_same< value_type_in, value_type_out >::value ), INPUT_AND_OUTPUT_VECTOR_NEED_SAME_BUILTIN_TYPE );
-	UBITRACK_STATIC_ASSERT( (Ubitrack::Util::is_same< vector_type_out, Math::Vector< M, T > >::value ), OUTPUT_VECTOR_NEEDS_SAME_DIMENSION_AS_MATRIX_ROWS );
+	UBITRACK_STATIC_ASSERT( (Ubitrack::Util::is_same< vector_type_out, Math::Vector< T, M > >::value ), OUTPUT_VECTOR_NEEDS_SAME_DIMENSION_AS_MATRIX_ROWS );
 
 	std::transform( iBegin, iEnd, iOut, std::bind1st( TransformPoint< T, M, N, vector_type_in >(), transformation ) );
 }

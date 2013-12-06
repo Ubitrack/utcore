@@ -65,43 +65,43 @@ namespace Ubitrack { namespace Math { namespace Geometry {
  */
 template< typename T, std::size_t M, std::size_t N, typename VecType >
 struct ProjectPoint
-	: public std::binary_function< Math::Matrix< M, N, T >, VecType, Math::Vector< 2, T > >
+	: public std::binary_function< Math::Matrix< M, N, T >, VecType, Math::Vector< T, 2 > >
 {
 
 public:
 	// internal template to catch wrong vector types and print an error message
 	template< typename notSupportedVectorType >
-	Math::Vector< 2, T > operator() ( const Math::Matrix< 3, 4, T > &, const notSupportedVectorType &  ) const
+	Math::Vector< T, 2 > operator() ( const Math::Matrix< 3, 4, T > &, const notSupportedVectorType &  ) const
 	{
 		UBITRACK_STATIC_ASSERT( false, USE_ONLY_WITH_VECTOR_TYPE_OF_2_3_OR_4_DIMENSIONS );
-		return Ubitrack::Math::Vector< 2, T >();
+		return Ubitrack::Math::Vector< T, 2 >();
 	}
 	
 	///* Specialization of \c bracket-operator for projection of \b 2D \b points
-	Math::Vector< 2, T > operator() ( const Math::Matrix< 3, 4, T > &projMat, const Math::Vector< 2, T > &vec ) const
+	Math::Vector< T, 2 > operator() ( const Math::Matrix< 3, 4, T > &projMat, const Math::Vector< T, 2 > &vec ) const
 	{
 		const T e1 = projMat( 0, 0 ) * vec( 0 ) + projMat( 0, 1 ) * vec( 1 ) + projMat( 0, 3 );
 		const T e2 = projMat( 1, 0 ) * vec( 0 ) + projMat( 1, 1 ) * vec( 1 ) + projMat( 1, 3 );
 		const T e3 = projMat( 2, 0 ) * vec( 0 ) + projMat( 2, 1 ) * vec( 1 ) + projMat( 2, 3 );
-		return Math::Vector< 2, T > ( e1/e3, e2/e3 );
+		return Math::Vector< T, 2 > ( e1/e3, e2/e3 );
 	}
 	
 	///* Specialization of \c bracket-operator for projection of \b 3D \b points 
-	Math::Vector< 2, T > operator() ( const Math::Matrix< 3, 4, T > &projMat, const Math::Vector< 3, T > &vec ) const
+	Math::Vector< T, 2 > operator() ( const Math::Matrix< 3, 4, T > &projMat, const Math::Vector< T, 3 > &vec ) const
 	{
 		const T e1 = projMat( 0, 0 ) * vec( 0 ) + projMat( 0, 1 ) * vec( 1 ) + projMat( 0, 2 ) * vec( 2 ) + projMat( 0, 3 );
 		const T e2 = projMat( 1, 0 ) * vec( 0 ) + projMat( 1, 1 ) * vec( 1 ) + projMat( 1, 2 ) * vec( 2 ) + projMat( 1, 3 );
 		const T e3 = projMat( 2, 0 ) * vec( 0 ) + projMat( 2, 1 ) * vec( 1 ) + projMat( 2, 2 ) * vec( 2 ) + projMat( 2, 3 );
-		return Math::Vector< 2, T > ( e1/e3, e2/e3 );
+		return Math::Vector< T, 2 > ( e1/e3, e2/e3 );
 	}
 	
 	///* Specialization of \c bracket-operator for projection of \b 4D \b points
-	Math::Vector< 2, T > operator() ( const Math::Matrix< 3, 4, T > &projMat, const Math::Vector< 4, T > &vec ) const
+	Math::Vector< T, 2 > operator() ( const Math::Matrix< 3, 4, T > &projMat, const Math::Vector< T, 4 > &vec ) const
 	{
 		const T e1 = projMat( 0, 0 ) * vec( 0 ) + projMat( 0, 1 ) * vec( 1 ) + projMat( 0, 2 ) * vec( 2 ) + projMat( 0, 3 ) * vec( 3 );
 		const T e2 = projMat( 1, 0 ) * vec( 0 ) + projMat( 1, 1 ) * vec( 1 ) + projMat( 1, 2 ) * vec( 2 ) + projMat( 1, 3 ) * vec( 3 );
 		const T e3 = projMat( 2, 0 ) * vec( 0 ) + projMat( 2, 1 ) * vec( 1 ) + projMat( 2, 2 ) * vec( 2 ) + projMat( 2, 3 ) * vec( 3 );
-		return Math::Vector< 2, T > ( e1/e3, e2/e3 );
+		return Math::Vector< T, 2 > ( e1/e3, e2/e3 );
 	}
 };
 
@@ -158,7 +158,7 @@ inline void project_points( const Math::Matrix< M, N, T > &projection, const For
 	UBITRACK_STATIC_ASSERT( ( (M == 3) && (N == 4) ), EXPECTS_3_BY_4_PROJECTION_MATRIX );
 	UBITRACK_STATIC_ASSERT( ( Ubitrack::Util::is_same< value_type_in, T >::value ), MATRIX_AND_VECTORS_NEED_SAME_BUILTIN_TYPE ); // e.g. only float or only double
 	UBITRACK_STATIC_ASSERT( ( Ubitrack::Util::is_same< value_type_in, value_type_out >::value ), INPUT_AND_OUTPUT_VECTOR_NEED_SAME_BUILTIN_TYPE );
-	UBITRACK_STATIC_ASSERT( ( Ubitrack::Util::is_same< vector_type_out, Math::Vector< 2, T > >::value ), OUTPUT_VECTOR_NEEDS_TO_BE_DEFINED_WITH_2_DIMENSIONS );
+	UBITRACK_STATIC_ASSERT( ( Ubitrack::Util::is_same< vector_type_out, Math::Vector< T, 2 > >::value ), OUTPUT_VECTOR_NEEDS_TO_BE_DEFINED_WITH_2_DIMENSIONS );
 
 	std::transform( iBegin, iEnd, iOut, std::bind1st( ProjectPoint< T, M, N, vector_type_in >(), projection ) );
 }

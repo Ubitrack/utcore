@@ -105,8 +105,8 @@ struct Pose
 	{
 		protected:
 			Random::Quaternion< double > randRotations;
-			const Math::Vector< 3, T > m_min_range;
-			const Math::Vector< 3, T > m_max_range;
+			const Math::Vector< T, 3 > m_min_range;
+			const Math::Vector< T, 3 > m_max_range;
 			
 		public :
 			Uniform( const T min_range , const T max_range )
@@ -115,7 +115,7 @@ struct Pose
 				, m_max_range( boost::numeric::ublas::scalar_vector< T >( 3, std::max( min_range, max_range ) ) )
 				{ };
 				
-			Uniform( const Math::Vector< 3, T > &min_range, const Math::Vector< 3, T > &max_range )
+			Uniform( const Math::Vector< T, 3 > &min_range, const Math::Vector< T, 3 > &max_range )
 				: std::unary_function< void, Math::Pose >( )
 				, m_min_range( min_range )
 				, m_max_range( max_range )
@@ -123,7 +123,7 @@ struct Pose
 
 			const Math::Pose operator()( void ) const
 			{
-				Math::Vector< 3, T > vec; 
+				Math::Vector< T, 3 > vec; 
 				vec( 0 ) = distribute_uniform< T >( m_min_range( 0 ), m_max_range( 0 ) );
 				vec( 1 ) = distribute_uniform< T >( m_min_range( 1 ), m_max_range( 1 ) );
 				vec( 2 ) = distribute_uniform< T >( m_min_range( 2 ), m_max_range( 2 ) );

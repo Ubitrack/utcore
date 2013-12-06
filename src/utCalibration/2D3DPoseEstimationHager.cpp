@@ -57,16 +57,16 @@ namespace Ubitrack { namespace Calibration {
 #ifdef HAVE_LAPACK
 
 template< typename T >
-Math::Vector< 3, T > calculateCentroid( const std::vector< Math::Vector< 3, T > > &points )
+Math::Vector< T, 3 > calculateCentroid( const std::vector< Math::Vector< T, 3 > > &points )
 {
-	Math::Vector< 3, T > centroid = std::accumulate( points.begin(), points.end(), Math::Vector< 3, T > ( 0, 0, 0 ) );
+	Math::Vector< T, 3 > centroid = std::accumulate( points.begin(), points.end(), Math::Vector< T, 3 > ( 0, 0, 0 ) );
 	return ( centroid / static_cast< T > ( points.size() ) );
 }
 
 template< typename T >
-Math::Vector< 3, T > shiftToCenter( std::vector < Math::Vector< 3, T > > &points )
+Math::Vector< T, 3 > shiftToCenter( std::vector < Math::Vector< T, 3 > > &points )
 {
-	Math::Vector< 3, T > centroid = calculateCentroid< T >( points );
+	Math::Vector< T, 3 > centroid = calculateCentroid< T >( points );
 	std::transform( points.begin(), points.end(), points.begin()
 		, std::bind2nd( Math::Functors::difference_vector< 3, T >(), centroid ) );
 	return centroid;
@@ -84,7 +84,7 @@ Math::Matrix< 3, 3, T > calculateTFactorMatrix( const std::vector< Math::Matrix<
 }
 
 template< typename T >
-Math::Matrix< 3, 3, T > absoluteOrientation( const std::vector< Math::Vector< 3, T > > &pointsA, const std::vector< Math::Vector< 3, T > > pointsB )
+Math::Matrix< 3, 3, T > absoluteOrientation( const std::vector< Math::Vector< T, 3 > > &pointsA, const std::vector< Math::Vector< T, 3 > > pointsB )
 {
 
 	std::vector< Math::Matrix< 3, 3, T > > matrices;
@@ -99,7 +99,7 @@ Math::Matrix< 3, 3, T > absoluteOrientation( const std::vector< Math::Vector< 3,
 	if ( Math::determinant( B ) < 0 )
 		B *= -1;
 	Math::Matrix< 3, 3, T > U;
-	Math::Vector< 3, T > s;
+	Math::Vector< T, 3 > s;
 	Math::Matrix< 3, 3, T > Vt;
 	
 	boost::numeric::bindings::lapack::gesvd( 'A', 'A', B, s, U, Vt );
@@ -109,7 +109,7 @@ Math::Matrix< 3, 3, T > absoluteOrientation( const std::vector< Math::Vector< 3,
 }
 
 template< typename T >
-void projectPoints( std::vector< Math::Vector< 3, T > > &pointsImg, Math::Matrix< 3, 3, T > &Rot, Math::Vector< 3, T > &Tr, const std::vector< Math::Vector< 3, T > > &pointsObj )
+void projectPoints( std::vector< Math::Vector< T, 3 > > &pointsImg, Math::Matrix< 3, 3, T > &Rot, Math::Vector< T, 3 > &Tr, const std::vector< Math::Vector< T, 3 > > &pointsObj )
 {
 	//prepare Matrix
 	Math::Matrix< 3, 4, T > projection;
@@ -122,9 +122,9 @@ void projectPoints( std::vector< Math::Vector< 3, T > > &pointsImg, Math::Matrix
 }
 
 template< typename T >
-Math::Vector< 3, T > estimateTranslation( const std::vector< Math::Matrix< 3, 3, T > > &Vi, const Math::Matrix< 3, 3, T > &Rot, const std::vector< Math::Vector< 3, T > > &pointsObj, const Math::Matrix< 3, 3, T > &TMatrix )
+Math::Vector< T, 3 > estimateTranslation( const std::vector< Math::Matrix< 3, 3, T > > &Vi, const Math::Matrix< 3, 3, T > &Rot, const std::vector< Math::Vector< T, 3 > > &pointsObj, const Math::Matrix< 3, 3, T > &TMatrix )
 {
-	std::vector< Math::Vector< 3, T > > vec_tmp;
+	std::vector< Math::Vector< T, 3 > > vec_tmp;
 	vec_tmp.reserve( Vi.size() );
 	std::transform( pointsObj.begin(), pointsObj.end(), std::back_inserter( vec_tmp )
 		, std::bind1st( Math::Functors::transform3x3_vector3< T >(), Rot ) );
@@ -132,7 +132,7 @@ Math::Vector< 3, T > estimateTranslation( const std::vector< Math::Matrix< 3, 3,
 	std::transform( Vi.begin(), Vi.end(), vec_tmp.begin(), vec_tmp.begin()
 		, Math::Functors::transform3x3_vector3< T >() );
 	
-	Math::Vector< 3, T > translation = std::accumulate( vec_tmp.begin(), vec_tmp.end(), Math::Vector< 3, T >( 0, 0, 0 ) );
+	Math::Vector< T, 3 > translation = std::accumulate( vec_tmp.begin(), vec_tmp.end(), Math::Vector< T, 3 >( 0, 0, 0 ) );
 	translation = ublas::prod( TMatrix, translation );
 	return translation;
 }
@@ -140,19 +140,19 @@ Math::Vector< 3, T > estimateTranslation( const std::vector< Math::Matrix< 3, 3,
 /** calculation of object-space-error for STL container*/
 template< typename T >
 struct object_space_error
-	: public std::binary_function< Math::Matrix< 3, 3, T >, Math::Vector< 3, T >, T >
+	: public std::binary_function< Math::Matrix< 3, 3, T >, Math::Vector< T, 3 >, T >
 {
 public:
-	T operator() ( const Math::Matrix< 3, 3, T > &matrix, const Math::Vector< 3, T >& vec ) const
+	T operator() ( const Math::Matrix< 3, 3, T > &matrix, const Math::Vector< T, 3 >& vec ) const
     {
 		Math::Matrix< 3, 3, T > tmp( Math::Matrix< 3, 3, T >::identity() - matrix );
-		Math::Vector< 3, T > vec_tmp = ublas::prod( tmp, vec );
+		Math::Vector< T, 3 > vec_tmp = ublas::prod( tmp, vec );
 		return ublas::inner_prod( vec_tmp, vec_tmp );
 	}
 };
 
 template< typename T >
-T calculateObjectSpaceError( std::vector< Math::Matrix< 3, 3, T > > &Vi, std::vector< Math::Vector< 3, T > > &points  )
+T calculateObjectSpaceError( std::vector< Math::Matrix< 3, 3, T > > &Vi, std::vector< Math::Vector< T, 3 > > &points  )
 {
 	std::vector< T > ose;
 	ose.reserve( Vi.size() );
@@ -162,7 +162,7 @@ T calculateObjectSpaceError( std::vector< Math::Matrix< 3, 3, T > > &Vi, std::ve
 }
 
 template< typename T >
-T abskernel( const std::vector< Math::Vector< 3, T > > &pointsObj, std::vector< Math::Vector< 3, T > > &pointsImg, std::vector< Math::Matrix< 3, 3, T > > &Vi, Math::Matrix< 3, 3, T > &Tmatrix, Math::Matrix< 3, 3, T > &Rot, Math::Vector< 3, T > &Tr )
+T abskernel( const std::vector< Math::Vector< T, 3 > > &pointsObj, std::vector< Math::Vector< T, 3 > > &pointsImg, std::vector< Math::Matrix< 3, 3, T > > &Vi, Math::Matrix< 3, 3, T > &Tmatrix, Math::Matrix< 3, 3, T > &Rot, Math::Vector< T, 3 > &Tr )
 {		
 
 	std::transform( Vi.begin(), Vi.end(), pointsImg.begin(),  pointsImg.begin(), Math::Functors::transform3x4_vector3< T >() );
@@ -188,10 +188,10 @@ T abskernel( const std::vector< Math::Vector< 3, T > > &pointsObj, std::vector< 
 /** calculation of line-ofsight-projection-matrix for STL container */
 template< typename T >
 struct lineOfSightProjectionMatrix
-	: public std::binary_function< Math::Vector< 3, T >, T, Math::Matrix< 3, 3, T > >
+	: public std::binary_function< Math::Vector< T, 3 >, T, Math::Matrix< 3, 3, T > >
 {
 public:
-    Math::Matrix< 3, 3, T > operator() ( const Math::Vector< 3, T > &v, const T& d ) const
+    Math::Matrix< 3, 3, T > operator() ( const Math::Vector< T, 3 > &v, const T& d ) const
     {
 		Math::Matrix< 3, 3, T > matrix = ublas::outer_prod( v, v );
 		matrix /= d;
@@ -202,19 +202,19 @@ public:
 
 /** \internal */
 template< typename T > 
-bool estimatePoseImpl( Math::Pose& p, const std::vector< Math::Vector< 3, T > >& p2D, std::vector< Math::Vector< 3, T > >& p3D, 
+bool estimatePoseImpl( Math::Pose& p, const std::vector< Math::Vector< T, 3 > >& p2D, std::vector< Math::Vector< T, 3 > >& p3D, 
 	const Math::Matrix< 3, 3, T >& cam, unsigned &nIterations, T &termination_error  )
 {
 	// image points should already be moved to the center and homogenized
 	// now just copy the image points, since they will be changed during the algorithm
-	std::vector< Math::Vector< 3, T > > p2Dh;
+	std::vector< Math::Vector< T, 3 > > p2Dh;
 	p2Dh.reserve( p2D.size() );
 	p2Dh.assign( p2D.begin(), p2D.end() );
 	
 
 	// move the 3D object points to coordinate center
 	// this could also be done outside. In repreated usage of this algorithm here is a minimal optimization possibility
-	Math::Vector< 3, T > center = shiftToCenter( p3D );
+	Math::Vector< T, 3 > center = shiftToCenter( p3D );
 	
 
 	//calculate the inner product for each vector
@@ -235,7 +235,7 @@ bool estimatePoseImpl( Math::Pose& p, const std::vector< Math::Vector< 3, T > >&
 		
 	//starting the algorithm loop to estimate R and T
 	Math::Matrix< 3, 3, T > R;
-	Math::Vector< 3, T > Tr;
+	Math::Vector< T, 3 > Tr;
 	T error_old, error_new;
 	unsigned iterations = 1;
 	bool converging = true;
@@ -275,16 +275,16 @@ bool estimatePoseImpl( Math::Pose& p, const std::vector< Math::Vector< 3, T > >&
 }
 
 
-bool estimatePose( Math::Pose& p, std::vector< Math::Vector< 3, float > > p2D,
-	std::vector< Math::Vector< 3, float > > p3D, const Math::Matrix< 3, 3, float >& cam,
+bool estimatePose( Math::Pose& p, std::vector< Math::Vector< float, 3 > > p2D,
+	std::vector< Math::Vector< float, 3 > > p3D, const Math::Matrix< 3, 3, float >& cam,
 	unsigned &nIterations, float &error )
 {
 	LOG4CPP_DEBUG( optLogger, "starting Pose Estimate with float values." );
 	return estimatePoseImpl( p, p2D, p3D, cam, nIterations, error );
 }
 
-bool estimatePose( Math::Pose& p, std::vector< Math::Vector< 3, double > > p2D,
-	std::vector< Math::Vector< 3, double > > p3D, const Math::Matrix< 3, 3, double >& cam,
+bool estimatePose( Math::Pose& p, std::vector< Math::Vector< double, 3 > > p2D,
+	std::vector< Math::Vector< double, 3 > > p3D, const Math::Matrix< 3, 3, double >& cam,
 	unsigned &nIterations, double &error )
 {
 	LOG4CPP_DEBUG( optLogger, "starting Pose Estimate with double values." );

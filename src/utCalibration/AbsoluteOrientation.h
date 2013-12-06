@@ -46,8 +46,8 @@
 
 namespace Ubitrack { namespace Calibration {
 
-UBITRACK_EXPORT Math::Scalar< double > calculateAbsoluteOrientationScale ( const std::vector< Math::Vector< 3, double > >& m_left,
-														         const std::vector< Math::Vector< 3, double > >& m_right);
+UBITRACK_EXPORT Math::Scalar< double > calculateAbsoluteOrientationScale ( const std::vector< Math::Vector< double, 3 > >& m_left,
+														         const std::vector< Math::Vector< double, 3 > >& m_right);
 
 /**
  * @ingroup tracking_algorithms
@@ -66,8 +66,8 @@ UBITRACK_EXPORT Math::Scalar< double > calculateAbsoluteOrientationScale ( const
  * @return pose that describes the transformation of the left coordinate frame into the right coordinate frame.
  * @throws Util::Exception if lapack is not available, different number of samples for left and right side are given or the matrix N only has non-positive eigenvalues.
  */
-UBITRACK_EXPORT Math::Pose calculateAbsoluteOrientation ( const std::vector< Math::Vector< 3, double > >& left,
-														  const std::vector< Math::Vector< 3, double > >& right);
+UBITRACK_EXPORT Math::Pose calculateAbsoluteOrientation ( const std::vector< Math::Vector< double, 3 > >& left,
+														  const std::vector< Math::Vector< double, 3 > >& right);
 
 /**
  * @ingroup tracking_algorithms
@@ -88,8 +88,8 @@ UBITRACK_EXPORT Math::Pose calculateAbsoluteOrientation ( const std::vector< Mat
  * @return pose that describes the transformation of the left coordinate frame into the right coordinate frame.
  * @throws Util::Exception if lapack is not available, different number of samples for left and right side are given or the matrix N only has non-positive eigenvalues.
  */
-UBITRACK_EXPORT Math::Pose calculateAbsoluteOrientation ( const Math::Vector< 3, double >* leftBegin, const Math::Vector< 3, double >* leftEnd,
-														  const Math::Vector< 3, double >* rightBegin, const Math::Vector< 3, double >* rightEnd );
+UBITRACK_EXPORT Math::Pose calculateAbsoluteOrientation ( const Math::Vector< double, 3 >* leftBegin, const Math::Vector< double, 3 >* leftEnd,
+														  const Math::Vector< double, 3 >* rightBegin, const Math::Vector< double, 3 >* rightEnd );
 
 /**
  * @ingroup tracking_algorithms
@@ -110,10 +110,10 @@ UBITRACK_EXPORT Math::Pose calculateAbsoluteOrientation ( const Math::Vector< 3,
  * @return pose that describes the transformation of the left coordinate frame into the right coordinate frame.
  * @throws Util::Exception if lapack is not available, different number of samples for left and right side are given or the matrix N only has non-positive eigenvalues.
  */
-UBITRACK_EXPORT Math::Pose calculateAbsoluteOrientation ( const std::vector< Math::Vector< 3, double > >::iterator& leftBegin,
-														  const std::vector< Math::Vector< 3, double > >::iterator& leftEnd,
-														  const std::vector< Math::Vector< 3, double > >::iterator& rightBegin,
-														  const std::vector< Math::Vector< 3, double > >::iterator& rightEnd );
+UBITRACK_EXPORT Math::Pose calculateAbsoluteOrientation ( const std::vector< Math::Vector< double, 3 > >::iterator& leftBegin,
+														  const std::vector< Math::Vector< double, 3 > >::iterator& leftEnd,
+														  const std::vector< Math::Vector< double, 3 > >::iterator& rightBegin,
+														  const std::vector< Math::Vector< double, 3 > >::iterator& rightEnd );
 
 /**
  * function object version of calculateAbsoluteOrientation for RANSAC etc.
@@ -123,8 +123,8 @@ template< class T >
 class EstimateAbsoluteOrientation
 {
 public:
-	void operator()( Math::Pose& result, const std::vector< Math::Vector< 3, T > >& pointsA, 
-		const std::vector< Math::Vector< 3, T > >& pointsB ) const
+	void operator()( Math::Pose& result, const std::vector< Math::Vector< T, 3 > >& pointsA, 
+		const std::vector< Math::Vector< T, 3 > >& pointsB ) const
 	{
 		Math::Pose pose( calculateAbsoluteOrientation( pointsA, pointsB ) );
 		result = pose;
@@ -141,9 +141,9 @@ public:
 	/**
 	 * computes euclidean distance of transformed point to original point
 	 */
-	T operator()( const Math::Pose &p, const Math::Vector< 3, T > &a, const Math::Vector< 3, T > &b ) const
+	T operator()( const Math::Pose &p, const Math::Vector< T, 3 > &a, const Math::Vector< T, 3 > &b ) const
 	{
-		Math::Vector< 3, T > c = p * a;
+		Math::Vector< T, 3 > c = p * a;
 		return boost::numeric::ublas::norm_2( b - c );
 	}
 };
@@ -156,8 +156,8 @@ public:
  * @returns Rms of corresponding point distances
  */
 template< class T >
-T computeRms( const Math::Pose& pose, const std::vector< Math::Vector< 3, T > >& left,
-    const std::vector< Math::Vector< 3, T > >& right )
+T computeRms( const Math::Pose& pose, const std::vector< Math::Vector< T, 3 > >& left,
+    const std::vector< Math::Vector< T, 3 > >& right )
 {
     if ( left.size() != right.size() )
         UBITRACK_THROW( "Invalid input list sizes for computeRms" );

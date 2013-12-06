@@ -42,7 +42,7 @@ namespace Ubitrack { namespace Math { namespace Function { namespace Detail {
  */
 template< std::size_t Size >
 class ResultVector
-	: public Math::Vector< Size >
+	: public Math::Vector< double, Size >
 {
 public:
 	ResultVector( std::size_t s )
@@ -52,13 +52,13 @@ public:
 
 	template< class AE > 
 	ResultVector( const boost::numeric::ublas::vector_expression< AE >& e )
-		: Math::Vector< Size >( e )
+		: Math::Vector< double, Size >( e )
 	{}
 	
 	template< class AE > 
-	Math::Vector< Size >& operator=( const boost::numeric::ublas::vector_expression< AE >& e )
+	Math::Vector< double, Size >& operator=( const boost::numeric::ublas::vector_expression< AE >& e )
 	{
-		Math::Vector< Size >::operator=( e );
+		Math::Vector< double, Size >::operator=( e );
 		return *this;
 	}
 };
@@ -66,22 +66,22 @@ public:
 /** dynamically sized, heap-allocated vector for intermediate results */
 template<>
 class ResultVector< 0U >
-	: public ublas::vector< double >
+	: public Math::Vector< double >
 {
 public:
 	ResultVector( std::size_t s )
-		: ublas::vector< double >( s )
+		: Math::Vector< double >( s )
 	{}
 
 	template< class AE > 
 	ResultVector( const boost::numeric::ublas::vector_expression< AE >& e )
-		: ublas::vector< double >( e )
+		: Math::Vector< double >( e )
 	{}
 	
 	template< class AE > 
-	ublas::vector< double >& operator=( const boost::numeric::ublas::vector_expression< AE >& e )
+	Math::Vector< double >& operator=( const boost::numeric::ublas::vector_expression< AE >& e )
 	{
-		ublas::vector< double >::operator=( e );
+		Math::Vector< double >::operator=( e );
 		return *this;
 	}
 };

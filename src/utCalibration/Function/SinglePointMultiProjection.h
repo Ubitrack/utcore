@@ -117,7 +117,7 @@ public:
 		for ( ForwardIterator1 it ( m_iBegin ); it != m_iEnd; ++i, ++it )
 		{
 			
-			const Math::Vector< 3, VType > point ( Math::Functors::transform3x4_vector3< VType>()( *it, input ) );
+			const Math::Vector< VType, 3 > point ( Math::Functors::transform3x4_vector3< VType>()( *it, input ) );
 			const VType P3_14p = point( 2 );
 			//= 1/(P3_14p^2)
 			const VType P3_14p2 = 1 / (P3_14p * P3_14p); 

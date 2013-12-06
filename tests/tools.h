@@ -43,10 +43,10 @@ void randomMatrix( M& m )
 			m( i, j ) = random( typename M::value_type( -100 ), typename M::value_type( 100 ) );
 }
 
-template< int N, typename T > 
-Ubitrack::Math::Vector< N, T > randomVector( T maxVal = 100.0 )
+template< typename T, std::size_t N > 
+Ubitrack::Math::Vector< T, N > randomVector( T maxVal = 100.0 )
 {
-	Ubitrack::Math::Vector< N, T > v;
+	Ubitrack::Math::Vector< T, N > v;
 	for ( std::size_t i = 0; i < v.size(); i++ )
 		v( i ) = random( T( -maxVal ), T( maxVal ) );
 	return v;

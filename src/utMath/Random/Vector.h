@@ -55,7 +55,7 @@ namespace Ubitrack { namespace Math { namespace Random {
 * @ingroup math
 * Functor to generate vectors of a random distribution
 */
-template< std::size_t N, typename T >
+template< typename T, std::size_t N >
 struct Vector
 {
 	/**
@@ -66,11 +66,11 @@ struct Vector
 	 * or your specify the mean value and standard deviation for each dimension separately.
 	 */
 	struct Normal
-		: public std::unary_function< void, Math::Vector< N, T > >
+		: public std::unary_function< void, Math::Vector< T, N > >
 	{
 		protected:
-			const Math::Vector< N, T > m_mu;
-			const Math::Vector< N, T > m_sigma;
+			const Math::Vector< T, N > m_mu;
+			const Math::Vector< T, N > m_sigma;
 			// 2013-11-07 CW: Commented out the drawing number from a covariance 
 			// the intention was good, the realization was wrong
 			// actually there is already a function to draw from a normal distribution
@@ -91,7 +91,7 @@ struct Vector
 			
 		public :
 			Normal( const T mu, const T sigma )
-				: std::unary_function< void, Math::Vector< N, T > >( )
+				: std::unary_function< void, Math::Vector< T, N > >( )
 				, m_mu( boost::numeric::ublas::scalar_vector< T >( N, mu ) )
 				, m_sigma( boost::numeric::ublas::scalar_vector< T >( N, sigma ) )
 				// , m_sigma( boost::numeric::ublas::identity_matrix< T >( N ) * sigma )
@@ -99,8 +99,8 @@ struct Vector
 					// prepareSigma();
 				};
 		
-			Normal( const Math::Vector< N, T >& mu, const Math::Vector< N, T >& sigma )
-				: std::unary_function< void, Math::Vector< N, T > >( )
+			Normal( const Math::Vector< T, N >& mu, const Math::Vector< T, N >& sigma )
+				: std::unary_function< void, Math::Vector< T, N > >( )
 				, m_mu( mu )
 				, m_sigma( sigma )
 				// , m_sigma( boost::numeric::ublas::zero_matrix< T >( N ) )
@@ -110,8 +110,8 @@ struct Vector
 					// prepareSigma();
 				};
 
-			Normal( const Math::Vector< N, T >& mu, const Math::Matrix< N, N, T >& sigma )
-				: std::unary_function< void, Math::Vector< N, T > >( )
+			Normal( const Math::Vector< T, N >& mu, const Math::Matrix< N, N, T >& sigma )
+				: std::unary_function< void, Math::Vector< T, N > >( )
 				, m_mu( mu )
 				// , m_sigma( sigma )
 				{
@@ -120,17 +120,17 @@ struct Vector
 					// prepareSigma();
 				};
 
-			const Math::Vector< N, T > operator()( void ) const
+			const Math::Vector< T, N > operator()( void ) const
 			{
-				Math::Vector< N, T > vec; 
+				Math::Vector< T, N > vec; 
 				for( std::size_t n( 0 ); n < N; ++n )
 					vec( n ) = distribute_normal< T >( m_mu[ n ], m_sigma[ n ] );
 				return vec;
 				// return ( m_mu + boost::numeric::ublas::prod( m_sigma, vec ) );
-				/*Math::Vector< N, T > vec; 
+				/*Math::Vector< T, N > vec; 
 				for( std::size_t n( 0 ); n < (N); ++n )
 					vec( n ) = distribute_normal< T >( m_mu( n ), m_sigma( n ) );
-				return Math::Vector< N, T >( vec );*/
+				return Math::Vector< T, N >( vec );*/
 			}
 	};
 
@@ -144,31 +144,31 @@ struct Vector
 	 */
 
 	struct Uniform
-		: public std::unary_function< void, Math::Vector< N, T > >
+		: public std::unary_function< void, Math::Vector< T, N > >
 	{
 		protected:
-			const Math::Vector< N, T > m_min_range;
-			const Math::Vector< N, T > m_max_range;
+			const Math::Vector< T, N > m_min_range;
+			const Math::Vector< T, N > m_max_range;
 			
 		public :
 			Uniform( const T min_range , const T max_range )
-				: std::unary_function< void, Math::Vector< N, T > >( )
+				: std::unary_function< void, Math::Vector< T, N > >( )
 				, m_min_range( boost::numeric::ublas::scalar_vector< T >( N, std::min( min_range, max_range ) ) )
 				, m_max_range( boost::numeric::ublas::scalar_vector< T >( N, std::max( min_range, max_range ) ) )
 				{ };
 				
-			Uniform( const Math::Vector< N, T > &min_range, const Math::Vector< N, T > &max_range )
-				: std::unary_function< void, Math::Vector< N, T > >( )
+			Uniform( const Math::Vector< T, N > &min_range, const Math::Vector< T, N > &max_range )
+				: std::unary_function< void, Math::Vector< T, N > >( )
 				, m_min_range( min_range )
 				, m_max_range( max_range )
 				{ };
 
-			const Math::Vector< N, T > operator()( void ) const
+			const Math::Vector< T, N > operator()( void ) const
 			{
-				Math::Vector< N, T > vec; 
+				Math::Vector< T, N > vec; 
 				for( std::size_t n( 0 ); n < N; ++n )
 					vec( n ) = distribute_uniform< T >( m_min_range( n ), m_max_range( n ) );
-				return Math::Vector< N, T >( vec );
+				return Math::Vector< T, N >( vec );
 			}
 	};
 };
@@ -183,9 +183,9 @@ struct Vector
  * @return the random vector from the normal distribution
  */
 template< typename T, std::size_t N >
-Math::Vector< N, T > distribute_normal( const T mu , const T sigma )
+Math::Vector< T, N > distribute_normal( const T mu , const T sigma )
 {
-	return typename Random::Vector< N, T >::Normal( mu, sigma )();
+	return typename Random::Vector< T, N >::Normal( mu, sigma )();
 }
 
 /** 
@@ -198,9 +198,9 @@ Math::Vector< N, T > distribute_normal( const T mu , const T sigma )
  * @return the random vector from the normal distribution
  */
 template< typename T, std::size_t N >
-Math::Vector< N, T > distribute_normal( const Math::Vector< N, T > &mu , const Math::Matrix< N, N, T>& sigma )
+Math::Vector< T, N > distribute_normal( const Math::Vector< T, N > &mu , const Math::Matrix< N, N, T>& sigma )
 {
-	return typename Random::Vector< N, T >::Normal( mu, sigma )();
+	return typename Random::Vector< T, N >::Normal( mu, sigma )();
 }
 
 /** 
@@ -213,9 +213,9 @@ Math::Vector< N, T > distribute_normal( const Math::Vector< N, T > &mu , const M
  * @return the random vector with entries between min and max
  */
 template< typename T, std::size_t N >
-Math::Vector< N, T > distribute_uniform( const T min, const T max )
+Math::Vector< T, N > distribute_uniform( const T min, const T max )
 {
-	return typename Random::Vector< N, T >::Uniform( min, max )();
+	return typename Random::Vector< T, N >::Uniform( min, max )();
 }
 
 }}} //Ubitrack::Math::Random

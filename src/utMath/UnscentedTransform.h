@@ -49,7 +49,7 @@ namespace Ubitrack { namespace Math {
 
 template< class PType, class VType >
 Math::Matrix< 6, 6 > unscentedTransform(
-		const std::vector< Math::Vector< 2, VType > >& measurements,
+		const std::vector< Math::Vector< VType, 2 > >& measurements,
 		VType variance, PType& problem)
 {
 	namespace ublas = boost::numeric::ublas;
@@ -58,16 +58,16 @@ Math::Matrix< 6, 6 > unscentedTransform(
 	VType stddev = sqrt(variance);
 	
 	// Storage for optimized parameters
-	std::vector< Math::Vector< 0, VType > > optimizedParameters;
+	std::vector< Math::Vector< VType > > optimizedParameters;
 
 	// First guess of parameters
 	// TODO: better values than zero?
-	Math::Vector< 7, VType > params = Math::Vector< 7, VType >::zeros();
+	Math::Vector< VType, 7 > params = Math::Vector< VType, 7 >::zeros();
 	// Avoid degenerate (absolute value of zero) quaternion
 	params( 4 ) = 1;
 
 	// Combine measurements into single vector
-	Math::Vector< 0, VType > measurementsCombined ( 2 * measurements.size() );
+	Math::Vector< VType > measurementsCombined ( 2 * measurements.size() );
 	for ( unsigned i = 0; i < measurements.size(); i++ )
 	{
 		measurementsCombined[ 2 * i ] = measurements[ i ][ 0 ];
@@ -75,7 +75,7 @@ Math::Matrix< 6, 6 > unscentedTransform(
 	}
 	
 	// Create undisturbed set
-	Math::Vector< 0, VType > sigmaSet ( 2 * measurements.size() );
+	Math::Vector< VType > sigmaSet ( 2 * measurements.size() );
 	sigmaSet = measurementsCombined;
 	
 	// LevenbergMarquadt on undisturbed set
@@ -93,7 +93,7 @@ Math::Matrix< 6, 6 > unscentedTransform(
 		sigmaSet[ i ] += stddev;
 
 		// Reset parameters
-		params = Math::Vector< 7, VType >::zeros();
+		params = Math::Vector< VType, 7 >::zeros();
 		params( 4 ) = 1;
 
 		// LevenbergMarquadt on disturbed set
@@ -111,7 +111,7 @@ Math::Matrix< 6, 6 > unscentedTransform(
 		sigmaSet[ i ] -= stddev;
 
 		// Reset parameters
-		params = Math::Vector< 7, VType >::zeros();
+		params = Math::Vector< VType, 7 >::zeros();
 		params( 4 ) = 1;
 
 		// LevenbergMarquadt on disturbed set
@@ -128,8 +128,8 @@ Math::Matrix< 6, 6 > unscentedTransform(
 	// std::cout << std::endl;
 	
 	// Compute average pose
-	Math::Vector< 7, double > avgPose( Math::Vector< 7, double >::zeros(); );
-	for ( typename std::vector< Math::Vector< 0, VType > >::iterator it = optimizedParameters.begin();
+	Math::Vector< double, 7 > avgPose( Math::Vector< double, 7 >::zeros(); );
+	for ( typename std::vector< Math::Vector< VType > >::iterator it = optimizedParameters.begin();
 			it != optimizedParameters.end(); it++ )
 	{
 		if ( it != optimizedParameters.begin() && 
@@ -149,10 +149,10 @@ Math::Matrix< 6, 6 > unscentedTransform(
 	
 	// Compute covariance
 	Math::Matrix< 6, 6 > covariance( Math::Matrix< 6, 6 >::zeros() );
-	for ( typename std::vector< Math::Vector< 0, VType > >::iterator it = optimizedParameters.begin();
+	for ( typename std::vector< Math::Vector< VType > >::iterator it = optimizedParameters.begin();
 			it != optimizedParameters.end(); it++ )
 	{
-		Math::Vector< 6 > localError;
+		Math::Vector< double, 6 > localError;
 		ublas::subrange( localError, 0, 3 ) = ublas::subrange( *it, 0, 3 ) - ublas::subrange( avgPose, 0, 3 );;
 		
 		Math::Quaternion qLocal((*it)[ 3 ], (*it)[ 4 ], (*it)[ 5 ], (*it)[ 6 ]);

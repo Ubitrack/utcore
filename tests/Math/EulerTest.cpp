@@ -17,7 +17,7 @@ namespace ublas = boost::numeric::ublas;
 void EulerCheck( Quaternion& rot0 ) {
 
 	rot0.normalize();
-	Vector<3> angles = rot0.getEulerAngles();
+	Vector< double, 3 > angles = rot0.getEulerAngles();
 
 	double rx = angles[0];
 	double ry = angles[1];
@@ -27,9 +27,9 @@ void EulerCheck( Quaternion& rot0 ) {
 	if (ry < 0) ry += 2*M_PI;
 	if (rz < 0) rz += 2*M_PI;
 
-	Quaternion qx( Vector<3>(1,0,0), rx );
-	Quaternion qy( Vector<3>(0,1,0), ry );
-	Quaternion qz( Vector<3>(0,0,1), rz );
+	Quaternion qx( Vector< double, 3 >(1,0,0), rx );
+	Quaternion qy( Vector< double, 3 >(0,1,0), ry );
+	Quaternion qz( Vector< double, 3 >(0,0,1), rz );
 
 	Quaternion rot1 = qz*qy; rot1 = rot1*qx;
 	rot1 = rot1.negateIfCloser( rot0 );
@@ -50,7 +50,7 @@ void TestQuaternionConversion() {
 	}
 
 	// check pathological case: r_y == pi/2
-	Quaternion y90( Vector<3>(0,1,0), M_PI/2.0 );
+	Quaternion y90( Vector< double, 3 >(0,1,0), M_PI/2.0 );
 	EulerCheck( y90 );
 }
 

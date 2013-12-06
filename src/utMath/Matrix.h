@@ -111,7 +111,7 @@ template< std::size_t M, std::size_t N, typename T > class Matrix
 		 * @param rotation a quaternion
 		 * @param position a translation vector
 		 */
-		Matrix( const Quaternion& rotation, const Vector< 3 >& position )
+		Matrix( const Quaternion& rotation, const Vector< double, 3 >& position )
 			: base_type( M, N )
 		{
 			UBITRACK_STATIC_ASSERT( ((M==3)||(M==4))&&(N==4), MATRIX_4x4_REQUIRED );
@@ -142,7 +142,7 @@ template< std::size_t M, std::size_t N, typename T > class Matrix
 
 			pose.rotation().toMatrix( *this );
 
-			Vector< 3 > position = pose.translation();
+			Vector< double, 3 > position = pose.translation();
 
 			(*this)(0,3) = T( position[0] );
 			(*this)(1,3) = T( position[1] );

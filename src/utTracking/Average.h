@@ -78,17 +78,17 @@ protected:
 	
 	ResultType incrementalEstimate( EventType& perturbed );
 		
-	Math::Vector< 0, double > meanv;
+	Math::Vector< double > meanv;
 	Math::Matrix< 0, 0, double > outProd;
 
 	int m_counter;
 };
 
 template<>
-Math::Vector< 3 > Average< Math::Vector< 3 >, Math::Vector< 3 > >::mean( const std::vector< Math::Vector< 3 > > &eList )
+Math::Vector< double, 3 > Average< Math::Vector< double, 3 >, Math::Vector< double, 3 > >::mean( const std::vector< Math::Vector< double, 3 > > &eList )
 {
 	size_t size = eList.size();
-	Math::Vector< 3 > m_mean ( 0.0, 0.0, 0.0 );
+	Math::Vector< double, 3 > m_mean ( 0.0, 0.0, 0.0 );
 
 	for ( size_t i = 0; i < size; i++ )
 	{
@@ -98,10 +98,10 @@ Math::Vector< 3 > Average< Math::Vector< 3 >, Math::Vector< 3 > >::mean( const s
 }
 
 template<>
-Math::ErrorVector< 3 > Average< Math::Vector< 3 >, Math::ErrorVector< 3 > >::mean( const std::vector< Math::Vector< 3 > > &eList )
+Math::ErrorVector< double, 3 > Average< Math::Vector< double, 3 >, Math::ErrorVector< double, 3 > >::mean( const std::vector< Math::Vector< double, 3 > > &eList )
 {
 	size_t size = eList.size();
-	Math::Vector< 3, double > m_mean( Math::Vector< 3, double >::zeros() );
+	Math::Vector< double, 3 > m_mean( Math::Vector< double, 3 >::zeros() );
 	Math::Matrix< 3, 3, double > m_outProd ( Math::Matrix< 3, 3, double >::zeros() );
 
 	for (size_t i = 0; i < size; i++)
@@ -110,7 +110,7 @@ Math::ErrorVector< 3 > Average< Math::Vector< 3 >, Math::ErrorVector< 3 > >::mea
 		m_outProd = m_outProd + ublas::outer_prod( eList[i], eList[i] );
 	}
 	
-	Math::ErrorVector< 3 > ev ( m_mean, m_outProd / ( static_cast< double > ( size ) ) - ublas::outer_prod ( m_mean, m_mean ) );
+	Math::ErrorVector< double, 3 > ev ( m_mean, m_outProd / ( static_cast< double > ( size ) ) - ublas::outer_prod ( m_mean, m_mean ) );
 
  	return ev;
 }
@@ -121,7 +121,7 @@ Math::Quaternion Average< Math::Quaternion, Math::Quaternion >::mean( const std:
 	size_t size = eList.size();
 	Math::Quaternion q_mean ( 0.0, 0.0, 0.0, 0.0 );
 
-	Math::Vector< 3 > axisAngle( 0.0, 0.0, 0.0 );
+	Math::Vector< double, 3 > axisAngle( 0.0, 0.0, 0.0 );
 	
 	// angle = 2 * acos( q(:,4) );
 // s = sqrt( 1 - q(:,4) .* q(:,4) );% assuming quaternion normalised then w is less than 1, so term always positive.
@@ -146,7 +146,7 @@ Math::Quaternion Average< Math::Quaternion, Math::Quaternion >::mean( const std:
 		double scale = std::sqrt( 1.0 - q_t.w() * q_t.w() );
 		if( scale > 0.000001 )
 		{
-			Math::Vector< 3 > axis( q_t.x(), q_t.y(), q_t.z() );
+			Math::Vector< double, 3 > axis( q_t.x(), q_t.y(), q_t.z() );
 			axis /= scale;
 			axis *= angle;
 			axisAngle += axis;
@@ -172,7 +172,7 @@ template<>
 Math::Pose Average< Math::Pose, Math::Pose >::mean( const std::vector< Math::Pose > &eList )
 {
 	size_t size = eList.size();
-	Math::Vector< 3 > p_mean ( 0.0, 0.0, 0.0 );
+	Math::Vector< double, 3 > p_mean ( 0.0, 0.0, 0.0 );
 	Math::Quaternion q_mean ( 0.0, 0.0, 0.0, 0.0 );
 
 	for( size_t i = 0; i < size; i++ )
@@ -192,18 +192,18 @@ Math::Pose Average< Math::Pose, Math::Pose >::mean( const std::vector< Math::Pos
 }
 
 
-Math::ErrorPose incEstimate(  Math::Pose poseNew,  Math::Vector< 0, double >& meanv,  Math::Matrix< 0, 0, double >& outProd, int m_counter)
+Math::ErrorPose incEstimate(  Math::Pose poseNew,  Math::Vector< double >& meanv,  Math::Matrix< 0, 0, double >& outProd, int m_counter)
 {
-	ublas::vector_range< Math::Vector< 0, double >::base_type > posMean( meanv, ublas::range( 0, 3 ) );
-	ublas::vector_range< Math::Vector< 0, double >::base_type > rotMean( meanv, ublas::range( 3, 7 ) );
+	ublas::vector_range< Math::Vector< double >::base_type > posMean( meanv, ublas::range( 0, 3 ) );
+	ublas::vector_range< Math::Vector< double >::base_type > rotMean( meanv, ublas::range( 3, 7 ) );
 
 	//LOG4CPP_TRACE ( logger, "Update pose event: " << poseNew );
 
 	// The order is tx, ty, tz, qx, qy, qz, qw.
-	Math::Vector< 0, double > poseNewVec( 7 );
+	Math::Vector< double > poseNewVec( 7 );
 	poseNew.toVector( poseNewVec );
-	ublas::vector_range< Math::Vector< 0, double >::base_type > posNew( poseNewVec, ublas::range( 0, 3 ) );
-	ublas::vector_range< Math::Vector< 0, double >::base_type > rotNew( poseNewVec, ublas::range( 3, 7 ) );
+	ublas::vector_range< Math::Vector< double >::base_type > posNew( poseNewVec, ublas::range( 0, 3 ) );
+	ublas::vector_range< Math::Vector< double >::base_type > rotNew( poseNewVec, ublas::range( 3, 7 ) );
 
 	// Take care of quaternion ambiguity
  	if ( ublas::inner_prod( rotNew, rotMean ) < 0 )
@@ -242,9 +242,9 @@ Math::ErrorPose incEstimate(  Math::Pose poseNew,  Math::Vector< 0, double >& me
 	 * of the real part can then be discarded, it should be ~0.
 	 */
 
-	Math::Vector<7> invMean;
+	Math::Vector< double, 7 > invMean;
 	(~(Math::Pose::fromVector( meanv ) ) ).toVector( invMean );
-	Math::ErrorVector< 7 > ev ( invMean, outProd / ( (double)m_counter ) - ublas::outer_prod ( meanv, meanv ) );
+	Math::ErrorVector< double, 7 > ev ( invMean, outProd / ( (double)m_counter ) - ublas::outer_prod ( meanv, meanv ) );
 	Math::ErrorPose invEp = Math::ErrorPose::fromAdditiveErrorVector( ev );
 	
 	// We created the error pose from the inverted mean value above, to obtain the transformed 6x6 covariance
@@ -257,7 +257,7 @@ Math::ErrorPose incEstimate(  Math::Pose poseNew,  Math::Vector< 0, double >& me
 	Math::Matrix< 6, 6 > covar = ep.covariance();
 	double posRms = sqrt ( covar (0,0) + covar (1,1) + covar (2,2) );
 	//LOG4CPP_INFO( logger, "RMS positional error [mm]: " << posRms );
-	Math::Vector< 0, double > axis (3);
+	Math::Vector< double > axis (3);
 	axis (0) = sqrt ( covar (3,3) );
 	axis (1) = sqrt ( covar (4,4) );
 	axis (2) = sqrt ( covar (5,5) );
@@ -275,7 +275,7 @@ Math::ErrorPose Average< Math::Pose, Math::ErrorPose >::mean( const std::vector<
 {
 	size_t size = eList.size();
 	
-	meanv = Math::Vector< 7, double >::zeros();
+	meanv = Math::Vector< double, 7 >::zeros();
 	outProd = Math::Matrix< 7, 7, double >::zeros();
 
 	m_counter = 1;
@@ -287,10 +287,10 @@ Math::ErrorPose Average< Math::Pose, Math::ErrorPose >::mean( const std::vector<
 	}
 	return estimate;
 	/*
-	Math::Vector< 3 > p_mean ( 0.0, 0.0, 0.0 );
+	Math::Vector< double, 3 > p_mean ( 0.0, 0.0, 0.0 );
 	Math::Quaternion q_mean ( 0.0, 0.0, 0.0, 0.0 );
 	
-	Math::Vector< 0, double > m_mean = Math::Vector< 7, double >::zeros();
+	Math::Vector< double > m_mean = Math::Vector< double, 7 >::zeros();
 	Math::Matrix< 7, 7, double > m_outProd = Math::Matrix< 7, 7, double >::zeros();
 	
 	for( unsigned i = 0; i < size; i++ )
@@ -303,7 +303,7 @@ Math::ErrorPose Average< Math::Pose, Math::ErrorPose >::mean( const std::vector<
 		p_mean += eList[i].translation();
 		Math::Pose pose( q_mean, p_mean );
 		
-		Math::Vector< 0, double > poseTmpVec( 7 );
+		Math::Vector< double > poseTmpVec( 7 );
 		pose.toVector( poseTmpVec );
 		m_outProd = m_outProd + ublas::outer_prod( poseTmpVec, poseTmpVec );
 	}
@@ -316,9 +316,9 @@ Math::ErrorPose Average< Math::Pose, Math::ErrorPose >::mean( const std::vector<
 	
 	pose_mean.toVector( m_mean );
 
-	Math::Vector< 7 > invMean;
+	Math::Vector< double, 7 > invMean;
 	(~(Math::Pose::fromVector( m_mean ) ) ).toVector( invMean );
-	Math::ErrorVector< 7 > ev ( invMean, m_outProd / ( static_cast< double > ( size ) ) - ublas::outer_prod ( m_mean, m_mean ) );
+	Math::ErrorVector< double, 7 > ev ( invMean, m_outProd / ( static_cast< double > ( size ) ) - ublas::outer_prod ( m_mean, m_mean ) );
 	Math::ErrorPose invEp = Math::ErrorPose::fromAdditiveErrorVector( ev );
 	
 	Math::ErrorPose ep( Math::Pose::fromVector( m_mean ), invEp.covariance() );

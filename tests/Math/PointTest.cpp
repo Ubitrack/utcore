@@ -19,11 +19,11 @@ void testBasicPointTransformations( const std::size_t n )
 {
 	
 	typename Random::Quaternion< T >::Uniform randQuat;
-	typename Random::Vector< 3, T >::Uniform randTranslation( -10, 10 ); //translation
+	typename Random::Vector< T, 3 >::Uniform randTranslation( -10, 10 ); //translation
 
 	// random pose
 	Quaternion rot( randQuat( ) );
-	Vector< 3, T > trans ( randTranslation() );
+	Vector< T, 3 > trans ( randTranslation() );
 
 	// transformation matrices
 	Matrix< 4, 4, T > mat4x4( rot, trans );
@@ -39,26 +39,26 @@ void testBasicPointTransformations( const std::size_t n )
 
 	{
 		// random 3D parameters (as 2D vector, last dimension as one)
-		typename Random::Vector< 2, T >::Uniform randPoints2D( -5, 5 ); 
+		typename Random::Vector< T, 2 >::Uniform randPoints2D( -5, 5 ); 
 
 		// generate some random points
-		std::vector< Ubitrack::Math::Vector< 2, T > > pts3D2;
+		std::vector< Ubitrack::Math::Vector< T, 2 > > pts3D2;
 		pts3D2.reserve( n );
 		std::generate_n ( std::back_inserter( pts3D2 ), n,  randPoints2D );
 
-		std::vector< Ubitrack::Math::Vector< 2, T > > pts3DOut11;
+		std::vector< Ubitrack::Math::Vector< T, 2 > > pts3DOut11;
 		pts3DOut11.reserve( n );
 		Geometry::transform_points( mat2x3, pts3D2.begin(), pts3D2.end(), std::back_inserter( pts3DOut11 ) );
 		
-		std::vector< Ubitrack::Math::Vector< 3, T > > pts3DOut12;
+		std::vector< Ubitrack::Math::Vector< T, 3 > > pts3DOut12;
 		pts3DOut12.reserve( n );
 		Geometry::transform_points( mat3x3, pts3D2.begin(), pts3D2.end(), std::back_inserter( pts3DOut12 ) );
 		
-		std::vector< Ubitrack::Math::Vector< 3, T > > pts3DOut13;
+		std::vector< Ubitrack::Math::Vector< T, 3 > > pts3DOut13;
 		pts3DOut13.reserve( n );
 		Geometry::transform_points( mat3x4, pts3D2.begin(), pts3D2.end(), std::back_inserter( pts3DOut13 ) );
 		
-		std::vector< Ubitrack::Math::Vector< 4, T > > pts3DOut14;
+		std::vector< Ubitrack::Math::Vector< T, 4 > > pts3DOut14;
 		pts3DOut14.reserve( n );
 		Geometry::transform_points( mat4x4, pts3D2.begin(), pts3D2.end(), std::back_inserter( pts3DOut14 ) );
 		
@@ -68,26 +68,26 @@ void testBasicPointTransformations( const std::size_t n )
 	
 	{
 		// random 3D parameters (as 3D vector, last dimension as one)
-		typename Random::Vector< 3, T >::Uniform randPoints3D( -5, 5 ); 
+		typename Random::Vector< T, 3 >::Uniform randPoints3D( -5, 5 ); 
 
 		// generate some random points
-		std::vector< Ubitrack::Math::Vector< 3, T > > pts3D1;
+		std::vector< Ubitrack::Math::Vector< T, 3 > > pts3D1;
 		pts3D1.reserve( n );
 		std::generate_n ( std::back_inserter( pts3D1 ), n,  randPoints3D );
 
-		std::vector< Ubitrack::Math::Vector< 2, T > > pts3DOut11;
+		std::vector< Ubitrack::Math::Vector< T, 2 > > pts3DOut11;
 		pts3DOut11.reserve( n );
 		Geometry::transform_points( mat2x3, pts3D1.begin(), pts3D1.end(), std::back_inserter( pts3DOut11 ) );
 		
-		std::vector< Ubitrack::Math::Vector< 3, T > > pts3DOut12;
+		std::vector< Ubitrack::Math::Vector< T, 3 > > pts3DOut12;
 		pts3DOut12.reserve( n );
 		Geometry::transform_points( mat3x3, pts3D1.begin(), pts3D1.end(), std::back_inserter( pts3DOut12 ) );
 		
-		std::vector< Ubitrack::Math::Vector< 3, T > > pts3DOut13;
+		std::vector< Ubitrack::Math::Vector< T, 3 > > pts3DOut13;
 		pts3DOut13.reserve( n );
 		Geometry::transform_points( mat3x4, pts3D1.begin(), pts3D1.end(), std::back_inserter( pts3DOut13 ) );
 		
-		std::vector< Ubitrack::Math::Vector< 4, T > > pts3DOut14;
+		std::vector< Ubitrack::Math::Vector< T, 4 > > pts3DOut14;
 		pts3DOut14.reserve( n );
 		Geometry::transform_points( mat4x4, pts3D1.begin(), pts3D1.end(), std::back_inserter( pts3DOut14 ) );
 		
@@ -96,21 +96,21 @@ void testBasicPointTransformations( const std::size_t n )
 	
 	{
 		// random 3D parameters (as 4D vector)
-		typename Random::Vector< 4, T >::Uniform randPoints4D( -5, 5 ); 
+		typename Random::Vector< T, 4 >::Uniform randPoints4D( -5, 5 ); 
 
 		// generate some random points
-		std::vector< Ubitrack::Math::Vector< 4, T > > pts3D2;
+		std::vector< Ubitrack::Math::Vector< T, 4 > > pts3D2;
 		pts3D2.reserve( n );
 		std::generate_n ( std::back_inserter( pts3D2 ), n,  randPoints4D );
 
-		std::vector< Ubitrack::Math::Vector< 3, T > > pts3DOut11;
+		std::vector< Ubitrack::Math::Vector< T, 3 > > pts3DOut11;
 		pts3DOut11.reserve( n );
 		
-		std::vector< Ubitrack::Math::Vector< 3, T > > pts3DOut13;
+		std::vector< Ubitrack::Math::Vector< T, 3 > > pts3DOut13;
 		pts3DOut13.reserve( n );
 		Geometry::transform_points( mat3x4, pts3D2.begin(), pts3D2.end(), std::back_inserter( pts3DOut13 ) );
 		
-		std::vector< Ubitrack::Math::Vector< 4, T > > pts3DOut14;
+		std::vector< Ubitrack::Math::Vector< T, 4 > > pts3DOut14;
 		pts3DOut14.reserve( n );
 		Geometry::transform_points( mat4x4, pts3D2.begin(), pts3D2.end(), std::back_inserter( pts3DOut14 ) );
 		
@@ -121,13 +121,13 @@ void testBasicPointTransformations( const std::size_t n )
 template< typename T >
 void testBasicPointProjection( const std::size_t n )
 {
-	const Vector< 2, T > screenResolution( 640, 480 );
+	const Vector< T, 2 > screenResolution( 640, 480 );
 	typename Random::Quaternion< T >::Uniform randQuat;
-	typename Random::Vector< 3, T >::Uniform randTranslation( -10, 10 ); //translation
+	typename Random::Vector< T, 3 >::Uniform randTranslation( -10, 10 ); //translation
 
 	// random pose
 	Quaternion rot( randQuat( ) );
-	Vector< 3, T > trans ( randTranslation() );
+	Vector< T, 3 > trans ( randTranslation() );
 	
 	// random intrinsics matrix, never changes, assume always the same camera
 	Matrix< 3, 3, T > cam( Matrix< 3, 3, T >::identity() );
@@ -146,14 +146,14 @@ void testBasicPointProjection( const std::size_t n )
 	
 	{
 		// random 3D parameters (as 2D vector)
-		typename Random::Vector< 2, T >::Uniform randPoints2D( -5, 5 ); 
+		typename Random::Vector< T, 2 >::Uniform randPoints2D( -5, 5 ); 
 
 		// generate some random points
-		std::vector< Ubitrack::Math::Vector< 2, T > > pts3D2;
+		std::vector< Ubitrack::Math::Vector< T, 2 > > pts3D2;
 		pts3D2.reserve( n );
 		std::generate_n ( std::back_inserter( pts3D2 ), n,  randPoints2D );
 
-		std::vector< Ubitrack::Math::Vector< 2, T > > pts2DOut1;
+		std::vector< Ubitrack::Math::Vector< T, 2 > > pts2DOut1;
 		pts2DOut1.reserve( n );
 		Geometry::project_points( projection, pts3D2.begin(), pts3D2.end(), std::back_inserter( pts2DOut1 ) );
 	}
@@ -161,28 +161,28 @@ void testBasicPointProjection( const std::size_t n )
 	
 	{
 		// random 3D parameters (as 3D vector)
-		typename Random::Vector< 3, T >::Uniform randPoints3D( -5, 5 ); 
+		typename Random::Vector< T, 3 >::Uniform randPoints3D( -5, 5 ); 
 
 		// generate some random points
-		std::vector< Ubitrack::Math::Vector< 3, T > > pts3D3;
+		std::vector< Ubitrack::Math::Vector< T, 3 > > pts3D3;
 		pts3D3.reserve( n );
 		std::generate_n ( std::back_inserter( pts3D3 ), n,  randPoints3D );
 		
-		std::vector< Ubitrack::Math::Vector< 2, T > > pts2DOut2;
+		std::vector< Ubitrack::Math::Vector< T, 2 > > pts2DOut2;
 		pts2DOut2.reserve( n );
 		Geometry::project_points( projection, pts3D3.begin(), pts3D3.end(), std::back_inserter( pts2DOut2 ) );
 	}
 	
 	{
 		// random 3D parameters (as 3D vector)
-		typename Random::Vector< 4, T >::Uniform randPoints4D( -5, 5 ); 
+		typename Random::Vector< T, 4 >::Uniform randPoints4D( -5, 5 ); 
 
 		// generate some random points
-		std::vector< Ubitrack::Math::Vector< 4, T > > pts3D4;
+		std::vector< Ubitrack::Math::Vector< T, 4 > > pts3D4;
 		pts3D4.reserve( n );
 		std::generate_n ( std::back_inserter( pts3D4 ), n,  randPoints4D );
 		
-		std::vector< Ubitrack::Math::Vector< 2, T > > pts2DOut3;
+		std::vector< Ubitrack::Math::Vector< T, 2 > > pts2DOut3;
 		pts2DOut3.reserve( n );
 		Geometry::project_points( projection, pts3D4.begin(), pts3D4.end(), std::back_inserter( pts2DOut3 ) );
 	}

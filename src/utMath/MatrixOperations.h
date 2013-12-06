@@ -61,7 +61,7 @@ typename T::value_type determinant( const T& mat )
 {
 	// make a copy of mat, as the factorization will overwrite the contents	
 	Math::Matrix< 0, 0, typename T::value_type > a( mat );
-	Math::Vector< 0, int > ipiv( a.size1() );
+	Math::Vector< int > ipiv( a.size1() );
 	typedef typename T::size_type size_type;
 	
 	boost::numeric::bindings::lapack::getrf( a, ipiv );
@@ -87,7 +87,7 @@ template< class T > T invert_matrix( const T& m )
 {
 	// make a copy of m, as the factorization will overwrite the contents
 	T a( m );
-	Math::Vector< 0, int > ipiv( a.size1() );
+	Math::Vector< int > ipiv( a.size1() );
 
 	// factorize and compute inverse
 	boost::numeric::bindings::lapack::getrf( a, ipiv );
@@ -115,7 +115,7 @@ Math::Matrix< N, M, T > pseudoInvert_matrix( const Math::Matrix< M, N, T >& mat 
 	size_type m = mat.size2();
 	size_type nSingularValues = std::min( n, m );
 	
-	Math::Vector< 0, T > s( nSingularValues );
+	Math::Vector< T > s( nSingularValues );
 	Math::Matrix< 0, 0, T > U( n, n );
 	Math::Matrix< 0, 0, T > Vt( m, m );
 

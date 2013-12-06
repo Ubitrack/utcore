@@ -51,9 +51,9 @@ Pose Pose::operator*( const Pose& Q ) const
 	);
 }
 
-Vector< 3 > Pose::operator*( const Vector< 3 >& x ) const
+Vector< double, 3 > Pose::operator*( const Vector< double, 3 >& x ) const
 {
-	return Vector< 3 >( ( m_rotation * x ) + m_translation );
+	return Vector< double, 3 >( ( m_rotation * x ) + m_translation );
 }
 
 std::ostream& operator<<( std::ostream& s, const Pose& p )

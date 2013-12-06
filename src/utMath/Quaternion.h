@@ -91,10 +91,10 @@ class UBITRACK_EXPORT Quaternion
 		 * @param axis rotation axis
 		 * @param angle rotation angle
 		 */
-		Quaternion(const Vector<3>& axis, const double angle)
+		Quaternion( const Vector< double, 3 >& axis, const double angle )
 		{
 			double length = ::boost::numeric::ublas::norm_2(axis);
-			Vector<3> normAxis = axis*(sin(angle/2.0)/length);
+			Vector< double, 3 > normAxis = axis*(sin(angle/2.0)/length);
 
 			a = cos(angle/2.0);
 			b = normAxis(0);
@@ -168,7 +168,7 @@ class UBITRACK_EXPORT Quaternion
 		 * @param x input vector
 		 * @return output vector
 		 */
-		Vector< 3 > operator*( const Vector< 3 >& x ) const;
+		Vector< double, 3 > operator*( const Vector< double, 3 >& x ) const;
 
 		/**
 		 * @return the angle of the rotation represented by the quaternion
@@ -188,18 +188,18 @@ class UBITRACK_EXPORT Quaternion
 		 * sets the given axis-angle parameters to represent the value of this quaternion.
 		 * Note: Call normalize() in case of doubt for proper operation.
 		 */
-		template< class M >
-		void toAxisAngle( Math::Vector< 3, M >& axis, M& angle );
+		template< typename T >
+		void toAxisAngle( Math::Vector< T, 3 >& axis, T& angle );
 		
 		/**
 		 * computes the quaternion logarithm
 		 */
-		Vector< 3 > toLogarithm() const;
+		Vector< double, 3 > toLogarithm() const;
 		
 		/**
 		 * creates a quaternion from a quaternion logarithm
 		 */
-		static Quaternion fromLogarithm( const Vector< 3 >& v );
+		static Quaternion fromLogarithm( const Vector< double, 3 >& v );
 
 		/**
 		 * negates the quaternion if the result is closer to a given reference.
@@ -221,7 +221,7 @@ class UBITRACK_EXPORT Quaternion
 		 * @return rx,ry,rz result angles
 		 * ### deprecated
 		 */
-		Vector<3> getEulerAngles() const;
+		Vector< double, 3 > getEulerAngles() const;
 
 		/**
 		 * Sequence of rotations for computation of Euler angles. XYZ
@@ -240,7 +240,7 @@ class UBITRACK_EXPORT Quaternion
 		 * Convert quaternion to Euler angles in the given sequence.
 		 * @return rx,ry,rz result angles
 		 */
-		Vector<3> getEulerAngles( t_EulerSequence seq ) const;
+		Vector< double, 3 > getEulerAngles( t_EulerSequence seq ) const;
 		
 
 		/**
@@ -316,8 +316,8 @@ void Quaternion::toMatrix( M& matrix ) const
 
 
 // Code taken from http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToAngle/index.htm
-template< class M >
-void Quaternion::toAxisAngle( Math::Vector< 3, M >& axis, M& angle )
+template< typename T >
+void Quaternion::toAxisAngle( Math::Vector< T, 3 >& axis, T& angle )
 {
 	// assuming quaternion normalised then w is less than 1, so term always positive.
 	angle = 2 * acos( a );

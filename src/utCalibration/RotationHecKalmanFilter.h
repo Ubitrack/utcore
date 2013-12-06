@@ -70,7 +70,7 @@ public:
 	{ return m_state.covariance; }
 	
 protected:
-	Math::ErrorVector< 4 > m_state;
+	Math::ErrorVector< double, 4 > m_state;
 };
 
 } } // namespace Ubitrack::Calibration

@@ -35,7 +35,7 @@
 #include "Average.h"
 /*
 namespace Ubitrack { namespace Tracking {
-	typedef Average< Math::Vector< 3 > , Math::Vector< 3 >     >  AveragePosition;
+	typedef Average< Math::Vector< double, 3 > , Math::Vector< double, 3 >     >  AveragePosition;
 	typedef Average< Measurement::Distance, Measurement::Distance > >  DistanceListAverage;
 	typedef Average< Measurement::Position2D, Measurement::Position2D > > PositionList2DAverage;
 	typedef Average< Measurement::Position, Measurement::Position > > PositionListAverage;

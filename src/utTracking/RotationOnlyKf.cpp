@@ -51,7 +51,7 @@ namespace Ubitrack { namespace Tracking {
 RotationOnlyKF::RotationOnlyKF()
 {
 	// initialize state
-	m_state.value = Math::Vector< 7, double >::zeros();
+	m_state.value = Math::Vector< double, 7 >::zeros();
 	m_state.value( 3 ) = 1;
 	m_state.covariance = Math::Matrix< 7, 7, double >::identity();
 
@@ -69,7 +69,7 @@ void RotationOnlyKF::addRotationMeasurement( const Measurement::Rotation& m )
 	timeUpdate( m.time() );
 	
 	// create measurement as ErrorVector
-	Math::ErrorVector< 4 > v;
+	Math::ErrorVector< double, 4 > v;
 	m->negateIfCloser( Math::Quaternion::fromVector( m_state.value ) ).toVector( v.value );
 	v.covariance = Math::Matrix< 4, 4, double >::identity() * 0.004; // magic number, tune here
 	
@@ -87,7 +87,7 @@ void RotationOnlyKF::addVelocityMeasurement( const Measurement::RotationVelocity
 	timeUpdate( m.time() );
 	
 	// create measurement as ErrorVector
-	Math::ErrorVector< 3 > v;
+	Math::ErrorVector< double, 3 > v;
 	v.value = *m;
 	v.covariance = Math::Matrix< 3, 3, double >::identity() * 0.00001; // magic number, tune here
 	
@@ -127,7 +127,7 @@ Measurement::Rotation RotationOnlyKF::predict( Measurement::Timestamp t )
 {
 	// time update: forward filter to requested timestamp
 	double dt = ( t - m_time ) * 1e-9;
-	Math::ErrorVector< 4 > result = Math::transformWithCovariance< 4, 7 >( Function::QuaternionTimeUpdate( dt ), m_state );
+	Math::ErrorVector< double, 4 > result = Math::transformWithCovariance< 4, 7 >( Function::QuaternionTimeUpdate( dt ), m_state );
 	
 	return Measurement::Rotation( t, Math::Quaternion::fromVector( result.value ).normalize() );
 }

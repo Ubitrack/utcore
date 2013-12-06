@@ -56,11 +56,11 @@ namespace Ubitrack { namespace Calibration {
  * @param toPoints Points x' as inhomogeneous 2-vectors
  * @return calculated projection matrix
  */
-UBITRACK_EXPORT Math::Matrix< 3, 4, float > projectionDLT( const std::vector< Math::Vector< 3, float > >& fromPoints, 
-	const std::vector< Math::Vector< 2, float > >& toPoints );
+UBITRACK_EXPORT Math::Matrix< 3, 4, float > projectionDLT( const std::vector< Math::Vector< float, 3 > >& fromPoints, 
+	const std::vector< Math::Vector< float, 2 > >& toPoints );
 
-UBITRACK_EXPORT Math::Matrix< 3, 4, double > projectionDLT( const std::vector< Math::Vector< 3, double > >& fromPoints, 
-	const std::vector< Math::Vector< 2, double > >& toPoints );
+UBITRACK_EXPORT Math::Matrix< 3, 4, double > projectionDLT( const std::vector< Math::Vector< double, 3 > >& fromPoints, 
+	const std::vector< Math::Vector< double, 2 > >& toPoints );
 
 
 /**
@@ -78,10 +78,10 @@ UBITRACK_EXPORT Math::Matrix< 3, 4, double > projectionDLT( const std::vector< M
  * @param p the input projection matrix
  */
 UBITRACK_EXPORT void decomposeProjection( Math::Matrix< 3, 3, float >& k, 
-	Math::Matrix< 3, 3, float >& r, Math::Vector< 3, float >& t, const Math::Matrix< 3, 4, float >& p ); 
+	Math::Matrix< 3, 3, float >& r, Math::Vector< float, 3 >& t, const Math::Matrix< 3, 4, float >& p ); 
 
 UBITRACK_EXPORT void decomposeProjection( Math::Matrix< 3, 3, double >& k, 
-	Math::Matrix< 3, 3, double >& r, Math::Vector< 3, double >& t, const Math::Matrix< 3, 4, double >& p );    
+	Math::Matrix< 3, 3, double >& r, Math::Vector< double, 3 >& t, const Math::Matrix< 3, 4, double >& p );    
 
 #endif // HAVE_LAPACK
 
@@ -120,7 +120,7 @@ UBITRACK_EXPORT Math::Matrix< 4, 4, float > projectionMatrixToOpenGL( float l, f
  * @param sw screen width
  * @param sh screen height
  */
-UBITRACK_EXPORT Math::Matrix< 4, 4, double > offAxisProjectionMatrix( Math::Vector< 3, double >& eye, Math::Vector< 3, double >& ll, Math::Vector< 3, double >& ul, Math::Vector< 3, double >& lr, double n, double f, double sw, double sh );
+UBITRACK_EXPORT Math::Matrix< 4, 4, double > offAxisProjectionMatrix( Math::Vector< double, 3 >& eye, Math::Vector< double, 3 >& ll, Math::Vector< double, 3 >& ul, Math::Vector< double, 3 >& lr, double n, double f, double sw, double sh );
 
 
 /**

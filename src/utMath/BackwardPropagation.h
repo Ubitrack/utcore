@@ -86,7 +86,7 @@ void backwardPropagation( MT1& result, const MT2& input, const F& function, cons
 	
 	// factorize E into Q^T * T * Q
 	MatType Q( input );
-	Math::Vector< 0, VType > t( input.size1() );
+	Math::Vector< VType > t( input.size1() );
 	lapack::syev( 'V', 'U', Q, t, lapack::minimal_workspace() );
 	
 	// compute Q * J
@@ -108,7 +108,7 @@ void backwardPropagation( MT1& result, const MT2& input, const F& function, cons
 	// perform SVD on QJ
 	MatType dummyU( function.size(), function.size() );
 	MatType dummyVt( result.size1(), result.size1() );
-	Math::Vector< 0, VType > s( result.size1() );
+	Math::Vector< VType > s( result.size1() );
 	lapack::gesvd( 'N', 'O', QJ, s, dummyU, dummyVt );
 
 	// compute singular values of pseudo-inverse
@@ -159,7 +159,7 @@ void backwardPropagationIdentity( MT1& result, typename MT1::value_type s, MT3& 
 	// perform SVD on the jacobian
 	MatType dummyU( jacobian.size1(), jacobian.size1() );
 	MatType dummyVt( result.size1(), result.size1() );
-	Math::Vector< 0, VType > v( result.size1() );
+	Math::Vector< VType > v( result.size1() );
 	lapack::gesvd( 'N', 'O', jacobian, v, dummyU, dummyVt );
 
 	// compute singular values of pseudo-inverse, multiplied by sqrt(s)
@@ -241,7 +241,7 @@ void backwardPropagationDiagonal( MT1& result, const VT2& input, MT3& jacobian )
 	// perform SVD on jacobian
 	MatType dummyU( jacobian.size1(), jacobian.size1() );
 	MatType dummyVt( result.size1(), result.size1() );
-	Math::Vector< 0, VType > s( result.size1() );
+	Math::Vector< VType > s( result.size1() );
 	lapack::gesvd( 'N', 'O', jacobian, s, dummyU, dummyVt );
 
 	// compute singular values of pseudo-inverse

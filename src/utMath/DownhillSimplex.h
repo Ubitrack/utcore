@@ -70,8 +70,8 @@ typename VT1::value_type downhillSimplex( const P& problem, VT1& params, const V
 	}
 
 	// evaluate the function for these points
-	Math::Vector< 0, T > y( ndim + 1 );
-	Math::Vector< 0, T > eval( problem.size() );
+	Math::Vector< T > y( ndim + 1 );
+	Math::Vector< T > eval( problem.size() );
 	for ( unsigned i = 0; i <= ndim; i++ )
 	{
 		problem.evaluate( eval, ublas::row( p, i ) );
@@ -82,7 +82,7 @@ typename VT1::value_type downhillSimplex( const P& problem, VT1& params, const V
 	unsigned nfunk = 0;
 
 	// the sum of all simplex points
-	Math::Vector< 0, T > psum( ublas::row( p, 0 ) );
+	Math::Vector< T > psum( ublas::row( p, 0 ) );
 	for ( unsigned i = 1; i <= ndim; i++ )
 		noalias( psum ) += ublas::row( p, i );
 
@@ -160,8 +160,8 @@ typename VT1::value_type downhillSimplex( const P& problem, VT1& params, const V
  * \internal
  */
 template<  class T, class P, class VT2, class NT > 
-T downhillSimplexTry( Math::Matrix< 0, 0, T >& p, Math::Vector< 0, T >& y, 
-	Math::Vector< 0, T >& psum, P& problem, unsigned ihi, T fac, Math::Vector< 0, T >& eval, 
+T downhillSimplexTry( Math::Matrix< 0, 0, T >& p, Math::Vector< T >& y, 
+	Math::Vector< T >& psum, P& problem, unsigned ihi, T fac, Math::Vector< T >& eval, 
 	const VT2& measurement, const NT& normalize )
 {
 	namespace ublas = boost::numeric::ublas;
@@ -170,7 +170,7 @@ T downhillSimplexTry( Math::Matrix< 0, 0, T >& p, Math::Vector< 0, T >& y,
 	T fac2 = fac1 - fac;
 
 	// compute the trial point
-	Math::Vector< 0, T > ptry( psum * fac1 - ublas::row( p, ihi ) * fac2 );
+	Math::Vector< T > ptry( psum * fac1 - ublas::row( p, ihi ) * fac2 );
 	normalize.evaluate( ptry, ptry );
 
 	// evaluate

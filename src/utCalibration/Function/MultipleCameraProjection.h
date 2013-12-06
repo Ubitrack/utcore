@@ -59,10 +59,10 @@ public:
 	 * @param visibilities reference to a vector of observations. Each vector element contains a 
 	 *    pair (i_p, i_c) which specifies that camera i_c has measured point i_p.
 	 */
-	MultipleCameraProjection( const std::vector< Math::Vector< 3, VType > >& p3D, 
+	MultipleCameraProjection( const std::vector< Math::Vector< VType, 3 > >& p3D, 
 		const std::vector< Math::Pose >& cameraPoses, 
 		const std::vector< Math::Matrix< 3, 3, VType > >& cameraIntrinsics, 
-		const std::vector< Math::Vector< 4, VType > >& cameraDistortions, 
+		const std::vector< Math::Vector< VType, 4 > >& cameraDistortions, 
 		const std::vector< std::pair< std::size_t, std::size_t > > visibilities )
 		: m_p3D( p3D )
 		, m_camP( cameraPoses )
@@ -92,19 +92,19 @@ public:
 		Math::Matrix< 3, 3, VType > rot( rotQ );
 		
 		// create vectors
-		Math::Vector< 3, VType > rotated;
-		Math::Vector< 3, VType > camCoord;
-		Math::Vector< 2, VType > camCoordDehom;
-		Math::Vector< 2, VType > distorted;
-		Math::Vector< 2, VType > projected;
+		Math::Vector< VType, 3 > rotated;
+		Math::Vector< VType, 3 > camCoord;
+		Math::Vector< VType, 2 > camCoordDehom;
+		Math::Vector< VType, 2 > distorted;
+		Math::Vector< VType, 2 > projected;
 		
 		for ( std::size_t i( 0 ); i < m_vis.size(); i++ )
 		{
 			// shortcuts
-			const Math::Vector< 3, VType >& p3D( m_p3D[ m_vis[ i ].first ] );
+			const Math::Vector< VType, 3 >& p3D( m_p3D[ m_vis[ i ].first ] );
 			const Math::Pose& camP( m_camP[ m_vis[ i ].second ] );
 			const Math::Matrix< 3, 3, VType >& camI( m_camI[ m_vis[ i ].second ] );
-			const Math::Vector< 4, VType >& camD( m_camD[ m_vis[ i ].second ] );
+			const Math::Vector< VType, 4 >& camD( m_camD[ m_vis[ i ].second ] );
 			
 			// rotate & project points
 			noalias( rotated ) = ublas::prod( rot, p3D ) + ublas::subrange( input, 0, 3 );
@@ -148,11 +148,11 @@ public:
 		Math::Matrix< 3, 3, VType > rot( rotQ );
 		
 		// create vectors
-		Math::Vector< 3, VType > rotated;
-		Math::Vector< 3, VType > camCoord;
-		Math::Vector< 2, VType > camCoordDehom;
-		Math::Vector< 2, VType > distorted;
-		Math::Vector< 2, VType > projected;
+		Math::Vector< VType, 3 > rotated;
+		Math::Vector< VType, 3 > camCoord;
+		Math::Vector< VType, 2 > camCoordDehom;
+		Math::Vector< VType, 2 > distorted;
+		Math::Vector< VType, 2 > projected;
 		
 		// create matrices
 		Math::Matrix< 3, 4, VType > rotJ;
@@ -167,10 +167,10 @@ public:
 		for ( unsigned i = 0; i < m_vis.size(); i++ )
 		{
 			// shortcuts
-			const Math::Vector< 3, VType >& p3D( m_p3D[ m_vis[ i ].first ] );
+			const Math::Vector< VType, 3 >& p3D( m_p3D[ m_vis[ i ].first ] );
 			const Math::Pose& camP( m_camP[ m_vis[ i ].second ] );
 			const Math::Matrix< 3, 3, VType >& camI( m_camI[ m_vis[ i ].second ] );
-			const Math::Vector< 4, VType >& camD( m_camD[ m_vis[ i ].second ] );
+			const Math::Vector< VType, 4 >& camD( m_camD[ m_vis[ i ].second ] );
 			
 			// rotate & project points
 			noalias( rotated ) = ublas::prod( rot, p3D ) + ublas::subrange( input, 0, 3 );
@@ -204,10 +204,10 @@ public:
 	}
 	
 protected:
-	const std::vector< Math::Vector< 3, VType > >& m_p3D;
+	const std::vector< Math::Vector< VType, 3 > >& m_p3D;
 	const std::vector< Math::Pose >& m_camP;
 	const std::vector< Math::Matrix< 3, 3, VType > >& m_camI;
-	const std::vector< Math::Vector< 4, VType > >& m_camD;
+	const std::vector< Math::Vector< VType, 4 > >& m_camD;
 	const std::vector< std::pair< std::size_t, std::size_t > > m_vis;
 };
 

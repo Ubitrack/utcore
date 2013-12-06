@@ -13,7 +13,7 @@ using namespace Ubitrack::Math;
 namespace ublas = boost::numeric::ublas;
 namespace lapack = boost::numeric::bindings::lapack;
 
-Matrix< 3, 4, float > randomProjection( Matrix< 3, 3, float >& k, Matrix< 3, 3, float >& r, Vector< 3, float >& t )
+Matrix< 3, 4, float > randomProjection( Matrix< 3, 3, float >& k, Matrix< 3, 3, float >& r, Vector< float, 3 >& t )
 {
 	// create a random rotation
 	Quaternion q( random( -1.0, 1.0 ), random( -1.0, 1.0 ), random( -1.0, 1.0 ), random( -1.0, 1.0 ) );
@@ -42,7 +42,7 @@ Matrix< 3, 4, float > randomProjection( Matrix< 3, 3, float >& k, Matrix< 3, 3, 
 
 
 Matrix< 3, 4, float > randomProjection()
-{ Matrix< 3, 3, float > k; Matrix< 3, 3, float > r; Vector< 3, float > t; return randomProjection( k, r, t ); }
+{ Matrix< 3, 3, float > k; Matrix< 3, 3, float > r; Vector< float, 3 > t; return randomProjection( k, r, t ); }
 
 
 void TestProjectionDLT()
@@ -56,17 +56,17 @@ void TestProjectionDLT()
 		// create & transform random points
 		// use at least 20 correspondences, as randomness may lead to poorly conditioned problems...
 		unsigned pointNum = 20 + ( iTest % 10 );
-		std::vector< Vector< 3, float > > fromPoints( pointNum );
-		std::vector< Vector< 2, float > > toPoints( pointNum );
+		std::vector< Vector< float, 3 > > fromPoints( pointNum );
+		std::vector< Vector< float, 2 > > toPoints( pointNum );
 		for ( unsigned i = 0; i < pointNum; i++ )
 		{
-			Vector< 4, float > x;
+			Vector< float, 4 > x;
 			x( 0 ) = fromPoints[ i ]( 0 ) = random( -100.0f, 100.0f );
 			x( 1 ) = fromPoints[ i ]( 1 ) = random( -100.0f, 100.0f );
 			x( 2 ) = fromPoints[ i ]( 2 ) = random( -100.0f, 100.0f );
 			x( 3 ) = 1.0f;
 
-			Vector< 3, float > xp = ublas::prod( Ptest, x );
+			Vector< float, 3 > xp = ublas::prod( Ptest, x );
 			toPoints[ i ] = ublas::subrange( xp, 0, 2 ) / xp( 2 );
 		}
 
@@ -85,13 +85,13 @@ void TestDecomposeProjection()
 		// create random projection
 		Matrix< 3, 3, float > k;
 		Matrix< 3, 3, float > r;
-		Vector< 3, float > t;
+		Vector< float, 3 > t;
 		Matrix< 3, 4, float > p = randomProjection( k, r, t );
 
 		// decompose
 		Matrix< 3, 3, float > kEst;
 		Matrix< 3, 3, float > rEst;
-		Vector< 3, float > tEst;
+		Vector< float, 3 > tEst;
 		Ubitrack::Calibration::decomposeProjection( kEst, rEst, tEst, p );
 		
 		// check

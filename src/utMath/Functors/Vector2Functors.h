@@ -51,56 +51,56 @@ namespace Ubitrack { namespace Math { namespace Functors {
 /**
  * @ingroup math
  * Functor Class for STL algorithms.
- * transforms a Math::Vector< 2, T > by a given 3x3 (rotation-)matrix
+ * transforms a Math::Vector< T, 2 > by a given 3x3 (rotation-)matrix
  */
  
 template< typename T >
 struct transform3x3_vector2
-	: public std::binary_function< Math::Matrix< 3, 3, T >, Math::Vector< 2, T >, Math::Vector< 3, T > >
+	: public std::binary_function< Math::Matrix< 3, 3, T >, Math::Vector< T, 2 >, Math::Vector< T, 3 > >
 {
 public:
 	/**
 	 * @ingroup math
-	 * transforms a Math::Vector< 2, T > by a given 3x3 matrix
+	 * transforms a Math::Vector< T, 2 > by a given 3x3 matrix
 	 *
 	 * @param mat the 3x3 rotation matrix
 	 * @param vec the vector to be transformed
 	 * @return transformed vector
 	 */
-	Math::Vector< 3, T > operator() ( const Math::Matrix< 3, 3, T > &mat, const Math::Vector< 2, T >& vec ) const
+	Math::Vector< T, 3 > operator() ( const Math::Matrix< 3, 3, T > &mat, const Math::Vector< T, 2 >& vec ) const
     {
 		const T e1 = mat( 0, 0 ) * vec( 0 ) + mat( 0, 1 ) * vec( 1 ) + mat( 0, 2 );
 		const T e2 = mat( 1, 0 ) * vec( 0 ) + mat( 1, 1 ) * vec( 1 ) + mat( 1, 2 );
 		const T e3 = mat( 2, 0 ) * vec( 0 ) + mat( 2, 1 ) * vec( 1 ) + mat( 2, 2 );
-		return Math::Vector< 3, T > ( e1, e2, e3 );
+		return Math::Vector< T, 3 > ( e1, e2, e3 );
 	}
 };
 
 /**
  * @ingroup math
  * Functor Class for STL algorithms.
- * Projects a Math::Vector< 3, T > with a 3x4 projection matrix.
+ * Projects a Math::Vector< T, 3 > with a 3x4 projection matrix.
  */
  
 template< typename T >
 struct project3x3_vector2
-	: public std::binary_function< Math::Matrix< 3, 3, T >, Math::Vector< 2, T >, Math::Vector< 2, T > >
+	: public std::binary_function< Math::Matrix< 3, 3, T >, Math::Vector< T, 2 >, Math::Vector< T, 2 > >
 {
 public:
 	/**
 	 * @ingroup math
-	 * Projects the Math::Vector< 3, T > with a 3x4 projection matrix.
+	 * Projects the Math::Vector< T, 3 > with a 3x4 projection matrix.
 	 *
 	 * @param projection the 3x4 projection matrix
 	 * @param vec the 3-vector
 	 * @return projected 3-vector
 	 */
-	Math::Vector< 2, T > operator() ( const Math::Matrix< 3, 3, T > &projection, const Math::Vector< 2, T > &vec ) const
+	Math::Vector< T, 2 > operator() ( const Math::Matrix< 3, 3, T > &projection, const Math::Vector< T, 2 > &vec ) const
     {
 		const T e1 = projection( 0, 0 ) * vec( 0 ) + projection( 0, 1 ) * vec( 1 ) + projection( 0, 2 );
 		const T e2 = projection( 1, 0 ) * vec( 0 ) + projection( 1, 1 ) * vec( 1 ) + projection( 1, 2 );
 		const T e3 = projection( 2, 0 ) * vec( 0 ) + projection( 2, 1 ) * vec( 1 ) + projection( 2, 2 );
-		return Math::Vector< 2, T > ( e1/e3, e2/e3 );
+		return Math::Vector< T, 2 > ( e1/e3, e2/e3 );
 	}
 };
 
@@ -112,7 +112,7 @@ public:
  
 template< typename T >
 struct normalize_vector2
-	: public std::unary_function< Math::Vector< 2, T >, Math::Vector< 2, T > >
+	: public std::unary_function< Math::Vector< T, 2 >, Math::Vector< T, 2 > >
 {
 public:
 	/**
@@ -122,7 +122,7 @@ public:
 	 * @param v the 2-vector
 	 * @return normalized vector
 	 */
-	Math::Vector< 2, T > operator() ( const Math::Vector< 2, T >& v ) const
+	Math::Vector< T, 2 > operator() ( const Math::Vector< T, 2 >& v ) const
     {
 		const T norm = std::sqrt( v( 0 )*v( 0 )+v( 1 )*v( 1 ) );
 		return ( v / norm );
@@ -137,12 +137,12 @@ public:
  
 template< typename T >
 struct is_less_vector2
-	: public std::binary_function< Math::Vector< 2, T >, Math::Vector< 2, T >, bool >
+	: public std::binary_function< Math::Vector< T, 2 >, Math::Vector< T, 2 >, bool >
 {
 public:
 	/**
 	 * @ingroup math
-	 * Compares two distinct Math::Vector< 2, T > for sorting algrotihms.
+	 * Compares two distinct Math::Vector< T, 2 > for sorting algrotihms.
 	 * Comaprison starts along the first dimension and, if equal,
 	 * along the second dimension. Attention: This is not respecting 
 	 * euclidean distance in any way.
@@ -151,7 +151,7 @@ public:
 	 * @param v2 the 2nd 2-vector
 	 * @return true if first vector is_smaller than second
 	 */
-	bool operator() ( const Math::Vector< 2, T >& v1, const Math::Vector< 2, T >& v2 ) const
+	bool operator() ( const Math::Vector< T, 2 >& v1, const Math::Vector< T, 2 >& v2 ) const
     {
 		// compare the x-values
 		if ( v1( 0 ) < v2( 0 ) )
@@ -164,23 +164,23 @@ public:
 /**
  * @ingroup math
  * Functor Class for STL algorithms.
- * Calculates the euclidean distance of two Math::Vector< 2, T >.
+ * Calculates the euclidean distance of two Math::Vector< T, 2 >.
  */
  
 template< typename T >
 struct euclidean_distance_vector2
-	: public std::binary_function< Math::Vector< 2, T >, Math::Vector< 2, T >, T >
+	: public std::binary_function< Math::Vector< T, 2 >, Math::Vector< T, 2 >, T >
 {
 public:
  	/**
 	 * @ingroup math
-	 * Calculates the euclidean distance of two Math::Vector< 2, T >.
+	 * Calculates the euclidean distance of two Math::Vector< T, 2 >.
 	 *
 	 * @param v1 the first 2-vector
 	 * @param v2 the second 2-vector
 	 * @return euclidean distance between v1 and v2
 	 */
-	T operator()( const Math::Vector< 2, T > &v1, const Math::Vector< 2, T > &v2 ) const
+	T operator()( const Math::Vector< T, 2 > &v1, const Math::Vector< T, 2 > &v2 ) const
 	{
 		const T x = v1( 0 ) - v2( 0 );
 		const T y = v1( 1 ) - v2( 1 );

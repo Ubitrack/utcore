@@ -61,10 +61,10 @@ struct CameraIntrinsics
 	typedef Math::Matrix< 3, 3, T > matrix_type;
 	
 	/** definition of the radial distortion parameter type */
-	typedef Math::Vector< 6, T > radial_type;
+	typedef Math::Vector< T, 6 > radial_type;
 	
 	/** definition of the tangential distortion parameter type */
-	typedef Math::Vector< 2, T > tangential_type;
+	typedef Math::Vector< T, 2 > tangential_type;
 	
 protected:
 	/** Functor for the matrix inverse */
@@ -75,7 +75,7 @@ public:
 	 * cameras' image calibration dimensions
 	 * due to normalisation this should be 1, 1
 	 */
-	Ubitrack::Math::Vector< 2, std::size_t > dimension;
+	Ubitrack::Math::Vector< std::size_t, 2 > dimension;
 	
 	/** cameras' 3x3-intrinsic matrix (normalized) */
 	matrix_type matrix;
@@ -95,7 +95,7 @@ public:
 	/** Standard Constructor */
 	CameraIntrinsics(  )
 		: m_inverter()
-		, dimension( Math::Vector< 2, std::size_t >( 1, 1 ) )
+		, dimension( Math::Vector< std::size_t, 2 >( 1, 1 ) )
 		, matrix( matrix_type::identity() )
 		, matrix_inv( matrix_type::identity() )
 		, radial_size( 0 )
@@ -104,9 +104,9 @@ public:
 		{}
 	
 	/** Constructor to use with old OpenCV values (2 radial distortion parameters) */	
-	CameraIntrinsics( const Math::Matrix< 3, 3, T > &intrinsicMatrix, const Math::Vector< 2, T > &_radial, const Math::Vector< 2, T > &_tangential )
+	CameraIntrinsics( const Math::Matrix< 3, 3, T > &intrinsicMatrix, const Math::Vector< T, 2 > &_radial, const Math::Vector< T, 2 > &_tangential )
 		: m_inverter()
-		, dimension( Math::Vector< 2, std::size_t >( 1, 1 ) )
+		, dimension( Math::Vector< std::size_t, 2 >( 1, 1 ) )
 		, matrix( intrinsicMatrix )
 		, matrix_inv( m_inverter( intrinsicMatrix ) )
 		, radial_size( 2 )
@@ -118,9 +118,9 @@ public:
 		}
 	
 	/** Constructor to use with newer OpenCV values (6 radial distortion parameters) */	
-	CameraIntrinsics( const Math::Matrix< 3, 3, T > &intrinsicMatrix, const Math::Vector< 6, T > &_radial, const Math::Vector< 2, T > &_tangential )
+	CameraIntrinsics( const Math::Matrix< 3, 3, T > &intrinsicMatrix, const Math::Vector< T, 6 > &_radial, const Math::Vector< T, 2 > &_tangential )
 		: m_inverter()
-		, dimension( Math::Vector< 2, std::size_t >( 1, 1 ) )
+		, dimension( Math::Vector< std::size_t, 2 >( 1, 1 ) )
 		, matrix( intrinsicMatrix )
 		, matrix_inv( m_inverter( intrinsicMatrix ) )
 		, radial_size( 6 )
