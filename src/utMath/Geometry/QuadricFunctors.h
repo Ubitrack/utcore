@@ -98,7 +98,7 @@ public:
  */
 template< typename T >
 struct ProjectQuadric
-	: public std::binary_function< Math::Matrix< 3, 4, T >, Math::Vector< T, 10 >, Math::Vector< T, 6 > >
+	: public std::binary_function< Math::Matrix< T, 3, 4 >, Math::Vector< T, 10 >, Math::Vector< T, 6 > >
 {
 public:
 	/**
@@ -114,7 +114,7 @@ public:
 	 * @param quadric a 10-vector including the quadric's parameters
 	 * @return the resulting conic
 	 */
-	Math::Vector< T, 6 > operator() ( const Math::Matrix< 3, 4, T > &projection, const Math::Vector< T, 10 > &quadric ) const
+	Math::Vector< T, 6 > operator() ( const Math::Matrix< T, 3, 4 > &projection, const Math::Vector< T, 10 > &quadric ) const
 	{
 		const T a ( quadric( 0 ) );
 		const T b ( quadric( 1 ) );
@@ -244,7 +244,7 @@ public:
  */
 template< typename T >
 struct ProjectEllipsoid
-	: public std::binary_function< Math::Matrix< 3, 4, T >, Math::Vector< T, 6 >, Math::Vector< T, 6 > >
+	: public std::binary_function< Math::Matrix< T, 3, 4 >, Math::Vector< T, 6 >, Math::Vector< T, 6 > >
 {
 public:
 	/**
@@ -256,7 +256,7 @@ public:
 	 * @param ellipsoid a 6-vector including the parameters of the ellipsoid
 	 * @return the resulting conic
 	 */
-	Math::Vector< T, 6 > operator() ( const Math::Matrix< 3, 4, T > &projection, const Math::Vector< T, 6 > &ellipsoid ) const
+	Math::Vector< T, 6 > operator() ( const Math::Matrix< T, 3, 4 > &projection, const Math::Vector< T, 6 > &ellipsoid ) const
 	{
 		const T a ( ellipsoid( 0 ) ); //1st semi-axis
 		const T b ( ellipsoid( 1 ) ); //2nd semi-axis
@@ -323,7 +323,7 @@ public:
  */
 template< typename T >
 struct ProjectSpheroid
-	: public std::binary_function< Math::Matrix< 3, 4, T >, Math::Vector< T, 4 >, Math::Vector< T, 6 > >
+	: public std::binary_function< Math::Matrix< T, 3, 4 >, Math::Vector< T, 4 >, Math::Vector< T, 6 > >
 {
 protected:
 	const ProjectEllipsoid< T > m_Projector;
@@ -332,7 +332,7 @@ public:
 
 	/** Standard constructor */
 	ProjectSpheroid()
-		: std::binary_function< Math::Matrix< 3, 4, T >, Math::Vector< T, 4 >, Math::Vector< T, 6 > >()
+		: std::binary_function< Math::Matrix< T, 3, 4 >, Math::Vector< T, 4 >, Math::Vector< T, 6 > >()
 		, m_Projector()
 		{}
 
@@ -345,7 +345,7 @@ public:
 	 * @param ellipsoid a 6-vector including the parameters of the ellipsoid
 	 * @return the resulting conic
 	 */
-	Math::Vector< T, 6 > operator() ( const Math::Matrix< 3, 4, T > &projection, const Math::Vector< T, 4 > &spheroid ) const
+	Math::Vector< T, 6 > operator() ( const Math::Matrix< T, 3, 4 > &projection, const Math::Vector< T, 4 > &spheroid ) const
 	{
 		Math::Vector< T, 6 > ellipsoid;
 		ellipsoid( 0 ) = spheroid( 0 ); // 1st semi axis

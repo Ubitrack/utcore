@@ -69,7 +69,7 @@ struct ErrorVector
 	Math::Vector< T, N > value;
 
 	/** covariance matrix of \c value */
-	Math::Matrix< N, N, T > covariance;
+	Math::Matrix< T, N, N > covariance;
 
 	/** compute RMS value (in this case: square-root of trace of covariance matrix) */
 	T getRMS( void ) 

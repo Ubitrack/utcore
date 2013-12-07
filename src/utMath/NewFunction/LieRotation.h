@@ -55,7 +55,7 @@ public:
 	void multiplyJacobian1( const LeftHand& l, DestinationMatrix& j, const Param1& rotation, const Param2& point ) const
 	{
 		typedef typename LeftHand::value_type VType;
-		Math::Matrix< 3, 3, VType > J;
+		Math::Matrix< VType, 3, 3 > J;
 	
 		VType t51944 = rotation( 0 );
 		VType t51945 = t51944 * t51944;
@@ -183,7 +183,7 @@ public:
 	template< class LeftHand, class DestinationMatrix, class Param1, class Param2 >
 	void multiplyJacobian2( const LeftHand& l, DestinationMatrix& j, const Param1& rotation, const Param2& point ) const
 	{
-		Math::Matrix< 3, 3 > J;
+		Math::Matrix< double, 3, 3 > J;
 		Quaternion::fromLogarithm( rotation ).toMatrix( J );
 		noalias( j ) = boost::numeric::ublas::prod( l, J );
 	}

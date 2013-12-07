@@ -56,7 +56,7 @@ namespace Ubitrack { namespace Math { namespace Functors {
  
 template< typename T >
 struct transform3x3_vector3
-	: public std::binary_function< Math::Matrix< 3, 3, T >, Math::Vector< T, 3 >, Math::Vector< T, 3 > >
+	: public std::binary_function< Math::Matrix< T, 3, 3 >, Math::Vector< T, 3 >, Math::Vector< T, 3 > >
 {
 public:
 	/**
@@ -67,7 +67,7 @@ public:
 	 * @param vec the vector to be transformed
 	 * @return transformed vector
 	 */
-	Math::Vector< T, 3 > operator() ( const Math::Matrix< 3, 3, T > &mat, const Math::Vector< T, 3 >& vec ) const
+	Math::Vector< T, 3 > operator() ( const Math::Matrix< T, 3, 3 > &mat, const Math::Vector< T, 3 >& vec ) const
     {
 		const T e1 = mat( 0, 0 ) * vec( 0 ) + mat( 0, 1 ) * vec( 1 ) + mat( 0, 2 ) * vec( 2 );
 		const T e2 = mat( 1, 0 ) * vec( 0 ) + mat( 1, 1 ) * vec( 1 ) + mat( 1, 2 ) * vec( 2 );
@@ -85,7 +85,7 @@ public:
  
 template< typename T >
 struct transform3x4_vector3
-	: public std::binary_function< Math::Matrix< 3, 4, T >, Math::Vector< T, 3 >, Math::Vector< T, 3 > >
+	: public std::binary_function< Math::Matrix< T, 3, 4 >, Math::Vector< T, 3 >, Math::Vector< T, 3 > >
 {
 public:
 	/**
@@ -96,7 +96,7 @@ public:
 	 * @param vec the vector to be transformed
 	 * @return transformed vector
 	 */
-	Math::Vector< T, 3 > operator() ( const Math::Matrix< 3, 4, T > &mat, const Math::Vector< T, 3 >& vec ) const
+	Math::Vector< T, 3 > operator() ( const Math::Matrix< T, 3, 4 > &mat, const Math::Vector< T, 3 >& vec ) const
     {
 		const T e1 = mat( 0, 0 ) * vec( 0 ) + mat( 0, 1 ) * vec( 1 ) + mat( 0, 2 ) * vec( 2 ) + mat( 0, 3 );
 		const T e2 = mat( 1, 0 ) * vec( 0 ) + mat( 1, 1 ) * vec( 1 ) + mat( 1, 2 ) * vec( 2 ) + mat( 1, 3 );
@@ -113,7 +113,7 @@ public:
  
 template< typename T >
 struct project3x4_vector3
-	: public std::binary_function< Math::Matrix< 3, 4, T >, Math::Vector< T, 3 >, Math::Vector< T, 2 > >
+	: public std::binary_function< Math::Matrix< T, 3, 4 >, Math::Vector< T, 3 >, Math::Vector< T, 2 > >
 {
 public:
 	/**
@@ -124,7 +124,7 @@ public:
 	 * @param vec the 3-vector
 	 * @return projected 3-vector
 	 */
-	Math::Vector< T, 2 > operator() ( const Math::Matrix< 3, 4, T > &projection, const Math::Vector< T, 3 > &vec ) const
+	Math::Vector< T, 2 > operator() ( const Math::Matrix< T, 3, 4 > &projection, const Math::Vector< T, 3 > &vec ) const
     {
 		const T e1 = projection( 0, 0 ) * vec( 0 ) + projection( 0, 1 ) * vec( 1 ) + projection( 0, 2 ) * vec( 2 ) + projection( 0, 3 );
 		const T e2 = projection( 1, 0 ) * vec( 0 ) + projection( 1, 1 ) * vec( 1 ) + projection( 1, 2 ) * vec( 2 ) + projection( 1, 3 );
@@ -141,7 +141,7 @@ public:
  
 template< typename T >
 struct project4x4_vector3
-	: public std::binary_function< Math::Matrix< 4, 4, T >, Math::Vector< T, 3 >, Math::Vector< T, 3 > >
+	: public std::binary_function< Math::Matrix< T, 4, 4 >, Math::Vector< T, 3 >, Math::Vector< T, 3 > >
 {
 public:
 	/**
@@ -152,7 +152,7 @@ public:
 	 * @param vec the 3-vector
 	 * @return projected 3-vector
 	 */
-	Math::Vector< T, 3 > operator() ( const Math::Matrix< 4, 4, T > &projection, const Math::Vector< T, 3 > &vec ) const
+	Math::Vector< T, 3 > operator() ( const Math::Matrix< T, 4, 4 > &projection, const Math::Vector< T, 3 > &vec ) const
     {
 		const T e1 = projection( 0, 0 ) * vec( 0 ) + projection( 0, 1 ) * vec( 1 ) + projection( 0, 2 ) * vec( 2 ) + projection( 0, 3 );
 		const T e2 = projection( 1, 0 ) * vec( 0 ) + projection( 1, 1 ) * vec( 1 ) + projection( 1, 2 ) * vec( 2 ) + projection( 1, 3 );
@@ -297,7 +297,7 @@ public:
  
 template< typename T >
 struct skew_matrix
-	: public std::unary_function< Math::Vector< T, 3 >, Math::Matrix< 3, 3, T > >
+	: public std::unary_function< Math::Vector< T, 3 >, Math::Matrix< T, 3, 3 > >
 {
 public:
 	/**
@@ -311,7 +311,7 @@ public:
 	 * @param v the 3-vector
 	 * @return antisymmetric-skew matrix of v
 	 */
-	Math::Matrix< 3, 3, T > operator() ( const Math::Vector< T, 3 >& v ) const
+	Math::Matrix< T, 3, 3 > operator() ( const Math::Vector< T, 3 >& v ) const
     {
 		namespace ublas = boost::numeric::ublas;
 		
@@ -319,7 +319,7 @@ public:
 		ublas::row( skew, 0 ) = Math::Vector< T, 3 >( 0, -v( 2 ), v( 1 ) );
 		ublas::row( skew, 1 ) = Math::Vector< T, 3 >( v( 2 ), 0, -v( 0 ) );
 		ublas::row( skew, 2 ) = Math::Vector< T, 3 >( -v( 1 ), v( 0 ), 0 );
-		return Math::Matrix< 3, 3, T > ( skew );
+		return Math::Matrix< T, 3, 3 > ( skew );
 	}
 };
 
@@ -347,7 +347,7 @@ public:
 		const T e1 = a( 1 ) * b( 2 ) - a( 2 ) * b( 1 );
 		const T e2 = a( 2 ) * b( 0 ) - a( 0 ) * b( 2 );
 		const T e3 = a( 0 ) * b( 1 ) - a( 1 ) * b( 0 );
-		return Math::Vector< 3 > ( e1, e2, e3 );
+		return Math::Vector< T, 3 > ( e1, e2, e3 );
 	}
 };
 

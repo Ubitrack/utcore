@@ -60,7 +60,7 @@ template< class T >
 typename T::value_type determinant( const T& mat )
 {
 	// make a copy of mat, as the factorization will overwrite the contents	
-	Math::Matrix< 0, 0, typename T::value_type > a( mat );
+	Math::Matrix< typename T::value_type > a( mat );
 	Math::Vector< int > ipiv( a.size1() );
 	typedef typename T::size_type size_type;
 	
@@ -103,10 +103,10 @@ template< class T > T invert_matrix( const T& m )
  * @return the inverted matrix
  */
 template< typename T, std::size_t M, std::size_t N > 
-Math::Matrix< N, M, T > pseudoInvert_matrix( const Math::Matrix< M, N, T >& mat )
+Math::Matrix< T, N, M > pseudoInvert_matrix( const Math::Matrix< T, M, N >& mat )
 {
 	namespace ublas = boost::numeric::ublas;
-	typedef Math::Matrix< M, N, T > MatType;
+	typedef Math::Matrix< T, M, N > MatType;
 	typedef typename MatType::size_type size_type;
 	// make a copy of m, as the factorization will overwrite the contents
 	MatType a( mat );
@@ -116,8 +116,8 @@ Math::Matrix< N, M, T > pseudoInvert_matrix( const Math::Matrix< M, N, T >& mat 
 	size_type nSingularValues = std::min( n, m );
 	
 	Math::Vector< T > s( nSingularValues );
-	Math::Matrix< 0, 0, T > U( n, n );
-	Math::Matrix< 0, 0, T > Vt( m, m );
+	Math::Matrix< T, 0, 0 > U( n, n );
+	Math::Matrix< T, 0, 0 > Vt( m, m );
 
 	boost::numeric::bindings::lapack::gesvd( 'S', 'S', a, s, U, Vt );
 

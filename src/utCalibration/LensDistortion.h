@@ -46,10 +46,10 @@ namespace Ubitrack { namespace Calibration {
  * @return projected and distorted point in image coordinates
  */
 UBITRACK_EXPORT Math::Vector< float, 2 > projectWithDistortion( const Math::Vector< float, 3 >& p, const Math::Vector< float, 4 >& dist,
-	const Math::Matrix< 3, 3, float >& K );
+	const Math::Matrix< float, 3, 3 >& K );
 
 UBITRACK_EXPORT Math::Vector< double, 2 > projectWithDistortion( const Math::Vector< double, 3 >& p, const Math::Vector< double, 4 >& dist,
-	const Math::Matrix< 3, 3, double >& K );
+	const Math::Matrix< double, 3, 3 >& K );
 
 
 /**
@@ -60,10 +60,10 @@ UBITRACK_EXPORT Math::Vector< double, 2 > projectWithDistortion( const Math::Vec
  * @return distorted point in image coordinates
  */
 UBITRACK_EXPORT Math::Vector< float, 2 > lensDistort( const Math::Vector< float, 2 >& p, const Math::Vector< float, 4 >& dist,
-	const Math::Matrix< 3, 3, float >& K );
+	const Math::Matrix< float, 3, 3 >& K );
 
 UBITRACK_EXPORT Math::Vector< double, 2 > lensDistort( const Math::Vector< double, 2 >& p, const Math::Vector< double, 4 >& dist,
-	const Math::Matrix< 3, 3, double >& K );
+	const Math::Matrix< double, 3, 3 >& K );
 
 #ifdef HAVE_LAPACK
 	
@@ -75,10 +75,10 @@ UBITRACK_EXPORT Math::Vector< double, 2 > lensDistort( const Math::Vector< doubl
  * @return undistorted point in image coordinates
  */
 UBITRACK_EXPORT Math::Vector< float, 2 > lensUnDistort( const Math::Vector< float, 2 >& p, const Math::Vector< float, 4 >& dist,
-	const Math::Matrix< 3, 3, float >& K );
+	const Math::Matrix< float, 3, 3 >& K );
 
 UBITRACK_EXPORT Math::Vector< double, 2 > lensUnDistort( const Math::Vector< double, 2 >& p, const Math::Vector< double, 4 >& dist,
-	const Math::Matrix< 3, 3, double >& K );
+	const Math::Matrix< double, 3, 3 >& K );
 
 #endif
 	

@@ -72,7 +72,7 @@ void gaussNewton( P& problem, VT1& params, const VT2& measurement, unsigned nIte
 	namespace blas = boost::numeric::bindings::blas;
 	namespace ublas = boost::numeric::ublas;
 	typedef typename VT1::value_type T;
-	typedef typename Math::Matrix< 0, 0, T > MatType;
+	typedef typename Math::Matrix< T, 0, 0 > MatType;
 
 	// create some matrices and vectors
 	MatType matJacobian( measurement.size(), params.size() );

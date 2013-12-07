@@ -28,8 +28,8 @@ void TestHomographyDLTIdentity( const T epsilon )
 		stdCorners[ i ][ 1 ] = ( ( i + 1 ) & 2 ) ? -0.5 : 0.5;
 	}
 	
-	Matrix< 3, 3, T > H( Ubitrack::Calibration::homographyDLT( stdCorners, stdCorners ) );
-	BOOST_CHECK_SMALL( homMatrixDiff( H, Matrix< 3, 3, T >::identity() ), epsilon );
+	Matrix< T, 3, 3 > H( Ubitrack::Calibration::homographyDLT( stdCorners, stdCorners ) );
+	BOOST_CHECK_SMALL( homMatrixDiff( H, Matrix< T, 3, 3 >::identity() ), epsilon );
 }
 
 template< typename T >
@@ -43,13 +43,13 @@ void TestSquareHomography( const std::size_t n_runs, const T epsilon )
 		stdCorners[ i ][ 1 ] = ( ( i + 1 ) & 2 ) ? -0.5f : 0.5f;
 	}
 	
-	Matrix< 3, 3, T > H( Ubitrack::Calibration::squareHomography( stdCorners ) );
-	BOOST_CHECK_SMALL( homMatrixDiff( H, Matrix< 3, 3, T >::identity() ), epsilon );
+	Matrix< T, 3, 3 > H( Ubitrack::Calibration::squareHomography( stdCorners ) );
+	BOOST_CHECK_SMALL( homMatrixDiff( H, Matrix< T, 3, 3 >::identity() ), epsilon );
 	
 	
 	for ( std::size_t iTest = 0; iTest < n_runs; iTest++ )
 	{
-		Matrix< 3, 3, T > Htest;
+		Matrix< T, 3, 3 > Htest;
 		randomMatrix( Htest );
 					
 		// transform standard corners by Htest
@@ -75,7 +75,7 @@ void TestHomographyDLT( const std::size_t n_runs, const T epsilon )
 	for ( std::size_t iTest = 0; iTest < n_runs; iTest++ )
 	{
 		// create a random homography
-		Matrix< 3, 3, T > Htest;
+		Matrix< T, 3, 3 > Htest;
 		randomMatrix( Htest );
 				
 		// create & transform random points
@@ -95,7 +95,7 @@ void TestHomographyDLT( const std::size_t n_runs, const T epsilon )
 			toPoints[ i ] = ublas::subrange( xp, 0, 2 ) / xp( 2 );
 		}
 		
-		Matrix< 3, 3, T > H = Ubitrack::Calibration::homographyDLT( fromPoints, toPoints );
+		Matrix< T, 3, 3 > H = Ubitrack::Calibration::homographyDLT( fromPoints, toPoints );
 
 		BOOST_CHECK_SMALL( homMatrixDiff( H, Htest ), epsilon );
 	}
@@ -116,7 +116,7 @@ void TestPoseFromHomography( const std::size_t n_runs, const T epsilon )
 	for( std::size_t i( 0 ); i< n_runs; ++i )
 	{
 			// random intrinsics matrix, never changes, assume always the same camera
-		Matrix< 3, 3, T > cam( Matrix< 3, 3, T >::identity() );
+		Matrix< T, 3, 3 > cam( Matrix< T, 3, 3 >::identity() );
 		cam( 0, 0 ) = Random::distribute_uniform< T >( 500, 800 );
 		cam( 1, 1 ) = Random::distribute_uniform< T >( 500, 800 );
 		 //take care of ubitracks camera interpretation -> last column negative entries
@@ -131,7 +131,7 @@ void TestPoseFromHomography( const std::size_t n_runs, const T epsilon )
 		Pose floor2Cam1 ( rot, trans );
 	
 		// projection to 2D image plane
-		Matrix< 3, 4, T > projection( rot, trans );
+		Matrix< T, 3, 4 > projection( rot, trans );
 		projection = boost::numeric::ublas::prod( cam, projection );
 		
 		// some (n) random points (homography => minimum 4 points)
@@ -147,13 +147,13 @@ void TestPoseFromHomography( const std::size_t n_runs, const T epsilon )
 		std::transform( ptsFloor.begin(), ptsFloor.end(), std::back_inserter( ptsCamera ), Functors::ProjectVector< T >( projection ) );
 		
 		
-		Matrix< 3, 3, T > H = Ubitrack::Calibration::homographyDLT(  ptsFloor, ptsCamera );
-		Matrix< 3, 3, T > invK( Functors::matrix_inverse()( cam ) );
+		Matrix< T, 3, 3 > H = Ubitrack::Calibration::homographyDLT(  ptsFloor, ptsCamera );
+		Matrix< T, 3, 3 > invK( Functors::matrix_inverse()( cam ) );
 		
 		Pose floor2Cam2 = Ubitrack::Calibration::poseFromHomography( H, invK );
 
-		Matrix< 3, 4, T > floor2CamMat1( floor2Cam1 );
-		Matrix< 3, 4, T > floor2CamMat2( floor2Cam2 );
+		Matrix< T, 3, 4 > floor2CamMat1( floor2Cam1 );
+		Matrix< T, 3, 4 > floor2CamMat2( floor2Cam2 );
 		BOOST_CHECK_SMALL( matrixDiff( floor2CamMat1, floor2CamMat2 ) , epsilon );
 	}
 }

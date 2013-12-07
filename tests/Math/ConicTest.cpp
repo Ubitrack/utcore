@@ -30,7 +30,7 @@ void testBasicConicFunctors( const std::size_t n )
 	std::generate_n ( std::back_inserter( conics ), n,  randConic );
 
 	// generate matrix representation
-	std::vector< Ubitrack::Math::Matrix< 3, 3, T > > conic_matrices;
+	std::vector< Ubitrack::Math::Matrix< T, 3, 3 > > conic_matrices;
 	conic_matrices.reserve( n );
 	std::transform( conics.begin(), conics.end(), std::back_inserter( conic_matrices ), Geometry::MatrixFromConic< T >() );
 
@@ -123,7 +123,7 @@ void testRandomQuadricProjection( const std::size_t n )
 	typename Random::Quaternion< T >::Uniform randQuat;
 	typename Random::Vector< T, 3 >::Uniform randTranslation( -100, 100 );
 	Pose camPose( randQuat() , randTranslation() );
-	Matrix< 3, 4, T > projection( camPose );
+	Matrix< T, 3, 4 > projection( camPose );
 	
 	typename Random::Vector< T, 4 >::Uniform randSpheroid( -5.0, 5.0 );
 	typename Random::Vector< T, 6 >::Uniform randEllipsoid( -5.0, 5.0 );

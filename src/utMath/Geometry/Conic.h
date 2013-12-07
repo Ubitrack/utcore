@@ -103,7 +103,7 @@ public:
  */
 template< typename T >
 struct MatrixFromConic
-	: public std::unary_function< Math::Vector< T, 6 >, Math::Matrix< 3, 3, T > >
+	: public std::unary_function< Math::Vector< T, 6 >, Math::Matrix< T, 3, 3 > >
 {
 public:
 	/**
@@ -114,7 +114,7 @@ public:
 	 * @param conic the conic expressed as a vector
 	 * @return the 3x3-matrix representation of the conic
 	 */
-	Math::Matrix< 3, 3, T > operator() ( const Math::Vector< T, 6 > &conic ) const
+	Math::Matrix< T, 3, 3 > operator() ( const Math::Vector< T, 6 > &conic ) const
 	{
 		boost::numeric::ublas::matrix< T, boost::numeric::ublas::column_major > matrix( 3, 3 );
 		matrix( 0, 0 ) = conic[ 0 ];
@@ -123,7 +123,7 @@ public:
 		matrix( 2, 0 ) = matrix( 0, 2 ) = conic[ 3 ] * static_cast< T > ( 0.5 );
 		matrix( 2, 1 ) = matrix( 1, 2 ) = conic[ 4 ] * static_cast< T > ( 0.5 );
 		matrix( 2, 2 ) = conic[ 5 ];
-		return Math::Matrix< 3, 3, T >( matrix );
+		return Math::Matrix< T, 3, 3 >( matrix );
 	}
 };
 
@@ -136,7 +136,7 @@ public:
  */
 template< typename T >
 struct ConicFromMatrix
-	: public std::unary_function< Math::Matrix< 3, 3, T >, Math::Vector< T, 6 > >
+	: public std::unary_function< Math::Matrix< T, 3, 3 >, Math::Vector< T, 6 > >
 {
 public:
 
@@ -148,7 +148,7 @@ public:
 	 * @param matrix the 3x3-matrix representation of the conic
 	 * @return the conic as a 6-vector
 	 */
-	Math::Vector< T, 6 > operator() ( const Math::Matrix< 3, 3, T >  &matrix ) const
+	Math::Vector< T, 6 > operator() ( const Math::Matrix< T, 3, 3 >  &matrix ) const
 	{
 		Math::Vector< T, 6 > conic;
 		conic[ 0 ] = matrix( 0, 0 );

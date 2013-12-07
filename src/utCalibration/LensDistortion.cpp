@@ -40,7 +40,7 @@ namespace Ubitrack { namespace Calibration {
 
 template< typename T >
 Math::Vector< T, 2 > projectWithDistortionImpl( const Math::Vector< T, 3 >& p, const Math::Vector< T, 4 >& dist,
-	const Math::Matrix< 3, 3, T >& K )
+	const Math::Matrix< T, 3, 3 >& K )
 {
 	// dehomogenize point
 	Math::Vector< T, 2 > dehomogenized( p( 0 ) / p( 2 ), p( 1 ) / p( 2 ) );
@@ -57,14 +57,14 @@ Math::Vector< T, 2 > projectWithDistortionImpl( const Math::Vector< T, 3 >& p, c
 
 
 Math::Vector< float, 2 > projectWithDistortion( const Math::Vector< float, 3 >& p, const Math::Vector< float, 4 >& dist,
-	const Math::Matrix< 3, 3, float >& K )
+	const Math::Matrix< float, 3, 3 >& K )
 {
 	return projectWithDistortionImpl( p, dist, K );
 }
 
 
 Math::Vector< double, 2 > projectWithDistortion( const Math::Vector< double, 3 >& p, const Math::Vector< double, 4 >& dist,
-	const Math::Matrix< 3, 3, double >& K )
+	const Math::Matrix< double, 3, 3 >& K )
 {
 	return projectWithDistortionImpl( p, dist, K );
 }
@@ -72,7 +72,7 @@ Math::Vector< double, 2 > projectWithDistortion( const Math::Vector< double, 3 >
 
 template< typename T >
 Math::Vector< T, 2 > lensDistortImpl( const Math::Vector< T, 2 >& p, const Math::Vector< T, 4 >& dist,
-	const Math::Matrix< 3, 3, T >& K )
+	const Math::Matrix< T, 3, 3 >& K )
 {
 	// unproject point to normalized camera coordinates (assuming K( 2, 2 ) == +/-1)
 	T x2 = ( p( 1 ) - K( 1, 2 ) * K( 2, 2 ) ) / K( 1, 1 );
@@ -89,14 +89,14 @@ Math::Vector< T, 2 > lensDistortImpl( const Math::Vector< T, 2 >& p, const Math:
 
 
 Math::Vector< float, 2 > lensDistort( const Math::Vector< float, 2 >& p, const Math::Vector< float, 4 >& dist,
-	const Math::Matrix< 3, 3, float >& K )
+	const Math::Matrix< float, 3, 3 >& K )
 { 
 	return lensDistortImpl( p, dist, K ); 
 }
 
 
 Math::Vector< double, 2 > lensDistort( const Math::Vector< double, 2 >& p, const Math::Vector< double, 4 >& dist,
-	const Math::Matrix< 3, 3, double >& K )
+	const Math::Matrix< double, 3, 3 >& K )
 { 
 	return lensDistortImpl( p, dist, K ); 
 }
@@ -105,7 +105,7 @@ Math::Vector< double, 2 > lensDistort( const Math::Vector< double, 2 >& p, const
 
 template< typename T >
 Math::Vector< T, 2 > lensUnDistortImpl( const Math::Vector< T, 2 >& p, const Math::Vector< T, 4 >& dist,
-	const Math::Matrix< 3, 3, T >& K )
+	const Math::Matrix< T, 3, 3 >& K )
 {
 	// unproject point to normalized camera coordinates (assuming K( 2, 2 ) == +/-1)
 	T x2 = ( p( 1 ) - K( 1, 2 ) * K( 2, 2 ) ) / K( 1, 1 );
@@ -123,14 +123,14 @@ Math::Vector< T, 2 > lensUnDistortImpl( const Math::Vector< T, 2 >& p, const Mat
 
 
 Math::Vector< float, 2 > lensUnDistort( const Math::Vector< float, 2 >& p, const Math::Vector< float, 4 >& dist,
-	const Math::Matrix< 3, 3, float >& K )
+	const Math::Matrix< float, 3, 3 >& K )
 { 
 	return lensUnDistortImpl( p, dist, K ); 
 }
 
 
 Math::Vector< double, 2 > lensUnDistort( const Math::Vector< double, 2 >& p, const Math::Vector< double, 4 >& dist,
-	const Math::Matrix< 3, 3, double >& K )
+	const Math::Matrix< double, 3, 3 >& K )
 { 
 	return lensUnDistortImpl( p, dist, K ); 
 }

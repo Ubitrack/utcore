@@ -66,7 +66,7 @@ Math::Quaternion calculateRotation ( const ForwardIterator& leftBegin, const For
 {
 
 	// calculate the matrix M of sums of products
-	Math::Matrix< 3, 3, T > M ( Math::Matrix< 3, 3, T >::zeros() );
+	Math::Matrix< T, 3, 3 > M ( Math::Matrix< T, 3, 3 >::zeros() );
 
 	ForwardIterator leftIterator = leftBegin;
 	ForwardIterator rightIterator = rightBegin;
@@ -86,7 +86,7 @@ Math::Quaternion calculateRotation ( const ForwardIterator& leftBegin, const For
 
 	// calculate the matrix N as linear combinations of elements of M
 	// upper right suffices, since N is symmetric
-	Math::Matrix<4, 4, T> N;
+	Math::Matrix< T, 4, 4 > N;
 	N (0,0) =  M ( 0, 0 )+M ( 1, 1 )+M ( 2, 2 );
 	N (1,1) =  M ( 0, 0 )-M ( 1, 1 )-M ( 2, 2 );
 	N (2,2) = -M ( 0, 0 )+M ( 1, 1 )-M ( 2, 2 );

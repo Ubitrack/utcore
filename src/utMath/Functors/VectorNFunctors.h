@@ -81,7 +81,7 @@ public:
 
 template< unsigned N, typename T >
 struct outer_product
-	: public std::unary_function< Math::Vector< T, N >, Math::Matrix< N, N, T > >
+	: public std::unary_function< Math::Vector< T, N >, Math::Matrix< T, N, N > >
 {
 public:
 	/**
@@ -93,7 +93,7 @@ public:
 	 * @param v the vector
 	 * @return outer product of vector v
 	 */
-	Math::Matrix< N, N, T > operator() ( const Math::Vector< T, N >& vec ) const
+	Math::Matrix< T, N, N > operator() ( const Math::Vector< T, N >& vec ) const
     {
 		return boost::numeric::ublas::outer_prod( vec, vec );
 	}
@@ -108,7 +108,7 @@ public:
 
 template< unsigned N, typename T >
 struct distinct_outer_product
-	: public std::binary_function< Math::Vector< T, N >, Math::Vector< T, N >, Math::Matrix< N, N, T > >
+	: public std::binary_function< Math::Vector< T, N >, Math::Vector< T, N >, Math::Matrix< T, N, N > >
 {
 public:
 	/**
@@ -121,7 +121,7 @@ public:
 	 * @param v the second vector
 	 * @return outer product of v and u
 	 */
-	Math::Matrix< N, N, T > operator() ( const Math::Vector< T, N >& v, const Math::Vector< T, N >& u ) const
+	Math::Matrix< T, N, N > operator() ( const Math::Vector< T, N >& v, const Math::Vector< T, N >& u ) const
     {
 		return boost::numeric::ublas::outer_prod( u, v );
 	}
@@ -135,7 +135,7 @@ public:
  
 template< unsigned N, typename T >
 struct outer_product_weighted
-	: public std::binary_function< Math::Vector< T, N >, T, Math::Matrix< N, N, T > >
+	: public std::binary_function< Math::Vector< T, N >, T, Math::Matrix< T, N, N > >
 {
 public:
 	/**
@@ -148,7 +148,7 @@ public:
 	 * @param w weight of the vector v.
 	 * @return outer product of weighted vector v
 	 */
-    Math::Matrix< N, N, T > operator() ( const Math::Vector< T, N > &v, const T w ) const
+    Math::Matrix< T, N, N > operator() ( const Math::Vector< T, N > &v, const T w ) const
     {
 		Math::Vector< T, N > v_tmp = v * w;
 		return boost::numeric::ublas::outer_prod( v_tmp, v );
@@ -163,7 +163,7 @@ public:
 
 template< unsigned N, typename T >
 struct multiply_matrix
-	: public std::binary_function< T, Math::Matrix< N, N, T >, Math::Matrix< N, N, T > >
+	: public std::binary_function< T, Math::Matrix< T, N, N >, Math::Matrix< T, N, N > >
 {
 public:
 	/**
@@ -174,7 +174,7 @@ public:
 	 * @param matrix 
 	 * @return scaled matrix
 	 */
-	Math::Matrix< N, N, T > operator() ( const T& scalar, const Math::Matrix< N, N, T >& matrix ) const
+	Math::Matrix< T, N, N > operator() ( const T& scalar, const Math::Matrix< T, N, N >& matrix ) const
     {
 		return ( scalar * matrix );
 	}

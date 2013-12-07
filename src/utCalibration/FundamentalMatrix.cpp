@@ -50,7 +50,7 @@ namespace Ubitrack { namespace Calibration {
 
 template< typename T >
 void normalize(Math::Vector< T, 2 >& shift, T& scale,
-	Math::Matrix< 3, 3, T >& modMatrix, const std::vector< Math::Vector< T, 2 > >& pts)
+	Math::Matrix< T, 3, 3 >& modMatrix, const std::vector< Math::Vector< T, 2 > >& pts)
 {    
 	shift = Math::Vector< T, 2 >( 0.0, 0.0 );
 	T meandist = 0.0;
@@ -80,7 +80,7 @@ void normalize(Math::Vector< T, 2 >& shift, T& scale,
 }
 
 template< typename T >
-Math::Matrix< 3, 3, T > getFundamentalMatrixImpl( const std::vector< Math::Vector< T, 2 > > & fromPoints, 
+Math::Matrix< T, 3, 3 > getFundamentalMatrixImpl( const std::vector< Math::Vector< T, 2 > > & fromPoints, 
 	const std::vector< Math::Vector< T, 2 > > & toPoints, std::size_t stepSize )
 {
 	static log4cpp::Category& logger(log4cpp::Category::getInstance( "Ubitrack.Calibration.FundamentalMatrix" ));
@@ -109,14 +109,14 @@ Math::Matrix< 3, 3, T > getFundamentalMatrixImpl( const std::vector< Math::Vecto
 	T fromScale = static_cast< T >( 0 );
 	Math::Vector< T, 2 > toShift( 0.0, 0.0 );
 	T toScale = static_cast< T >( 0 );
-	Math::Matrix< 3, 3, T > fromModMatrix;
-	Math::Matrix< 3, 3, T > toModMatrix;
+	Math::Matrix< T, 3, 3 > fromModMatrix;
+	Math::Matrix< T, 3, 3 > toModMatrix;
 
 	normalize( fromShift, fromScale, fromModMatrix, fromPoints );
 	normalize( toShift, toScale, toModMatrix, toPoints );
 
 	//Linear Solution
-	Math::Matrix< 0, 0, T > A( fromPoints.size() / stepSize, 9 );
+	Math::Matrix< T, 0, 0 > A( fromPoints.size() / stepSize, 9 );
 
 	for( std::size_t i=0; i < ( fromPoints.size() / stepSize ); i++ )
 	{
@@ -139,8 +139,8 @@ Math::Matrix< 3, 3, T > getFundamentalMatrixImpl( const std::vector< Math::Vecto
 	// solve using SVD
 	std::size_t nSingularValues = std::min( A.size1(), A.size2() );
 	Math::Vector< T > s1( nSingularValues );
-	Math::Matrix< 9, 9, T > Vt;
-	Math::Matrix< 0, 0, T > U( fromPoints.size() / stepSize, fromPoints.size() / stepSize );
+	Math::Matrix< T, 9, 9 > Vt;
+	Math::Matrix< T, 0, 0 > U( fromPoints.size() / stepSize, fromPoints.size() / stepSize );
 	int info = lapack::gesvd( 'N', 'A', A, s1, U, Vt );
 
 	if ( info != 0 )
@@ -150,15 +150,15 @@ Math::Matrix< 3, 3, T > getFundamentalMatrixImpl( const std::vector< Math::Vecto
 	}
 
 	// copy result to 3x3 matrix
-	Math::Matrix< 3, 3, T > F;
+	Math::Matrix< T, 3, 3 > F;
 	F( 0, 0 ) = Vt( 8, 0 ); F( 0, 1 ) = Vt( 8, 1 ); F( 0, 2 ) = Vt( 8, 2 );
 	F( 1, 0 ) = Vt( 8, 3 ); F( 1, 1 ) = Vt( 8, 4 ); F( 1, 2 ) = Vt( 8, 5 );
 	F( 2, 0 ) = Vt( 8, 6 ); F( 2, 1 ) = Vt( 8, 7 ); F( 2, 2 ) = Vt( 8, 8 );
 
 	// constraint enforcement
 	Math::Vector< T, 3 > s2;
-	Math::Matrix< 3, 3, T > U2;
-	Math::Matrix< 3, 3, T > Vt2;
+	Math::Matrix< T, 3, 3 > U2;
+	Math::Matrix< T, 3, 3 > Vt2;
 	info = lapack::gesvd( 'A', 'A', F, s2, U2, Vt2 );
 
 	if ( info != 0 )
@@ -176,31 +176,31 @@ Math::Matrix< 3, 3, T > getFundamentalMatrixImpl( const std::vector< Math::Vecto
 	return ublas::prod( F, fromModMatrix );
 }
 
-Math::Matrix< 3, 3, float > getFundamentalMatrix( const std::vector< Math::Vector< float, 2 > >& fromPoints, 
+Math::Matrix< float, 3, 3 > getFundamentalMatrix( const std::vector< Math::Vector< float, 2 > >& fromPoints, 
 	const std::vector< Math::Vector< float, 2 > >& toPoints, std::size_t stepSize )
 { 
 	return getFundamentalMatrixImpl( fromPoints, toPoints, stepSize );
 }
 
-Math::Matrix< 3, 3, double > getFundamentalMatrix( const std::vector< Math::Vector< double, 2 > >& fromPoints, 
+Math::Matrix< double, 3, 3 > getFundamentalMatrix( const std::vector< Math::Vector< double, 2 > >& fromPoints, 
 	const std::vector< Math::Vector< double, 2 > >& toPoints, std::size_t stepSize )
 {
 	return getFundamentalMatrixImpl( fromPoints, toPoints, stepSize );
 }
 
-Math::Matrix< 3, 3, double > fundamentalMatrixFromPoses( const Math::Pose & cam1, const Math::Pose & cam2, const Math::Matrix< 3, 3 > & K1, const Math::Matrix< 3, 3 > & K2 )
+Math::Matrix< double, 3, 3 > fundamentalMatrixFromPoses( const Math::Pose & cam1, const Math::Pose & cam2, const Math::Matrix< double, 3, 3 > & K1, const Math::Matrix< double, 3, 3 > & K2 )
 {
-	Math::Matrix< 3, 4 > E1( cam1 );
-	Math::Matrix< 3, 4 > E2( cam2 );
+	Math::Matrix< double, 3, 4 > E1( cam1 );
+	Math::Matrix< double, 3, 4 > E2( cam2 );
 	
 	E1 = ublas::prod( K1, E1 );
 	E2 = ublas::prod( K2, E2 );
 
-	Math::Matrix< 4, 4 > P1_I = Math::invert_matrix( Math::Matrix< 4, 4 >( cam1 ) );
+	Math::Matrix< double, 4, 4 > P1_I = Math::invert_matrix( Math::Matrix< double, 4, 4 >( cam1 ) );
 	Math::Vector< double, 4 > C( P1_I( 0 , 3 ), P1_I( 1 , 3 ), P1_I( 2 , 3 ),  1.0 );
 
 	Math::Vector< double, 3 > e2 = ublas::prod( E2, C );
-	Math::Matrix< 3, 3 > skew;
+	Math::Matrix< double, 3, 3 > skew;
 
 	skew( 0, 0 ) = 0.0;
 	skew( 0, 1 ) = -e2( 2 );
@@ -212,23 +212,23 @@ Math::Matrix< 3, 3, double > fundamentalMatrixFromPoses( const Math::Pose & cam1
 	skew( 2, 1 ) = e2( 0 );
 	skew( 2, 2 ) = 0.0;
 
-	Math::Matrix< 4, 3 > E1_ = Math::pseudoInvert_matrix( E1 );
+	Math::Matrix< double, 4, 3 > E1_ = Math::pseudoInvert_matrix( E1 );
 
-	Math::Matrix< 3, 3 > F = ublas::prod( E2, E1_ );
+	Math::Matrix< double, 3, 3 > F = ublas::prod( E2, E1_ );
 	return ublas::prod( skew, F );
 }
 
-Math::Pose poseFromFundamentalMatrix( const Math::Matrix< 3, 3 > & fM, const Math::Vector< double, 2 > & x, const Math::Vector< double, 2 > & x_, const Math::Matrix< 3, 3 > & K1, const Math::Matrix< 3, 3 > & K2 )
+Math::Pose poseFromFundamentalMatrix( const Math::Matrix< double, 3, 3 > & fM, const Math::Vector< double, 2 > & x, const Math::Vector< double, 2 > & x_, const Math::Matrix< double, 3, 3 > & K1, const Math::Matrix< double, 3, 3 > & K2 )
 {
 	//get essential matrix
-	Math::Matrix< 3, 3 > W = ublas::trans( K2 );
+	Math::Matrix< double, 3, 3 > W = ublas::trans( K2 );
 	W = ublas::prod( W, fM );
 	W = ublas::prod( W, K1 );
 
 	//find possible poses
 	Math::Vector< double, 3 > s;
-	Math::Matrix< 3, 3 > Vt;
-	Math::Matrix< 3, 3 > U;
+	Math::Matrix< double, 3, 3 > Vt;
+	Math::Matrix< double, 3, 3 > U;
 	lapack::gesvd( 'A', 'A', W, s, U, Vt );
 
 	W( 0, 0 ) = 0.0;
@@ -241,7 +241,7 @@ Math::Pose poseFromFundamentalMatrix( const Math::Matrix< 3, 3 > & fM, const Mat
 	W( 2, 1 ) = 0.0;
 	W( 2, 2 ) = 1.0;
 
-	Math::Matrix< 3, 3 > Wt = ublas::trans( W );
+	Math::Matrix< double, 3, 3 > Wt = ublas::trans( W );
 	Math::Vector< double, 3 > u3 = ublas::column( U, 2 );
 	
 	W = ublas::prod( W, Vt );
@@ -257,20 +257,20 @@ Math::Pose poseFromFundamentalMatrix( const Math::Matrix< 3, 3 > & fM, const Mat
 		Wt *= -1.0;
 	
 	//check which is the correct Pose
-	Math::Matrix< 3, 4, double > p1;
-	ublas::subrange( p1, 0, 3, 0, 3 ) = Math::Matrix< 3, 3, double >::identity();
+	Math::Matrix< double, 3, 4 > p1;
+	ublas::subrange( p1, 0, 3, 0, 3 ) = Math::Matrix< double, 3, 3 >::identity();
 	ublas::column( p1, 3 ) = Math::Vector< double, 3 >( 0.0, 0.0, 0.0 );
-	Math::Matrix< 3, 4 > P1 = ublas::prod( K1, p1 );
+	Math::Matrix< double, 3, 4 > P1 = ublas::prod( K1, p1 );
 
-	Math::Matrix< 4, 4, double > inv = Math::Matrix< 4, 4, double >::identity();
+	Math::Matrix< double, 4, 4 > inv = Math::Matrix< double, 4, 4 >::identity();
 	ublas::subrange( inv, 0, 3, 0, 4 ) = p1;
 	inv = Math::invert_matrix( inv );
 
 	//first possibility
-	Math::Matrix< 3, 4 > p2;
+	Math::Matrix< double, 3, 4 > p2;
 	ublas::subrange( p2, 0, 3, 0, 3 ) = W;
 	ublas::column( p2, 3 ) = u3;
-	Math::Matrix< 3, 4 > P2 = ublas::prod( K2, p2 );
+	Math::Matrix< double, 3, 4 > P2 = ublas::prod( K2, p2 );
 
 	s = Calibration::get3DPosition( P1, P2, x, x_ );
 

@@ -56,10 +56,10 @@ namespace Ubitrack { namespace Calibration {
  * @param toPoints Points x' as inhomogeneous 2-vectors
  * @return calculated projection matrix
  */
-UBITRACK_EXPORT Math::Matrix< 3, 4, float > projectionDLT( const std::vector< Math::Vector< float, 3 > >& fromPoints, 
+UBITRACK_EXPORT Math::Matrix< float, 3, 4 > projectionDLT( const std::vector< Math::Vector< float, 3 > >& fromPoints, 
 	const std::vector< Math::Vector< float, 2 > >& toPoints );
 
-UBITRACK_EXPORT Math::Matrix< 3, 4, double > projectionDLT( const std::vector< Math::Vector< double, 3 > >& fromPoints, 
+UBITRACK_EXPORT Math::Matrix< double, 3, 4 > projectionDLT( const std::vector< Math::Vector< double, 3 > >& fromPoints, 
 	const std::vector< Math::Vector< double, 2 > >& toPoints );
 
 
@@ -77,11 +77,11 @@ UBITRACK_EXPORT Math::Matrix< 3, 4, double > projectionDLT( const std::vector< M
  * @param t resulting translation vector
  * @param p the input projection matrix
  */
-UBITRACK_EXPORT void decomposeProjection( Math::Matrix< 3, 3, float >& k, 
-	Math::Matrix< 3, 3, float >& r, Math::Vector< float, 3 >& t, const Math::Matrix< 3, 4, float >& p ); 
+UBITRACK_EXPORT void decomposeProjection( Math::Matrix< float, 3, 3 >& k, 
+	Math::Matrix< float, 3, 3 >& r, Math::Vector< float, 3 >& t, const Math::Matrix< float, 3, 4 >& p ); 
 
-UBITRACK_EXPORT void decomposeProjection( Math::Matrix< 3, 3, double >& k, 
-	Math::Matrix< 3, 3, double >& r, Math::Vector< double, 3 >& t, const Math::Matrix< 3, 4, double >& p );    
+UBITRACK_EXPORT void decomposeProjection( Math::Matrix< double, 3, 3 >& k, 
+	Math::Matrix< double, 3, 3 >& r, Math::Vector< double, 3 >& t, const Math::Matrix< double, 3, 4 >& p );    
 
 #endif // HAVE_LAPACK
 
@@ -99,13 +99,13 @@ UBITRACK_EXPORT void decomposeProjection( Math::Matrix< 3, 3, double >& k,
  * @param f far clipping plane
  * @param matrix the input projection matrix
  */
-UBITRACK_EXPORT Math::Matrix< 4, 4, double > projectionMatrixToOpenGL( double l, double r, double b, double t, double n, double f, Math::Matrix< 3, 4, double > m );
+UBITRACK_EXPORT Math::Matrix< double, 4, 4 > projectionMatrixToOpenGL( double l, double r, double b, double t, double n, double f, Math::Matrix< double, 3, 4 > m );
 
-UBITRACK_EXPORT Math::Matrix< 4, 4, float > projectionMatrixToOpenGL( float l, float r, float b, float t, float n, float f, Math::Matrix< 3, 4, float > m );
+UBITRACK_EXPORT Math::Matrix< float, 4, 4 > projectionMatrixToOpenGL( float l, float r, float b, float t, float n, float f, Math::Matrix< float, 3, 4 > m );
 
-UBITRACK_EXPORT Math::Matrix< 4, 4, double > projectionMatrixToOpenGL( double l, double r, double b, double t, double n, double f, Math::Matrix< 3, 3, double > m );
+UBITRACK_EXPORT Math::Matrix< double, 4, 4 > projectionMatrixToOpenGL( double l, double r, double b, double t, double n, double f, Math::Matrix< double, 3, 3 > m );
 
-UBITRACK_EXPORT Math::Matrix< 4, 4, float > projectionMatrixToOpenGL( float l, float r, float b, float t, float n, float f, Math::Matrix< 3, 3, float > m );
+UBITRACK_EXPORT Math::Matrix< float, 4, 4 > projectionMatrixToOpenGL( float l, float r, float b, float t, float n, float f, Math::Matrix< float, 3, 3 > m );
 
 /**
  * @ingroup tracking_algorithms
@@ -120,7 +120,7 @@ UBITRACK_EXPORT Math::Matrix< 4, 4, float > projectionMatrixToOpenGL( float l, f
  * @param sw screen width
  * @param sh screen height
  */
-UBITRACK_EXPORT Math::Matrix< 4, 4, double > offAxisProjectionMatrix( Math::Vector< double, 3 >& eye, Math::Vector< double, 3 >& ll, Math::Vector< double, 3 >& ul, Math::Vector< double, 3 >& lr, double n, double f, double sw, double sh );
+UBITRACK_EXPORT Math::Matrix< double, 4, 4 > offAxisProjectionMatrix( Math::Vector< double, 3 >& eye, Math::Vector< double, 3 >& ll, Math::Vector< double, 3 >& ul, Math::Vector< double, 3 >& lr, double n, double f, double sw, double sh );
 
 
 /**
@@ -131,9 +131,9 @@ UBITRACK_EXPORT Math::Matrix< 4, 4, double > offAxisProjectionMatrix( Math::Vect
  * @param origin the IplImage origin flag
  * @param height of the image in pixels
  */
-UBITRACK_EXPORT void correctOrigin( Math::Matrix< 3, 3, float >& k, int origin, int height );
+UBITRACK_EXPORT void correctOrigin( Math::Matrix< float, 3, 3 >& k, int origin, int height );
  
-UBITRACK_EXPORT void correctOrigin( Math::Matrix< 3, 3, double >& k, int origin, int height );
+UBITRACK_EXPORT void correctOrigin( Math::Matrix< double, 3, 3 >& k, int origin, int height );
 
 } } // namespace Ubitrack::Calibration
 

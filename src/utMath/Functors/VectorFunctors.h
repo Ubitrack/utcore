@@ -61,11 +61,11 @@ template< typename T >
 struct TransformVector
 {
 protected: 
-	const Ubitrack::Math::Matrix< 3, 4, T > m_transformation;
+	const Ubitrack::Math::Matrix< T, 3, 4 > m_transformation;
 	
 public:
 
-	TransformVector( const Ubitrack::Math::Matrix< 3, 4, T > &transformation )
+	TransformVector( const Ubitrack::Math::Matrix< T, 3, 4 > &transformation )
 		: m_transformation( transformation )
 	{};
 	
@@ -112,20 +112,20 @@ template< typename T >
 struct ProjectVector
 {
 protected: 
-	const Ubitrack::Math::Matrix< 3, 4, T > m_projection;
+	const Ubitrack::Math::Matrix< T, 3, 4 > m_projection;
 	
 public:
 
-	ProjectVector( const Ubitrack::Math::Matrix< 3, 4, T > &projection )
+	ProjectVector( const Ubitrack::Math::Matrix< T, 3, 4 > &projection )
 		: m_projection( projection )
 	{};
 	
-	ProjectVector( const Ubitrack::Math::Matrix< 3, 3, T > &projection, const Ubitrack::Math::Pose &pose )
-		: m_projection( boost::numeric::ublas::prod( projection, Ubitrack::Math::Matrix< 3, 4, T >( pose ) ) )
+	ProjectVector( const Ubitrack::Math::Matrix< T, 3, 3 > &projection, const Ubitrack::Math::Pose &pose )
+		: m_projection( boost::numeric::ublas::prod( projection, Ubitrack::Math::Matrix< T, 3, 4 >( pose ) ) )
 	{};
 	
-	ProjectVector( const Ubitrack::Math::Matrix< 3, 3, T > &projection, const Ubitrack::Math::Quaternion &rotation, const Ubitrack::Math::Vector< T, 3 > &translation )
-		: m_projection( boost::numeric::ublas::prod( projection, Ubitrack::Math::Matrix< 3, 4, T >( rotation, translation ) ) )
+	ProjectVector( const Ubitrack::Math::Matrix< T, 3, 3 > &projection, const Ubitrack::Math::Quaternion &rotation, const Ubitrack::Math::Vector< T, 3 > &translation )
+		: m_projection( boost::numeric::ublas::prod( projection, Ubitrack::Math::Matrix< T, 3, 4 >( rotation, translation ) ) )
 	{};
 
 	Ubitrack::Math::Vector< T, 2 > operator() ( const Ubitrack::Math::Vector< T, 2 > &vec ) const

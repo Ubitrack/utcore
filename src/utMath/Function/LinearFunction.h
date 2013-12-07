@@ -47,7 +47,7 @@ public:
 	 * Constructor.
 	 * @param A the matrix defining the function. Must not change during the lifetime of the function object!
 	 */
-	LinearFunction( const Matrix< N, M, T >& A )
+	LinearFunction( const Matrix< T, N, M >& A )
 		: m_A( A )
 	{}
 	
@@ -98,7 +98,7 @@ public:
 	{ J = m_A; }
 	
 protected:
-	const Matrix< N, M , T >& m_A;
+	const Matrix< T, N, M >& m_A;
 };
 
 } } } // namespace Ubitrack::Math::Function

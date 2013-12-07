@@ -39,7 +39,7 @@ namespace {
  * computes the jacobian of pose inversion
  * See Daniel Pustka's Diplomarbeit, page 62 ff. for details.
  */
-void inversionJacobian( Matrix< 6, 6 >& j, const Pose& p )
+void inversionJacobian( Matrix< double, 6, 6 >& j, const Pose& p )
 {
 	double t5364 = p.rotation().x();
 	double t5362 = p.rotation().w();
@@ -129,7 +129,7 @@ void inversionJacobian( Matrix< 6, 6 >& j, const Pose& p )
 }
 
 
-void multiplicationJacobians( Matrix< 6, 6 >& j1, Matrix< 6, 6 >& j2, const Pose& p1, const Pose& p2 )
+void multiplicationJacobians( Matrix< double, 6, 6 >& j1, Matrix< double, 6, 6 >& j2, const Pose& p1, const Pose& p2 )
 {
 	double t5559 = p1.rotation().y();
 	double t5557 = p2.translation()( 1 );
@@ -287,7 +287,7 @@ void errorPoseTimesVectorJacobian( MT& j, const Pose& p, const Vector< double, 3
 	j( 2, 5 ) = 4 * ( t213 * (  - ( t212 * t214 ) + t216 * t228 ) + t221 * ( t222 + t259 ) );
 }
 
-void invertMultiplyJacobians( Matrix< 6, 6 >& j1, Matrix< 6, 6 >& j2, const Pose& p1, const Pose& p2 )
+void invertMultiplyJacobians( Matrix< double, 6, 6 >& j1, Matrix< double, 6, 6 >& j2, const Pose& p1, const Pose& p2 )
 {
 	double t701 = p2.rotation().y();
 	double t704 = p2.rotation().z();
@@ -487,9 +487,9 @@ struct ErrorConversion
 ErrorPose ErrorPose::operator~() const
 {
 	// covariance transform
-	Matrix< 6, 6 > jacobian;
-	Matrix< 6, 6 > tmp;
-	Matrix< 6, 6 > newCovariance;
+	Matrix< double, 6, 6 > jacobian;
+	Matrix< double, 6, 6 > tmp;
+	Matrix< double, 6, 6 > newCovariance;
 	inversionJacobian( jacobian, *this );
 	noalias( tmp ) = ublas::prod( jacobian, m_covariance );
 	noalias( newCovariance ) = ublas::prod( tmp, ublas::trans( jacobian ) );
@@ -501,10 +501,10 @@ ErrorPose ErrorPose::operator~() const
 ErrorPose operator*( const ErrorPose& a, const ErrorPose& b )
 {
 	// covariance transform
-	Matrix< 6, 6 > jacobian1;
-	Matrix< 6, 6 > jacobian2;
-	Matrix< 6, 6 > tmp;
-	Matrix< 6, 6 > newCovariance;
+	Matrix< double, 6, 6 > jacobian1;
+	Matrix< double, 6, 6 > jacobian2;
+	Matrix< double, 6, 6 > tmp;
+	Matrix< double, 6, 6 > newCovariance;
 	multiplicationJacobians( jacobian1, jacobian2, a, b );
 	
 	// here we could save some time by regarding the zero and identity blocks of the jacobians...
@@ -520,10 +520,10 @@ ErrorPose operator*( const ErrorPose& a, const ErrorPose& b )
 ErrorPose operator*( const Pose& a, const ErrorPose& b )
 {
 	// covariance transform
-	Matrix< 6, 6 > jacobian1;
-	Matrix< 6, 6 > jacobian2;
-	Matrix< 6, 6 > tmp;
-	Matrix< 6, 6 > newCovariance;
+	Matrix< double, 6, 6 > jacobian1;
+	Matrix< double, 6, 6 > jacobian2;
+	Matrix< double, 6, 6 > tmp;
+	Matrix< double, 6, 6 > newCovariance;
 	multiplicationJacobians( jacobian1, jacobian2, a, b );
 	
 	// here we could save some time by regarding the zero and identity blocks of the jacobians...
@@ -537,10 +537,10 @@ ErrorPose operator*( const Pose& a, const ErrorPose& b )
 ErrorPose operator*( const ErrorPose& a, const Pose& b )
 {
 	// covariance transform
-	Matrix< 6, 6 > jacobian1;
-	Matrix< 6, 6 > jacobian2;
-	Matrix< 6, 6 > tmp;
-	Matrix< 6, 6 > newCovariance;
+	Matrix< double, 6, 6 > jacobian1;
+	Matrix< double, 6, 6 > jacobian2;
+	Matrix< double, 6, 6 > tmp;
+	Matrix< double, 6, 6 > newCovariance;
 	multiplicationJacobians( jacobian1, jacobian2, a, b );
 
 	// here we could save some time by regarding the zero and identity blocks of the jacobians...
@@ -554,11 +554,11 @@ ErrorPose operator*( const ErrorPose& a, const Pose& b )
 ErrorVector< double, 3 > operator*( const ErrorPose& a, const Math::Vector< double, 3 >& b )
 {
 	// covariance transform
-	Matrix< 3, 6 > jacobian;
+	Matrix< double, 3, 6 > jacobian;
 	errorPoseTimesVectorJacobian( jacobian, a, b );
 
-	Matrix< 3, 6 > tmp;
-	Matrix< 3, 3 > newCovariance;
+	Matrix< double, 3, 6 > tmp;
+	Matrix< double, 3, 3 > newCovariance;
 
 	noalias( tmp ) = ublas::prod( jacobian, a.covariance() );
 	noalias( newCovariance ) = ublas::prod( tmp, ublas::trans( jacobian ) );
@@ -572,11 +572,11 @@ ErrorVector< double, 3 > operator*( const ErrorPose& a, const Math::ErrorVector<
 {
 	
 	// covariance transform
-	Matrix< 3, 6 > jacobian;
+	Matrix< double, 3, 6 > jacobian;
 	errorPoseTimesVectorJacobian( jacobian, a, b.value );
 
-	Matrix< 3, 6 > tmp;
-	Matrix< 3, 3 > newCovariance;
+	Matrix< double, 3, 6 > tmp;
+	Matrix< double, 3, 3 > newCovariance;
 
 	noalias( tmp ) = ublas::prod( jacobian, a.covariance() );
 	noalias( newCovariance ) = ublas::prod( tmp, ublas::trans( jacobian ) );
@@ -588,10 +588,10 @@ ErrorVector< double, 3 > operator*( const ErrorPose& a, const Math::ErrorVector<
 ErrorPose invertMultiply( const ErrorPose& a, const ErrorPose& b )
 {
 	// covariance transform
-	Matrix< 6, 6 > jacobian1;
-	Matrix< 6, 6 > jacobian2;
-	Matrix< 6, 6 > tmp;
-	Matrix< 6, 6 > newCovariance;
+	Matrix< double, 6, 6 > jacobian1;
+	Matrix< double, 6, 6 > jacobian2;
+	Matrix< double, 6, 6 > tmp;
+	Matrix< double, 6, 6 > newCovariance;
 	multiplicationJacobians( jacobian1, jacobian2, a, b );
 	
 	// here we could save some time by regarding the zero and identity blocks of the jacobians...

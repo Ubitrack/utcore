@@ -47,7 +47,7 @@
 namespace Ubitrack { namespace Math {
 
 //forward declaration to matrix template
-template< std::size_t M, std::size_t N, typename T > class Matrix;
+template< typename T, std::size_t M, std::size_t N > class Matrix;
 
 /**
  * @ingroup math
@@ -125,7 +125,7 @@ class UBITRACK_EXPORT Quaternion
 		 * rotation matrix constructor
 		 * @param mat a rotation matrix
 		 */
-		Quaternion( const Math::Matrix< 0, 0, double >& mat );
+		Quaternion( const Math::Matrix< double, 0, 0 >& mat );
 
 		/**
 		 * get the real part

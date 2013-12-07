@@ -76,7 +76,7 @@ struct Vector
 			// actually there is already a function to draw from a normal distribution
 			// this function is used now.
 			//maybe some time later I will take here once more...
-			// Math::Matrix< N, N, T > m_sigma;
+			// Math::Matrix< T, N, N > m_sigma;
 
 			// void prepareSigma()
 			// {
@@ -110,7 +110,7 @@ struct Vector
 					// prepareSigma();
 				};
 
-			Normal( const Math::Vector< T, N >& mu, const Math::Matrix< N, N, T >& sigma )
+			Normal( const Math::Vector< T, N >& mu, const Math::Matrix< T, N, N >& sigma )
 				: std::unary_function< void, Math::Vector< T, N > >( )
 				, m_mu( mu )
 				// , m_sigma( sigma )
@@ -198,7 +198,7 @@ Math::Vector< T, N > distribute_normal( const T mu , const T sigma )
  * @return the random vector from the normal distribution
  */
 template< typename T, std::size_t N >
-Math::Vector< T, N > distribute_normal( const Math::Vector< T, N > &mu , const Math::Matrix< N, N, T>& sigma )
+Math::Vector< T, N > distribute_normal( const Math::Vector< T, N > &mu , const Math::Matrix< T, N, N >& sigma )
 {
 	return typename Random::Vector< T, N >::Normal( mu, sigma )();
 }

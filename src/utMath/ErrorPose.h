@@ -94,7 +94,7 @@ class UBITRACK_EXPORT ErrorPose
 		 * get the covariance
 		 * @return covariance of the pose
 		 */
-		const Matrix< 6, 6 >& covariance() const
+		const Matrix< double, 6, 6 >& covariance() const
 		{ return m_covariance; }
 
 		/**
@@ -124,7 +124,7 @@ class UBITRACK_EXPORT ErrorPose
 			ar & m_covariance;
 		}
 
-		Matrix< 6, 6 > m_covariance;
+		Matrix< double, 6, 6 > m_covariance;
 };
 
 

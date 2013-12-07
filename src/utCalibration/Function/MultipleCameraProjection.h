@@ -61,7 +61,7 @@ public:
 	 */
 	MultipleCameraProjection( const std::vector< Math::Vector< VType, 3 > >& p3D, 
 		const std::vector< Math::Pose >& cameraPoses, 
-		const std::vector< Math::Matrix< 3, 3, VType > >& cameraIntrinsics, 
+		const std::vector< Math::Matrix< VType, 3, 3 > >& cameraIntrinsics, 
 		const std::vector< Math::Vector< VType, 4 > >& cameraDistortions, 
 		const std::vector< std::pair< std::size_t, std::size_t > > visibilities )
 		: m_p3D( p3D )
@@ -89,7 +89,7 @@ public:
 
 		// convert quaternion to matrix (for speedup)
 		Math::Quaternion rotQ( Quaternion::fromVector( ublas::subrange( input, 3, 7 ) ) );
-		Math::Matrix< 3, 3, VType > rot( rotQ );
+		Math::Matrix< VType, 3, 3 > rot( rotQ );
 		
 		// create vectors
 		Math::Vector< VType, 3 > rotated;
@@ -103,7 +103,7 @@ public:
 			// shortcuts
 			const Math::Vector< VType, 3 >& p3D( m_p3D[ m_vis[ i ].first ] );
 			const Math::Pose& camP( m_camP[ m_vis[ i ].second ] );
-			const Math::Matrix< 3, 3, VType >& camI( m_camI[ m_vis[ i ].second ] );
+			const Math::Matrix< VType, 3, 3 >& camI( m_camI[ m_vis[ i ].second ] );
 			const Math::Vector< VType, 4 >& camD( m_camD[ m_vis[ i ].second ] );
 			
 			// rotate & project points
@@ -145,7 +145,7 @@ public:
 
 		// convert quaternion to matrix (for speedup)
 		Math::Quaternion rotQ( Quaternion::fromVector( ublas::subrange( input, 3, 7 ) ) );
-		Math::Matrix< 3, 3, VType > rot( rotQ );
+		Math::Matrix< VType, 3, 3 > rot( rotQ );
 		
 		// create vectors
 		Math::Vector< VType, 3 > rotated;
@@ -155,21 +155,21 @@ public:
 		Math::Vector< VType, 2 > projected;
 		
 		// create matrices
-		Math::Matrix< 3, 4, VType > rotJ;
-		Math::Matrix< 2, 3, VType > dehomJ;
-		Math::Matrix< 2, 2, VType > distJ;
-		Math::Matrix< 2, 3, VType > projJ;
+		Math::Matrix< VType, 3, 4 > rotJ;
+		Math::Matrix< VType, 2, 3 > dehomJ;
+		Math::Matrix< VType, 2, 2 > distJ;
+		Math::Matrix< VType, 2, 3 > projJ;
 
-		Math::Matrix< 2, 2, VType > jA;
-		Math::Matrix< 2, 3, VType > jB;
-		Math::Matrix< 2, 3, VType > jC;
+		Math::Matrix< VType, 2, 2 > jA;
+		Math::Matrix< VType, 2, 3 > jB;
+		Math::Matrix< VType, 2, 3 > jC;
 
 		for ( unsigned i = 0; i < m_vis.size(); i++ )
 		{
 			// shortcuts
 			const Math::Vector< VType, 3 >& p3D( m_p3D[ m_vis[ i ].first ] );
 			const Math::Pose& camP( m_camP[ m_vis[ i ].second ] );
-			const Math::Matrix< 3, 3, VType >& camI( m_camI[ m_vis[ i ].second ] );
+			const Math::Matrix< VType, 3, 3 >& camI( m_camI[ m_vis[ i ].second ] );
 			const Math::Vector< VType, 4 >& camD( m_camD[ m_vis[ i ].second ] );
 			
 			// rotate & project points
@@ -186,7 +186,7 @@ public:
 			// create jacobian for this measurement
 			QuaternionRotation< VType > qrf( p3D );
 			qrf.jacobian( ublas::subrange( input, 3, 7 ), rotJ );
-			Math::Matrix< 3, 3, VType > rotCamJ( camP.rotation() );
+			Math::Matrix< VType, 3, 3 > rotCamJ( camP.rotation() );
 			Dehomogenization< 3 >().jacobian( camCoord, dehomJ );
 			Function::RadialDistortionWrtP< VType >( camD ).jacobian(
 				camCoordDehom, distJ );
@@ -206,7 +206,7 @@ public:
 protected:
 	const std::vector< Math::Vector< VType, 3 > >& m_p3D;
 	const std::vector< Math::Pose >& m_camP;
-	const std::vector< Math::Matrix< 3, 3, VType > >& m_camI;
+	const std::vector< Math::Matrix< VType, 3, 3 > >& m_camI;
 	const std::vector< Math::Vector< VType, 4 > >& m_camD;
 	const std::vector< std::pair< std::size_t, std::size_t > > m_vis;
 };

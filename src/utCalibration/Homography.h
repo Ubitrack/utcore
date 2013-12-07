@@ -57,10 +57,10 @@ namespace Ubitrack { namespace Calibration {
  * @param toPoints Points x' as inhomogeneous 2-vectors
  * @return calculated homography
  */
-UBITRACK_EXPORT Math::Matrix< 3, 3, float > homographyDLT( const std::vector< Math::Vector< float, 2 > >& fromPoints, 
+UBITRACK_EXPORT Math::Matrix< float, 3, 3 > homographyDLT( const std::vector< Math::Vector< float, 2 > >& fromPoints, 
 	const std::vector< Math::Vector< float, 2 > >& toPoints );
 
-UBITRACK_EXPORT Math::Matrix< 3, 3, double > homographyDLT( const std::vector< Math::Vector< double, 2 > >& fromPoints, 
+UBITRACK_EXPORT Math::Matrix< double, 3, 3 > homographyDLT( const std::vector< Math::Vector< double, 2 > >& fromPoints, 
 	const std::vector< Math::Vector< double, 2 > >& toPoints );
 	
 
@@ -77,9 +77,9 @@ UBITRACK_EXPORT Math::Matrix< 3, 3, double > homographyDLT( const std::vector< M
  * @param corners list of four 2D points x'
  * @return the homography
  */
-UBITRACK_EXPORT Math::Matrix< 3, 3, float > squareHomography( const std::vector< Math::Vector< float, 2 > >& corners );
+UBITRACK_EXPORT Math::Matrix< float, 3, 3 > squareHomography( const std::vector< Math::Vector< float, 2 > >& corners );
 
-UBITRACK_EXPORT Math::Matrix< 3, 3, double > squareHomography( const std::vector< Math::Vector< double, 2 > >& corners );
+UBITRACK_EXPORT Math::Matrix< double, 3, 3 > squareHomography( const std::vector< Math::Vector< double, 2 > >& corners );
 
 } } // namespace Ubitrack::Calibration
 

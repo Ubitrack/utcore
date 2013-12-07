@@ -60,14 +60,14 @@ namespace Ubitrack { namespace Calibration {
 UBITRACK_EXPORT bool estimatePose( Math::Pose& p,
 	std::vector< Math::Vector< float, 3 > > p2D,
 	const std::vector< Math::Vector< float, 3 > > p3D,
-	const Math::Matrix< 3, 3, float >& cam,
+	const Math::Matrix< float, 3, 3 >& cam,
 	unsigned &nIterations,
 	float &error );
 
 UBITRACK_EXPORT bool estimatePose( Math::Pose& p,
 	std::vector< Math::Vector< double, 3 > > p2D,
 	const std::vector< Math::Vector< double, 3 > > p3D,
-	const Math::Matrix< 3, 3, double >& cam ,
+	const Math::Matrix< double, 3, 3 >& cam ,
 	unsigned &nIterations ,
 	double &error );
 	

@@ -54,10 +54,10 @@ namespace Ubitrack { namespace Calibration {
  * @param stepSize optional parameter, if you want to use e.g. only every second value for computation, then set stepSize to 2
  * @return calculated fundamental matrix
  */
-UBITRACK_EXPORT Math::Matrix< 3, 3, float > getFundamentalMatrix( const std::vector< Math::Vector< float, 2 > >& fromPoints, 
+UBITRACK_EXPORT Math::Matrix< float, 3, 3 > getFundamentalMatrix( const std::vector< Math::Vector< float, 2 > >& fromPoints, 
 	const std::vector< Math::Vector< float, 2 > >& toPoints, std::size_t stepSize = 1 );
 
-UBITRACK_EXPORT Math::Matrix< 3, 3, double > getFundamentalMatrix( const std::vector< Math::Vector< double, 2 > >& fromPoints, 
+UBITRACK_EXPORT Math::Matrix< double, 3, 3 > getFundamentalMatrix( const std::vector< Math::Vector< double, 2 > >& fromPoints, 
 	const std::vector< Math::Vector< double, 2 > >& toPoints, std::size_t stepSize = 1 );
 
 /**
@@ -73,7 +73,7 @@ UBITRACK_EXPORT Math::Matrix< 3, 3, double > getFundamentalMatrix( const std::ve
  * @param K2 intrinsic matrix of second first camera
  * @return calculated fundamental matrix
  */
-UBITRACK_EXPORT Math::Matrix< 3, 3, double > fundamentalMatrixFromPoses( const Math::Pose & cam1, const Math::Pose & cam2, const Math::Matrix< 3, 3 > & K1, const Math::Matrix< 3, 3 > & K2 );
+UBITRACK_EXPORT Math::Matrix< double, 3, 3 > fundamentalMatrixFromPoses( const Math::Pose & cam1, const Math::Pose & cam2, const Math::Matrix< double, 3, 3 > & K1, const Math::Matrix< double, 3, 3 > & K2 );
 
 /**
  * @ingroup tracking_algorithms
@@ -88,7 +88,7 @@ UBITRACK_EXPORT Math::Matrix< 3, 3, double > fundamentalMatrixFromPoses( const M
  * @param K2 intrinsic matrix of second first camera
  * @return estimated position of the second camera
  */
-UBITRACK_EXPORT Math::Pose poseFromFundamentalMatrix( const Math::Matrix< 3, 3 > & fM, const Math::Vector< double, 2 > & x, const Math::Vector< double, 2 > & x_, const Math::Matrix< 3, 3 > & K1, const Math::Matrix< 3, 3 > & K2 );
+UBITRACK_EXPORT Math::Pose poseFromFundamentalMatrix( const Math::Matrix< double, 3, 3 > & fM, const Math::Vector< double, 2 > & x, const Math::Vector< double, 2 > & x_, const Math::Matrix< double, 3, 3 > & K1, const Math::Matrix< double, 3, 3 > & K2 );
 
 /**
  * function object version of getFundamentalMatrix for RANSAC etc.
@@ -97,7 +97,7 @@ template< class T >
 class GetFundamentalMatrix
 {
 public:
-	void operator()( Math::Matrix< 3, 3, T >& result, const std::vector< Math::Vector< T, 2 > >& fromPoints, 
+	void operator()( Math::Matrix< T, 3, 3 >& result, const std::vector< Math::Vector< T, 2 > >& fromPoints, 
 		const std::vector< Math::Vector< T, 2 > >& toPoints ) const
 	{ result = getFundamentalMatrix( fromPoints, toPoints ); }
 };
@@ -112,7 +112,7 @@ public:
 	/**
 	 * computes squared distance of "to" point to epipolar line determined by f * from
 	 */
-	T operator()( const Math::Matrix< 3, 3, T >& fM, const Math::Vector< T, 2 >& from, const Math::Vector< T, 2 >& to ) const
+	T operator()( const Math::Matrix< T, 3, 3 >& fM, const Math::Vector< T, 2 >& from, const Math::Vector< T, 2 >& to ) const
 	{
 		Math::Vector< T, 3 > from_;
 		for ( unsigned i = 0; i < 3; i++ )

@@ -32,7 +32,7 @@ namespace Ubitrack { namespace Math {
 
 
 // create quaternion from (assumed) rotation matrix
-Quaternion::Quaternion( const Math::Matrix< 0, 0, double >& mat )
+Quaternion::Quaternion( const Math::Matrix< double, 0, 0 >& mat )
 {
 	double S, X, Y, Z, W;
 	double T = 1.0 + mat(0,0) + mat(1,1) + mat(2,2);
@@ -88,7 +88,7 @@ Vector< double, 3 > Quaternion::getEulerAngles() const {
 	double ry = 0.0;
 	double rz = 0.0;
 
-	Matrix< 3, 3, double > m;
+	Matrix< double, 3, 3 > m;
 	toMatrix( m );
 
 	//std::cout << m << std::endl;

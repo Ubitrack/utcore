@@ -28,7 +28,7 @@
 namespace Ubitrack { namespace Math {
 
 
-Pose::Pose( const Matrix< 0, 0, double >& mat )
+Pose::Pose( const Matrix< double, 0, 0 >& mat )
 {
 	m_rotation = Quaternion( mat );
 

@@ -56,7 +56,7 @@ namespace Ubitrack { namespace Math { namespace Functors {
  
 template< typename T >
 struct transform3x3_vector2
-	: public std::binary_function< Math::Matrix< 3, 3, T >, Math::Vector< T, 2 >, Math::Vector< T, 3 > >
+	: public std::binary_function< Math::Matrix< T, 3, 3 >, Math::Vector< T, 2 >, Math::Vector< T, 3 > >
 {
 public:
 	/**
@@ -67,7 +67,7 @@ public:
 	 * @param vec the vector to be transformed
 	 * @return transformed vector
 	 */
-	Math::Vector< T, 3 > operator() ( const Math::Matrix< 3, 3, T > &mat, const Math::Vector< T, 2 >& vec ) const
+	Math::Vector< T, 3 > operator() ( const Math::Matrix< T, 3, 3 > &mat, const Math::Vector< T, 2 >& vec ) const
     {
 		const T e1 = mat( 0, 0 ) * vec( 0 ) + mat( 0, 1 ) * vec( 1 ) + mat( 0, 2 );
 		const T e2 = mat( 1, 0 ) * vec( 0 ) + mat( 1, 1 ) * vec( 1 ) + mat( 1, 2 );
@@ -84,7 +84,7 @@ public:
  
 template< typename T >
 struct project3x3_vector2
-	: public std::binary_function< Math::Matrix< 3, 3, T >, Math::Vector< T, 2 >, Math::Vector< T, 2 > >
+	: public std::binary_function< Math::Matrix< T, 3, 3 > , Math::Vector< T, 2 >, Math::Vector< T, 2 > >
 {
 public:
 	/**
@@ -95,7 +95,7 @@ public:
 	 * @param vec the 3-vector
 	 * @return projected 3-vector
 	 */
-	Math::Vector< T, 2 > operator() ( const Math::Matrix< 3, 3, T > &projection, const Math::Vector< T, 2 > &vec ) const
+	Math::Vector< T, 2 > operator() ( const Math::Matrix< T, 3, 3 > &projection, const Math::Vector< T, 2 > &vec ) const
     {
 		const T e1 = projection( 0, 0 ) * vec( 0 ) + projection( 0, 1 ) * vec( 1 ) + projection( 0, 2 );
 		const T e2 = projection( 1, 0 ) * vec( 0 ) + projection( 1, 1 ) * vec( 1 ) + projection( 1, 2 );

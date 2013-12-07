@@ -48,7 +48,7 @@ namespace Ubitrack { namespace Math {
 //    the covariance computation is specialized here (reduction from seven to six DOF)...
 
 template< class PType, class VType >
-Math::Matrix< 6, 6 > unscentedTransform(
+Math::Matrix< double, 6, 6 > unscentedTransform(
 		const std::vector< Math::Vector< VType, 2 > >& measurements,
 		VType variance, PType& problem)
 {
@@ -148,7 +148,7 @@ Math::Matrix< 6, 6 > unscentedTransform(
 	avgQuat.normalize();
 	
 	// Compute covariance
-	Math::Matrix< 6, 6 > covariance( Math::Matrix< 6, 6 >::zeros() );
+	Math::Matrix< double, 6, 6 > covariance( Math::Matrix< double, 6, 6 >::zeros() );
 	for ( typename std::vector< Math::Vector< VType > >::iterator it = optimizedParameters.begin();
 			it != optimizedParameters.end(); it++ )
 	{

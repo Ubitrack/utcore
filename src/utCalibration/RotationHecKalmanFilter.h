@@ -66,7 +66,7 @@ public:
 	{ return Math::Quaternion::fromVector( m_state.value ); }
 
 	/** return the estimated covariance */
-	const Math::Matrix< 4, 4 >& getCovariance() const
+	const Math::Matrix< double, 4, 4 >& getCovariance() const
 	{ return m_state.covariance; }
 	
 protected:

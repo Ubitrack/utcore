@@ -82,7 +82,7 @@ typename X::value_type weightedLevenbergMarquardt( P& problem, X& params, const 
 	namespace blas = boost::numeric::bindings::blas;
 	namespace ublas = boost::numeric::ublas;
 	typedef typename X::value_type T;
-	typedef typename Math::Matrix< 0, 0, T >::base_type MatType;
+	typedef typename Math::Matrix< T, 0, 0 >::base_type MatType;
 	typedef typename Math::Vector< T >::base_type VecType;
 	
 	// create some matrices and vectors

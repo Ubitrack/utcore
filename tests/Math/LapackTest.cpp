@@ -18,7 +18,7 @@ void TestBasicEigenvalues()
 {
 	using namespace Ubitrack;
 
-	Math::Matrix< 3, 3 > A;
+	Math::Matrix< double, 3, 3 > A;
 	A ( 0, 0 ) = 1; A ( 0, 1 ) = 2; A ( 0, 2 ) = 3;
 	                A ( 1, 1 ) = 2; A ( 1, 2 ) = 4;
 					                A ( 2, 2 ) = 5;
@@ -26,7 +26,7 @@ void TestBasicEigenvalues()
 	Math::Vector< double, 3 > W;
 	lapack::syev ( 'V', 'U', A, W, lapack::optimal_workspace() );
 
-	Math::Matrix< 3, 3 > Atruth;
+	Math::Matrix< double, 3, 3 > Atruth;
 	Math::Vector< double, 3 > Wtruth;
 
 	Atruth ( 0, 0 ) =  0.23319198; Atruth ( 0, 1 ) =  0.88765034; Atruth ( 0, 2 ) =  0.39711255;
@@ -51,8 +51,8 @@ void TestLinearLeastSquares()
 {
 	using namespace Ubitrack;
 
-	Math::Matrix< 10, 2 > A;
-	Math::Matrix< 10, 1 > b;
+	Math::Matrix< double, 10, 2 > A;
+	Math::Matrix< double, 10, 1 > b;
 	for (int i = 0; i < 10; ++i)
 	{
 		A( i, 0 ) = 1;
@@ -83,7 +83,7 @@ void TestLapack()
 {
 #ifdef HAVE_LAPACK
 	// check if singular value decomposition works
-	Matrix< 6, 6 > m( Matrix< 6, 6, double >::zeros( ) );
+	Matrix< double, 6, 6 > m( Matrix< double, 6, 6 >::zeros( ) );
 	for ( int i = 0; i < 6; i++ )
 		m( i, i ) = 10 - i;
 

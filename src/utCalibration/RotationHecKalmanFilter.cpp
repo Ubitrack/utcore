@@ -45,14 +45,14 @@ namespace ublas = boost::numeric::ublas;
 RotationHecKalmanFilter::RotationHecKalmanFilter()
 {
 	m_state.value = Math::Vector< double, 4 >( 0, 0, 0, 1 );
-	m_state.covariance = Math::Matrix< 4, 4, double >::identity() * 1e2;
+	m_state.covariance = Math::Matrix< double, 4, 4 >::identity() * 1e2;
 }
 
 void RotationHecKalmanFilter::addMeasurement( const Math::Quaternion& a, const Math::Quaternion& b )
 {
 	Math::ErrorVector< double, 4 > kalmanMeasurement;
 	kalmanMeasurement.value = Math::Vector< double, 4 >::zeros();
-	kalmanMeasurement.covariance = Math::Matrix< 4, 4, double >::identity() * 1e-2;
+	kalmanMeasurement.covariance = Math::Matrix< double, 4, 4 >::identity() * 1e-2;
 	// TODO: for error propagation use RotHecCombine
 
 	// do the filter update
@@ -62,7 +62,7 @@ void RotationHecKalmanFilter::addMeasurement( const Math::Quaternion& a, const M
 	// normalize the result to ensure quaternion properties
 	m_state = Math::transformWithCovariance< 4, 4 >( Math::Function::VectorNormalize( 4 ), m_state );
 	
-	m_state.covariance += Math::Matrix< 4, 4, double >::identity() * 1e-12;
+	m_state.covariance += Math::Matrix< double, 4, 4 >::identity() * 1e-12;
 }
 
 } }

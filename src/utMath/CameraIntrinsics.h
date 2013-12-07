@@ -58,7 +58,7 @@ template < typename T >
 struct CameraIntrinsics
 {
 	/** definition of the matrix type */
-	typedef Math::Matrix< 3, 3, T > matrix_type;
+	typedef Math::Matrix< T, 3, 3 > matrix_type;
 	
 	/** definition of the radial distortion parameter type */
 	typedef Math::Vector< T, 6 > radial_type;
@@ -104,7 +104,7 @@ public:
 		{}
 	
 	/** Constructor to use with old OpenCV values (2 radial distortion parameters) */	
-	CameraIntrinsics( const Math::Matrix< 3, 3, T > &intrinsicMatrix, const Math::Vector< T, 2 > &_radial, const Math::Vector< T, 2 > &_tangential )
+	CameraIntrinsics( const Math::Matrix< T, 3, 3 > &intrinsicMatrix, const Math::Vector< T, 2 > &_radial, const Math::Vector< T, 2 > &_tangential )
 		: m_inverter()
 		, dimension( Math::Vector< std::size_t, 2 >( 1, 1 ) )
 		, matrix( intrinsicMatrix )
@@ -118,7 +118,7 @@ public:
 		}
 	
 	/** Constructor to use with newer OpenCV values (6 radial distortion parameters) */	
-	CameraIntrinsics( const Math::Matrix< 3, 3, T > &intrinsicMatrix, const Math::Vector< T, 6 > &_radial, const Math::Vector< T, 2 > &_tangential )
+	CameraIntrinsics( const Math::Matrix< T, 3, 3 > &intrinsicMatrix, const Math::Vector< T, 6 > &_radial, const Math::Vector< T, 2 > &_tangential )
 		: m_inverter()
 		, dimension( Math::Vector< std::size_t, 2 >( 1, 1 ) )
 		, matrix( intrinsicMatrix )

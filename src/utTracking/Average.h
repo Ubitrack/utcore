@@ -79,7 +79,7 @@ protected:
 	ResultType incrementalEstimate( EventType& perturbed );
 		
 	Math::Vector< double > meanv;
-	Math::Matrix< 0, 0, double > outProd;
+	Math::Matrix< double, 0, 0 > outProd;
 
 	int m_counter;
 };
@@ -102,7 +102,7 @@ Math::ErrorVector< double, 3 > Average< Math::Vector< double, 3 >, Math::ErrorVe
 {
 	size_t size = eList.size();
 	Math::Vector< double, 3 > m_mean( Math::Vector< double, 3 >::zeros() );
-	Math::Matrix< 3, 3, double > m_outProd ( Math::Matrix< 3, 3, double >::zeros() );
+	Math::Matrix< double, 3, 3 > m_outProd ( Math::Matrix< double, 3, 3 >::zeros() );
 
 	for (size_t i = 0; i < size; i++)
 	{
@@ -192,7 +192,7 @@ Math::Pose Average< Math::Pose, Math::Pose >::mean( const std::vector< Math::Pos
 }
 
 
-Math::ErrorPose incEstimate(  Math::Pose poseNew,  Math::Vector< double >& meanv,  Math::Matrix< 0, 0, double >& outProd, int m_counter)
+Math::ErrorPose incEstimate(  Math::Pose poseNew,  Math::Vector< double >& meanv,  Math::Matrix< double, 0, 0 >& outProd, int m_counter)
 {
 	ublas::vector_range< Math::Vector< double >::base_type > posMean( meanv, ublas::range( 0, 3 ) );
 	ublas::vector_range< Math::Vector< double >::base_type > rotMean( meanv, ublas::range( 3, 7 ) );
@@ -254,7 +254,7 @@ Math::ErrorPose incEstimate(  Math::Pose poseNew,  Math::Vector< double >& meanv
 	//LOG4CPP_TRACE( logger, "Running (empirical) mean / covariance: " << std::endl << ep );
 
 	// For debug purposes, compute positional and angular error...
-	Math::Matrix< 6, 6 > covar = ep.covariance();
+	Math::Matrix< double, 6, 6 > covar = ep.covariance();
 	double posRms = sqrt ( covar (0,0) + covar (1,1) + covar (2,2) );
 	//LOG4CPP_INFO( logger, "RMS positional error [mm]: " << posRms );
 	Math::Vector< double > axis (3);
@@ -276,7 +276,7 @@ Math::ErrorPose Average< Math::Pose, Math::ErrorPose >::mean( const std::vector<
 	size_t size = eList.size();
 	
 	meanv = Math::Vector< double, 7 >::zeros();
-	outProd = Math::Matrix< 7, 7, double >::zeros();
+	outProd = Math::Matrix< double, 7, 7 >::zeros();
 
 	m_counter = 1;
 	Math::ErrorPose estimate;
@@ -291,7 +291,7 @@ Math::ErrorPose Average< Math::Pose, Math::ErrorPose >::mean( const std::vector<
 	Math::Quaternion q_mean ( 0.0, 0.0, 0.0, 0.0 );
 	
 	Math::Vector< double > m_mean = Math::Vector< double, 7 >::zeros();
-	Math::Matrix< 7, 7, double > m_outProd = Math::Matrix< 7, 7, double >::zeros();
+	Math::Matrix< double, 7, 7 > m_outProd = Math::Matrix< double, 7, 7 >::zeros();
 	
 	for( unsigned i = 0; i < size; i++ )
 	{

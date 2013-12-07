@@ -59,11 +59,11 @@ typename VT1::value_type downhillSimplex( const P& problem, VT1& params, const V
 
 	// initialize the starting points of the simplex
 	unsigned ndim = params.size();
-	Math::Matrix< 0, 0, VType > p( ndim + 1, ndim );
+	Math::Matrix< VType, 0, 0 > p( ndim + 1, ndim );
 	ublas::row( p, 0 ) = params;
 	for ( unsigned i = 1; i <= ndim; i++ )
 	{
-		ublas::matrix_row< Math::Matrix< 0, 0, T > > subrow( p, i );
+		ublas::matrix_row< Math::Matrix< T, 0, 0 > > subrow( p, i );
 		subrow = params;
 		p( i, i-1 ) *= T( 1.48529 );
 		normalize.evaluate( subrow, subrow );
@@ -133,7 +133,7 @@ typename VT1::value_type downhillSimplex( const P& problem, VT1& params, const V
 				for ( unsigned i = 0; i <= ndim; i++ )
 					if ( i != ilo )
 					{
-						ublas::matrix_row< Math::Matrix< 0, 0, T > > subrow( p, i );
+						ublas::matrix_row< Math::Matrix< T, 0, 0 > > subrow( p, i );
 						noalias( subrow ) += ublas::row( p, ilo );
 						subrow *= T( 0.5 );
 						normalize.evaluate( subrow, subrow );
@@ -160,7 +160,7 @@ typename VT1::value_type downhillSimplex( const P& problem, VT1& params, const V
  * \internal
  */
 template<  class T, class P, class VT2, class NT > 
-T downhillSimplexTry( Math::Matrix< 0, 0, T >& p, Math::Vector< T >& y, 
+T downhillSimplexTry( Math::Matrix< T, 0, 0 >& p, Math::Vector< T >& y, 
 	Math::Vector< T >& psum, P& problem, unsigned ihi, T fac, Math::Vector< T >& eval, 
 	const VT2& measurement, const NT& normalize )
 {

@@ -48,7 +48,7 @@ public:
 	 * Construct from matrix. 
 	 * Note: matrix reference must be valid throughout the lifetime of the object! 
 	 */
-	LinearTransformation( const Math::Matrix< M, N, T >& _matrix )
+	LinearTransformation( const Math::Matrix< T, M, N >& _matrix )
 		: rMatrix( _matrix )
 	{}
 
@@ -64,7 +64,7 @@ public:
 		j = boost::numeric::ublas::prod( l, rMatrix );
 	}
 	
-	const Math::Matrix< M, N, T >& rMatrix;
+	const Math::Matrix< T, M, N >& rMatrix;
 };
 
 } } } // namespace Ubitrack::Math::Function

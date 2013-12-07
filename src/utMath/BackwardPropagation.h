@@ -78,7 +78,7 @@ void backwardPropagation( MT1& result, const MT2& input, const F& function, cons
 	namespace ublas = boost::numeric::ublas;
 
 	typedef typename MT1::value_type VType;
-	typedef typename Math::Matrix< 0, 0, VType > MatType;
+	typedef typename Math::Matrix< VType, 0, 0 > MatType;
 
 	// evaluate jacobian
 	MatType jacobian( input.size1(), result.size1() );
@@ -154,7 +154,7 @@ void backwardPropagationIdentity( MT1& result, typename MT1::value_type s, MT3& 
 	namespace ublas = boost::numeric::ublas;
 
 	typedef typename MT1::value_type VType;
-	typedef typename Math::Matrix< 0, 0, VType > MatType;
+	typedef typename Math::Matrix< VType, 0, 0 > MatType;
 
 	// perform SVD on the jacobian
 	MatType dummyU( jacobian.size1(), jacobian.size1() );
@@ -202,7 +202,7 @@ void backwardPropagationIdentity( MT1& result, typename MT1::value_type s, const
 	namespace ublas = boost::numeric::ublas;
 
 	typedef typename MT1::value_type VType;
-	typedef typename Math::Matrix< 0, 0, VType > MatType;
+	typedef typename Math::Matrix< VType, 0, 0 > MatType;
 
 	// evaluate jacobian J
 	MatType jacobian( function.size(), result.size1() );
@@ -232,7 +232,7 @@ void backwardPropagationDiagonal( MT1& result, const VT2& input, MT3& jacobian )
 	namespace ublas = boost::numeric::ublas;
 
 	typedef typename MT1::value_type VType;
-	typedef typename Math::Matrix< 0, 0, VType > MatType;
+	typedef typename Math::Matrix< VType, 0, 0 > MatType;
 
 	// multiply jacobian with E^(-1/2)
 	for ( unsigned i = 0; i < result.size1(); i++ )
@@ -284,7 +284,7 @@ void backwardPropagationDiagonal( MT1& result, const VT2& input, const F& functi
 	namespace ublas = boost::numeric::ublas;
 
 	typedef typename MT1::value_type VType;
-	typedef typename Math::Matrix< 0, 0, VType > MatType;
+	typedef typename Math::Matrix< VType, 0, 0 > MatType;
 
 	// evaluate jacobian
 	MatType jacobian( input.size(), result.size1() );

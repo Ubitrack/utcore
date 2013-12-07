@@ -18,10 +18,10 @@ void Test3DPointReconstruction()
 
 		Math::Pose CamPose1( randomQuaternion() , randomVector< double, 3 >() );
 		Math::Pose CamPose2( randomQuaternion() , randomVector< double, 3 >() );
-		Math::Matrix< 3, 4, double > p1( CamPose1 );
-		Math::Matrix< 3, 4, double > p2( CamPose2 );
+		Math::Matrix< double, 3, 4 > p1( CamPose1 );
+		Math::Matrix< double, 3, 4 > p2( CamPose2 );
 
-		Math::Matrix< 3, 3, double > K = Math::Matrix< 3, 3, double >::identity();
+		Math::Matrix< double, 3, 3 > K = Math::Matrix< double, 3, 3 >::identity();
 		K( 0, 0 ) = K( 1, 1 ) = 500;
 		K( 0, 2 ) = 320;
 		K( 1, 2 ) = 240;
@@ -60,7 +60,7 @@ void Test3DPointReconstruction()
 	{
 
 		unsigned int num_cameras = static_cast< unsigned > ( random( 2.0, 10.0 ) );
-		std::vector< Math::Matrix< 3, 4, double > > matrices; // stores projection matrices
+		std::vector< Math::Matrix< double, 3, 4 > > matrices; // stores projection matrices
 		std::vector< Math::Vector< double, 2 > > pts; //stores image points
 		matrices.reserve( num_cameras );
 		pts.reserve( num_cameras );
@@ -71,7 +71,7 @@ void Test3DPointReconstruction()
 		for( unsigned i( 0 ); i < num_cameras; ++i )
 		{
 			Math::Pose CamPose( randomQuaternion() , randomVector< double, 3 >() );
-			Math::Matrix< 3, 4, double > p( CamPose );
+			Math::Matrix< double, 3, 4 > p( CamPose );
 			Math::Vector< double, 2 > p2d = Math::Functors::project3x4_vector3< double >()( p, v );
 			
 			matrices.push_back( p );

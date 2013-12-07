@@ -22,7 +22,7 @@ void TestFundamentalMatrix()
 		Math::Pose CamPose1( randomQuaternion() , randomVector< double, 3 >() );
 		Math::Pose CamPose2( randomQuaternion() , randomVector< double, 3 >() );
 
-		Math::Matrix< 3, 3 > I;
+		Math::Matrix< double, 3, 3 > I;
 
 		I( 0, 0 ) = 400;
 		I( 0, 1 ) = 0;
@@ -34,13 +34,13 @@ void TestFundamentalMatrix()
 		I( 2, 1 ) = 0;
 		I( 2, 2 ) = -1;
 
-		Math::Matrix< 3, 4 > E1( CamPose1 );
-		Math::Matrix< 3, 4 > E2( CamPose2 );
+		Math::Matrix< double, 3, 4 > E1( CamPose1 );
+		Math::Matrix< double, 3, 4 > E2( CamPose2 );
 
 		E1 = ublas::prod( I, E1);
 		E2 = ublas::prod( I, E2);
 
-		Math::Matrix< 3, 3 > F = Calibration::fundamentalMatrixFromPoses( CamPose1, CamPose2, I, I );
+		Math::Matrix< double, 3, 3 > F = Calibration::fundamentalMatrixFromPoses( CamPose1, CamPose2, I, I );
 
 		//compute random points and according fundamental matrix
 		std::vector< Math::Vector< double, 2 > > fromPoints;
@@ -56,7 +56,7 @@ void TestFundamentalMatrix()
 			toPoints.push_back( Math::Vector< double, 2 >( v2( 0 )/v2( 2 ), v2( 1 )/v2( 2 ) ) );
 		}
 
-		Math::Matrix< 3, 3 > FTest = Calibration::getFundamentalMatrix( fromPoints, toPoints );
+		Math::Matrix< double, 3, 3 > FTest = Calibration::getFundamentalMatrix( fromPoints, toPoints );
 
 		BOOST_CHECK_SMALL( homMatrixDiff( F, FTest ), 0.001 );
 	}

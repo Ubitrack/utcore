@@ -44,7 +44,7 @@
 namespace Ubitrack { namespace Math {
 
 //forward declaration to matrix template
-template< std::size_t M, std::size_t N, typename T > class Matrix;
+template< typename T, std::size_t M, std::size_t N > class Matrix;
 
 
 /**
@@ -79,7 +79,7 @@ class UBITRACK_EXPORT Pose
 		 * construct a pose from a 4x4 matrix
 		 * @param m a 4x4 matrix
 		 */
-		Pose( const Math::Matrix< 0, 0, double >& mat );
+		Pose( const Math::Matrix< double, 0, 0 >& mat );
 		
 		/**
 		 * scale the pose

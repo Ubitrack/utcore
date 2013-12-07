@@ -64,9 +64,9 @@ typedef Measurement< Math::Vector< double, 3 >      > Vector3D; // e.g. magnetic
 typedef Measurement< Math::Vector< double, 4 >      > Vector4D;
 typedef Measurement< Math::Vector< double, 8 >      > Vector8D; // New distortion model
 typedef Measurement< Math::Quaternion       > Rotation;
-typedef Measurement< Math::Matrix< 3, 3 >   > Matrix3x3;
-typedef Measurement< Math::Matrix< 3, 4 >   > Matrix3x4;
-typedef Measurement< Math::Matrix< 4, 4 >   > Matrix4x4;
+typedef Measurement< Math::Matrix< double, 3, 3 >   > Matrix3x3;
+typedef Measurement< Math::Matrix< double, 3, 4 >   > Matrix3x4;
+typedef Measurement< Math::Matrix< double, 4, 4 >   > Matrix4x4;
 typedef Measurement< Math::Scalar< int >    > Button;
 typedef Measurement< Math::Pose             > Pose;
 typedef Measurement< Math::ErrorPose        > ErrorPose;

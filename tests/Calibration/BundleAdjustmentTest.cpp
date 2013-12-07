@@ -63,7 +63,7 @@ void TestMarkerBundleAdjustment( const std::size_t n_runs, const T epsilon )
 		const std::size_t n_cams = Random::distribute_uniform( 3, 20 );
 		
 		// random intrinsics matrix, never changes, assume always the same camera
-		Matrix< 3, 3, T > cam( Matrix< 3, 3, T >::identity() );
+		Matrix< T, 3, 3 > cam( Matrix< T, 3, 3 >::identity() );
 		cam( 0, 0 ) = Random::distribute_uniform< T >( 500, 800 );
 		cam( 1, 1 ) = Random::distribute_uniform< T >( 500, 800 );
 		cam( 0, 2 ) = screenResolution[ 0 ] * 0.5;
@@ -99,7 +99,7 @@ void TestMarkerBundleAdjustment( const std::size_t n_runs, const T epsilon )
 		
 		// generate random poses and project on image plane
 		std::vector< Pose > extrinsics;
-		std::vector< Matrix< 3, 3, T > > intrinsics;
+		std::vector< Matrix< T, 3, 3 > > intrinsics;
 		std::vector< std::vector< Vector< T, 2 > > > points_2D;
 		std::vector < std::vector < Scalar < T > > > weights_2D;
 		std::vector < Scalar < int > > localSizes;
@@ -111,7 +111,7 @@ void TestMarkerBundleAdjustment( const std::size_t n_runs, const T epsilon )
 			Vector< T, 3 > trans ( randTranslation() );
 			
 			Pose pose6D( rot, trans );
-			Matrix< 3, 4, T > proj( rot, trans );
+			Matrix< T, 3, 4 > proj( rot, trans );
 			proj = boost::numeric::ublas::prod( cam, proj );
 			
 			std::vector< Vector< T, 2 > > p2D;

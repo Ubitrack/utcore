@@ -36,7 +36,7 @@ void TestOptimizePose( const std::size_t n_runs, const T epsilon )
 	for ( std::size_t iRun = 0; iRun < n_runs; iRun++ )
 	{
 		// random intrinsics matrix
-		Matrix< 3, 3, T > cam( Matrix< 3, 3, T >::identity() );
+		Matrix< T, 3, 3 > cam( Matrix< T, 3, 3 >::identity() );
 		cam( 0, 0 ) = Random::distribute_uniform< T >( 200, 800 );
 		cam( 1, 1 ) = Random::distribute_uniform< T >( 200, 800 );
 		
@@ -56,7 +56,7 @@ void TestOptimizePose( const std::size_t n_runs, const T epsilon )
 		// std::copy( p3D.begin(), p3D.end(), std::ostream_iterator< Ubitrack::Math::Vector< double, 3 > > ( std::cout, ", ") );
 			
 		// project to 2D points 
-		Matrix< 3, 4, T > proj( rot, trans );
+		Matrix< T, 3, 4 > proj( rot, trans );
 		proj = boost::numeric::ublas::prod( cam, proj );
 		std::vector< Vector< T, 2 > > p2D;
 		p2D.reserve( n );

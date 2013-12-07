@@ -51,9 +51,9 @@ namespace Ubitrack { namespace Calibration {
  * @param invK the inverse of the camera intrinsics matrix K that maps camera coordinates to image coordinates
  * @return the camera pose
  */
-UBITRACK_EXPORT Math::Pose poseFromHomography( const Math::Matrix< 3, 3, float >& H, const Math::Matrix< 3, 3, float >& invK );
+UBITRACK_EXPORT Math::Pose poseFromHomography( const Math::Matrix< float, 3, 3 >& H, const Math::Matrix< float, 3, 3 >& invK );
 
-UBITRACK_EXPORT Math::Pose poseFromHomography( const Math::Matrix< 3, 3, double >& H, const Math::Matrix< 3, 3, double >& invK );
+UBITRACK_EXPORT Math::Pose poseFromHomography( const Math::Matrix< double, 3, 3 >& H, const Math::Matrix< double, 3, 3 >& invK );
 
 
 #ifdef HAVE_LAPACK
@@ -71,11 +71,11 @@ UBITRACK_EXPORT Math::Pose poseFromHomography( const Math::Matrix< 3, 3, double 
  * @return residual of the optimization
  */
 UBITRACK_EXPORT float optimizePose( Math::Pose& p, const std::vector< Math::Vector< float, 2 > >& p2D, 
-	const std::vector< Math::Vector< float, 3 > >& p3D, const Math::Matrix< 3, 3, float >& cam, 
+	const std::vector< Math::Vector< float, 3 > >& p3D, const Math::Matrix< float, 3, 3 >& cam, 
 	const std::size_t nIterations = 6 );
 
 UBITRACK_EXPORT double optimizePose( Math::Pose& p, const std::vector< Math::Vector< double, 2 > >& p2D, 
-	const std::vector< Math::Vector< double, 3 > >& p3D, const Math::Matrix< 3, 3, double >& cam,
+	const std::vector< Math::Vector< double, 3 > >& p3D, const Math::Matrix< double, 3, 3 >& cam,
 	const std::size_t nIterations = 6 );
 
 	
@@ -90,11 +90,11 @@ UBITRACK_EXPORT double optimizePose( Math::Pose& p, const std::vector< Math::Vec
  * @param cam camera intrinsics matrix
  * @param imageError variance of the measurement error in the image plane
  */
-UBITRACK_EXPORT Math::Matrix< 6, 6, float > singleCameraPoseError( const Math::Pose& p, const std::vector< Math::Vector< float, 3 > >& p3D, 
-	const Math::Matrix< 3, 3, float >& cam, float imageError );
+UBITRACK_EXPORT Math::Matrix< float, 6, 6 > singleCameraPoseError( const Math::Pose& p, const std::vector< Math::Vector< float, 3 > >& p3D, 
+	const Math::Matrix< float, 3, 3 >& cam, float imageError );
 	
-UBITRACK_EXPORT Math::Matrix< 6, 6, double > singleCameraPoseError( const Math::Pose& p, const std::vector< Math::Vector< double, 3 > >& p3D, 
-	const Math::Matrix< 3, 3, double >& cam, double imageError );
+UBITRACK_EXPORT Math::Matrix< double, 6, 6 > singleCameraPoseError( const Math::Pose& p, const std::vector< Math::Vector< double, 3 > >& p3D, 
+	const Math::Matrix< double, 3, 3 >& cam, double imageError );
 
 /**
  * @ingroup tracking_algorithms
@@ -111,15 +111,15 @@ UBITRACK_EXPORT Math::Matrix< 6, 6, double > singleCameraPoseError( const Math::
  * @param imageError variance of the measurement error in the image plane, assumed to be the same for all
  *   cameras and image points.
  */
-UBITRACK_EXPORT Math::Matrix< 6, 6, float > multipleCameraPoseError( const Math::Pose& p, 
+UBITRACK_EXPORT Math::Matrix< float, 6, 6 > multipleCameraPoseError( const Math::Pose& p, 
 	const std::vector< Math::Vector< float, 3 > >& p3D, 
-	const std::vector< Math::Matrix< 3, 4, float > >& cameras, 
+	const std::vector< Math::Matrix< float, 3, 4 > >& cameras, 
 	const std::vector< std::pair< std::size_t, std::size_t > > observations, 
 	float imageError );
 	
-UBITRACK_EXPORT Math::Matrix< 6, 6, double > multipleCameraPoseError( const Math::Pose& p, 
+UBITRACK_EXPORT Math::Matrix< double, 6, 6 > multipleCameraPoseError( const Math::Pose& p, 
 	const std::vector< Math::Vector< double, 3 > >& p3D, 
-	const std::vector< Math::Matrix< 3, 4, double > >& cameras, 
+	const std::vector< Math::Matrix< double, 3, 4 > >& cameras, 
 	const std::vector< std::pair< std::size_t, std::size_t > > observations, 
 	double imageError );
 
@@ -145,7 +145,7 @@ UBITRACK_EXPORT typedef enum InitializationMethod {
 UBITRACK_EXPORT Math::ErrorPose computePose( 
 		const std::vector< Math::Vector< double, 2 > >& p2d,
 		const std::vector< Math::Vector< double, 3 > >& p3d,
-		const Math::Matrix< 3, 3 >& cam,
+		const Math::Matrix< double, 3, 3 >& cam,
 		bool optimize = true,
 		enum InitializationMethod initMethod = (enum InitializationMethod)PLANAR_HOMOGRAPHY
 	);
@@ -162,7 +162,7 @@ UBITRACK_EXPORT Math::ErrorPose computePose(
 UBITRACK_EXPORT Math::ErrorPose computePose( 
 		const std::vector< Math::Vector< double, 2 > >& p2d,
 		const std::vector< Math::Vector< double, 3 > >& p3d,
-		const Math::Matrix< 3, 3 >& cam,
+		const Math::Matrix< double, 3, 3 >& cam,
 		double& residual,
 		bool optimize = true,
 		enum InitializationMethod initMethod = (enum InitializationMethod)PLANAR_HOMOGRAPHY		

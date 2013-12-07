@@ -26,12 +26,12 @@ void testBasicPointTransformations( const std::size_t n )
 	Vector< T, 3 > trans ( randTranslation() );
 
 	// transformation matrices
-	Matrix< 4, 4, T > mat4x4( rot, trans );
-	Matrix< 3, 4, T > mat3x4( rot, trans );
-	Matrix< 3, 3, T > mat3x3( rot );
+	Matrix< T, 4, 4 > mat4x4( rot, trans );
+	Matrix< T, 3, 4 > mat3x4( rot, trans );
+	Matrix< T, 3, 3 > mat3x3( rot );
 
 	// following matrix set to identity -> boring
-	Matrix< 2, 3, T > mat2x3; 
+	Matrix< T, 2, 3 > mat2x3; 
 	mat2x3( 0, 0 ) = mat2x3( 1, 1 ) =  1;
 	mat2x3( 0, 1 ) = mat2x3( 1, 0 ) =  0;
 	mat2x3( 0, 2 ) = trans( 0 );
@@ -130,7 +130,7 @@ void testBasicPointProjection( const std::size_t n )
 	Vector< T, 3 > trans ( randTranslation() );
 	
 	// random intrinsics matrix, never changes, assume always the same camera
-	Matrix< 3, 3, T > cam( Matrix< 3, 3, T >::identity() );
+	Matrix< T, 3, 3 > cam( Matrix< T, 3, 3 >::identity() );
 	cam( 0, 0 ) = Random::distribute_uniform< T >( 500, 800 );
 	cam( 1, 1 ) = Random::distribute_uniform< T >( 500, 800 );
 	// take care of ubitracks camera interpretation -> last column negative entries
@@ -139,7 +139,7 @@ void testBasicPointProjection( const std::size_t n )
 	cam( 2, 2 ) = -1;
 	
 	// projection to 2D image plane
-	Matrix< 3, 4, T > projection( rot, trans );
+	Matrix< T, 3, 4 > projection( rot, trans );
 	projection = boost::numeric::ublas::prod( cam, projection );
 	
 	

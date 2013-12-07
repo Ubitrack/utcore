@@ -100,10 +100,10 @@ void estimateNormalizationParameters( const ForwardIterator iBegin, const Forwar
  */
 
 template< std::size_t N, typename T >
-inline Math::Matrix< N+1, N+1, T > generateNormalizationMatrix( const Math::Vector< T, N >& shift, const Math::Vector< T, N >& scale, const bool modInverse )
+inline Math::Matrix< T, N+1, N+1 > generateNormalizationMatrix( const Math::Vector< T, N >& shift, const Math::Vector< T, N >& scale, const bool modInverse )
 {
 	// compute correction matrix
-	Math::Matrix< N+1, N+1, T > modMatrix = Math::Matrix< N+1, N+1, T >::zeros();
+	Math::Matrix< T, N+1, N+1 > modMatrix = Math::Matrix< T, N+1, N+1 >::zeros();
 	modMatrix( N, N ) = static_cast< T >( 1 ); //homogeneous matrix :)
 	
 	if ( modInverse )

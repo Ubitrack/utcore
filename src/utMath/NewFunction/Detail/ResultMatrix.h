@@ -42,7 +42,7 @@ namespace Ubitrack { namespace Math { namespace Function { namespace Detail {
  */
 template< std::size_t TotalSize, std::size_t Size1, std::size_t Size2 >
 class ResultMatrix
-	: public Math::Matrix< Size1, Size2 >
+	: public Math::Matrix< double, Size1, Size2 >
 {
 public:
 	ResultMatrix( std::size_t s1, std::size_t s2 )
@@ -51,16 +51,16 @@ public:
 	}
 	
 	template< class AE > 
-	Math::Matrix< Size1, Size2 >& operator=( const boost::numeric::ublas::matrix_expression< AE >& e )
+	Math::Matrix< double, Size1, Size2 >& operator=( const boost::numeric::ublas::matrix_expression< AE >& e )
 	{
-		Math::Matrix< Size1, Size2 >::operator=( e );
+		Math::Matrix< double, Size1, Size2 >::operator=( e );
 		return *this;
 	}
 };
 
 /** dynamically sized, heap-allocated matrix for intermediate results */
 template< std::size_t Size1, std::size_t Size2 >
-class ResultMatrix< 0U, Size1, Size2 >
+class ResultMatrix< Size2, 0U, Size1 >
 	: public ublas::matrix< double >
 {
 public:

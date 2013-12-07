@@ -65,20 +65,20 @@ namespace Ubitrack { namespace Math { namespace Geometry {
  */
 template< typename T, std::size_t M, std::size_t N, typename VecType >
 struct ProjectPoint
-	: public std::binary_function< Math::Matrix< M, N, T >, VecType, Math::Vector< T, 2 > >
+	: public std::binary_function< Math::Matrix< T, M, N >, VecType, Math::Vector< T, 2 > >
 {
 
 public:
 	// internal template to catch wrong vector types and print an error message
 	template< typename notSupportedVectorType >
-	Math::Vector< T, 2 > operator() ( const Math::Matrix< 3, 4, T > &, const notSupportedVectorType &  ) const
+	Math::Vector< T, 2 > operator() ( const Math::Matrix< T, 3, 4 > &, const notSupportedVectorType &  ) const
 	{
 		UBITRACK_STATIC_ASSERT( false, USE_ONLY_WITH_VECTOR_TYPE_OF_2_3_OR_4_DIMENSIONS );
 		return Ubitrack::Math::Vector< T, 2 >();
 	}
 	
 	///* Specialization of \c bracket-operator for projection of \b 2D \b points
-	Math::Vector< T, 2 > operator() ( const Math::Matrix< 3, 4, T > &projMat, const Math::Vector< T, 2 > &vec ) const
+	Math::Vector< T, 2 > operator() ( const Math::Matrix< T, 3, 4 > &projMat, const Math::Vector< T, 2 > &vec ) const
 	{
 		const T e1 = projMat( 0, 0 ) * vec( 0 ) + projMat( 0, 1 ) * vec( 1 ) + projMat( 0, 3 );
 		const T e2 = projMat( 1, 0 ) * vec( 0 ) + projMat( 1, 1 ) * vec( 1 ) + projMat( 1, 3 );
@@ -87,7 +87,7 @@ public:
 	}
 	
 	///* Specialization of \c bracket-operator for projection of \b 3D \b points 
-	Math::Vector< T, 2 > operator() ( const Math::Matrix< 3, 4, T > &projMat, const Math::Vector< T, 3 > &vec ) const
+	Math::Vector< T, 2 > operator() ( const Math::Matrix< T, 3, 4 > &projMat, const Math::Vector< T, 3 > &vec ) const
 	{
 		const T e1 = projMat( 0, 0 ) * vec( 0 ) + projMat( 0, 1 ) * vec( 1 ) + projMat( 0, 2 ) * vec( 2 ) + projMat( 0, 3 );
 		const T e2 = projMat( 1, 0 ) * vec( 0 ) + projMat( 1, 1 ) * vec( 1 ) + projMat( 1, 2 ) * vec( 2 ) + projMat( 1, 3 );
@@ -96,7 +96,7 @@ public:
 	}
 	
 	///* Specialization of \c bracket-operator for projection of \b 4D \b points
-	Math::Vector< T, 2 > operator() ( const Math::Matrix< 3, 4, T > &projMat, const Math::Vector< T, 4 > &vec ) const
+	Math::Vector< T, 2 > operator() ( const Math::Matrix< T, 3, 4 > &projMat, const Math::Vector< T, 4 > &vec ) const
 	{
 		const T e1 = projMat( 0, 0 ) * vec( 0 ) + projMat( 0, 1 ) * vec( 1 ) + projMat( 0, 2 ) * vec( 2 ) + projMat( 0, 3 ) * vec( 3 );
 		const T e2 = projMat( 1, 0 ) * vec( 0 ) + projMat( 1, 1 ) * vec( 1 ) + projMat( 1, 2 ) * vec( 2 ) + projMat( 1, 3 ) * vec( 3 );
@@ -125,7 +125,7 @@ public:
  * \n and finally projects the points via \@f [\hat{p_{1}} \hat{p_{2}}]^T / \hat{p_{3}} \@f
  * 
  * Example use case:\n
- * Matrix< 3, 4 > proj; // <- should be filled with values \n
+ * Matrix< double, 3, 4 > proj; // <- should be filled with values \n
  * std::vector< Vector3d > points3d; // <- should be filled with values \n
  * std::vector< Vector2d > points2d; // <- will be filled with values, storage can be allocated with \c reserve() \n
  * project_points( proj, points3d.begin(), points3d.end(), std::back_inserter( points2d ) );\n
@@ -143,7 +143,7 @@ public:
  * @param iOut output \c iterator pointing to first element in container/storage class for storing the projected points as a result ( usually \c begin() or \c std::back_inserter(container) )
  */
 template< typename T, std::size_t M, std::size_t N, typename ForwardIterator1, typename ForwardIterator2 >
-inline void project_points( const Math::Matrix< M, N, T > &projection, const ForwardIterator1 iBegin, const ForwardIterator1 iEnd, ForwardIterator2 iOut )
+inline void project_points( const Math::Matrix< T, M, N > &projection, const ForwardIterator1 iBegin, const ForwardIterator1 iEnd, ForwardIterator2 iOut )
 {
 
 	// determine the types of the iterators.

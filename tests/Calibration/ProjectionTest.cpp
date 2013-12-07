@@ -13,12 +13,12 @@ using namespace Ubitrack::Math;
 namespace ublas = boost::numeric::ublas;
 namespace lapack = boost::numeric::bindings::lapack;
 
-Matrix< 3, 4, float > randomProjection( Matrix< 3, 3, float >& k, Matrix< 3, 3, float >& r, Vector< float, 3 >& t )
+Matrix< float, 3, 4 > randomProjection( Matrix< float, 3, 3 >& k, Matrix< float, 3, 3 >& r, Vector< float, 3 >& t )
 {
 	// create a random rotation
 	Quaternion q( random( -1.0, 1.0 ), random( -1.0, 1.0 ), random( -1.0, 1.0 ), random( -1.0, 1.0 ) );
 	q.normalize();
-	r = Matrix< 3, 3, float >( q );
+	r = Matrix< float, 3, 3 >( q );
 
 	// create random translation
 	t( 0 ) = random( -1000.0f, 1000.0f );
@@ -26,7 +26,7 @@ Matrix< 3, 4, float > randomProjection( Matrix< 3, 3, float >& k, Matrix< 3, 3, 
 	t( 2 ) = random( -1000.0f, 0.01f );
 
 	// create rt matrix
-	Matrix< 3, 4, float > rt;
+	Matrix< float, 3, 4 > rt;
 	ublas::subrange( rt, 0, 3, 0, 3 ) = r;
 	ublas::column( rt, 3 ) = t;
 
@@ -41,8 +41,8 @@ Matrix< 3, 4, float > randomProjection( Matrix< 3, 3, float >& k, Matrix< 3, 3, 
 }
 
 
-Matrix< 3, 4, float > randomProjection()
-{ Matrix< 3, 3, float > k; Matrix< 3, 3, float > r; Vector< float, 3 > t; return randomProjection( k, r, t ); }
+Matrix< float, 3, 4 > randomProjection()
+{ Matrix< float, 3, 3 > k; Matrix< float, 3, 3 > r; Vector< float, 3 > t; return randomProjection( k, r, t ); }
 
 
 void TestProjectionDLT()
@@ -51,7 +51,7 @@ void TestProjectionDLT()
 	for ( int iTest = 0; iTest < 100; iTest++ )
 	{
 		// create a random projection matrix
-		Matrix< 3, 4, float > Ptest( randomProjection() );
+		Matrix< float, 3, 4 > Ptest( randomProjection() );
 
 		// create & transform random points
 		// use at least 20 correspondences, as randomness may lead to poorly conditioned problems...
@@ -70,7 +70,7 @@ void TestProjectionDLT()
 			toPoints[ i ] = ublas::subrange( xp, 0, 2 ) / xp( 2 );
 		}
 
-		Matrix< 3, 4, float > P( Ubitrack::Calibration::projectionDLT( fromPoints, toPoints ) );
+		Matrix< float, 3, 4 > P( Ubitrack::Calibration::projectionDLT( fromPoints, toPoints ) );
 
 		BOOST_CHECK_SMALL( homMatrixDiff( P, Ptest ), 1e-3f );
 	}
@@ -83,14 +83,14 @@ void TestDecomposeProjection()
 	for ( int iTest = 0; iTest < 100; iTest++ )
 	{
 		// create random projection
-		Matrix< 3, 3, float > k;
-		Matrix< 3, 3, float > r;
+		Matrix< float, 3, 3 > k;
+		Matrix< float, 3, 3 > r;
 		Vector< float, 3 > t;
-		Matrix< 3, 4, float > p = randomProjection( k, r, t );
+		Matrix< float, 3, 4 > p = randomProjection( k, r, t );
 
 		// decompose
-		Matrix< 3, 3, float > kEst;
-		Matrix< 3, 3, float > rEst;
+		Matrix< float, 3, 3 > kEst;
+		Matrix< float, 3, 3 > rEst;
 		Vector< float, 3 > tEst;
 		Ubitrack::Calibration::decomposeProjection( kEst, rEst, tEst, p );
 		
