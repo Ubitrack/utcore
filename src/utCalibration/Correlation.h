@@ -22,8 +22,8 @@
 namespace Ubitrack { namespace Calibration {
 
 
-UBITRACK_EXPORT double computeCorrelation ( const std::vector< Math::Vector3d >& left,
-											const std::vector< Math::Vector3d >& right);
+UBITRACK_EXPORT double computeCorrelation ( const std::vector< double >& left,
+											const std::vector< double >& right);
 
 
 }};

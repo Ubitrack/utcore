@@ -26,17 +26,20 @@ void TestCorrelation()
 }
 #else // HAVE_LAPACK
 
-std::vector<Vector3d>* generateEmptyPositionSequence() {
-	std::vector<Vector3d> *v = new std::vector<Vector3d>();
+std::vector<double>* generateEmptyPositionSequence() {
+	std::vector<double> *v = new std::vector<double>();
 	return v;
 }
 
-std::vector<Vector3d>* generateRandomPositionSequence() {
-	std::vector<Vector3d> *v = new std::vector<Vector3d>();
+double randDouble() {
+	return Random::distribute_uniform<double>(0.0f, 1.0f);
+}
 
-	for (int i=0; i<100; i++) {
-		
-	}
+std::vector<double>* generateRandomPositionSequence() {
+	std::vector<double> *v = new std::vector<double>();
+	v->reserve(100);
+
+	std::generate_n( std::back_inserter(*v), 100, randDouble );
 
 	return v;
 }
@@ -44,10 +47,27 @@ std::vector<Vector3d>* generateRandomPositionSequence() {
 
 void TestCorrelation()
 {
-	std::vector<Vector3d> *v1 = generateEmptyPositionSequence();
+	{
+		std::vector<double> *v1 = generateEmptyPositionSequence();
+		BOOST_CHECK( Ubitrack::Calibration::computeCorrelation(*v1, *v1) == 1.0f );
+		delete v1;
+	}
 
-	BOOST_CHECK( Ubitrack::Calibration::computeCorrelation(*v1, *v1) == 1.0f );
+	{
+		std::vector<double> *v1 = generateRandomPositionSequence();
+		BOOST_CHECK( Ubitrack::Calibration::computeCorrelation(*v1, *v1) == 1.0f );
+		delete v1;
+	}
 
+	{
+		std::vector<double> *v1 = generateRandomPositionSequence();
+		std::vector<double> *v2 = generateRandomPositionSequence();
+
+		BOOST_CHECK( Ubitrack::Calibration::computeCorrelation(*v1, *v2) != 1.0f );
+		BOOST_CHECK( Ubitrack::Calibration::computeCorrelation(*v1, *v2) < 1.0f );
+		delete v1;
+		delete v2;
+	}
 }
 
 #endif // HAVE_LAPACK
