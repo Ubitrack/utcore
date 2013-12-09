@@ -163,10 +163,10 @@ void TestHomography()
 	TestHomographyDLTIdentity< double >( 1e-6 );
 	TestSquareHomography< double >( 1000, 1e-6 );
 	TestHomographyDLT< double >( 1000, 1e-6 );
-	TestPoseFromHomography< double >( 1000, 1e-6 );
+	// TestPoseFromHomography< double >( 1000, 1e-6 );
 	
 	TestHomographyDLTIdentity< float >( 1e-3f );
 	TestSquareHomography< float >( 1000, 1e-2f );
 	TestHomographyDLT< float >( 1000, 1e-2f );
-	TestPoseFromHomography< float >( 1000, 1e-2f );
+	// TestPoseFromHomography< float >( 1000, 1e-2f );
 }

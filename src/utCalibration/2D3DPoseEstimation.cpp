@@ -77,7 +77,7 @@ Math::Pose poseFromHomographyImpl( const Matrix< T, 3, 3 >& H, const Matrix< T, 
 	// still do not know what is correct: positive or negative?
 	// all my tests seem to point to positive, therefore :
 	// make sure the z-coordinate is positive
-	if ( R( 2, 2 ) < 0 )
+	if ( R( 2, 2 ) > 0 )
 		R *= -1.0;
 
 	// compute length of the first two colums
@@ -97,8 +97,8 @@ Math::Pose poseFromHomographyImpl( const Matrix< T, 3, 3 >& H, const Matrix< T, 
 	//CW@2013-12-06:
 	// last change was wrong, s needs to be set to 2
 	// actually the svd looks like: R_3x2 * S_2 * Vt_2x2, although matrices are 3x3
-	ublas::matrix_range< Matrix< T, 3, 3 > > Rleft( R, ublas::range( 0, 3 ), ublas::range( 0, 2 ) );
-	ublas::matrix_range< Matrix< T, 3, 3 > > vt( right, ublas::range( 0, 2 ), ublas::range( 0, 2 ) );
+	ublas::matrix_range< Math::Matrix< T, 3, 3 > > Rleft( R, ublas::range( 0, 3 ), ublas::range( 0, 2 ) );
+	ublas::matrix_range< Math::Matrix< T, 3, 3 > > vt( right, ublas::range( 0, 2 ), ublas::range( 0, 2 ) );
 	boost::numeric::bindings::lapack::gesvd( 'A', 'A', Rleft, s, u, vt );
 	
 	right( 0, 2 ) = right( 1, 2 ) = 0;
