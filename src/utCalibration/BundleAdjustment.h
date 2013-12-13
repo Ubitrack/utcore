@@ -21,134 +21,40 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
+// #include <utMeasurement/Measurement.h>
 
-#include <utMath/NewFunction/Function.h>
-#include <utMath/NewFunction/Addition.h>
-#include <utMath/NewFunction/Dehomogenization.h>
-#include <utMath/NewFunction/LieRotation.h>
-#include <utMath/NewFunction/LinearTransformation.h>
-#include <utMeasurement/Measurement.h>
+#include "../utCore.h"
+
+#include <utMath/Vector.h>
+#include <utMath/Matrix.h>
+#include <utMath/Pose.h>
 
 namespace Ubitrack { namespace Calibration {
 
 #ifdef HAVE_LAPACK
 
 /**
- * Function to minimize. Input is a 6-vector containing translation and exponential map rotation.
- */ 
-template< class VType = double >
-class ObjectiveFunction
-{
-public:
-	ObjectiveFunction( const std::vector< Math::Vector< VType, 3 > >& p3D, 
-		const std::vector< Math::Matrix< double, 3, 3 > >& cameraRotations, 
-		const std::vector< Math::Vector< double, 3 > >& cameraTranslations, 
-		const std::vector< Math::Matrix< VType, 3, 3 > >& cameraIntrinsics, 
-		const std::vector< std::pair< std::size_t, std::size_t > > visibilities )
-		: m_p3D( p3D )
-		, m_camR( cameraRotations )
-		, m_camT( cameraTranslations )
-		, m_camI( cameraIntrinsics )
-		, m_vis( visibilities )
-	{}
+ * @ingroup tracking_algorithms
+ * @brief Performs a (classic) bundle adjustment
+ *
+ * This method performs an optimization on given (noisy) 3D point data and 
+ * (noisy) camera poses from given 2D image observations of the 3D points
+ * using a common bundle adjustment approach. 
+ *
+ * The function to be minimized is stated as \@f  min \sum_{ij} d( \hat{P}^{i} \hat{X}_j, x_{j}^{i})^{2} \@f 
+ * The Jacobian in here is build up similar to figure A.1
+ *  on http://www.cs.unc.edu/~marc/tutorial/node163.html#sec:subbundle .
+ *
+ * @param pts2D \c std::vector of observations, for each camera a new \c std::vector
+ * @param camMats \c std::vector of 3-by-3 matrices, defining the intrinsics camera orientations
+ * @return camPoses \c std::vector of poses, defining the initial extrinsic camera orientations
+ * @return pts3D \c std::vector of initial 3D points , basis of the 2D observations in 1st parameter
+ */
 
-	/**
-	 * return the size of the result vector
-	 */
-	std::size_t size() const
-	{ return 2 * m_vis.size(); }
+UBITRACK_EXPORT void simpleBundleAdjustment( const std::vector< std::vector< Math::Vector2d > >& pts2D, const std::vector< Math::Matrix3x3d >& camMats, std::vector< Math::Pose >& camPoses, std::vector< Math::Vector3d >& pts3D );
 
-
-	/**
-	 * @param result vector to store the result in
-	 * @param input containing the parameters (target pose as 7-vector)
-	 * @param J matrix to store the jacobian (evaluated for input) in
-	 */
-	template< class VT1, class VT2, class MT > 
-	void evaluateWithJacobian( VT1& result, const VT2& input, MT& J ) const
-	{
-		namespace NF = Math::Function;
-		namespace ublas = boost::numeric::ublas;
-		const std::size_t n_vis( m_vis.size() );
-		for ( std::size_t i( 0 ); i < n_vis; ++i )
-		{
-				ublas::vector_range< VT1 > subResult( result, ublas::range( i * 2, ( i + 1 ) * 2 ) );
-				ublas::matrix_range< MT > subJ( J, ublas::range( i * 2, ( i + 1 ) * 2 ), ublas::range( 0, 6 ) );
-		
-				( NF::Dehomogenization< 3 >() <<
-				( NF::LinearTransformation< 3, 3 >( m_camI[ m_vis[ i ].second ] ) <<
-					( NF::Addition< 3 >() <<
-						( NF::fixedParameterRef< 3 >( m_camT[ m_vis[ i ].second ] ) ) <<
-						( NF::LinearTransformation< 3, 3 >( m_camR[ m_vis[ i ].second ] ) <<
-							( NF::Addition< 3 >() <<
-								( NF::parameter< 3 >( 0 ) ) <<
-								( NF::LieRotation() <<
-									( NF::parameter< 3 >( 3  ) ) <<
-									( NF::fixedParameterRef< 3 >( m_p3D[ m_vis[ i ].first ] ) )
-								)
-							)
-						)
-					)
-				)
-			).evaluateWithJacobian( input, subResult, subJ );
-		}
-	}
+UBITRACK_EXPORT void simpleBundleAdjustment( const std::vector< std::vector< Math::Vector2f > >& pts2D, const std::vector< Math::Matrix3x3f >& camMats, std::vector< Math::Pose >& camPoses, std::vector< Math::Vector3f >& pts3D);
 	
-protected:
-	const std::vector< Math::Vector< VType, 3 > >& m_p3D;
-	const std::vector< Math::Matrix< double, 3, 3 > >& m_camR;
-	const std::vector< Math::Vector< double, 3 > >& m_camT;
-	const std::vector< Math::Matrix< VType, 3, 3 > >& m_camI;
-	const std::vector< std::pair< std::size_t, std::size_t > > m_vis;
-};
-
-
-void checkConsistency2 (
-	const std::vector < Math::Vector< double, 3 > >&  points3d,
-	const std::vector < std::vector < Math::Vector< double, 2 > > >& points2d,
-	const std::vector < std::vector < Math::Scalar< double > > >& points2dWeights,
-	const std::vector < Math::Pose >& camPoses,
-	const std::vector < Math::Matrix< double, 3, 3 > >& camMatrices
-	);
-
-std::pair < Math::ErrorPose , double > 
-	multipleCameraBundleAdjustment (
-	const std::vector < Math::Vector< double, 3 > >&  points3d,
-	const std::vector < std::vector < Math::Vector< double, 2 > > >& points2d,
-	const std::vector < std::vector < Math::Scalar< double > > >& points2dWeights,
-	const std::vector < Math::Pose >& camPoses,
-	const std::vector < Math::Matrix< double, 3, 3 > >& camMatrices,
-	const int minCorrespondences,
-	bool hasInitialPoseProvided,
-	Math::Pose initialPose = Math::Pose(),
-	int startIndex = 0,
-	int endIndex = -1);
-
-// UBITRACK_EXPORT void multipleCameraPoseEstimationWithLocalBundles (
-	// const std::vector < Math::Vector < 3 > >&  points3d,
-	// const std::vector < std::vector < Math::Vector < 2 > > >& points2d,
-	// const std::vector < std::vector < Math::Scalar < double > > >& points2dWeights,
-	// const std::vector < Math::Pose >& camPoses,
-	// const std::vector < Math::Matrix< double, 3, 3 > >& camMatrices,
-	// const int minCorrespondences,
-	// std::vector < Math::ErrorPose >& poses,
-	// std::vector < Math::Scalar < double > >& poseWeights,
-	// std::vector < Math::Scalar < int > >& localBundleSizes
-	// );
-
-UBITRACK_EXPORT void bundleAdjustment (
-	const std::vector < Math::Vector < double, 3 > >&  points3d,
-	const std::vector < std::vector < Math::Vector < double, 2 > > >& points2d,
-	const std::vector < std::vector < Math::Scalar < double > > >& points2dWeights,
-	const std::vector < Math::Pose >& camPoses,
-	const std::vector < Math::Matrix< double, 3, 3 > >& camMatrices,
-	const int minCorrespondences,
-	Math::ErrorPose& pose,
-	Math::Scalar < double > & poseWeight,
-	bool hasInitialPoseProvided = false,
-	Math::Pose initialPose = Math::Pose()
-	);
-
 #endif // HAVE_LAPACK
 
-} } // namespace Ubitrack::Components
+}} // namespace Ubitrack::Calibration

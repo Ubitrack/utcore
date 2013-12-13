@@ -5,14 +5,16 @@
 #include <utMath/Scalar.h>
 #include <utMath/Vector.h>
 #include <utMath/Matrix.h>
-#include <utMath/Functors/VectorFunctors.h>
+#include <utMath/Functors/VectorFunctors.h> // e.g. Norm_2
+
+
 
 #include <utMath/Random/Pose.h>
 #include <utMath/Random/Scalar.h>
 #include <utMath/Random/Vector.h>
 #include <utMath/Random/Rotation.h>
-//#include <utCalibration/BundleAdjustment.h> no test yet
-#include <utCalibration/MultipleCameraPoseOptimization.h>
+#include <utCalibration/BundleAdjustment.h> //no test yet, same as MultiCamerPoseOtpimization :(
+//#include <utCalibration/MultipleCameraPoseOptimization.h>
 #include "../tools.h"
 
 #include <iostream>
@@ -47,7 +49,7 @@ public:
 	}
 };
 
-}
+} // anonymous namesapce
 
 template< typename T >
 void TestMarkerBundleAdjustment( const std::size_t n_runs, const T epsilon )
@@ -59,24 +61,25 @@ void TestMarkerBundleAdjustment( const std::size_t n_runs, const T epsilon )
 	for( std::size_t i( 0 ); i< n_runs; ++i )
 	{
 		//change here for a really big bundle adjustment:
-		const std::size_t n_p3d = Random::distribute_uniform( 10, 15 ); 
-		const std::size_t n_cams = Random::distribute_uniform( 3, 20 );
+		const std::size_t n_p3d = 10;//Random::distribute_uniform( 10, 15 ); 
+		const std::size_t n_cams = Random::distribute_uniform( 3, 10 );
 		
 		// random intrinsics matrix, never changes, assume always the same camera
 		Matrix< T, 3, 3 > cam( Matrix< T, 3, 3 >::identity() );
 		cam( 0, 0 ) = Random::distribute_uniform< T >( 500, 800 );
 		cam( 1, 1 ) = Random::distribute_uniform< T >( 500, 800 );
-		cam( 0, 2 ) = screenResolution[ 0 ] * 0.5;
-		cam( 1, 2 ) = screenResolution[ 1 ] * 0.5;
+		cam( 0, 2 ) = -screenResolution[ 0 ] * 0.5;
+		cam( 1, 2 ) = -screenResolution[ 1 ] * 0.5;
+		cam( 2, 2 ) = -1;
 			
-		typename Random::Vector< T, 2 >::Normal randPixelNoise( 0, 0.5 ); // gaussian noise for 2d Pixels
+		typename Random::Vector< T, 2 >::Normal randPixelNoise( 0, 0.25 ); // gaussian noise for 2d Pixels -> usually very below 1 pixel
 		typename Random::Vector< T, 3 >::Uniform randVector( -10.0, 10.0 ); // 3d points, assume meters as unit
-		typename Random::Vector< T, 3 >::Normal randPositionNoise( 0, 0.05 ); // gaussian noise for 3d points
+		typename Random::Vector< T, 3 >::Normal randPositionNoise( 0, 0.10 ); // gaussian noise for 3d points -> can be quite high
 		// typename Random::Vector< T, 3 >::Uniform randPositionNoise( -0.25, 0.25 ); // uniform noise	for 3d points
 		
 		// random poses for the estimation
 		typename Random::Quaternion< T >::Uniform randQuat;
-		typename Random::Vector< T, 3 >::Uniform randTranslation( -100, 100 ); //translation
+		typename Random::Vector< T, 3 >::Uniform randTranslation( -10, 10 ); //translation
 		//alternatively one could use a random pose:
 		// Random::Pose< T >::Uniform( -100, 100 );
 		
@@ -92,18 +95,10 @@ void TestMarkerBundleAdjustment( const std::size_t n_runs, const T epsilon )
 		std::generate_n ( std::back_inserter( noisy_points_3D ), n_p3d,  randPositionNoise );
 		std::transform( points_3D.begin(), points_3D.end(), noisy_points_3D.begin(), noisy_points_3D.begin(), std::plus< Vector< T, 3 > >() );
 		
-		// std::cout << std::endl << std::endl;
-		// std::copy( noisy_points_3D.begin(), noisy_points_3D.end(), std::ostream_iterator< Ubitrack::Math::Vector< T, 3 > > ( std::cout, ", ") );
-		// std::cout << std::endl;
-		// std::copy( points_3D.begin(), points_3D.end(), std::ostream_iterator< Ubitrack::Math::Vector< T, 3 > > ( std::cout, ", ") );
-		
 		// generate random poses and project on image plane
 		std::vector< Pose > extrinsics;
 		std::vector< Matrix< T, 3, 3 > > intrinsics;
-		std::vector< std::vector< Vector< T, 2 > > > points_2D;
-		std::vector < std::vector < Scalar < T > > > weights_2D;
-		std::vector < Scalar < int > > localSizes;
-		localSizes.reserve( n_cams );
+		std::vector< std::vector< Vector< T, 2 > > > observed_points_2D;
 		
 		do
 		{
@@ -114,15 +109,15 @@ void TestMarkerBundleAdjustment( const std::size_t n_runs, const T epsilon )
 			Matrix< T, 3, 4 > proj( rot, trans );
 			proj = boost::numeric::ublas::prod( cam, proj );
 			
-			std::vector< Vector< T, 2 > > p2D;
-			p2D.reserve( n_p3d );
-			std::transform( points_3D.begin(), points_3D.end(), std::back_inserter( p2D ), Functors::ProjectVector< T >( proj ) );
+			std::vector< Vector< T, 2 > > points_2D;
+			points_2D.reserve( n_p3d );
+			std::transform( points_3D.begin(), points_3D.end(), std::back_inserter( points_2D ), Functors::ProjectVector< T >( proj ) );
 			
 			//generate some noise for the 2d Points
 			std::vector< Vector< T, 2 > > noisy_points_2D;
 			noisy_points_2D.reserve( n_p3d );
 			std::generate_n ( std::back_inserter( noisy_points_2D ), n_p3d,  randPixelNoise );
-			std::transform( p2D.begin(), p2D.end(), noisy_points_2D.begin(), noisy_points_2D.begin(), std::plus< Vector< T, 2 > >() );
+			std::transform( points_2D.begin(), points_2D.end(), noisy_points_2D.begin(), noisy_points_2D.begin(), std::plus< Vector< T, 2 > >() );
 			
 			// remove pixels outside the screen
 			//noisy_points_2D.erase( std::remove_if( noisy_points_2D.begin(), noisy_points_2D.end(), isPixelNotWithinScreen< T >( screenResolution ) ), noisy_points_2D.end() ); 
@@ -138,35 +133,49 @@ void TestMarkerBundleAdjustment( const std::size_t n_runs, const T epsilon )
 						
 				extrinsics.push_back( pose6D );
 				intrinsics.push_back( cam );
-				points_2D.push_back( noisy_points_2D );
-				
-				std::vector < Scalar < T > > weights;
-				weights.reserve( n_2d );
-				std::fill_n( std::back_inserter( weights ), n_2d, Scalar< T >( 1.0 ) );
-				weights_2D.push_back( weights );
-				
-				localSizes.push_back( n_2d );
-				//add some stuff here
+				observed_points_2D.push_back( noisy_points_2D );
 			}
 		}
 		while( extrinsics.size() < n_cams );
 	
-		//prepare results
-		const std::size_t minCorrespondences( 4 );
-		std::vector < ErrorPose > errPoses;
-		std::vector < Scalar< T > > poseWeights;
 		
-		// estimate result
-		Ubitrack::Calibration::multipleCameraPoseEstimationWithLocalBundles ( points_3D
-			, points_2D
-			, weights_2D
-			, extrinsics
-			, intrinsics
-			, minCorrespondences
-			, errPoses
-			, poseWeights
-			, localSizes );
-			
+		
+		std::vector< Ubitrack::Math::Vector< T, 3 > > vecBefore;
+		vecBefore.reserve( n_p3d );
+		std::transform( noisy_points_3D.begin(), noisy_points_3D.end(), points_3D.begin(), std::back_inserter( vecBefore ), std::minus< Ubitrack::Math::Vector< T, 3 > >() );
+		
+		std::vector< T > distsBefore;
+		distsBefore.reserve( n_p3d );
+		std::transform( vecBefore.begin(), vecBefore.end(), std::back_inserter( distsBefore ), Ubitrack::Math::Functors::Norm_2< T, 3 >() );
+		const T distBefore = std::accumulate( distsBefore.begin(), distsBefore.end(), static_cast< T > ( 0 ) ) / n_p3d;
+		
+		
+		Ubitrack::Calibration::simpleBundleAdjustment( observed_points_2D, intrinsics, extrinsics, noisy_points_3D );
+		// call to templated function (does not link on windows):
+		// Ubitrack::Calibration::simpleBundleAdjustment( observed_points_2D.begin(), observed_points_2D.end(), intrinsics.begin(), extrinsics.begin(), noisy_points_3D.begin(), noisy_points_3D.end() );
+		
+		
+		
+		std::vector< Ubitrack::Math::Vector< T, 3 > > vecAfter;
+		vecAfter.reserve( n_p3d );
+		std::transform( noisy_points_3D.begin(), noisy_points_3D.end(), points_3D.begin(), std::back_inserter( vecAfter ), std::minus< Ubitrack::Math::Vector< T, 3 > >() );
+		std::vector< T > distsAfter;
+		distsAfter.reserve( n_p3d );
+		std::transform( vecAfter.begin(), vecAfter.end(), std::back_inserter( distsAfter ), Ubitrack::Math::Functors::Norm_2< T, 3 >() );
+		const T distAfter = std::accumulate( distsAfter.begin(), distsAfter.end(), static_cast< T > ( 0 ) ) / n_p3d;
+		
+		
+		BOOST_CHECK( distBefore >= distAfter );
+
+		// // print out 3D error
+		// std::cout << std::endl << "Distance before vs. after optimization: " << distBefore << " vs. " << distAfter << std::endl << std::endl;
+		
+		// // print out 3d values
+		// std::cout << std::endl << std::endl;
+		// std::copy( noisy_points_3D.begin(), noisy_points_3D.end(), std::ostream_iterator< Ubitrack::Math::Vector< T, 3 > > ( std::cout, ", ") );	
+		
+	
+		
 		// std::cout << std::endl << std::endl;
 		// std::copy( extrinsics.begin(), extrinsics.end(), std::ostream_iterator< Ubitrack::Math::Pose > ( std::cout, ", ") );	
 		// std::cout << std::endl;
@@ -182,7 +191,8 @@ void TestMarkerBundleAdjustment( const std::size_t n_runs, const T epsilon )
 
 void TestBundleAdjustment()
 {
-	//attention: will not work with floats so far.
+	// attention works also with float now :)
 	TestMarkerBundleAdjustment< double >( 10, 1e-3 );
+	TestMarkerBundleAdjustment< float >( 10, 1e-3 );
 }
 
