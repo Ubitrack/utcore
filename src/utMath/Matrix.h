@@ -40,8 +40,10 @@
 #include "Pose.h"
 
 #include <cstddef> //  std::size_t
+
 //next include is only for output stuff -> remove to own header?
-#include <iostream> //std::ostream
+#include <iosfwd> //std::ostream
+
 
 // WARNING: all boost/serialization headers should be 
 //          included AFTER all boost/archive headers
@@ -215,7 +217,7 @@ template< typename T, std::size_t M = 0, std::size_t N = M > class Matrix
          */
         static Matrix< T, M, N > identity()
         {
-            return  boost::numeric::ublas::identity_matrix< T >( M );
+            return  boost::numeric::ublas::identity_matrix< T, boost::numeric::ublas::column_major >( M );
         }
 
         /**
@@ -223,7 +225,7 @@ template< typename T, std::size_t M = 0, std::size_t N = M > class Matrix
          */
         static Matrix< T, M, N > zeros()
         {
-            return  boost::numeric::ublas::zero_matrix< T >( M, N );
+            return  boost::numeric::ublas::zero_matrix< T, boost::numeric::ublas::column_major >( M, N );
         }
 
 	protected:
@@ -302,7 +304,7 @@ class Matrix< T, 0, 0 >
          */
         static Matrix< T, 0, 0 > zeros( const size_type size1, const size_type size2 )
         {
-            return boost::numeric::ublas::zero_matrix< T >( size1, size2 );
+            return boost::numeric::ublas::zero_matrix< T, boost::numeric::ublas::column_major >( size1, size2 );
         }
 		
 		/**
@@ -315,7 +317,7 @@ class Matrix< T, 0, 0 >
          */
         static Matrix< T, 0, 0 > identity( const size_type size )
         {
-            return boost::numeric::ublas::identity_matrix< T >( size );
+            return boost::numeric::ublas::identity_matrix< T, boost::numeric::ublas::column_major >( size );
         }
 		
 		/**
@@ -329,14 +331,29 @@ class Matrix< T, 0, 0 >
          */
 		static Matrix< T, 0, 0 > scalar( const size_type size1, const size_type size2, const T value )
         {
-            return boost::numeric::ublas::scalar_matrix< T >( size1, size2, value );
+            return boost::numeric::ublas::scalar_matrix< T, boost::numeric::ublas::column_major >( size1, size2, value );
         }
 };
 
-/// stream output operator for a single Matrix
+/** stream output operator for a single Math::Matrix of a specific dimension */ 
 template<  typename T, std::size_t M, std::size_t N >
 std::ostream& operator<<( std::ostream& s, const Matrix< T, M, N >& m )
 {
+	for( std::size_t i = 0; i < M; i++ ) {
+		s << "[ ";
+		for( std::size_t j = 0; j < N; j++ )
+			s << m(i,j) << " ";
+		s << "]\n";
+	}
+	return s;
+}
+
+/** specialization for stream output operator for a single Math::Matrix of a (at compile time) unknown dimension */ 
+template<  typename T >
+std::ostream& operator<<( std::ostream& s, const Matrix< T >& m )
+{
+	const std::size_t M = m.size1();
+	const std::size_t N = m.size2();
 	for( std::size_t i = 0; i < M; i++ ) {
 		s << "[ ";
 		for( std::size_t j = 0; j < N; j++ )

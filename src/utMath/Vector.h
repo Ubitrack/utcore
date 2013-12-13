@@ -38,8 +38,8 @@
 #include <assert.h>
 #include <cstddef> //  std::size_t
 //next three includes are only for output stuff -> remove to own header?
-#include <iterator> //std::outstream_iterator
-#include <iostream> //std::ostream
+#include <iosfwd> //std::ostream
+// #include <iterator> //std::outstream_iterator
 #include <algorithm> //std::copy
 
 
@@ -260,19 +260,32 @@ class Vector< T, 0 >
         }
 };
 
-/** stream output operator for a single Math::Vector */
+/** stream output operator for a single Math::Vector of a specific dimension */
 template< typename T, std::size_t N >
 std::ostream& operator<<( std::ostream& s, const Vector< T, N >& v )
 {
 	s << "[ ";
-	for( std::size_t i = 0; i < N; i++ )
-		s << v[i] << " ";
+	for( std::size_t i = 0; i < N; ++i )
+		s << v[ i ] << " ";
+	s << "]";
+	return s;
+}
+
+
+/** specialization for stream output operator for a single Math::Vector of a (at compile time) unknown dimension */
+template< typename T >
+std::ostream& operator<<( std::ostream& s, const Vector< T >& v )
+{
+	const std::size_t n ( v.size() );
+	s << "[ ";
+	for( std::size_t i = 0; i<n; ++i )
+		s << v[ i ] << " ";
 	s << "]";
 	return s;
 }
 
 /** stream output operator for any (stl-)container of Math::Vector */
-template< typename T, std::size_t N, template < typename V_TYPE, typename V_ALLOC > class container >
+template< typename T, std::size_t N, template < typename , typename > class container >
 std::ostream& operator<<( std::ostream& s, const container< Math::Vector< T, N >, std::allocator< Math::Vector< T, N > > >& vec_cont )
 {
 	s << "[ ";
