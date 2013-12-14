@@ -30,7 +30,7 @@
  * @author Daniel Pustka <daniel.pustka@in.tum.de>
  */
  
-#include <boost/numeric/ublas/vector.hpp>
+#include <utMath/Vector.h>
 
 namespace Ubitrack { namespace Math { namespace Function {
 

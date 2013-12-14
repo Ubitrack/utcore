@@ -25,7 +25,7 @@
 #ifndef __TESTS_TOOLS_H_INCLUDED__
 #define __TESTS_TOOLS_H_INCLUDED__
 
-#include <boost/numeric/ublas/matrix.hpp>
+#include <utMath/Matrix.h>
 
 #include <utMath/Quaternion.h>
 #include <utMath/Vector.h>

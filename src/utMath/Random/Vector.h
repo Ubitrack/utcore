@@ -39,7 +39,7 @@
 #include <functional>
 
 // boost
-#include <boost/numeric/ublas/vector.hpp>
+#include <utMath/Vector.h>
 #include <boost/numeric/bindings/lapack/posv.hpp>
 
 // Ubitrack

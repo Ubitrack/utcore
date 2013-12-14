@@ -32,9 +32,9 @@
 #ifndef __UBITRACK_MATH_FUNCTION_ROTATIONVELOCITYINTEGRATION_H_INCLUDED__
 #define __UBITRACK_MATH_FUNCTION_ROTATIONVELOCITYINTEGRATION_H_INCLUDED__
 
-#include <boost/numeric/ublas/vector.hpp>
+#include <utMath/Vector.h>
 #include <boost/numeric/ublas/vector_proxy.hpp>
-#include <boost/numeric/ublas/matrix.hpp>
+#include <utMath/Matrix.h>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 
 namespace Ubitrack { namespace Math { namespace Function {

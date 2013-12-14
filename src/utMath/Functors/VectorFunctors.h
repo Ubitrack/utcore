@@ -42,7 +42,7 @@
 #include "Vector3Functors.h"
 #include "VectorNFunctors.h"
 
-#include <boost/numeric/ublas/matrix.hpp>
+#include <utMath/Matrix.h>
 
 #include <utMath/Pose.h>
 #include <utMath/Vector.h>
