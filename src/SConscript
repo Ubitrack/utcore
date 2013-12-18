@@ -1,13 +1,8 @@
-import sys
-import os.path
-
-Import ( '*' )
-
 # HOW TO BUILD (A) LIBRAR-Y/IES FROM A MODULE
 # Building libraries from modules should be consistent for each module.
 # Use the following scheme for each new library created:
 #
-# a) Check for required libraries
+# a) Check for required libraries. If they are not available return False and export flags if needed
 # b) Define the src-subdirectories for which the library should be compiled
 #    and glob all files in there
 # c) Define a [LIBRARY]_options variable for the library containing all dependencies
@@ -19,14 +14,24 @@ Import ( '*' )
 # f) Remove all entries for (at least) the LIBS and LIBPATH keys in the options and
 #    add only the newly-compiled library as a dependcy. This will avoid multiple includes
 #    of libraries. Also verify that the import/export-switch define is not set.
-# g) Export the options so that other libraries can base on this library. Optionally setup help and ide projects
+# g) Export the options so that other libraries can base on this library. 
+# h) Optionally setup help and ide projects
 #
 # The use of options and possibility to export them makes hierarchical build environments
 # obsolete. Avoid exporting new environments to the build system.
 
+import sys
+import os.path
+
+have_boost = False
+have_tinyxml = False
+have_log4cpp = False
+
+Import ( '*' )
+
 # a)
 if not( have_boost and have_tinyxml and have_log4cpp):
-	print "Boost missing -- not building core libraries"
+	print "Boost, tinyxml or log4cpp missing -- not building core libraries"
 	have_utcore = False
 	utcore_options = {}
 	utcore_all_options = {}
@@ -42,12 +47,10 @@ for dir in subdirs:
 	sources += globSourceFiles( dir + '/*.cpp' )
 
 
-# c)	
-# Merge all options in one [LIBRARY]_option. Note that some options might be empty if its module is not available	
+# c)		
 utcore_options = mergeOptions( boost_options, tinyxml_options, log4cpp_options, lapack_options)
-
-# Set ubitrack root source path explicitly that allows sources to access header files relative with #include <..> statements
 utcore_options ['CPPPATH'] += [ getCurrentPath() ]
+
 env = masterEnv.Clone()
 env.AppendUnique( **utcore_options )
 
@@ -57,28 +60,23 @@ if sys.platform == 'win32':
 
 
 # e)	
-libName = 'utCore'
-libs = setupLibraryBuild(env, sources, libName, 'core')
+# compile all source files into single library
+# {buildenvironment, source files, name of the library, build target}
+libs = setupLibraryBuild(env, sources, 'utCore', 'core')
 
 # f)
 utcore_all_options = utcore_options.copy()
 utcore_options[ 'LIBS' ] = []
 utcore_options[ 'LIBPATH' ] = []
-# add the ubitrack library to the link options.
 utcore_options[ 'LIBS' ] += libs
 utcore_options[ 'LIBPATH' ] += [ install_library_prefix ]
-
 utcore_all_options[ 'LIBS' ] += libs
 utcore_all_options[ 'LIBPATH' ] += [ install_library_prefix ]
 
-have_utcore = libs != 0
-
 # g)
+have_utcore = libs != 0
 Export( 'have_utcore', 'utcore_options', 'utcore_all_options' )
 
+# h)
 generateHelp(utcore_options)
-createVisualStudioProject(env, sources, headers, libName)
-
-# return compile status
-Return ('have_utcore')
-
+createVisualStudioProject(env, sources, headers, 'utCore')
