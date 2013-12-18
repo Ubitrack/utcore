@@ -1,26 +1,29 @@
-import sys
-import os.path
-
-Import ( '*' )
-
 # HOW TO BUILD (A) LIBRAR-Y/IES FROM A MODULE
 # Building libraries from modules should be consistent for each module.
 # Use the following scheme for each new library created:
 #
-# a) Check for required libraries
+# a) Check for required libraries. If they are not available return False
 # b) Define the src-subdirectories for which the library should be compiled
 #    and glob all files in there
 # c) Define a [LIBRARY]_options variable for the library containing all dependencies
 #    from other libraries. Create a clone from the master environment and add those options.
-# d) Platform specific changes
+# d) WINDOWS ONLY: Create a header file which implements dll interface functionality
+#    dependent from a [LIBRARY]_DLL define. If the define is set, the dll should be exported,
+#    if not, the dll should be imported. Set the define in the preprocessor options for the environment.
 # e) Build the library!
 # f) Remove all entries for (at least) the LIBS and LIBPATH keys in the options and
 #    add only the newly-compiled library as a dependcy. This will avoid multiple includes
 #    of libraries. Also verify that the import/export-switch define is not set.
-# g) Export the options so that other libraries can base on this library. Optionally setup help and ide projects
+# g) Export the options so that other libraries can base on this library. 
+# h) Optionally setup help and ide projects
 #
 # The use of options and possibility to export them makes hierarchical build environments
 # obsolete. Avoid exporting new environments to the build system.
+
+import sys
+import os.path
+
+Import ( '*' )
 
 # a)
 # nothing to do this time
@@ -46,23 +49,25 @@ if sys.platform == 'win32':
 	
 	env.AppendUnique( LIBS = [ 'wsock32', 'advapi32' ] )
 	env.AppendUnique( CCFLAGS = [ '/wd4290', '/wd4275' ] )
-#else:
-#	env.AppendUnique( LIBS = [ log4cpp_options[ 'LIBS' ] + [ 'pthread' ] ] )
-#	log4cpp_options[ 'LIBS' ] = log4cpp_options[ 'LIBS' ] + [ 'pthread' ]
 
 
 # e)
+# compile all source files into single library
+# {buildenvironment, source files, name of the library, build target}
 libs = setupLibraryBuild(env, sources, 'log4cpp', 'core')
 
 # f)
 log4cpp_options[ 'LIBS' ] = []
 log4cpp_options[ 'LIBPATH' ] = []
-# add the ubitrack library to the link options.
 log4cpp_options[ 'LIBS' ] += libs
 log4cpp_options[ 'LIBPATH' ] += [ install_library_prefix ]
-have_log4cpp = libs != 0
+
 
 # g)
+have_log4cpp = libs != 0
 Export( [ 'log4cpp_options', 'have_log4cpp' ] )
 
-Return('have_log4cpp')
+# h)
+sources = globSourceFiles( '*.cpp' )
+headers = globSourceFiles( '*.h' )
+createVisualStudioProject(env, sources, headers, 'log4cpp')

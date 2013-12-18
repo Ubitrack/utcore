@@ -1,3 +1,11 @@
-# just recurse into subdirectories
-SConscript( dirs = [ 'tinyxml', 'log4cpp', 'boost-bindings' ] )
+#general script to call all SConscript files in all first level subdirectories
 
+Import( 'globSourceFiles' )
+
+# glob all SConscript files in subdirectories
+sconsfiles = globSourceFiles( "*/SConscript" )
+
+# call all SConscript files
+SConscript( sconsfiles )
+success = True
+Return('success')

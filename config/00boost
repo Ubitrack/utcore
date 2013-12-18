@@ -60,9 +60,6 @@ if sys.platform == 'win32':
 		default_lib_suffix += '-gd'
 		
 # add configuration options
-opts.Add( 'BOOST_PATH', 'Path to the boost library', default_boost_path )
-opts.Add( 'BOOST_INCLUDE', 'Path to the boost headers' )
-opts.Add( 'BOOST_LIBS', 'Path to the boost libraries' )
 opts.Add( 'BOOST_SUFFIX', 'Suffix to add to boost library names', default_lib_suffix )
 	
 # set variables
