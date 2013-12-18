@@ -32,7 +32,7 @@
 #ifndef __UBITRACK_MATH_GAUSSNEWTON_INCLUDED__
 #define __UBITRACK_MATH_GAUSSNEWTON_INCLUDED__
 
-#include <utMath/Optimization.h>
+#include <utMath/Optimization/Optimization.h>
 
 #include <utMath/Matrix.h>
 #include <utMath/Vector.h>

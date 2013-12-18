@@ -32,7 +32,7 @@
 #ifndef __UBITRACK_MATH_LEVENBERGMARQUARDT_INCLUDED__
 #define __UBITRACK_MATH_LEVENBERGMARQUARDT_INCLUDED__
 
-#include <utMath/Optimization.h>
+#include <utMath/Optimization/Optimization.h>
 
 #ifdef HAVE_LAPACK
 

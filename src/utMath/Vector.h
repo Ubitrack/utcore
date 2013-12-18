@@ -39,7 +39,7 @@
 #include <cstddef> //  std::size_t
 //next three includes are only for output stuff -> remove to own header?
 #include <iosfwd> //std::ostream
-// #include <iterator> //std::outstream_iterator
+// #include <iterator> //std::ostream_iterator
 #include <algorithm> //std::copy
 
 

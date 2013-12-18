@@ -34,7 +34,7 @@
 #define __Ubitrack_Math_Ransac_h_INCLUDED__
 
 #include <utCore.h>
-#include "Optimization.h"
+#include "Optimization/Optimization.h"
 
 namespace Ubitrack { namespace Math {
 

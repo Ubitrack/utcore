@@ -33,9 +33,8 @@
 
 #include <utUtil/Logging.h>
 #include <utUtil/Exception.h>
-#include <utMath/GaussNewton.h>
 #include <utMath/Graph/Munkres.h>
-#include <utMath/LevenbergMarquardt.h>
+#include <utMath/Optimization/LevenbergMarquardt.h>
 #include <utCalibration/Function/SinglePointMultiProjection.h>
 
 namespace ublas = boost::numeric::ublas;

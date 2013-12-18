@@ -32,7 +32,7 @@
 #include <utMath/Pose.h>
 #include <utMath/Vector.h>
 #include <utMath/Matrix.h>
-#include <utMath/LevenbergMarquardt.h>
+#include <utMath/Optimization/LevenbergMarquardt.h>
 
 // #include <boost/numeric/ublas/matrix_proxy.hpp>
 // #include <boost/numeric/ublas/vector_proxy.hpp>

@@ -39,7 +39,7 @@
 #include <utUtil/Exception.h>
 
 //#define OPTIMIZATION_LOGGING // use define before optimization functions
-#include <utMath/LevenbergMarquardt.h>
+#include <utMath/Optimization/LevenbergMarquardt.h>
 
 #include <memory> // std::allocator
 #include <numeric> //std::accumulate
@@ -62,12 +62,6 @@ template< class VType, typename IntrinsicsIterator >
 class MinimizeReprojectionErrorAllPoints
 {
 protected:
-	// const std::vector< Math::Vector< VType, 3 > >& m_p3D;
-	// const std::vector< Math::Matrix< double, 3, 3 > >& m_camR;
-	// const std::vector< Math::Vector< double, 3 > >& m_camT;
-	// const std::vector< Math::Matrix< VType, 3, 3 > >& m_camI;
-	// const std::vector< std::pair< std::size_t, std::size_t > > m_vis;
-	
 	const std::size_t n_cams;
 	const std::size_t n_pts3D;
 	const IntrinsicsIterator iterCamMat;
@@ -78,29 +72,19 @@ public:
 		  const std::size_t cams
 		, const std::size_t points
 		, const IntrinsicsIterator iterMat
-		// const std::vector< Math::Vector< VType, 3 > >& p3D, 
-		// const std::vector< Math::Matrix< double, 3, 3 > >& cameraRotations, 
-		// const std::vector< Math::Vector< double, 3 > >& cameraTranslations, 
-		// const std::vector< Math::Matrix< VType, 3, 3 > >& cameraIntrinsics, 
-		// const std::vector< std::pair< std::size_t, std::size_t > > visibilities 
 		)
 		: n_cams ( cams )
 		, n_pts3D ( points )
 		, iterCamMat( iterMat )
-		// : m_p3D( p3D )
-		// , m_camR( cameraRotations )
-		// , m_camT( cameraTranslations )
-		// , m_camI( cameraIntrinsics )
-		// , m_vis( visibilities )
 	{}
 
-	/**
-	 * return the size of the result vector
-	 */
-	std::size_t size() const
-	{ return 2 * n_pts3D; }
-	// return only visible points
-	// { return 2 * m_vis.size(); }
+	// /**
+	 // * return the size of the result vector
+	 // */
+	// std::size_t size() const
+	// { return n_pts3D; }
+	// // return only visible points
+	// // { return 2 * m_vis.size(); }
 
 
 	/**
@@ -113,11 +97,12 @@ public:
 	{
 	
 		namespace ublas = boost::numeric::ublas;
+		
+		LOG4CPP_DEBUG( logger, "Input    Vector dimension: " << input.size() << "\n" );
+		LOG4CPP_DEBUG( logger, "Result   Vector dimension: " << result.size() << "\n" );
+		LOG4CPP_DEBUG( logger, "Jacobian Matrix dimension: " << J.size1() << "x" << J.size2() << " (rows x columns)\n" );
+		
 		J = Math::Matrix< VType >::zeros( J.size1(), J.size2() );
-		// LOG4CPP_DEBUG( logger, "Input    Vector dimension: " << input.size() << "\n" );
-		// LOG4CPP_DEBUG( logger, "Result   Vector dimension: " << result.size() << "\n" );
-		// LOG4CPP_DEBUG( logger, "Jacobian Matrix dimension: " << J.size1() << "x" << J.size2() << " (rows x columns)\n" );
-
 		
 		// LOG4CPP_DEBUG( logger, "Input Vector " <<  static_cast< Math::Vector< VType > > ( input ) << "\n" );
 		// LOG4CPP_DEBUG( logger, "Result before " << static_cast< Math::Vector< VType > > ( result ) << "\n" );
@@ -209,8 +194,8 @@ public:
 			}
 		}
 		
-		// LOG4CPP_DEBUG( logger, "Result " << static_cast< Math::Vector< VType > > ( result ) << "\n" );
-		// LOG4CPP_DEBUG( logger, "Jacobian " << static_cast< Math::Matrix< VType > > ( J ) << "\n" );
+		LOG4CPP_DEBUG( logger, "Result " << static_cast< Math::Vector< VType > > ( result ) << "\n" );
+		LOG4CPP_DEBUG( logger, "Jacobian " << static_cast< Math::Matrix< VType > > ( J ) << "\n" );
 	}
 };
 
@@ -270,12 +255,13 @@ void simpleBundleAdjustmentImpl (
 		{
 			const vector2d_type pt2D = *( iterCams->begin() + pointIndex );
 			boost::numeric::ublas::subrange( observationVector, 2 * iIndex, 2 * (iIndex+1) ) = pt2D;
-			LOG4CPP_TRACE( logger, "2D point #" << pointIndex << " in camera #" << cameraIndex << " : " << pt2D );
+			// LOG4CPP_TRACE( logger, "2D point #" << pointIndex << " in camera #" << cameraIndex << " : " << pt2D );
 		}
 	}
 	
-	// std::cout << "Observation Measurement Vector " << std::endl;
-	// std::cout << observationVector << std::endl;
+	LOG4CPP_DEBUG( logger, "size of observation vector " << observationVector.size() );
+	LOG4CPP_TRACE( logger, "observation vector:\n" << observationVector );
+	
 		
 	//create parameter vector to be optimized in the Levenberg-Marquardt Optimization:
 	// there are 4 values (quaternion) and 3 values (translation for each camera) and 3 values for each 3D point:
@@ -289,7 +275,7 @@ void simpleBundleAdjustmentImpl (
 		// boost::numeric::ublas::subrange( paramVector, index, index+4 ) = poseIter->rotation();
 		poseIter->rotation().toVector( boost::numeric::ublas::subrange( paramVector, index, index+4 ) );
 		boost::numeric::ublas::subrange( paramVector, index+4, index+7 ) = poseIter->translation();
-		LOG4CPP_TRACE( logger, "Camera #" << cameraIndex << " translation: " << poseIter->translation() << ", quaternion: " << poseIter->rotation() << "." );
+		// LOG4CPP_TRACE( logger, "Camera #" << cameraIndex << " translation: " << poseIter->translation() << ", quaternion: " << poseIter->rotation() << "." );
 	}
 	
 	// will be done more nicely later, promise
@@ -300,18 +286,17 @@ void simpleBundleAdjustmentImpl (
 		
 		boost::numeric::ublas::subrange( paramVector, index, index+3 ) = *pts3D;
 		LOG4CPP_TRACE( logger, "3D point #" << pointIndex << ": " << *pts3D );
-	}
-	// std::cout << "parameter vector: " << std::endl;
-	// std::cout << paramVector << std::endl;
+	}	
+	
+	LOG4CPP_DEBUG( logger, "size of parameter vector " << paramVector.size() );
+	LOG4CPP_TRACE( logger, "parameter vector:\n" << paramVector );
 	
 	
 	OPT_LOG_DEBUG( "Optimizing pose over " << numberCameras << " cameras using " << observationCountTotal << " observations" );
 	MinimizeReprojectionErrorAllPoints< value_type, ForwardIterator3 > minimizeFunc( n_cams, n_pts3D, iIntrinsicsMat );
-	value_type res = Math::levenbergMarquardt( minimizeFunc, paramVector, observationVector, Math::OptTerminate( 100, 1e-6 ), Math::OptNoNormalize() );
+	value_type res = Math::levenbergMarquardt( minimizeFunc, paramVector, observationVector, Math::OptTerminate( 10, 1e-6 ), Math::OptNoNormalize() );
 	
-	
-	// std::cout << "optimized parameter vector: " << std::endl;
-	// std::cout << paramVector << std::endl;
+	// LOG4CPP_TRACE( logger, "optimized parameter vector:\n" << paramVector );
 	
 	
 	pts3D = i3DPtsBegin;

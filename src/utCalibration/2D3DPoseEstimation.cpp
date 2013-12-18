@@ -56,7 +56,7 @@
 //#define OPTIMIZATION_LOGGING
 // #include <log4cpp/Category.hh>
 // static log4cpp::Category& optLogger( log4cpp::Category::getInstance( "Ubitrack.Calibration.2D3DPoseEstimation" ) );
-#include <utMath/LevenbergMarquardt.h>
+#include <utMath/Optimization/LevenbergMarquardt.h>
 
 
 // shortcuts to namespaces

@@ -33,7 +33,7 @@
 #include "Function/RadialDistortion.h"
 
 #ifdef HAVE_LAPACK
-#include <utMath/LevenbergMarquardt.h>
+#include <utMath/Optimization/LevenbergMarquardt.h>
 #endif
 
 namespace Ubitrack { namespace Calibration {
