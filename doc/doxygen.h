@@ -160,15 +160,33 @@ namespace Ubitrack {
 		namespace Graph {}
 		
 		/**
-		 * Numeric types and functions
+		 * Functions for numeric solutions of common linear problems
 		 */
 		 
 		namespace Numeric {}
 		
+		/**
+		 * (mostly templated) Functions to perform non-linear optimization 
+		 */
+		 
+		namespace Optimization {}
+		
+		/**
+		 * Data-structures and functions for generating random distributed Ubitrack data-types
+		 */
+		 
+		namespace Random {}
+		
+		/**
+		 * Functions to generate and modify data-structures representing stochastic/probabilistic data 
+		 */
+		 
+		namespace Stochastic{}
+		
 	}
 
 	/**
-	 * Tracking measurement datastructures
+	 * Tracking measurement data-structures including timestamps
 	 */
 
 	namespace Measurement {}
