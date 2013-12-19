@@ -183,7 +183,7 @@ Math::Vector< typename std::iterator_traits< ForwardIterator1 >::value_type::val
 	parameters = initialPoint;
 	
 	// perform optimization
-	Type residual = Ubitrack::Math::levenbergMarquardt( func, parameters, measurement, Math::OptTerminate( 200, 1e-6 ), Math::OptNoNormalize() );	
+	Type residual = Ubitrack::Math::Optimization::levenbergMarquardt( func, parameters, measurement, Math::Optimization::OptTerminate( 200, 1e-6 ), Math::Optimization::OptNoNormalize() );	
 	if(pResidual)
 		*pResidual = (double)residual;
 

@@ -32,7 +32,7 @@
 #ifndef __UBITRACK_MATH_LEVENBERGMARQUARDT_INCLUDED__
 #define __UBITRACK_MATH_LEVENBERGMARQUARDT_INCLUDED__
 
-#include <utMath/Optimization/Optimization.h>
+#include "Optimization.h"
 
 #ifdef HAVE_LAPACK
 
@@ -51,7 +51,7 @@
 
 
 
-namespace Ubitrack { namespace Math {
+namespace Ubitrack { namespace Math { namespace Optimization {
 
 /** possible solvers to use in levenberg-marquardt optimization */
 enum LmSolverType { lmUseCholesky, lmUseQR, lmUseSVD };
@@ -248,7 +248,7 @@ typename X::value_type levenbergMarquardt( P& problem, X& params, const Y& measu
 	LmSolverType solver = lmUseCholesky )
 { return weightedLevenbergMarquardt( problem, params, measurement, terminationCriteria, normalize, OptNoWeightFunction(), solver ); }
 
-} } // namespace Ubitrack::Math
+}}} // namespace Ubitrack::Math::Optimization
 
 #endif // HAVE_LAPACK
 

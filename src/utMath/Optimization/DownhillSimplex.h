@@ -36,7 +36,7 @@
 
 #include "Optimization.h"
 
-namespace Ubitrack { namespace Math {
+namespace Ubitrack { namespace Math { namespace Optimization {
 
 /**
  * Downhill simplex minimizer á la Nelder and Mead (1965).
@@ -189,6 +189,6 @@ T downhillSimplexTry( Math::Matrix< T, 0, 0 >& p, Math::Vector< T >& y,
 }
 
 
-} } // namespace Ubitrack::Math
+}}} // namespace Ubitrack::Math::Optimization
 
 #endif // __UBITRACK_MATH_DOWNHILLSIMPLEX_INCLUDED__

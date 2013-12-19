@@ -79,8 +79,8 @@ Math::Matrix< double, 6, 6 > unscentedTransform(
 	sigmaSet = measurementsCombined;
 	
 	// LevenbergMarquadt on undisturbed set
-	VType residual = Math::levenbergMarquardt(problem, params, sigmaSet,
-		Math::OptTerminate( 200, 1e-6 ), Math::OptNoNormalize());
+	VType residual = Math::Optimization::levenbergMarquardt(problem, params, sigmaSet,
+		Math::Optimization::OptTerminate( 200, 1e-6 ), Math::Optimization::OptNoNormalize());
 
 	// Store optimized parameters
 	optimizedParameters.push_back(params);
@@ -97,8 +97,8 @@ Math::Matrix< double, 6, 6 > unscentedTransform(
 		params( 4 ) = 1;
 
 		// LevenbergMarquadt on disturbed set
-		residual = Math::levenbergMarquardt(problem, params, sigmaSet,
-			Math::OptTerminate( 200, 1e-6 ), Math::OptNoNormalize());
+		residual = Math::Optimization::levenbergMarquardt(problem, params, sigmaSet,
+			Math::Optimization::OptTerminate( 200, 1e-6 ), Math::Optimization::OptNoNormalize());
 
 		// Debugging: output progress
 		// std::cout << "+";
@@ -115,8 +115,8 @@ Math::Matrix< double, 6, 6 > unscentedTransform(
 		params( 4 ) = 1;
 
 		// LevenbergMarquadt on disturbed set
-		residual = Math::levenbergMarquardt(problem, params, sigmaSet,
-			Math::OptTerminate( 200, 1e-6 ), Math::OptNoNormalize());
+		residual = Math::Optimization::levenbergMarquardt(problem, params, sigmaSet,
+			Math::Optimization::OptTerminate( 200, 1e-6 ), Math::Optimization::OptNoNormalize());
 
 		// Debugging: output progress
 		// std::cout << "-";

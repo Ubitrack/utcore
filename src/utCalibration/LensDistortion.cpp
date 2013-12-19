@@ -115,7 +115,7 @@ Math::Vector< T, 2 > lensUnDistortImpl( const Math::Vector< T, 2 >& p, const Mat
 	// non-linear minimization
 	Math::Vector< T, 2 > dp( camPoint );
 	Function::RadialDistortionWrtP< T > distFunc( dist );
-	Math::levenbergMarquardt( distFunc, dp, camPoint, Math::OptTerminate( 5, 1e-5 ), Math::OptNoNormalize() );
+	Math::Optimization::levenbergMarquardt( distFunc, dp, camPoint, Math::Optimization::OptTerminate( 5, 1e-5 ), Math::Optimization::OptNoNormalize() );
 
 	// back to image coordinates
 	return Math::Vector< T, 2 >( dp( 0 ) * K( 0, 0 ) + dp( 1 ) * K( 0, 1 ) + K( 0, 2 ) * K( 2, 2 ), dp( 1 ) * K( 1, 1 ) + K( 1, 2 ) * K( 2, 2 ) );

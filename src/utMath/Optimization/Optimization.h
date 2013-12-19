@@ -48,7 +48,7 @@
 #endif
 
 
-namespace Ubitrack { namespace Math { 
+namespace Ubitrack { namespace Math { namespace Optimization {
 
 /** 
  * Termination criteria that makes the optimizer terminate after n iterations or until the 
@@ -101,6 +101,6 @@ public:
 	{}
 };
 
-} } // namespace Ubitrack::Math
+}}} // namespace Ubitrack::Math::Optimization
 
 #endif

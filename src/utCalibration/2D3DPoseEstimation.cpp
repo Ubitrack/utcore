@@ -156,8 +156,8 @@ T optimizePoseImpl( Pose& p, const std::vector< Vector< T, 2 > >& p2D, const std
 
 	// perform optimization
 	Function::MultiplePointProjection< T > projection( p3D, cam );
-	T fRes = levenbergMarquardt( projection, params, measurements, 
-		OptTerminate( nIterations, 1e-6 ), Function::ProjectivePoseNormalize() );
+	T fRes = Optimization::levenbergMarquardt( projection, params, measurements, 
+		Optimization::OptTerminate( nIterations, 1e-6 ), Function::ProjectivePoseNormalize() );
 
 	// copy back rot & trans from vector
 	p = Pose::fromVector( params );

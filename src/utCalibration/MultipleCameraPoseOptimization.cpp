@@ -30,17 +30,21 @@
  *
  * @author Daniel Pustka <daniel.pustka@in.tum.de>
  */
-#include <log4cpp/Category.hh>
+ 
+ 
+#include "MultipleCameraPoseOptimization.h"
+
 
 // get a logger
+#include <log4cpp/Category.hh>
 static log4cpp::Category& logger( log4cpp::Category::getInstance( "Ubitrack.Calibration.2D6DPoseEstimation" ) );
 //static log4cpp::Category& optLogger( log4cpp::Category::getInstance( "Ubitrack.Calibration.2D6DPoseEstimation.LM" ) );
 
 //#define OPTIMIZATION_LOGGING
-#include <utMath/LevenbergMarquardt.h>
+#include <utMath/Optimization/LevenbergMarquardt.h>
 #include <utCalibration/2D3DPoseEstimation.h>
 #include <utUtil/Exception.h>
-#include "MultipleCameraPoseOptimization.h"
+
 
 
 namespace Ubitrack { namespace Calibration {
@@ -159,7 +163,7 @@ std::pair < Math::ErrorPose , double >
 		ublas::subrange( param, 0, 3 ) = initialPose.translation();
 		ublas::subrange( param, 3, 6 ) = initialPose.rotation().toLogarithm();
 
-		double res = Math::levenbergMarquardt( f, param, measurements, Math::OptTerminate( 10, 1e-6 ), Math::OptNoNormalize() );
+		double res = Math::Optimization::levenbergMarquardt( f, param, measurements, Math::Optimization::OptTerminate( 10, 1e-6 ), Math::Optimization::OptNoNormalize() );
 
         // Create an error pose with covariance matrix that has the residual on its diagonal entries
 		Math::ErrorPose finalPose( Math::Quaternion::fromLogarithm( ublas::subrange( param, 3, 6 ) ), ublas::subrange( param, 0, 3 ), Math::Matrix< double, 6, 6 >::identity( ) * res );

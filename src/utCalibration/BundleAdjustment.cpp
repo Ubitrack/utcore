@@ -294,7 +294,7 @@ void simpleBundleAdjustmentImpl (
 	
 	OPT_LOG_DEBUG( "Optimizing pose over " << numberCameras << " cameras using " << observationCountTotal << " observations" );
 	MinimizeReprojectionErrorAllPoints< value_type, ForwardIterator3 > minimizeFunc( n_cams, n_pts3D, iIntrinsicsMat );
-	value_type res = Math::levenbergMarquardt( minimizeFunc, paramVector, observationVector, Math::OptTerminate( 10, 1e-6 ), Math::OptNoNormalize() );
+	value_type res = Math::Optimization::levenbergMarquardt( minimizeFunc, paramVector, observationVector, Math::Optimization::OptTerminate( 10, 1e-6 ), Math::Optimization::OptNoNormalize() );
 	
 	// LOG4CPP_TRACE( logger, "optimized parameter vector:\n" << paramVector );
 	
