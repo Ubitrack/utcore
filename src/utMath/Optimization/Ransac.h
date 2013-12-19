@@ -34,9 +34,9 @@
 #define __Ubitrack_Math_Ransac_h_INCLUDED__
 
 #include <utCore.h>
-#include "Optimization/Optimization.h"
+#include "Optimization.h"
 
-namespace Ubitrack { namespace Math {
+namespace Ubitrack { namespace Math { namespace Optimization {
 
 /**
  * RANSAC algorithm (for two-parameter problems)
@@ -44,7 +44,7 @@ namespace Ubitrack { namespace Math {
  * @return 0 (failure) or number of inliers on success
  */
 template< class Result, class Param1, class Param2, class Estimator, class Evaluator >
-unsigned Ransac( Result& result, const std::vector< Param1 >& paramList1, const std::vector< Param2 >& paramList2,
+unsigned ransac( Result& result, const std::vector< Param1 >& paramList1, const std::vector< Param2 >& paramList2,
 	double fThreshold, unsigned nSetSize, unsigned nMinInliers, unsigned nMinRuns, unsigned nMaxRuns, 
 	const Estimator& estimator, const Evaluator& evaluator, std::vector< bool >* pInliers = 0 )
 {
@@ -144,6 +144,6 @@ unsigned Ransac( Result& result, const std::vector< Param1 >& paramList1, const 
 	return 0;
 }
 
-} } // namespace Ubitrack::Math
+}}} // namespace Ubitrack::Math::Optimization
 
 #endif
