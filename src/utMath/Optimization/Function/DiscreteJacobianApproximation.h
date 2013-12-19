@@ -33,7 +33,7 @@
  */
 
 #include <utMath/Vector.h>
-#include <boost/numeric/ublas/matrix_proxy.hpp>
+#include <boost/numeric/ublas/matrix_proxy.hpp> // column
  
 namespace Ubitrack { namespace Math { namespace Optimization { namespace Function {
  
@@ -88,15 +88,14 @@ public:
 	template< class VT1, class VT2, class MT > 
 	void evaluateWithJacobian( VT1& result, const VT2& input, MT& J ) const
 	{
-		namespace ublas = boost::numeric::ublas;
 		
 		// evaluate at initial position
 		m_f.evaluate( result, input );
 		
 		// evaluate for each discretization point
 		unsigned inputSize = input.size();
-		ublas::vector< typename VT1::value_type > testResult( m_f.size() );
-		ublas::vector< typename VT2::value_type > testInput( input );
+		Math::Vector< typename VT1::value_type > testResult( m_f.size() );
+		Math::Vector< typename VT2::value_type > testInput( input );
 		for ( unsigned i = 0; i < inputSize; i++ )
 		{
 			// slightly modify the input
@@ -111,7 +110,7 @@ public:
 			m_f.evaluate( testResult, testInput );
 			
 			// compute jacobian column
-			ublas::column( J, i ) = ( testResult - result ) / eps;
+			boost::numeric::ublas::column( J, i ) = ( testResult - result ) / eps;
 			
 			// reset testInput
 			testInput( i ) = input( i );
@@ -129,7 +128,7 @@ public:
 	template< class VT2, class MT > 
 	void jacobian( const VT2& input, MT& J ) const
 	{
-		boost::numeric::ublas::vector< typename VT2::value_type > result( m_f.size() );
+		Math::Vector< typename VT2::value_type > result( m_f.size() );
 		evaluateWithJacobian( result, input, J );
 	}
 	

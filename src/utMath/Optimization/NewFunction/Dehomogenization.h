@@ -72,7 +72,7 @@ struct Dehomogenization
 		// TODO: check for division by zero
 		/*typename MT::value_type tz = 1 / input( N-1 );
 		boost::numeric::ublas::subrange( J, 0, N-1, 0, N-1 ) = 
-			boost::numeric::ublas::identity_matrix< typename MT::value_type >( N-1 ) * tz;
+			Math::Matrix< typename MT::value_type >::identity( N-1 ) * tz;
 		tz = tz * tz;
 		for ( unsigned i = 0; i < N-1; i++ )
 			J( i, N-1 ) = -input( i ) * tz;*/

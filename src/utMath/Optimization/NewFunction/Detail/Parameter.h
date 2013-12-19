@@ -32,13 +32,11 @@
 #ifndef __UBITRACK_MATH_FUNCTION_DETAIL_PARAMETER_H_INCLUDED__
 #define __UBITRACK_MATH_FUNCTION_DETAIL_PARAMETER_H_INCLUDED__
 
-#include <utMath/Vector.h>
+
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 #include <boost/numeric/ublas/vector_proxy.hpp>
 
 namespace Ubitrack { namespace Math { namespace Optimization { namespace Function { namespace Detail {
-
-namespace ublas = boost::numeric::ublas;
 
 /**
  * class for parameters which are optimized (i.e. part of the parameter vector)
@@ -63,14 +61,14 @@ private:
 	static const bool wantsJacobian = true;
 
 	template< class ParameterVector >
-	const ublas::vector_range< const ParameterVector > value( const ParameterVector& p ) const
-	{ return ublas::vector_range< const ParameterVector >( p, m_range ); }
+	const boost::numeric::ublas::vector_range< const ParameterVector > value( const ParameterVector& p ) const
+	{ return boost::numeric::ublas::vector_range< const ParameterVector >( p, m_range ); }
 
 	/** store jacobian in destination matrix */
 	template< std::size_t LHSize, class ParameterVector, class LeftHand, class DestinationMatrix >
 	void i_multiplyJacobian( const ParameterVector&, const LeftHand& l, DestinationMatrix& j ) const
 	{
-		ublas::matrix_range< DestinationMatrix > dest( j, ublas::range( 0, j.size1() ), m_range );
+		boost::numeric::ublas::matrix_range< DestinationMatrix > dest( j, boost::numeric::ublas::range( 0, j.size1() ), m_range );
 		dest = l;
 	}
 
@@ -78,7 +76,7 @@ private:
 	void i_evaluateInternal( const ParameterVector& ) const
 	{}
 	
-	ublas::range m_range;
+	boost::numeric::ublas::range m_range;
 };
 
 }}}}} // namespace Ubitrack::Math::Optimization::Function::Detail
