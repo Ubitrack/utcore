@@ -135,38 +135,44 @@ int main( int argc, char* argv[] )
 namespace Ubitrack {
 
 	/**
+	 * Common algorithms to estimate results of fundamental tracking problems 
+	 */
+	 
+	namespace Algorithm {}
+
+	/**
 	 * Calibration algorithms
 	 */
 
 	namespace Calibration {}
 
 	/**
-	 * Mathematical types and functions
+	 * Mathematical data-structures and functions
 	 */
 
 	namespace Math {
 	
 	
 		/**
-		 * Geometric types and functions
+		 * Functions to generate and modify data-structures representing geometric data like Points, Lines, Circles, Spheres, Ellipses, Ellipsoids, etc.
 		 */
 		 
 		namespace Geometry {}
 		
 		/**
-		 * Graph based types and functions
+		 * Functions to solve common (sub-)graph based problems
 		 */
 		 
 		namespace Graph {}
 		
 		/**
-		 * Functions for numeric solutions of common linear problems
+		 * Functions for numeric solver of common linear problems
 		 */
 		 
 		namespace Numeric {}
 		
 		/**
-		 * (mostly templated) Functions to perform non-linear optimization 
+		 * (mostly templated) Functions to perform non-linear optimization and robust estimation
 		 */
 		 
 		namespace Optimization {}
