@@ -41,23 +41,24 @@
 // Boost
 #include <boost/math/constants/constants.hpp>
 
-namespace Ubitrack { namespace Tracking {
-
-namespace ublas = boost::numeric::ublas;
+namespace Ubitrack { namespace Math { namespace Stochastic {
 
 template< class EventType, class ResultType >
 class Average
 {
+
+protected:
+	Math::Vector< double > meanv;
+	Math::Matrix< double > outProd;
+
+	std::size_t m_counter;
+
+	ResultType incrementalEstimate( EventType& perturbed );
+	
 public:
-	/**
-	 * Standard component constructor.
-	 *
-	 * @param nm Unique name of the component.
-	 * @param cfg ComponentConfiguration containing all configuration.
-	 */
-	Average(  )		
-	{
-	}
+
+	/** Default constructor */
+	Average( ) {}
 
 	typedef typename std::vector< EventType > EventList;
 	
@@ -67,21 +68,9 @@ public:
 		size_t size = eList.size();
 		
 		for( size_t i = 0; i < size; i++ )
-			tmp = tmp + ( eList[i] / size);
+			tmp = tmp + ( eList[ i ] / size );
 		return tmp;
 	};
-
-protected:
-
-	
-
-	
-	ResultType incrementalEstimate( EventType& perturbed );
-		
-	Math::Vector< double > meanv;
-	Math::Matrix< double, 0, 0 > outProd;
-
-	int m_counter;
 };
 
 template<>
@@ -107,10 +96,10 @@ Math::ErrorVector< double, 3 > Average< Math::Vector< double, 3 >, Math::ErrorVe
 	for (size_t i = 0; i < size; i++)
 	{
 		m_mean = m_mean + ( eList[i] / size);
-		m_outProd = m_outProd + ublas::outer_prod( eList[i], eList[i] );
+		m_outProd = m_outProd + boost::numeric::ublas::outer_prod( eList[i], eList[i] );
 	}
 	
-	Math::ErrorVector< double, 3 > ev ( m_mean, m_outProd / ( static_cast< double > ( size ) ) - ublas::outer_prod ( m_mean, m_mean ) );
+	Math::ErrorVector< double, 3 > ev ( m_mean, m_outProd / ( static_cast< double > ( size ) ) - boost::numeric::ublas::outer_prod ( m_mean, m_mean ) );
 
  	return ev;
 }
@@ -158,7 +147,7 @@ Math::Quaternion Average< Math::Quaternion, Math::Quaternion >::mean( const std:
 	if( num > 0 )
 		axisAngle /= num;
 		
-	double norm = ublas::norm_2( axisAngle );
+	double norm = boost::numeric::ublas::norm_2( axisAngle );
 	double s = std::sin( norm / 2.0 );
 	axisAngle *= ( s / norm ) ;
 	Math::Quaternion q_final( axisAngle( 0 ), axisAngle( 1 ), axisAngle( 2 ), std::cos( norm/ 2.0 ) );
@@ -194,26 +183,26 @@ Math::Pose Average< Math::Pose, Math::Pose >::mean( const std::vector< Math::Pos
 
 Math::ErrorPose incEstimate(  Math::Pose poseNew,  Math::Vector< double >& meanv,  Math::Matrix< double, 0, 0 >& outProd, int m_counter)
 {
-	ublas::vector_range< Math::Vector< double >::base_type > posMean( meanv, ublas::range( 0, 3 ) );
-	ublas::vector_range< Math::Vector< double >::base_type > rotMean( meanv, ublas::range( 3, 7 ) );
+	boost::numeric::ublas::vector_range< Math::Vector< double >::base_type > posMean( meanv, boost::numeric::ublas::range( 0, 3 ) );
+	boost::numeric::ublas::vector_range< Math::Vector< double >::base_type > rotMean( meanv, boost::numeric::ublas::range( 3, 7 ) );
 
 	//LOG4CPP_TRACE ( logger, "Update pose event: " << poseNew );
 
 	// The order is tx, ty, tz, qx, qy, qz, qw.
 	Math::Vector< double > poseNewVec( 7 );
 	poseNew.toVector( poseNewVec );
-	ublas::vector_range< Math::Vector< double >::base_type > posNew( poseNewVec, ublas::range( 0, 3 ) );
-	ublas::vector_range< Math::Vector< double >::base_type > rotNew( poseNewVec, ublas::range( 3, 7 ) );
+	boost::numeric::ublas::vector_range< Math::Vector< double >::base_type > posNew( poseNewVec, boost::numeric::ublas::range( 0, 3 ) );
+	boost::numeric::ublas::vector_range< Math::Vector< double >::base_type > rotNew( poseNewVec, boost::numeric::ublas::range( 3, 7 ) );
 
 	// Take care of quaternion ambiguity
- 	if ( ublas::inner_prod( rotNew, rotMean ) < 0 )
+ 	if ( boost::numeric::ublas::inner_prod( rotNew, rotMean ) < 0 )
  		rotNew *= -1;
 
 	// Update running mean value
 	meanv = ( ( ((double)m_counter - 1) / (double)m_counter ) * meanv ) + ( ( 1 / (double)m_counter ) * poseNewVec );
 
 	// Running outer product of pose random variable (not yet normalized by number of measurements)
-	outProd = outProd + ublas::outer_prod( poseNewVec, poseNewVec );
+	outProd = outProd + boost::numeric::ublas::outer_prod( poseNewVec, poseNewVec );
 
 	/*
 	 * Use inverted mean value to transform the additive 7x7
@@ -244,7 +233,7 @@ Math::ErrorPose incEstimate(  Math::Pose poseNew,  Math::Vector< double >& meanv
 
 	Math::Vector< double, 7 > invMean;
 	(~(Math::Pose::fromVector( meanv ) ) ).toVector( invMean );
-	Math::ErrorVector< double, 7 > ev ( invMean, outProd / ( (double)m_counter ) - ublas::outer_prod ( meanv, meanv ) );
+	Math::ErrorVector< double, 7 > ev ( invMean, outProd / ( (double)m_counter ) - boost::numeric::ublas::outer_prod ( meanv, meanv ) );
 	Math::ErrorPose invEp = Math::ErrorPose::fromAdditiveErrorVector( ev );
 	
 	// We created the error pose from the inverted mean value above, to obtain the transformed 6x6 covariance
@@ -305,7 +294,7 @@ Math::ErrorPose Average< Math::Pose, Math::ErrorPose >::mean( const std::vector<
 		
 		Math::Vector< double > poseTmpVec( 7 );
 		pose.toVector( poseTmpVec );
-		m_outProd = m_outProd + ublas::outer_prod( poseTmpVec, poseTmpVec );
+		m_outProd = m_outProd + boost::numeric::ublas::outer_prod( poseTmpVec, poseTmpVec );
 	}
 	
 	p_mean /= size;
@@ -318,7 +307,7 @@ Math::ErrorPose Average< Math::Pose, Math::ErrorPose >::mean( const std::vector<
 
 	Math::Vector< double, 7 > invMean;
 	(~(Math::Pose::fromVector( m_mean ) ) ).toVector( invMean );
-	Math::ErrorVector< double, 7 > ev ( invMean, m_outProd / ( static_cast< double > ( size ) ) - ublas::outer_prod ( m_mean, m_mean ) );
+	Math::ErrorVector< double, 7 > ev ( invMean, m_outProd / ( static_cast< double > ( size ) ) - boost::numeric::ublas::outer_prod ( m_mean, m_mean ) );
 	Math::ErrorPose invEp = Math::ErrorPose::fromAdditiveErrorVector( ev );
 	
 	Math::ErrorPose ep( Math::Pose::fromVector( m_mean ), invEp.covariance() );
@@ -327,5 +316,5 @@ Math::ErrorPose Average< Math::Pose, Math::ErrorPose >::mean( const std::vector<
 }
 
 
-} } // namespace Ubitrack::Components
+} } } // namespace Ubitrack::Math::Stochastic
 
