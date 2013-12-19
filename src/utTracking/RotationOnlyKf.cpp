@@ -33,7 +33,7 @@
 #include "RotationOnlyKF.h"
 #ifdef HAVE_LAPACK
  
-#include <utMath/CovarianceTransform.h>
+#include <utMath/Stochastic/CovarianceTransform.h>
 #include <utMath/Optimization/Function/VectorNormalize.h>
 #include "Function/QuaternionTimeUpdate.h"
 
@@ -77,7 +77,7 @@ void RotationOnlyKF::addRotationMeasurement( const Measurement::Rotation& m )
 	kalmanMeasurementUpdateIdentity< 7, 4 >( m_state, v, 0, 4 );
 
 	// normalize quaternion
-	Math::transformRangeInternalWithCovariance< 7 >( Math::Optimization::Function::VectorNormalize( 4 ), m_state, 0, 4, 0, 4 );
+	Math::Stochastic::transformRangeInternalWithCovariance< 7 >( Math::Optimization::Function::VectorNormalize( 4 ), m_state, 0, 4, 0, 4 );
 }
 
 
@@ -95,7 +95,7 @@ void RotationOnlyKF::addVelocityMeasurement( const Measurement::RotationVelocity
 	kalmanMeasurementUpdateIdentity< 7, 3 >( m_state, v, 4, 7 );
 
 	// normalize quaternion
-	Math::transformRangeInternalWithCovariance< 7 >( Math::Optimization::Function::VectorNormalize( 4 ), m_state, 0, 4, 0, 4 );
+	Math::Stochastic::transformRangeInternalWithCovariance< 7 >( Math::Optimization::Function::VectorNormalize( 4 ), m_state, 0, 4, 0, 4 );
 }
 
 
@@ -110,7 +110,7 @@ void RotationOnlyKF::timeUpdate( Measurement::Timestamp t )
 	
 	// update state
 	double dt = ( (long long int)( t - m_time ) ) * 1e-9;
-	Math::transformRangeInternalWithCovariance< 7 >( Function::QuaternionTimeUpdate( dt ), m_state, 0, 4, 0, 7 );
+	Math::Stochastic::transformRangeInternalWithCovariance< 7 >( Function::QuaternionTimeUpdate( dt ), m_state, 0, 4, 0, 7 );
 	
 	// add process noise
 	// TODO: better motion model
@@ -127,7 +127,7 @@ Measurement::Rotation RotationOnlyKF::predict( Measurement::Timestamp t )
 {
 	// time update: forward filter to requested timestamp
 	double dt = ( t - m_time ) * 1e-9;
-	Math::ErrorVector< double, 4 > result = Math::transformWithCovariance< 4, 7 >( Function::QuaternionTimeUpdate( dt ), m_state );
+	Math::ErrorVector< double, 4 > result = Math::Stochastic::transformWithCovariance< 4, 7 >( Function::QuaternionTimeUpdate( dt ), m_state );
 	
 	return Measurement::Rotation( t, Math::Quaternion::fromVector( result.value ).normalize() );
 }

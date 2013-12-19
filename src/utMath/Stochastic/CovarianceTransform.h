@@ -40,7 +40,7 @@
 #include <utMath/Matrix.h>
 #include <utMath/ErrorVector.h>
 
-namespace Ubitrack { namespace Math {
+namespace Ubitrack { namespace Math { namespace Stochastic {
 
 /**
  * Transforms the vector by some function f and returns the result as a new vector with associated
@@ -169,7 +169,7 @@ void transformRangeInternalWithCovariance( const F& f, ErrorVector< VType, N >& 
  *
  */
 template< class F, class VT1, class MT1, class VT2, class MT2, class VT3, class MT3 > 
-void binaryTransformWithCovariance( const F& f, VT1& resultVec, MT1& resultCov, 
+void binarytransformWithCovariance( const F& f, VT1& resultVec, MT1& resultCov, 
 	const VT2& inVec1, const MT2& inCov1, const VT3& inVec2, const MT3& inCov2 )
 {
 	namespace ublas = boost::numeric::ublas;
@@ -190,14 +190,14 @@ void binaryTransformWithCovariance( const F& f, VT1& resultVec, MT1& resultCov,
 
 /** overload for \c ErrorVector objects */
 template< unsigned M, unsigned N, unsigned K, class F, class VType  > inline
-ErrorVector< VType, M > binaryTransformWithCovariance( const F& f, const ErrorVector< VType, N > in1, const ErrorVector< VType, K > in2 )
+ErrorVector< VType, M > binarytransformWithCovariance( const F& f, const ErrorVector< VType, N > in1, const ErrorVector< VType, K > in2 )
 {
 	ErrorVector< VType, M > result;
-	binaryTransformWithCovariance( f, result.value, result.covariance, in1.value, in1.covariance, in2.value, in2.covariance );
+	binarytransformWithCovariance( f, result.value, result.covariance, in1.value, in1.covariance, in2.value, in2.covariance );
 	return result;
 }
 
 
-} } // namespace Ubitrack::Error
+}}} // namespace Ubitrack::Math::Stochastic
 
 #endif

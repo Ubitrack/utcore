@@ -37,7 +37,7 @@
 #include "Function/ProjectivePoseNormalize.h"
 
 #include <utMath/MatrixOperations.h>
-#include <utMath/BackwardPropagation.h>
+#include <utMath/Stochastic/BackwardPropagation.h>
 #include <utCalibration/Homography.h>
 #include <utCalibration/Projection.h>
 
@@ -193,7 +193,7 @@ Matrix< T, 6, 6 > singleCameraPoseErrorImpl( const Pose& p, const std::vector< V
 	Matrix< T, 6, 6 > result;
 	Function::MultiplePointProjectionError< T > projection( p3D, cam );
 
-	backwardPropagationIdentity( result, imageError, projection, params );
+	Stochastic::backwardPropagationIdentity( result, imageError, projection, params );
 	
 	return result;
 }
@@ -227,7 +227,7 @@ Math::Matrix< T, 6, 6 > multipleCameraPoseErrorImpl( const Math::Pose& p,
 	Matrix< T, 6, 6 > result;
 	Function::MultipleCameraProjectionError< T > projection( p3D, cameras, observations );
 
-	backwardPropagationIdentity( result, imageError, projection, params );
+	Stochastic::backwardPropagationIdentity( result, imageError, projection, params );
 	
 	return result;
 }

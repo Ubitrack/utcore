@@ -24,9 +24,11 @@
 
 #include "ErrorPose.h"
 #include "ErrorVector.h"
+#include "Stochastic/CovarianceTransform.h"
+
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 #include <boost/numeric/ublas/vector_proxy.hpp>
-#include "CovarianceTransform.h"
+
 
 namespace ublas = boost::numeric::ublas;
 
@@ -614,7 +616,7 @@ void ErrorPose::toAdditiveErrorVector( ErrorVector< double, 7 >& v )
 	// set the w variance to the sum of the x, y, and z rotation errors
 	v.covariance( 6, 6 ) = v.covariance( 3, 3 ) + v.covariance( 4, 4 ) + v.covariance( 5, 5 );
 
-	transformRangeInternalWithCovariance< 7 >( ErrorConversion( rotation() ), v, 3, 7, 3, 7 );
+	Stochastic::transformRangeInternalWithCovariance< 7 >( ErrorConversion( rotation() ), v, 3, 7, 3, 7 );
 }
 
 
@@ -622,7 +624,7 @@ ErrorPose ErrorPose::fromAdditiveErrorVector( const ErrorVector< double, 7 >& v 
 {
 	Math::ErrorVector< double, 7 > p( v );
 	Quaternion q( Quaternion::fromVector( ublas::subrange( v.value, 3, 7 ) ) );
-	transformRangeInternalWithCovariance< 7 >( ErrorConversion( ~q ), p, 3, 7, 3, 7 );
+	Stochastic::transformRangeInternalWithCovariance< 7 >( ErrorConversion( ~q ), p, 3, 7, 3, 7 );
 	
 	return ErrorPose( Pose::fromVector( p.value ), ublas::subrange( p.covariance, 0, 6, 0, 6 ) );
 }

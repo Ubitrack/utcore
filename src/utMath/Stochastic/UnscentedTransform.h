@@ -37,7 +37,7 @@
 // #include <boost/numeric/ublas/matrix_proxy.hpp>
 // #include <boost/numeric/ublas/vector_proxy.hpp>
 
-namespace Ubitrack { namespace Math {
+namespace Ubitrack { namespace Math { namespace Stochastic {
 
 /**
  * Performs an Unscented Transform based on a set of measurements in 2D, a given variance (the probability distribution
@@ -178,6 +178,6 @@ Math::Matrix< double, 6, 6 > unscentedTransform(
 
 }
 	
-} } // namespace Ubitrack::Math
+}}} // namespace Ubitrack::Math::Stochastic
 
 #endif

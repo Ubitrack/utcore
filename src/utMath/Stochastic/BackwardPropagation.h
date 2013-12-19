@@ -49,7 +49,7 @@
 #include <boost/numeric/bindings/lapack/syev.hpp>
 #include <boost/numeric/bindings/lapack/gesvd.hpp>
 
-namespace Ubitrack { namespace Math {
+namespace Ubitrack { namespace Math { namespace Stochastic {
 
 
 /**
@@ -293,7 +293,7 @@ void backwardPropagationDiagonal( MT1& result, const VT2& input, const F& functi
 	backwardPropagationDiagonal( result, input, jacobian );
 }
 		
-} } // namespace Ubitrack::Math
+}}} // namespace Ubitrack::Math::Stochastic
 
 #endif // HAVE_LAPACK
 

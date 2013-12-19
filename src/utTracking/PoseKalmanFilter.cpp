@@ -33,7 +33,7 @@
 #include "PoseKalmanFilter.h"
 #ifdef HAVE_LAPACK
  
-#include <utMath/CovarianceTransform.h>
+#include <utMath/Stochastic/CovarianceTransform.h>
 #include <utMath/Optimization/Function/VectorNormalize.h>
 #include <utUtil/Exception.h>
 #include "Function/PoseTimeUpdate.h"
@@ -218,11 +218,11 @@ void PoseKalmanFilter::timeUpdate( Measurement::Timestamp t )
 	double dt = ( (long long int)( t - m_time ) ) * 1e-9;
 	LOG4CPP_DEBUG( logger, "Time update to t = " << t << ", dt = " << dt );
 	if ( m_bInsideOut )
-		Math::transformWithCovariance( 
+		Math::Stochastic::transformWithCovariance( 
 			Function::InsideOutPoseTimeUpdate( dt, m_motionModel.posOrder() ), 
 				m_state, m_covariance, m_state, m_covariance );
 	else
-		Math::transformWithCovariance( 
+		Math::Stochastic::transformWithCovariance( 
 			Function::PoseTimeUpdate( dt, m_motionModel.posOrder(), m_motionModel.oriOrder() ),
 				m_state, m_covariance, m_state, m_covariance );
 	
@@ -239,7 +239,7 @@ void PoseKalmanFilter::normalize()
 	if ( m_motionModel.oriOrder() >= 0 )
 	{
 		// normalize quaternion
-		Math::transformRangeInternalWithCovariance( Math::Optimization::Function::VectorNormalize( 4 ), 
+		Math::Stochastic::transformRangeInternalWithCovariance( Math::Optimization::Function::VectorNormalize( 4 ), 
 			m_state, m_covariance, iR, iR + 4, iR, iR + 4 );
 	}
 
@@ -282,11 +282,11 @@ Measurement::ErrorPose PoseKalmanFilter::predictPose( Measurement::Timestamp t )
 	Math::Vector< double > newState( m_state.size() );
 	Math::Matrix< double, 0, 0 > newCovariance( m_state.size(), m_state.size() );
 	if ( m_bInsideOut )
-		Math::transformWithCovariance( 
+		Math::Stochastic::transformWithCovariance( 
 			Function::InsideOutPoseTimeUpdate( dt, m_motionModel.posOrder() ), 
 				newState, newCovariance, m_state, m_covariance );
 	else
-		Math::transformWithCovariance( 
+		Math::Stochastic::transformWithCovariance( 
 			Function::PoseTimeUpdate( dt, m_motionModel.posOrder(), m_motionModel.oriOrder() ),
 				newState, newCovariance, m_state, m_covariance );
 	

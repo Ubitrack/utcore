@@ -30,17 +30,15 @@
 
 #ifndef __UBITRACK_ERROR_ERRORVECTOR_H_INCLUDED__
 #define __UBITRACK_ERROR_ERRORVECTOR_H_INCLUDED__
- 
+
+
+#include <utMath/Vector.h>
+#include <utMath/Matrix.h>
 
 #include <boost/numeric/ublas/vector_proxy.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 #include <boost/numeric/bindings/blas/blas3.hpp>
 #include <boost/numeric/bindings/traits/ublas_matrix.hpp>
-
-#include <utMath/Vector.h>
-#include <utMath/Matrix.h>
-#include <utCore.h>
-
 
 namespace Ubitrack { namespace Math {
 
