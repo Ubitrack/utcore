@@ -49,7 +49,7 @@ namespace Ubitrack { namespace Math {
  * @tparam T type of vector/matrix elements
  * @tparam N size of the vector
  */
-template< typename T, int N >
+template< typename T, std::size_t N >
 struct ErrorVector
 {
 	/** default constructor */
@@ -73,7 +73,7 @@ struct ErrorVector
 	T getRMS( void ) 
 	{
 		T trace = 0;
-		for ( int i = 0; i < N; i++ ) 
+		for ( std::size_t i = 0; i < N; i++ ) 
 		{
 			trace += covariance( i,i );
 		}
@@ -95,7 +95,7 @@ struct ErrorVector
 
 
 /// stream output operator
-template< typename T, int N >
+template< typename T, std::size_t N >
 std::ostream& operator<<( std::ostream& s, const ErrorVector< T, N >& v )
 {
 	s << v.value << std::endl << v.covariance;
