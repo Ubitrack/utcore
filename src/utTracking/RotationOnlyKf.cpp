@@ -42,7 +42,7 @@
 static log4cpp::Category& logger( log4cpp::Category::getInstance( "Ubitrack.Tracking.RotationOnlyKF" ) );
 #define KALMAN_LOGGING
 
-#include "Kalman.h"
+#include <utMath/Stochastic/Kalman.h>
 
 namespace ublas = boost::numeric::ublas;
 
@@ -74,7 +74,7 @@ void RotationOnlyKF::addRotationMeasurement( const Measurement::Rotation& m )
 	v.covariance = Math::Matrix< double, 4, 4 >::identity() * 0.004; // magic number, tune here
 	
 	// measurement update:
-	kalmanMeasurementUpdateIdentity< 7, 4 >( m_state, v, 0, 4 );
+	Math::Stochastic::kalmanMeasurementUpdateIdentity< 7, 4 >( m_state, v, 0, 4 );
 
 	// normalize quaternion
 	Math::Stochastic::transformRangeInternalWithCovariance< 7 >( Math::Optimization::Function::VectorNormalize( 4 ), m_state, 0, 4, 0, 4 );
@@ -92,7 +92,7 @@ void RotationOnlyKF::addVelocityMeasurement( const Measurement::RotationVelocity
 	v.covariance = Math::Matrix< double, 3, 3 >::identity() * 0.00001; // magic number, tune here
 	
 	// measurement update:
-	kalmanMeasurementUpdateIdentity< 7, 3 >( m_state, v, 4, 7 );
+	Math::Stochastic::kalmanMeasurementUpdateIdentity< 7, 3 >( m_state, v, 4, 7 );
 
 	// normalize quaternion
 	Math::Stochastic::transformRangeInternalWithCovariance< 7 >( Math::Optimization::Function::VectorNormalize( 4 ), m_state, 0, 4, 0, 4 );

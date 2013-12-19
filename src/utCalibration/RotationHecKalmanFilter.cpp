@@ -34,9 +34,10 @@
 #ifdef HAVE_LAPACK
  
 #include "Function/RotHecFunction.h"
-#include <utTracking/Kalman.h>
-#include <utMath/Optimization/Function/VectorNormalize.h>
+#include <utMath/Stochastic/Kalman.h>
 #include <utMath/Stochastic/CovarianceTransform.h>
+#include <utMath/Optimization/Function/VectorNormalize.h>
+
 
 namespace Ubitrack { namespace Calibration {
 
@@ -57,7 +58,7 @@ void RotationHecKalmanFilter::addMeasurement( const Math::Quaternion& a, const M
 
 	// do the filter update
 	Function::RotHecMeasurement mf( a, b.negateIfCloser( a ) );
-	Tracking::kalmanMeasurementUpdate< 4, 4 >( m_state, mf, kalmanMeasurement, 0, m_state.value.size() );
+	Math::Stochastic::kalmanMeasurementUpdate< 4, 4 >( m_state, mf, kalmanMeasurement, 0, m_state.value.size() );
 
 	// normalize the result to ensure quaternion properties
 	m_state = Math::Stochastic::transformWithCovariance< 4, 4 >( Math::Optimization::Function::VectorNormalize( 4 ), m_state );

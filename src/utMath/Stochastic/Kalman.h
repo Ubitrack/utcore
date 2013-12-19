@@ -53,7 +53,7 @@
 	#define KALMAN_LOG_NOTICE( message ) 
 #endif
 
-namespace Ubitrack { namespace Tracking {
+namespace Ubitrack { namespace Math { namespace Stochastic {
 
 /**
  * Heavily templated function that performs a measurement update of a kalman filter.
@@ -229,7 +229,7 @@ void kalmanMeasurementUpdateIdentity( Math::ErrorVector< double, N >& state,
 
 // TODO: kalmanMeasurementUpdate without iBegin and iEnd (using optimized uBlas)
 
-} } // namespace Ubitrack::Tracking
+} } } // namespace Ubitrack::Math::Stochastic
 
 #undef KALMAN_LOG_DEBUG
 #undef KALMAN_LOG_TRACE

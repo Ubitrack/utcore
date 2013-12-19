@@ -45,7 +45,7 @@
 static log4cpp::Category& logger( log4cpp::Category::getInstance( "Ubitrack.Tracking.PoseKalmanFilter" ) );
 
 #define KALMAN_LOGGING
-#include "Kalman.h"
+#include <utMath/Stochastic/Kalman.h>
 
 namespace ublas = boost::numeric::ublas;
 
@@ -120,7 +120,7 @@ void PoseKalmanFilter::addPoseMeasurement( const Measurement::ErrorPose& m )
 		ublas::subrange( v.value, 3, 7 ) *= -1;
 	
 	// measurement update:
-	kalmanMeasurementUpdate( m_state, m_covariance, PoseMeasurement( iR ), v.value, v.covariance, 0, iR + 4 );
+	Math::Stochastic::kalmanMeasurementUpdate( m_state, m_covariance, PoseMeasurement( iR ), v.value, v.covariance, 0, iR + 4 );
 
 	// normalize quaternion
 	normalize();
@@ -150,7 +150,7 @@ void PoseKalmanFilter::addRotationMeasurement( const Measurement::Rotation& m )
 		v.value *= -1;
 	
 	// measurement update:
-	kalmanMeasurementUpdateIdentity( m_state, m_covariance, v.value, v.covariance, iR, iR + 4 );
+	Math::Stochastic::kalmanMeasurementUpdateIdentity( m_state, m_covariance, v.value, v.covariance, iR, iR + 4 );
 
 	// normalize quaternion
 	normalize();
@@ -174,7 +174,7 @@ void PoseKalmanFilter::addRotationVelocityMeasurement( const Measurement::Rotati
 	
 	// measurement update:
 	int iV = 4 + 3 * ( m_motionModel.posOrder() + 1 ); // shortcut for first index of rotation velocity
-	kalmanMeasurementUpdateIdentity( m_state, m_covariance, v.value, v.covariance, iV, iV + 3 );
+	Math::Stochastic::kalmanMeasurementUpdateIdentity( m_state, m_covariance, v.value, v.covariance, iV, iV + 3 );
 
 	// normalize quaternion
 	normalize();
@@ -198,7 +198,7 @@ void PoseKalmanFilter::addInverseRotationVelocityMeasurement( const Measurement:
 	
 	// measurement update:
 	int iR = 3 * ( m_motionModel.posOrder() + 1 ); // shortcut for first index of orientation
-	kalmanMeasurementUpdate( m_state, m_covariance, Function::InvertRotationVelocity(), v.value, v.covariance, iR, iR + 7 );
+	Math::Stochastic::kalmanMeasurementUpdate( m_state, m_covariance, Function::InvertRotationVelocity(), v.value, v.covariance, iR, iR + 7 );
 
 	// normalize quaternion
 	normalize();
