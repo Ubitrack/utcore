@@ -34,7 +34,7 @@
 
 #include "Detail/Binder.h"
 
-namespace Ubitrack { namespace Math { namespace Function {
+namespace Ubitrack { namespace Math { namespace Optimization { namespace Function {
 
 /**
  * Derive your own multivariate functions from this class.
@@ -145,6 +145,6 @@ private:
 };
 
 
-} } } // namespace Ubitrack::Math::Function
+}}}} // namespace Ubitrack::Math::Optimization::Function
 
 #endif

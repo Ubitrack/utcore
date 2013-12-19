@@ -21,53 +21,39 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
+
 /**
  * @ingroup math
  * @file
- * stores an intermediate result
+ * Defines a function that computes the norm of a vector
  *
  * @author Daniel Pustka <daniel.pustka@in.tum.de>
  */
+ 
+#include <utMath/Vector.h>
 
-#ifndef __UBITRACK_MATH_FUNCTION_STOREINTERMEDIATE_H_INCLUDED__
-#define __UBITRACK_MATH_FUNCTION_STOREINTERMEDIATE_H_INCLUDED__
- 
-#include <utMath/NewFunction/MultiVariateFunction.h>
- 
-namespace Ubitrack { namespace Math { namespace Function {
+namespace Ubitrack { namespace Math { namespace Optimization { namespace Function {
 
 /**
- * Stores an intermediate result in a vector
+ * A function that computes the norm of a vector
  */
-template< unsigned M, class T = double >
-class StoreIntermediate
-	: public MultiVariateFunction< StoreIntermediate< M, T >, M >
+template< unsigned M >
+struct VectorNorm
+	: public MultiVariateFunction< VectorNorm< M >, 1 >
 {
-public:
-	/** 
-	 * Construct from matrix. 
-	 * Note: matrix reference must be valid throughout the lifetime of the object! 
-	 */
-	StoreIntermediate( Math::Vector< M, T >& _vector )
-		: rVector( _vector )
-	{}
-
 	template< class DestinationVector, class Param1 >
 	void evaluate( DestinationVector& result, const Param1& p1 ) const
 	{
-		result = p1;
-		rVector = p1;
+		result( 0 ) = boost::numeric::ublas::norm_2( p1 );
 	}
 		
 	template< class LeftHand, class DestinationMatrix, class Param1 >
-	void multiplyJacobian1( const LeftHand& l, DestinationMatrix& j, const Param1& ) const
+	void multiplyJacobian1( const LeftHand& l, DestinationMatrix& j, const Param1& p1 ) const
 	{
-		j = l;
+		typename Param1::value_type f = l( 0, 0 ) / boost::numeric::ublas::norm_2( p1 );
+		for ( unsigned i = 0; i < M; i++ )
+			j( 0, i ) = f * p1( i );
 	}
-	
-	mutable Math::Vector< M, T >& rVector;
 };
 
-} } } // namespace Ubitrack::Math::Function
-
-#endif
+} } } // namespace Ubitrack::Calibration::Normalize

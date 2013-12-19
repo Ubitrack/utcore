@@ -35,7 +35,7 @@
 #include "ResultVector.h" 
 #include "ResultMatrix.h" 
  
-namespace Ubitrack { namespace Math { namespace Function { namespace Detail {
+namespace Ubitrack { namespace Math { namespace Optimization { namespace Function { namespace Detail {
 
 /**
  * \internal
@@ -219,6 +219,6 @@ private:
 };
 
 
-} } } } // namespace Ubitrack::Math::Function::Detail
+}}}}} // namespace Ubitrack::Math::Optimization::Function::Detail
 
 #endif

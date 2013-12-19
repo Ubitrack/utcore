@@ -34,7 +34,7 @@
 #ifdef HAVE_LAPACK
  
 #include <utMath/CovarianceTransform.h>
-#include <utMath/Function/VectorNormalize.h>
+#include <utMath/Optimization/Function/VectorNormalize.h>
 #include <utUtil/Exception.h>
 #include "Function/PoseTimeUpdate.h"
 #include "Function/InsideOutPoseTimeUpdate.h"
@@ -239,7 +239,7 @@ void PoseKalmanFilter::normalize()
 	if ( m_motionModel.oriOrder() >= 0 )
 	{
 		// normalize quaternion
-		Math::transformRangeInternalWithCovariance( Math::Function::VectorNormalize( 4 ), 
+		Math::transformRangeInternalWithCovariance( Math::Optimization::Function::VectorNormalize( 4 ), 
 			m_state, m_covariance, iR, iR + 4, iR, iR + 4 );
 	}
 

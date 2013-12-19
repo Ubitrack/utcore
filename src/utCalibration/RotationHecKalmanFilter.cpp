@@ -35,7 +35,7 @@
  
 #include "Function/RotHecFunction.h"
 #include <utTracking/Kalman.h>
-#include <utMath/Function/VectorNormalize.h>
+#include <utMath/Optimization/Function/VectorNormalize.h>
 #include <utMath/CovarianceTransform.h>
 
 namespace Ubitrack { namespace Calibration {
@@ -60,7 +60,7 @@ void RotationHecKalmanFilter::addMeasurement( const Math::Quaternion& a, const M
 	Tracking::kalmanMeasurementUpdate< 4, 4 >( m_state, mf, kalmanMeasurement, 0, m_state.value.size() );
 
 	// normalize the result to ensure quaternion properties
-	m_state = Math::transformWithCovariance< 4, 4 >( Math::Function::VectorNormalize( 4 ), m_state );
+	m_state = Math::transformWithCovariance< 4, 4 >( Math::Optimization::Function::VectorNormalize( 4 ), m_state );
 	
 	m_state.covariance += Math::Matrix< double, 4, 4 >::identity() * 1e-12;
 }

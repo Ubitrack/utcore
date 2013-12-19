@@ -32,9 +32,9 @@
 #ifndef __UBITRACK_CALIBRATION_FUNCTION_DEHOMOGENIZATION_H_INCLUDED__
 #define __UBITRACK_CALIBRATION_FUNCTION_DEHOMOGENIZATION_H_INCLUDED__
 
-#include <utMath/NewFunction/MultiVariateFunction.h>
+#include "MultiVariateFunction.h"
  
-namespace Ubitrack { namespace Math { namespace Function {
+namespace Ubitrack { namespace Math { namespace Optimization { namespace Function {
 
 /**
  * Function that dehomogenizes a vector by dividing through the last element and then dropping it.
@@ -79,6 +79,6 @@ struct Dehomogenization
 	}
 };
 
-} } } // namespace Ubitrack::Calibration::Function
+}}}} // namespace Ubitrack::Math::Optimization::Function
 
 #endif

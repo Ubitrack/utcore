@@ -35,12 +35,15 @@
 #include "MultipleCameraPoseOptimization.h"
 
 
+
+//#define OPTIMIZATION_LOGGING
+
 // get a logger
 #include <log4cpp/Category.hh>
 static log4cpp::Category& logger( log4cpp::Category::getInstance( "Ubitrack.Calibration.2D6DPoseEstimation" ) );
 //static log4cpp::Category& optLogger( log4cpp::Category::getInstance( "Ubitrack.Calibration.2D6DPoseEstimation.LM" ) );
 
-//#define OPTIMIZATION_LOGGING
+
 #include <utMath/Optimization/LevenbergMarquardt.h>
 #include <utCalibration/2D3DPoseEstimation.h>
 #include <utUtil/Exception.h>

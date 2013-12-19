@@ -32,9 +32,10 @@
 #ifndef __UBITRACK_CALIBRATION_FUNCTION_LIEROTATION_H_INCLUDED__
 #define __UBITRACK_CALIBRATION_FUNCTION_LIEROTATION_H_INCLUDED__
  
-#include <utMath/NewFunction/MultiVariateFunction.h>
- 
-namespace Ubitrack { namespace Math { namespace Function {
+#include "MultiVariateFunction.h"
+#include "../../Quaternion.h"
+
+namespace Ubitrack { namespace Math { namespace Optimization { namespace Function {
 
 /**
  * Function that rotates a vector \c v around a quaternion \c q, producing v2 = (q * v * q'). The quaternion q is 
@@ -189,6 +190,6 @@ public:
 	}
 };
 
-} } } // namespace Ubitrack::Calibration::Function
+}}}} // namespace Ubitrack::Math::Optimization::Function
 
 #endif

@@ -24,24 +24,27 @@
 /**
  * @ingroup Math
  * @file
- * class for fixed parameters with referenced values.
+ * class for fixed parameters with copied values.
  *
  * @author Daniel Pustka <daniel.pustka@in.tum.de>
  */
 
-#ifndef __UBITRACK_MATH_FUNCTION_DETAIL_FIXEDPARAMETERREF_H_INCLUDED__
-#define __UBITRACK_MATH_FUNCTION_DETAIL_FIXEDPARAMETERREF_H_INCLUDED__
+#ifndef __UBITRACK_MATH_FUNCTION_DETAIL_FIXEDPARAMETERCOPY_H_INCLUDED__
+#define __UBITRACK_MATH_FUNCTION_DETAIL_FIXEDPARAMETERCOPY_H_INCLUDED__
 
-namespace Ubitrack { namespace Math { namespace Function { namespace Detail {
+#include "ResultVector.h"
 
-/**
- * class for fixed parameters with referenced values.
+namespace Ubitrack { namespace Math { namespace Optimization { namespace Function { namespace Detail {
+
+/** 
+ * class for fixed parameters with copied values.
  */
-template< std::size_t Size, class CVector >
-class FixedParameterRef
+template< std::size_t Size >
+class FixedParameterCopy
 {
 public:
-	FixedParameterRef( const CVector& v )
+	template< class CVector >
+	FixedParameterCopy( const CVector& v )
 		: m_v( v )
 	{}
 
@@ -55,7 +58,7 @@ private:
 	static const bool wantsJacobian = false;
 
 	template< class ParameterVector >
-	const CVector& value( const ParameterVector&  ) const
+	const ResultVector< Size >& value( const ParameterVector&  ) const
 	{ return m_v; }
 
 	template< std::size_t LHSize, class ParameterVector, class LeftHand, class DestinationMatrix >
@@ -66,9 +69,9 @@ private:
 	void i_evaluateInternal( const ParameterVector& ) const
 	{}
 	
-	const CVector& m_v;
+	const ResultVector< Size > m_v;
 };
 
-} } } } // namespace Ubitrack::Math::Function::Detail
+}}}}} // namespace Ubitrack::Math::Optimization::Function::Detail
 
 #endif

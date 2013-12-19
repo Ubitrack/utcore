@@ -22,11 +22,11 @@
  */
 
 
-#include <utMath/NewFunction/Function.h>
-#include <utMath/NewFunction/Addition.h>
-#include <utMath/NewFunction/Dehomogenization.h>
-#include <utMath/NewFunction/LieRotation.h>
-#include <utMath/NewFunction/LinearTransformation.h>
+#include <utMath/Optimization/NewFunction/Function.h>
+#include <utMath/Optimization/NewFunction/Addition.h>
+#include <utMath/Optimization/NewFunction/Dehomogenization.h>
+#include <utMath/Optimization/NewFunction/LieRotation.h>
+#include <utMath/Optimization/NewFunction/LinearTransformation.h>
 #include <utMeasurement/Measurement.h>
 
 namespace Ubitrack { namespace Calibration {
@@ -67,7 +67,7 @@ public:
 	template< class VT1, class VT2, class MT > 
 	void evaluateWithJacobian( VT1& result, const VT2& input, MT& J ) const
 	{
-		namespace NF = Math::Function;
+		namespace NF = Math::Optimization::Function;
 		namespace ublas = boost::numeric::ublas;
 		const std::size_t n_vis( m_vis.size() );
 		for ( std::size_t i( 0 ); i < n_vis; ++i )

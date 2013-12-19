@@ -32,9 +32,9 @@
 #ifndef __UBITRACK_MATH_FUNCTION_SUBTRACTION_H_INCLUDED__
 #define __UBITRACK_MATH_FUNCTION_SBUTRACTION_H_INCLUDED__
  
-#include <utMath/NewFunction/MultiVariateFunction.h>
+#include "MultiVariateFunction.h"
  
-namespace Ubitrack { namespace Math { namespace Function {
+namespace Ubitrack { namespace Math { namespace Optimization { namespace Function {
 
 /**
  * Function that subtracts two vectors.
@@ -65,6 +65,6 @@ public:
 	}
 };
 
-} } } // namespace Ubitrack::Math::Function
+}}}} // namespace Ubitrack::Math::Optimization::Function
 
 #endif

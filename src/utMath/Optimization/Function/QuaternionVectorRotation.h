@@ -29,7 +29,7 @@
  * @author Daniel Pustka <daniel.pustka@in.tum.de>
  */
 
-namespace Ubitrack { namespace Math { namespace Function {
+namespace Ubitrack { namespace Math { namespace Optimization { namespace Function {
  
 /**
  * Function class for rotating a 3-vector around a quaternion
@@ -151,4 +151,4 @@ struct QuaternionVectorRotation
 	}
 };
 
-} } } // namespace Ubitrack::Math::Function
+}}}} // namespace Ubitrack::Math::Optimization::Function

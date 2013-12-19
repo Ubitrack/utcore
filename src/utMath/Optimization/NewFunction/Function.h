@@ -37,7 +37,7 @@
 #include "Detail/FixedParameterCopy.h"
 #include "Detail/Binder.h"
  
-namespace Ubitrack { namespace Math { namespace Function {
+namespace Ubitrack { namespace Math { namespace Optimization { namespace Function {
 
 namespace Detail
 {
@@ -95,6 +95,6 @@ Detail::Binder< CFunc, Detail::Binder< CBFunc, CBParam > > operator<<( const CFu
 { return Detail::Binder< CFunc, Detail::Binder< CBFunc, CBParam > >( func, binder ); }
 
 
-} } } // namespace Ubitrack::Math::Function
+}}}} // namespace Ubitrack::Math::Optimization::Function
 
 #endif

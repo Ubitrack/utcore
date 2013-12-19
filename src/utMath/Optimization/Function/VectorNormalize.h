@@ -29,10 +29,15 @@
  *
  * @author Daniel Pustka <daniel.pustka@in.tum.de>
  */
+
+#ifndef __UBITRACK_MATH_FUNCTION_VECTOR_NORMALIZE_H_INCLUDED__
+#define __UBITRACK_MATH_FUNCTION_VECTOR_NORMALIZE_H_INCLUDED__
+ 
+ 
  
 #include <utMath/Vector.h>
 
-namespace Ubitrack { namespace Math { namespace Function {
+namespace Ubitrack { namespace Math { namespace Optimization { namespace Function {
 
 /**
  * A function that normalizes a vector with jacobian computation.
@@ -95,4 +100,6 @@ protected:
 	unsigned m_size;
 };
 
-} } } // namespace Ubitrack::Calibration::Normalize
+}}}} // namespace Ubitrack::Math::Optimization::Function
+
+#endif // __UBITRACK_MATH_FUNCTION_VECTOR_NORMALIZE_H_INCLUDED__

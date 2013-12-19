@@ -35,7 +35,7 @@
 
 #include <utMath/Matrix.h>
 
-namespace Ubitrack { namespace Math { namespace Function { namespace Detail {
+namespace Ubitrack { namespace Math { namespace Optimization { namespace Function { namespace Detail {
 
 /**
  * statically sized, stack-allocated matrix for intermediate results
@@ -61,21 +61,21 @@ public:
 /** dynamically sized, heap-allocated matrix for intermediate results */
 template< std::size_t Size1, std::size_t Size2 >
 class ResultMatrix< Size2, 0U, Size1 >
-	: public ublas::matrix< double >
+	: public Math::Matrix< double >
 {
 public:
 	ResultMatrix( std::size_t s1, std::size_t s2 )
-		: ublas::matrix< double >( s1, s2 )
+		: Math::Matrix< double >( s1, s2 )
 	{}
 	
 	template< class AE > 
-	ublas::matrix< double >& operator=( const boost::numeric::ublas::matrix_expression< AE >& e )
+	Math::Matrix< double >& operator=( const boost::numeric::ublas::matrix_expression< AE >& e )
 	{
-		ublas::matrix< double >::operator=( e );
+		Math::Matrix< double >::operator=( e );
 		return *this;
 	}
 };
 
-} } } } // namespace Ubitrack::Math::Function::Detail
+}}}}} // namespace Ubitrack::Math::Optimization::Function::Detail
 
 #endif

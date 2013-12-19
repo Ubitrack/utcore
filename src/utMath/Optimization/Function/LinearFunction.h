@@ -34,7 +34,7 @@
  
 #include <utMath/Matrix.h>
  
-namespace Ubitrack { namespace Math { namespace Function {
+namespace Ubitrack { namespace Math { namespace Optimization { namespace Function {
  
 /**
  * Wraps a linear function into a function object. The linear function is defined by its matrix.
@@ -101,6 +101,6 @@ protected:
 	const Matrix< T, N, M >& m_A;
 };
 
-} } } // namespace Ubitrack::Math::Function
+}}}} // namespace Ubitrack::Math::Optimization::Function
 
 #endif

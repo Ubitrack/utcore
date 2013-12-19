@@ -32,9 +32,9 @@
 #ifndef __UBITRACK_CALIBRATION_FUNCTION_IMAGELOOKUP_H_INCLUDED__
 #define __UBITRACK_CALIBRATION_FUNCTION_IMAGELOOKUP_H_INCLUDED__
 
-#include <utMath/NewFunction/MultiVariateFunction.h>
+#include "MultiVariateFunction.h"
  
-namespace Ubitrack { namespace Math { namespace Function {
+namespace Ubitrack { namespace Math { namespace Optimization { namespace Function {
 
 /**
  * Function that reads a pixel from an image. The sobel operator is used to compute the derivative.

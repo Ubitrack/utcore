@@ -36,7 +36,7 @@
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 #include <boost/numeric/ublas/vector_proxy.hpp>
 
-namespace Ubitrack { namespace Math { namespace Function { namespace Detail {
+namespace Ubitrack { namespace Math { namespace Optimization { namespace Function { namespace Detail {
 
 namespace ublas = boost::numeric::ublas;
 
@@ -81,6 +81,6 @@ private:
 	ublas::range m_range;
 };
 
-} } } } // namespace Ubitrack::Math::Function::Detail
+}}}}} // namespace Ubitrack::Math::Optimization::Function::Detail
 
 #endif

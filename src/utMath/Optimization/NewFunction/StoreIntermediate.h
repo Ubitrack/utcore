@@ -24,46 +24,50 @@
 /**
  * @ingroup math
  * @file
- * adds two values
+ * stores an intermediate result
  *
  * @author Daniel Pustka <daniel.pustka@in.tum.de>
  */
 
-#ifndef __UBITRACK_MATH_FUNCTION_ADDITION_H_INCLUDED__
-#define __UBITRACK_MATH_FUNCTION_ADDITION_H_INCLUDED__
+#ifndef __UBITRACK_MATH_FUNCTION_STOREINTERMEDIATE_H_INCLUDED__
+#define __UBITRACK_MATH_FUNCTION_STOREINTERMEDIATE_H_INCLUDED__
  
-#include <utMath/NewFunction/MultiVariateFunction.h>
+#include "MultiVariateFunction.h"
  
-namespace Ubitrack { namespace Math { namespace Function {
+namespace Ubitrack { namespace Math { namespace Optimization { namespace Function {
 
 /**
- * Function that adds two vectors.
+ * Stores an intermediate result in a vector
  */
-template< std::size_t N >
-class Addition
-	: public MultiVariateFunction< Addition< N >, N >
+template< unsigned M, class T = double >
+class StoreIntermediate
+	: public MultiVariateFunction< StoreIntermediate< M, T >, M >
 {
 public:
+	/** 
+	 * Construct from matrix. 
+	 * Note: matrix reference must be valid throughout the lifetime of the object! 
+	 */
+	StoreIntermediate( Math::Vector< M, T >& _vector )
+		: rVector( _vector )
+	{}
 
-	template< class DestinationVector, class Param1, class Param2 >
-	void evaluate( DestinationVector& result, const Param1& p1, const Param2& p2 ) const
+	template< class DestinationVector, class Param1 >
+	void evaluate( DestinationVector& result, const Param1& p1 ) const
 	{
-		result = p1 + p2;
+		result = p1;
+		rVector = p1;
 	}
 		
-	template< class LeftHand, class DestinationMatrix, class Param1, class Param2 >
-	void multiplyJacobian1( const LeftHand& l, DestinationMatrix& j, const Param1&, const Param2& ) const
+	template< class LeftHand, class DestinationMatrix, class Param1 >
+	void multiplyJacobian1( const LeftHand& l, DestinationMatrix& j, const Param1& ) const
 	{
 		j = l;
 	}
 	
-	template< class LeftHand, class DestinationMatrix, class Param1, class Param2 >
-	void multiplyJacobian2( const LeftHand& l, DestinationMatrix& j, const Param1&, const Param2& ) const
-	{
-		j = l;
-	}
+	mutable Math::Vector< M, T >& rVector;
 };
 
-} } } // namespace Ubitrack::Math::Function
+}}}} // namespace Ubitrack::Math::Optimization::Function
 
 #endif

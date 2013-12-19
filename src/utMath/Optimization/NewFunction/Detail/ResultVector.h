@@ -35,7 +35,7 @@
 
 #include <utMath/Vector.h>
 
-namespace Ubitrack { namespace Math { namespace Function { namespace Detail {
+namespace Ubitrack { namespace Math { namespace Optimization { namespace Function { namespace Detail {
 
 /**
  * statically sized, stack-allocated vector for intermediate results
@@ -86,6 +86,6 @@ public:
 	}
 };
 
-} } } } // namespace Ubitrack::Math::Function::Detail
+}}}}} // namespace Ubitrack::Math::Optimization::Function::Detail
 
 #endif

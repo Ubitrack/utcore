@@ -37,7 +37,7 @@ static log4cpp::Category& logger( log4cpp::Category::getInstance( "Ubitrack.Cali
 #include "OnlineRotHec.h"
 #ifdef HAVE_LAPACK
 
-#include <utMath/Function/LinearFunction.h>
+#include <utMath/Optimization/Function/LinearFunction.h>
 #include <utTracking/Kalman.h>
 
 namespace Ubitrack { namespace Calibration {
@@ -80,7 +80,7 @@ void OnlineRotHec::addMeasurement( const Math::Quaternion& q, const Math::Quater
 	// do the filter update
 	Math::Matrix< double, 3, 3 > h;
 	skewMatrix( h, Math::Vector< double, 3 >( q.x() * nq + r.x() * nr, q.y() * nq + r.y() * nr, q.z() * nq + r.z() * nr ) );
-	Tracking::kalmanMeasurementUpdate< 3, 3 >( m_state, Math::Function::LinearFunction< 3, 3, double >( h ), 
+	Tracking::kalmanMeasurementUpdate< 3, 3 >( m_state, Math::Optimization::Function::LinearFunction< 3, 3, double >( h ), 
 		kalmanMeasurement, 0, m_state.value.size() );
 }
 

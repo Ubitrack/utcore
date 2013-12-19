@@ -33,11 +33,12 @@
 #define __UBITRACK_MATH_FUNCTION_ROTATIONVELOCITYINTEGRATION_H_INCLUDED__
 
 #include <utMath/Vector.h>
-#include <boost/numeric/ublas/vector_proxy.hpp>
 #include <utMath/Matrix.h>
+
+#include <boost/numeric/ublas/vector_proxy.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 
-namespace Ubitrack { namespace Math { namespace Function {
+namespace Ubitrack { namespace Math { namespace Optimization { namespace Function {
  
 /**
  * Function class for integrating a rotation velocity 3-vector.
@@ -107,7 +108,7 @@ struct RotationVelocityIntegration
 	double m_dt;
 };
 
-} } } // namespace Ubitrack::Math::Function
+}}}} // namespace Ubitrack::Math::Optimization::Function
 
 #endif
 

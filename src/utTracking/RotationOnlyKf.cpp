@@ -34,7 +34,7 @@
 #ifdef HAVE_LAPACK
  
 #include <utMath/CovarianceTransform.h>
-#include <utMath/Function/VectorNormalize.h>
+#include <utMath/Optimization/Function/VectorNormalize.h>
 #include "Function/QuaternionTimeUpdate.h"
 
 // get a logger
@@ -77,7 +77,7 @@ void RotationOnlyKF::addRotationMeasurement( const Measurement::Rotation& m )
 	kalmanMeasurementUpdateIdentity< 7, 4 >( m_state, v, 0, 4 );
 
 	// normalize quaternion
-	Math::transformRangeInternalWithCovariance< 7 >( Math::Function::VectorNormalize( 4 ), m_state, 0, 4, 0, 4 );
+	Math::transformRangeInternalWithCovariance< 7 >( Math::Optimization::Function::VectorNormalize( 4 ), m_state, 0, 4, 0, 4 );
 }
 
 
@@ -95,7 +95,7 @@ void RotationOnlyKF::addVelocityMeasurement( const Measurement::RotationVelocity
 	kalmanMeasurementUpdateIdentity< 7, 3 >( m_state, v, 4, 7 );
 
 	// normalize quaternion
-	Math::transformRangeInternalWithCovariance< 7 >( Math::Function::VectorNormalize( 4 ), m_state, 0, 4, 0, 4 );
+	Math::transformRangeInternalWithCovariance< 7 >( Math::Optimization::Function::VectorNormalize( 4 ), m_state, 0, 4, 0, 4 );
 }
 
 

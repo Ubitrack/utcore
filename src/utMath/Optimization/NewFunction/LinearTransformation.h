@@ -21,39 +21,54 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-
 /**
  * @ingroup math
  * @file
- * Defines a function that computes the norm of a vector
+ * linear transformation of a vector, assuming the transformation matrix is constant
  *
  * @author Daniel Pustka <daniel.pustka@in.tum.de>
  */
- 
-#include <utMath/Vector.h>
 
-namespace Ubitrack { namespace Math { namespace Function {
+#ifndef __UBITRACK_MATH_FUNCTION_LINEARTRANSFORMATION_H_INCLUDED__
+#define __UBITRACK_MATH_FUNCTION_LINEARTRANSFORMATION_H_INCLUDED__
+ 
+#include <utMath/Optimization/NewFunction/MultiVariateFunction.h>
+
+#include <utMath/Matrix.h>
+ 
+namespace Ubitrack { namespace Math { namespace Optimization { namespace Function {
 
 /**
- * A function that computes the norm of a vector
+ * Function that multiplies a vector with a constant matrix
  */
-template< unsigned M >
-struct VectorNorm
-	: public MultiVariateFunction< VectorNorm< M >, 1 >
+template< std::size_t M, std::size_t N, class T = double >
+class LinearTransformation
+	: public MultiVariateFunction< LinearTransformation< M, N, T >, M >
 {
+public:
+	/** 
+	 * Construct from matrix. 
+	 * Note: matrix reference must be valid throughout the lifetime of the object! 
+	 */
+	LinearTransformation( const Math::Matrix< T, M, N >& _matrix )
+		: rMatrix( _matrix )
+	{}
+
 	template< class DestinationVector, class Param1 >
 	void evaluate( DestinationVector& result, const Param1& p1 ) const
 	{
-		result( 0 ) = boost::numeric::ublas::norm_2( p1 );
+		result = boost::numeric::ublas::prod( rMatrix, p1 );
 	}
 		
 	template< class LeftHand, class DestinationMatrix, class Param1 >
-	void multiplyJacobian1( const LeftHand& l, DestinationMatrix& j, const Param1& p1 ) const
+	void multiplyJacobian1( const LeftHand& l, DestinationMatrix& j, const Param1& ) const
 	{
-		typename Param1::value_type f = l( 0, 0 ) / boost::numeric::ublas::norm_2( p1 );
-		for ( unsigned i = 0; i < M; i++ )
-			j( 0, i ) = f * p1( i );
+		j = boost::numeric::ublas::prod( l, rMatrix );
 	}
+	
+	const Math::Matrix< T, M, N >& rMatrix;
 };
 
-} } } // namespace Ubitrack::Calibration::Normalize
+}}}} // namespace Ubitrack::Math::Optimization::Function
+
+#endif

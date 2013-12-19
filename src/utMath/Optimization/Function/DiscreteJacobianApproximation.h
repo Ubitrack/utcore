@@ -35,7 +35,7 @@
 #include <utMath/Vector.h>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
  
-namespace Ubitrack { namespace Math { namespace Function {
+namespace Ubitrack { namespace Math { namespace Optimization { namespace Function {
  
 /**
  * Function class that numerically approximates the jacobian of a function.
@@ -138,4 +138,4 @@ protected:
 	double m_fApproxWidth;
 };
 
-} } } // namespace Ubitrack::Math::Function
+}}}} // namespace Ubitrack::Math::Optimization::Function

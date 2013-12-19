@@ -29,7 +29,7 @@
  * @author Daniel Pustka <daniel.pustka@in.tum.de>
  */
 
-namespace Ubitrack { namespace Math { namespace Function {
+namespace Ubitrack { namespace Math { namespace Optimization { namespace Function {
  
 /**
  * Prototype for unary functions used for optimization and error propagation.
@@ -83,4 +83,4 @@ struct UnaryFunctionPrototype
 	void jacobian( const VT2& input, MT& J ) const;
 };
 
-} } } // namespace Ubitrack::Math::Function
+}}}} // namespace Ubitrack::Math::Optimization::Function
