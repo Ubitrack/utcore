@@ -36,6 +36,7 @@
 #include "BundleAdjustment.h"
 
 #include <utMath/Vector.h>
+#include <utMath/Quaternion.h>
 #include <utUtil/Exception.h>
 
 //#define OPTIMIZATION_LOGGING // use define before optimization functions
@@ -206,10 +207,10 @@ public:
  * @tparam ForwardIterator4 iterator to container including 3D points
  */
 
-template< template< typename > class ForwardIterator1, template < typename, typename > class ForwardIterator2, typename container2d_type, typename ForwardIterator3, typename ForwardIterator4, typename ForwardIterator5 >
+template< typename ForwardIterator1, typename ForwardIterator3, typename ForwardIterator4, typename ForwardIterator5 >
 void simpleBundleAdjustmentImpl (
-	  const ForwardIterator1< typename ForwardIterator2< container2d_type, typename std::allocator< container2d_type > > > i2DPtsBegin // e.g. std::vector< std::vector< Math::Vector< T, 2 > > >::iterator -> begin()
-	, const ForwardIterator1< typename ForwardIterator2< container2d_type, typename std::allocator< container2d_type > > > i2DPtsEnd  // e.g. std::vector< std::vector< Math::Vector< T, 2 > > >::iterator -> end()
+	  const ForwardIterator1 i2DPtsBegin // e.g. std::vector< std::vector< Math::Vector< T, 2 > > >::iterator -> begin()
+	, const ForwardIterator1 i2DPtsEnd  // e.g. std::vector< std::vector< Math::Vector< T, 2 > > >::iterator -> end()
 	, const ForwardIterator3 iIntrinsicsMat // e.g. std::vector< Math::Matrix< T, 3, 3 > >::iterator -> begin()
 	, ForwardIterator4 iExtrinsicsPose // e.g. std::vector < Math::Pose >::iterator -> begin()
 	, ForwardIterator5 i3DPtsBegin //  e.g. std::vector < Math::Vector< T, 3 > >::iterator -> begin()
@@ -217,8 +218,13 @@ void simpleBundleAdjustmentImpl (
 	//, visibility <- next to come :)
 	)
 {
-	typedef typename ForwardIterator2< container2d_type, typename std::allocator< container2d_type > > container_pts2d;
-	typedef typename ForwardIterator1< container_pts2d > container_pts_iterator;
+	//template < typename, typename > class ForwardIterator2, typename container2d_type,
+	//< typename ForwardIterator2< container2d_type, typename std::allocator< container2d_type > > >
+	//< typename ForwardIterator2< container2d_type, typename std::allocator< container2d_type > > >
+	typedef typename std::iterator_traits< ForwardIterator1 >::value_type container2d_type;
+	//typedef typename ForwardIterator2< container2d_type, typename std::allocator< container2d_type > > container_pts2d;
+//	typedef typename container2d_type::iterator container_pts_iterator;
+	typedef typename container2d_type::iterator container_pts_iterator;
 	
 	// typedef typename ForwardIterator1::container_type container2d_type;
 	// typedef typename std::iterator_traits< ForwardIterator2 >::value_type vector2d_type;
@@ -234,7 +240,7 @@ void simpleBundleAdjustmentImpl (
 	// count the observations for each camera individually
 	std::vector< std::size_t > point_count;
 	point_count.reserve( n_cams );
-	std::transform( i2DPtsBegin, i2DPtsEnd, std::back_inserter( point_count ), std::mem_fun_ref( &container_pts_iterator::value_type::size )  );
+	std::transform( i2DPtsBegin, i2DPtsEnd, std::back_inserter( point_count ), std::mem_fun_ref( &container2d_type::size )  );
 	
 	// count all observations
 	const std::size_t observationCountTotal = std::accumulate( point_count.begin(), point_count.end(), 0 );
@@ -244,7 +250,7 @@ void simpleBundleAdjustmentImpl (
 	
 	// Now create the measurement vector from the 2D observations for LM optimization
 	Math::Vector< value_type > observationVector( 2 * observationCountTotal );
-	container_pts_iterator iterCams = i2DPtsBegin;
+	ForwardIterator1 iterCams = i2DPtsBegin;
 	std::size_t iIndex( 0 );
 	for ( std::size_t cameraIndex = 0; cameraIndex < n_cams; ++cameraIndex, ++iterCams )
 	{
@@ -273,7 +279,9 @@ void simpleBundleAdjustmentImpl (
 	{
 		const std::size_t index = 7*cameraIndex;
 		// boost::numeric::ublas::subrange( paramVector, index, index+4 ) = poseIter->rotation();
-		poseIter->rotation().toVector( boost::numeric::ublas::subrange( paramVector, index, index+4 ) );
+		Math::Vector< value_type, 4 > quatVec;
+		poseIter->rotation().toVector( quatVec );
+		boost::numeric::ublas::subrange( paramVector, index, index+4 ) = quatVec;
 		boost::numeric::ublas::subrange( paramVector, index+4, index+7 ) = poseIter->translation();
 		// LOG4CPP_TRACE( logger, "Camera #" << cameraIndex << " translation: " << poseIter->translation() << ", quaternion: " << poseIter->rotation() << "." );
 	}
