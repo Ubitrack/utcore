@@ -199,7 +199,7 @@ public:
 	{
 		assert( staticSize == 0 || j.size1() == staticSize );
 		i_evaluateParameters( p ); 
-		i_multiplyJacobian< staticSize >( p, Math::Matrix< double >::identity< double >( size() ), j );
+		i_multiplyJacobian< staticSize >( p, Math::Matrix< double >::identity( size() ), j );
 	}
 	
 	// top-level jacobian call

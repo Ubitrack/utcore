@@ -32,9 +32,10 @@
 #ifndef __UBITRACK_MATH_FUNCTION_DETAIL_PARAMETER_H_INCLUDED__
 #define __UBITRACK_MATH_FUNCTION_DETAIL_PARAMETER_H_INCLUDED__
 
-
-#include <boost/numeric/ublas/matrix_proxy.hpp>
+#include <boost/numeric/ublas/storage.hpp>
 #include <boost/numeric/ublas/vector_proxy.hpp>
+#include <boost/numeric/ublas/matrix_proxy.hpp>
+
 
 namespace Ubitrack { namespace Math { namespace Optimization { namespace Function { namespace Detail {
 
