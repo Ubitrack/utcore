@@ -110,5 +110,56 @@ static double quaternionDiff( const Ubitrack::Math::Quaternion& _a, const Ubitra
 	return boost::math::abs( a - b );
 }
 
+template< template < typename, std::size_t > class Vec, typename T, std::size_t N >
+static T meanSummedDiff( const std::vector< typename Vec< T, N > >& vecA, const std::vector< typename Vec< T, N > >& vecB )
+{
+	typedef typename Vec< T, N > VecType;
+	
+	const std::size_t n = std::distance( vecA.begin(), vecA.end() );
+	const std::size_t nB = std::distance( vecB.begin(), vecB.end() );
+	assert( n == nB );
+	
+	std::vector< VecType > vecAfter;
+	vecAfter.reserve( n );
+	std::transform( vecA.begin(), vecA.end(), vecB.begin(), std::back_inserter( vecAfter ), std::minus< VecType >() );
+	std::vector< T > distsAfter;
+	distsAfter.reserve( n );
+	std::transform( vecAfter.begin(), vecAfter.end(), std::back_inserter( distsAfter ), Ubitrack::Math::Functors::Norm_2< T, N >() );
+	return ( std::accumulate( distsAfter.begin(), distsAfter.end(), static_cast< T > ( 0 ) ) / n );
+}
+
+template< typename T >
+static T meanSummedTranslationDiff( const std::vector< Ubitrack::Math::Pose >& poseA, const std::vector< Ubitrack::Math::Pose >& poseB )
+{
+	const std::size_t n = std::distance( poseA.begin(), poseA.end() );
+	const std::size_t nB = std::distance( poseB.begin(), poseB.end() );
+	assert( n == nB );
+	
+	T sum = 0;
+	std::vector< Ubitrack::Math::Pose >::const_iterator itB = poseB.begin();
+	std::vector< Ubitrack::Math::Pose >::const_iterator itA = poseA.begin();
+	std::vector< Ubitrack::Math::Pose >::const_iterator itEnd = poseA.end();
+	for( ; itA<itEnd; ++itA, ++itB )
+		sum += Ubitrack::Math::Functors::Norm_2< T, 3 >() ( itA->translation() - itB->translation() );
+	return (sum/n);
+}
+
+template< typename T >
+static T meanSummedAngularDiff( const std::vector< Ubitrack::Math::Pose >& poseA, const std::vector< Ubitrack::Math::Pose >& poseB )
+{
+	const std::size_t n = std::distance( poseA.begin(), poseA.end() );
+	const std::size_t nB = std::distance( poseB.begin(), poseB.end() );
+	assert( n == nB );
+	
+	T sum = 0;
+	std::vector< Ubitrack::Math::Pose >::const_iterator itB = poseB.begin();
+	std::vector< Ubitrack::Math::Pose >::const_iterator itA = poseA.begin();
+	std::vector< Ubitrack::Math::Pose >::const_iterator itEnd = poseA.end();
+	for( ; itA<itEnd; ++itA, ++itB )
+		sum += Ubitrack::Math::Quaternion( itA->rotation() * ~(itB->rotation()) ).normalize().angle(); 
+	return (sum/n);
+}
+
+
 #endif
 
