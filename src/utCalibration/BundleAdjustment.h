@@ -46,14 +46,13 @@ namespace Ubitrack { namespace Calibration {
  *  on http://www.cs.unc.edu/~marc/tutorial/node163.html#sec:subbundle .
  *
  * @param pts2D \c std::vector of observations, for each camera a new \c std::vector
- * @param camMats \c std::vector of 3-by-3 matrices, defining the intrinsics camera orientations
  * @return camPoses \c std::vector of poses, defining the initial extrinsic camera orientations
  * @return pts3D \c std::vector of initial 3D points , basis of the 2D observations in 1st parameter
  */
 
-UBITRACK_EXPORT void simpleBundleAdjustment( const std::vector< std::vector< Math::Vector2d > >& pts2D, const std::vector< Math::Matrix3x3d >& camMats, std::vector< Math::Pose >& camPoses, std::vector< Math::Vector3d >& pts3D );
+UBITRACK_EXPORT void simpleBundleAdjustment( const std::vector< std::vector< Math::Vector2d > >& pts2D, std::vector< Math::Pose >& camPoses, std::vector< Math::Vector3d >& pts3D );
 
-UBITRACK_EXPORT void simpleBundleAdjustment( const std::vector< std::vector< Math::Vector2f > >& pts2D, const std::vector< Math::Matrix3x3f >& camMats, std::vector< Math::Pose >& camPoses, std::vector< Math::Vector3f >& pts3D);
+UBITRACK_EXPORT void simpleBundleAdjustment( const std::vector< std::vector< Math::Vector2f > >& pts2D, std::vector< Math::Pose >& camPoses, std::vector< Math::Vector3f >& pts3D);
 	
 #endif // HAVE_LAPACK
 
