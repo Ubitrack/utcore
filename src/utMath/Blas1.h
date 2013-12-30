@@ -129,6 +129,70 @@ protected:
 	};
 };
 
+/**
+ * @ingroup math
+ * Functor class to calculate the 1-norm
+ * (aka Manhatten norm) of a vector using a recursive
+ * implementation.
+ */
+struct Norm_1
+{
+public:
+	/**
+	 * @ingroup math
+	 * Calculates the 1-norm of a single vector.
+	 *
+	 * @tparam VecType type of vector
+	 * @param vec the input vector 
+	 * @return 1-norm of the vector
+	 */
+	template< typename VecType >
+	typename Math::vector_traits< VecType >::value_type operator() ( const VecType& vec ) const
+	{
+		UBITRACK_STATIC_ASSERT( ( Math::has_fixed_storage< VecType >::value ), NEED_VECTOR_OF_FIXED_STORAGE_TYPE );
+		typedef Math::vector_traits< VecType >::value_type value_type;
+		
+		return norm_1_impl< value_type, Math::vector_traits< VecType >::size >()( vec, 0 );
+	}
+	
+protected:
+	/**
+	 * @ingroup math
+	 * Internal functor that implements the calculation of the
+	 * 1-norm of a single vectors, also known as Manhattan norm.
+	 *
+	 * The implementation uses recursive functional programming,
+	 * that optimizes calculations at compile time.
+	 *
+	 * @tparam T builtin-type of vector ( e.g. \c double or \c float )
+	 * @tparam N dimension of vector (typically 2 or 3)
+	 */
+	template< typename T, std::size_t N >
+	struct norm_1_impl
+	{
+		template< typename VecType >
+		T operator() ( const VecType& vec, const T sqsum ) const
+		{
+			const T sq = sqsum + std::fabs( vec[ N-1 ] );
+			return norm_1_impl< T, N-1 >()( vec, sq );
+		}
+	};
+
+	/**
+	 * Partial specialization of functor for final return value.
+	 *
+	 * @tparam T builtin-type of vector ( e.g. \c double or \c float )
+	 */
+	template< typename T >
+	struct norm_1_impl< T, 0 >
+	{
+		template< typename VecType >
+		T operator() ( const VecType&, const T sqsum ) const
+		{
+			return sqsum;
+		}
+	};
+};
 
 /**
  * @ingroup math

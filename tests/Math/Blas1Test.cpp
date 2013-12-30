@@ -115,9 +115,33 @@ void testBasicNorm2Functors( const std::size_t n, const T epsilon )
 			BOOST_CHECK_SMALL( inner - results[ i ], epsilon );
 		}
 	}
-	
 }
 
+
+template< typename T >
+void testBasicNorm1Functors( const std::size_t n, const T epsilon )
+{
+	// some 10d values
+	{
+		// random vector parameters
+		typename Random::Vector< T, 10 >::Uniform randVector( -20., 20. ); 
+
+		// generate some random vectors
+		std::vector< Vector< T, 10 > > points10d;
+		points10d.reserve( n );
+		std::generate_n ( std::back_inserter( points10d ), n,  randVector );
+		
+		std::vector< T > results;
+		results.reserve( n );
+		std::transform( points10d.begin(), points10d.end(), std::back_inserter( results ), Norm_1() );
+		for( std::size_t i = 0; i<n; ++i )
+		{
+			const T inner = boost::numeric::ublas::norm_1( points10d[ i ] );
+			// results.push_back( inner );
+			BOOST_CHECK_SMALL( inner - results[ i ], epsilon );//inner << " vs. " << results[ i ] );
+		}
+	}
+}
 
 void TestBlas1()
 {
@@ -125,6 +149,8 @@ void TestBlas1()
 	testBasicInnerProductFunctors< double >( 100000, 1e-10 );
 	testBasicNorm2Functors< float >( 100000, 1e-02f );
 	testBasicNorm2Functors< double >( 1000000, 1e-10 );
+	testBasicNorm1Functors< float >( 100000, 1e-02f );
+	testBasicNorm1Functors< double >( 1000000, 1e-10 );
 }
 
 
