@@ -65,8 +65,8 @@ template< typename T >
 class identity
 	: public std::iterator< std::random_access_iterator_tag, T >
 {
-	typedef typename identity< T > self_type;
-	typedef typename self_type iterator; 
+	typedef identity< T > self_type;
+	typedef self_type iterator; 
 	
 protected:
 	const T value;
@@ -77,22 +77,22 @@ public:
 		, value ( value_in ){ }
 	
 	iterator begin()
-    {
+	{
 		return self_type( value );
 	}
 	
 	iterator end()
-    {
+	{
 		UBITRACK_STATIC_ASSERT( (false), THIS_CONTAINER_DOES_NOT_SUPPORT_AN_END_ITERATOR_FUNCTION_ON_PURPOSE );
 		return self_type( value );
 	}
 	
-	const T &operator*()
+	const T& operator*()
 	{
 		return (value);
 	}
 	
-	self_type &operator++()
+	self_type& operator++()
 	{
 		return *this;
 	}

@@ -25,11 +25,13 @@
 #ifndef __TESTS_TOOLS_H_INCLUDED__
 #define __TESTS_TOOLS_H_INCLUDED__
 
-#include <utMath/Matrix.h>
-
-#include <utMath/Quaternion.h>
 #include <utMath/Vector.h>
+#include <utMath/Matrix.h>
+#include <utMath/Quaternion.h>
+#include <utMath/Functors/VectorFunctors.h>
+
 #include <math.h>
+#include <numeric> // std::accumulate
 
 template< class T > 
 T random( T a, T b )
@@ -111,9 +113,10 @@ static double quaternionDiff( const Ubitrack::Math::Quaternion& _a, const Ubitra
 }
 
 template< template < typename, std::size_t > class Vec, typename T, std::size_t N >
-static T meanSummedDiff( const std::vector< typename Vec< T, N > >& vecA, const std::vector< typename Vec< T, N > >& vecB )
+static T meanSummedDiff( const typename std::vector< Vec< T, N > >& vecA, const typename std::vector< Vec< T, N > >& vecB )
 {
-	typedef typename Vec< T, N > VecType;
+	typedef typename std::vector< Vec< T, N > > container_type;
+	typedef typename container_type::value_type VecType;
 	
 	const std::size_t n = std::distance( vecA.begin(), vecA.end() );
 	const std::size_t nB = std::distance( vecB.begin(), vecB.end() );
