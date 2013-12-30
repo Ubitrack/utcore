@@ -129,6 +129,36 @@ protected:
 	};
 };
 
+
+/**
+ * @ingroup math
+ * Functor class to calculate the Euclidean norm
+ * (aka 2-norm) of a vector using a recursive
+ * implementation.
+ */
+struct Norm_2
+{
+protected:
+	static const InnerProduct dotterer;
+public:
+	/**
+	 * @ingroup math
+	 * Calculates the 2-norm of a single vector.
+	 *
+	 * @tparam VecType type of vector
+	 * @param vec the input vector 
+	 * @return 2-norm of the vector
+	 */
+	template< typename VecType >
+	typename Math::vector_traits< VecType >::value_type operator() ( const VecType& vec ) const
+	{
+		UBITRACK_STATIC_ASSERT( ( Math::has_fixed_storage< VecType >::value ), NEED_VECTOR_OF_FIXED_STORAGE_TYPE );
+		typedef Math::vector_traits< VecType >::value_type value_type;
+		
+		return std::sqrt( dotterer.operator()( vec ) );
+	}
+};
+
 } } // namespace Ubitrack::Math
 
 #endif //__H__BLAS_LEVEL_1__
