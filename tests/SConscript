@@ -7,7 +7,7 @@ env = masterEnv.Clone()
 env.AppendUnique( **mergeOptions( utcore_all_options ) )
 
 # automatically glob files from subdirectories
-subdirs = [ 'Math', 'Calibration' ]
+subdirs = [ 'Math', 'Calibration', 'Stochastic' ]
 
 headers = []
 sources = []
