@@ -192,7 +192,7 @@ public:
  * Although designed for stl-containers it is not limited to these ones
  * and this function can be applied to fixed size arrays as well or other storage classes.
  *
- * The function can transform either \b 2D, \b 3D or \b points and therefore assumes homogeneous 
+ * The function can transform either \b 2D, \b 3D or \b 4D points and therefore assumes homogeneous 
  * coordinates for the lower dimensional cases ( \b 2D and \b 3D ).
  * It can perform the following actions:
  * - \b 2D : @f$ \hat{p}_{2x1} = M_{2x3} \cdot [p_{1} p_{2} 1]^T @f$ 

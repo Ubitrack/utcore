@@ -49,9 +49,7 @@
 #include <utMath/Matrix.h>
 #include <utUtil/Exception.h>
 #include <utUtil/StaticAssert.h>
-#include <utMath/Functors/VectorFunctors.h>
 #include <utMath/Functors/MatrixFunctors.h>
-#include <utCalibration/Homography.h>
 
 // std
 #include <numeric>
