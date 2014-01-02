@@ -1,21 +1,19 @@
 
 
-
 #include <utMath/Pose.h>
 #include <utMath/Scalar.h>
 #include <utMath/Vector.h>
 #include <utMath/Matrix.h>
-#include <utMath/Functors/VectorFunctors.h> // e.g. Norm_2
-
-
+#include <utMath/Geometry/PointProjection.h>
 
 #include <utMath/Random/Pose.h>
 #include <utMath/Random/Scalar.h>
 #include <utMath/Random/Vector.h>
 #include <utMath/Random/Rotation.h>
-#include <utCalibration/BundleAdjustment.h> //no test yet, same as MultiCamerPoseOtpimization :(
-//#include <utCalibration/MultipleCameraPoseOptimization.h>
 #include "../tools.h"
+
+#include <utCalibration/BundleAdjustment.h>
+//#include <utCalibration/MultipleCameraPoseOptimization.h> // <- no test yet
 
 #include <iostream>
 #include <algorithm>
@@ -44,7 +42,7 @@ public:
 	
 	bool operator()( const Ubitrack::Math::Matrix< T, 3, 4 >& cam, Ubitrack::Math::Vector< T, 3 > &img2d ) const
 	{
-		Ubitrack::Math::Vector< T, 2 > pixel = Ubitrack::Math::Functors::ProjectVector< T >( cam )( img2d );
+		const Ubitrack::Math::Vector< T, 2 > pixel = Ubitrack::Math::Geometry::ProjectPoint()( cam, img2d );
 		// just check if pixel is within given screen resolution.
 		if ( pixel[ 0 ] < 0 || pixel [ 1 ] < 0 || pixel[ 0 ] >= m_maxDimension[ 0 ] || pixel [ 1 ] >= m_maxDimension[ 1 ] )
 			return false;
@@ -64,7 +62,7 @@ void TestMarkerBundleAdjustment( const std::size_t n_runs, const T epsilon )
 	for( std::size_t i( 0 ); i< n_runs; ++i )
 	{
 		//change here for a really big bundle adjustment:
-		const std::size_t n_p3d = Random::distribute_uniform( 10, 15 ); 
+		const std::size_t n_p3d = 30;//Random::distribute_uniform( 10, 15 ); 
 		const std::size_t n_cams = Random::distribute_uniform( 3, 5 );
 		
 		// random intrinsics matrix, never changes, assume always the same camera
@@ -115,7 +113,7 @@ void TestMarkerBundleAdjustment( const std::size_t n_runs, const T epsilon )
 			
 			std::vector< Vector< T, 2 > > points_2D;
 			points_2D.reserve( n_p3d );
-			std::transform( points_3D.begin(), points_3D.end(), std::back_inserter( points_2D ), Functors::ProjectVector< T >( proj ) );
+			Geometry::project_points( proj, points_3D.begin(), points_3D.end(), std::back_inserter( points_2D ) );
 			
 			//generate the 2D points without noise -> clear observation of ground truth data
 			std::vector< Vector< T, 2 > > noisy_points_2D;
