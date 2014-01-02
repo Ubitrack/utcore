@@ -32,8 +32,8 @@
 #ifndef __UBITRACK_CALIBRATION_FUNCTION_SINGLEPOINTPROJECTION_H_INCLUDED__
 #define __UBITRACK_CALIBRATION_FUNCTION_SINGLEPOINTPROJECTION_H_INCLUDED__
  
-
-#include <utMath/Functors/Vector3Functors.h>
+#include <utMath/Geometry/PointProjection.h>
+#include <utMath/Geometry/PointTransformation.h>
 
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 #include <boost/numeric/ublas/vector_proxy.hpp>
@@ -47,7 +47,7 @@ namespace Ubitrack { namespace Calibration { namespace Function {
 @verbatim
 projection( [ R_i, T_i] * [p_x, p_y, p_z, 1]^t )
 @endverbatim
- * and/or the jacobian of this function with respect to [p_x, p_y, p_z] , where \c [R_i, T_i] is 
+ * and/or the Jacobian of this function with respect to [p_x, p_y, p_z] , where \c [R_i, T_i] is 
  * an extrinsic 3x4camera matrix, \c R the orientation , \c T the translation.
  *
  * R and T must be already known, the 3-vector [p_x, p_y, p_z] is the input to the function.
@@ -57,13 +57,17 @@ projection( [ R_i, T_i] * [p_x, p_y, p_z, 1]^t )
 template< class VType, typename ForwardIterator1 >
 class SinglePointMultiProjection
 {
+protected:
+	const ForwardIterator1 m_iBegin;
+	const ForwardIterator1 m_iEnd;
+	
 public:
 	/** 
 	 * constructor.
 	 * @param iBegin iterator to the beginning of a contianer with projections(must stay constant during lifetime of the object)
 	 * @param iEnd iterator to the end of a container with projections(must stay constant during lifetime of the object)
 	 */
-	SinglePointMultiProjection( ForwardIterator1 iBegin, ForwardIterator1 iEnd )
+	SinglePointMultiProjection( const ForwardIterator1 iBegin, const ForwardIterator1 iEnd )
 		: m_iBegin( iBegin )
 		, m_iEnd( iEnd )
 	{}
@@ -71,8 +75,8 @@ public:
 	/**
 	 * return the size of the result vector containing the reprojections
 	 */
-	unsigned size() const
-	{ return 2 * ( m_iEnd - m_iBegin ); }
+	std::size_t size() const
+	{ return 2 * ( std::distance( m_iBegin, m_iEnd ) ); }
 
 	/**
 	 * @param result 2*N-vector to store the result in
@@ -83,10 +87,9 @@ public:
 	{
 		namespace ublas = boost::numeric::ublas;
 
-		unsigned i ( 0 );
+		std::size_t i ( 0 );
 		for ( ForwardIterator1 it ( m_iBegin ); it != m_iEnd; ++i, ++it )
-			ublas::subrange ( result, i*2+0, i*2+2 ) = Math::Functors::project3x4_vector3< VType >()( *it, ublas::subrange( input, 0, 3 ) );
-		
+			ublas::subrange ( result, i*2+0, i*2+2 ) = Math::Geometry::ProjectPoint()( *it, static_cast< Math::Vector< VType, 3 > > ( ublas::subrange( input, 0, 3 )  ) );
 	}
 	
 	/**
@@ -109,15 +112,12 @@ public:
 	template< class VT2, class MT > 
 	void jacobian( const VT2& input, MT& J ) const
 	{
-		const VType px = input( 0 );
-		const VType py = input( 1 );
-		const VType pz = input( 2 );
-		
-		unsigned i( 0 );
+		const Math::Vector< VType, 3 > vec( input( 0 ), input( 1 ), input( 2 ) );		
+		std::size_t i( 0 );
 		for ( ForwardIterator1 it ( m_iBegin ); it != m_iEnd; ++i, ++it )
 		{
 			
-			const Math::Vector< VType, 3 > point ( Math::Functors::transform3x4_vector3< VType>()( *it, input ) );
+			const Math::Vector< VType, 3 > point ( Math::Geometry::TransformPoint()( *it, vec ) );
 			const VType P3_14p = point( 2 );
 			//= 1/(P3_14p^2)
 			const VType P3_14p2 = 1 / (P3_14p * P3_14p); 
@@ -135,11 +135,6 @@ public:
 			J( i*2+1, 2 ) = (*it)( 1, 2 ) / P3_14p - P3_3 * P2_14p;
 		}
 	}
-	
-protected:
-
-	const ForwardIterator1 m_iBegin;
-	const ForwardIterator1 m_iEnd;
 };
 
 } } } // namespace Ubitrack::Calibration::Function
