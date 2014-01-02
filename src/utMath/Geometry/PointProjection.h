@@ -39,16 +39,16 @@
 #include <utMath/Matrix.h>
 
 #include "container_traits.h"
+#include "../Stochastic/identity_iterator.h"
 
 #include <algorithm> //std::transform
-#include <functional> //std::bind1st
 
 namespace Ubitrack { namespace Math { namespace Geometry {
 
 
 /**
  * @ingroup math geometry functor
- * @brief Functor to projects a \b 3D \b point into \b 2D \b space.
+ * @brief Functor to project a \b 3D \b point into \b 2D \b space.
  *
  * This functors provides several overloaded bracket \c operator() for
  * different types of \b 3D \b point representation.
@@ -57,27 +57,21 @@ namespace Ubitrack { namespace Math { namespace Geometry {
  * - \b Vector2 (homogeneous point, 3rd dimension is assumed as 0 )
  * - \b Vector3 (common representation)
  * - \b Vector4 (e.g. homogeneous representation with one for last dimension, but can also be different )
- *
- * @tparam T built-in type of matrix and input/output vectors ( e.g. \c double or \c float )
- * @tparam M first dimension of matrix (rows), expects 3
- * @tparam N second dimension of matrix (columns), expects 4
- * @tparam VecType type of vector to project
  */
-template< typename T, std::size_t M, std::size_t N, typename VecType >
 struct ProjectPoint
-	: public std::binary_function< Math::Matrix< T, M, N >, VecType, Math::Vector< T, 2 > >
 {
 
 public:
 	// internal template to catch wrong vector types and print an error message
-	template< typename notSupportedVectorType >
-	Math::Vector< T, 2 > operator() ( const Math::Matrix< T, 3, 4 > &, const notSupportedVectorType &  ) const
+	template< typename notSupportedMatrixType, typename notSupportedVectorType >
+	notSupportedVectorType operator() ( const notSupportedMatrixType&, const notSupportedVectorType& vec_in ) const
 	{
 		UBITRACK_STATIC_ASSERT( false, USE_ONLY_WITH_VECTOR_TYPE_OF_2_3_OR_4_DIMENSIONS );
-		return Ubitrack::Math::Vector< T, 2 >();
+		return vec_in;
 	}
 	
-	///* Specialization of \c bracket-operator for projection of \b 2D \b points
+	/// @internal Specialization of \c bracket-operator for projection of \b 2D \b points
+	template< typename T >
 	Math::Vector< T, 2 > operator() ( const Math::Matrix< T, 3, 4 > &projMat, const Math::Vector< T, 2 > &vec ) const
 	{
 		const T e1 = projMat( 0, 0 ) * vec( 0 ) + projMat( 0, 1 ) * vec( 1 ) + projMat( 0, 3 );
@@ -86,7 +80,8 @@ public:
 		return Math::Vector< T, 2 > ( e1/e3, e2/e3 );
 	}
 	
-	///* Specialization of \c bracket-operator for projection of \b 3D \b points 
+	/// @internal Specialization of \c bracket-operator for projection of \b 3D \b points 
+	template< typename T >
 	Math::Vector< T, 2 > operator() ( const Math::Matrix< T, 3, 4 > &projMat, const Math::Vector< T, 3 > &vec ) const
 	{
 		const T e1 = projMat( 0, 0 ) * vec( 0 ) + projMat( 0, 1 ) * vec( 1 ) + projMat( 0, 2 ) * vec( 2 ) + projMat( 0, 3 );
@@ -95,7 +90,8 @@ public:
 		return Math::Vector< T, 2 > ( e1/e3, e2/e3 );
 	}
 	
-	///* Specialization of \c bracket-operator for projection of \b 4D \b points
+	/// @internal Specialization of \c bracket-operator for projection of \b 4D \b points
+	template< typename T >
 	Math::Vector< T, 2 > operator() ( const Math::Matrix< T, 3, 4 > &projMat, const Math::Vector< T, 4 > &vec ) const
 	{
 		const T e1 = projMat( 0, 0 ) * vec( 0 ) + projMat( 0, 1 ) * vec( 1 ) + projMat( 0, 2 ) * vec( 2 ) + projMat( 0, 3 ) * vec( 3 );
@@ -119,18 +115,21 @@ public:
  * The function can project 3D points in either \b 2D, \b 3D or \b 4D \b representation and therefore assumes homogeneous 
  * coordinates for the lower dimensional cases ( \b 2D and \b 3D ).
  * It can perform the following actions:
- * - \b 2D : \@f \hat{p}_{3x1} = P_{3x4} \cdot [p_{1} p_{2} 0 1]^T \@f 
- * - \b 3D : \@f \hat{p}_{3x1} = P_{3x4} \cdot [p_{1} p_{2} p_{3} 1]^T \@f 
- * - \b 4D : \@f \hat{p}_{3x1} = P_{3x4} \cdot [p_{1} p_{2} p_{3} p_{4}]^T \@f
- * \n and finally projects the points via \@f [\hat{p_{1}} \hat{p_{2}}]^T / \hat{p_{3}} \@f
+ * - \b 2D : @f$ \hat{p}_{3x1} = P_{3x4} \cdot [p_{1} p_{2} 0 1]^T @f$
+ * - \b 3D : @f$ \hat{p}_{3x1} = P_{3x4} \cdot [p_{1} p_{2} p_{3} 1]^T @f$ 
+ * - \b 4D : @f$ \hat{p}_{3x1} = P_{3x4} \cdot [p_{1} p_{2} p_{3} p_{4}]^T @f$
+ * \n and finally projects the points via @f$ [\hat{p_{1}} \hat{p_{2}}]^T / \hat{p_{3}} @f$
  * 
  * Example use case:\n
- * Matrix< double, 3, 4 > proj; // <- should be filled with values \n
- * std::vector< Vector3d > points3d; // <- should be filled with values \n
- * std::vector< Vector2d > points2d; // <- will be filled with values, storage can be allocated with \c reserve() \n
- * project_points( proj, points3d.begin(), points3d.end(), std::back_inserter( points2d ) );\n
- * or \n
- * project_points( proj, points3d.begin(), points3d.end(), points3d.begin() );\n
+ * @code
+ * Matrix< double, 3, 4 > proj; // <- should be filled with values
+ * std::vector< Vector3d > points3d; // <- should be filled with values
+ * std::vector< Vector2d > points2d; // <- will be filled with values
+ * project_points( proj, points3d.begin(), points3d.end(), points2d.begin() );
+ * // or
+ * poins2d.reserve( n ); // <- storage allocation via reserve() and number of elements( =n )
+ * project_points( proj, points3d.begin(), points3d.end(), std::back_inserter( points2d ) );
+ * @endcode
  * 
  * @tparam T built-in type of matrix and input/output vectors ( e.g. \c double or \c float )
  * @tparam M first dimension of matrix (rows)
@@ -160,7 +159,10 @@ inline void project_points( const Math::Matrix< T, M, N > &projection, const For
 	UBITRACK_STATIC_ASSERT( ( Ubitrack::Util::is_same< value_type_in, value_type_out >::value ), INPUT_AND_OUTPUT_VECTOR_NEED_SAME_BUILTIN_TYPE );
 	UBITRACK_STATIC_ASSERT( ( Ubitrack::Util::is_same< vector_type_out, Math::Vector< T, 2 > >::value ), OUTPUT_VECTOR_NEEDS_TO_BE_DEFINED_WITH_2_DIMENSIONS );
 
-	std::transform( iBegin, iEnd, iOut, std::bind1st( ProjectPoint< T, M, N, vector_type_in >(), projection ) );
+	const std::size_t n = std::distance( iBegin, iEnd );
+	Ubitrack::Util::identity< Math::Matrix< T, 3, 4 > > id_container( projection, n );
+	std::transform( id_container.begin(), id_container.end(), iBegin, iOut, ProjectPoint() );
+	// std::transform( iBegin, iEnd, iOut, std::bind1st( ProjectPoint< T, M, N, vector_type_in >(), projection ) );
 }
 
 

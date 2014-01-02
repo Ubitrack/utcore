@@ -42,7 +42,6 @@
 #include "../Stochastic/identity_iterator.h"
 
 #include <algorithm> //std::transform
-#include <functional> //std::bind1st
 
 namespace Ubitrack { namespace Math { namespace Geometry {
 
@@ -68,15 +67,9 @@ namespace Ubitrack { namespace Math { namespace Geometry {
  * - \b Vector2 (homogeneous point, 3rd dimension is assumed as 0)
  * - \b Vector3 (common representation)
  * - \b Vector4 (e.g. homogeneous representation with one for last dimension, but can also be different )
- *
- * @tparam T built-in type of matrix and input/output vectors ( e.g. \c double or \c float )
- * @tparam M first dimension of matrix (rows), expects 2, 3 or 4 (depending on input vector)
- * @tparam N second dimension of matrix (columns), expects 3 or 4 (depending on input vector)
- * @tparam VecType type of vector to transform
  */
 struct TransformPoint
 {
-
 public:
 	// internal template to catch wrong vector types and print an error message
 	template< typename notSupportedMatrixType, typename notSupportedVectorType >
@@ -86,7 +79,7 @@ public:
 		return notSupportedVectorType();
 	}
 	
-	///* Specialization of bracket operator (\c operator() ) for \b 2-by-3 \b transformation of \b 2D \b points (as Vector2D) */
+	/// @internal Specialization of bracket operator (\c operator() ) for \b 2-by-3 \b transformation of \b 2D \b points (as Vector2D)
 	template< typename T >
 	Math::Vector< T, 2 > operator() ( const Math::Matrix< T, 2, 3 > &transMat, const Math::Vector< T, 2 > &vec ) const
 	{
@@ -95,7 +88,7 @@ public:
 		return Math::Vector< T, 2 > ( e1, e2 );
 	}
 	
-	///* Specialization of bracket operator (\c operator() )for \b 2-by-3 \b transformation of \b 2D \b points (as Vector3D) */
+	/// @internal Specialization of bracket operator (\c operator() )for \b 2-by-3 \b transformation of \b 2D \b points (as Vector3D)
 	template< typename T >
 	Math::Vector< T, 2 > operator() ( const Math::Matrix< T, 2, 3 > &transMat, const Math::Vector< T, 3 > &vec ) const
 	{
@@ -104,7 +97,7 @@ public:
 		return Math::Vector< T, 2 > ( e1, e2 );
 	}
 
-	///* Specialization of bracket operator (\c operator() ) for \b 3-by-3 \b transformation of \b 2D \b points (as Vector2D) */
+	/// @internal Specialization of bracket operator (\c operator() ) for \b 3-by-3 \b transformation of \b 2D \b points (as Vector2D)
 	template< typename T >
 	Math::Vector< T, 3 > operator() ( const Math::Matrix< T, 3, 3 > &transMat, const Math::Vector< T, 2 > &vec ) const
 	{
@@ -114,7 +107,7 @@ public:
 		return Math::Vector< T, 3 > ( e1, e2, e3 );
 	}
 	
-	///* Specialization of bracket operator (\c operator() ) for \b 3-by-3 \b transformation of \b 2D \b points (as Vector3D)
+	/// @internal Specialization of bracket operator (\c operator() ) for \b 3-by-3 \b transformation of \b 2D \b points (as Vector3D)
 	template< typename T >
 	Math::Vector< T, 3 > operator() ( const Math::Matrix< T, 3, 3 > &transMat, const Math::Vector< T, 3 > &vec ) const
 	{
@@ -124,7 +117,7 @@ public:
 		return Math::Vector< T, 3 > ( e1, e2, e3 );
 	}
 
-	///* Specialization of bracket operator (\c operator() ) for \b 3-by-4 \b transformation of \b 3D \b points (as Vector2D)
+	/// @internal Specialization of bracket operator (\c operator() ) for \b 3-by-4 \b transformation of \b 3D \b points (as Vector2D)
 	template< typename T >
 	Math::Vector< T, 3 > operator() ( const Math::Matrix< T, 3, 4 > &transMat, const Math::Vector< T, 2 > &vec ) const
 	{
@@ -134,7 +127,7 @@ public:
 		return Math::Vector< T, 3 > ( e1, e2, e3 );
 	}
 	
-	///* Specialization of bracket operator (\c operator() ) for \b 3-by-4 \b transformation of \b 3D \b points (as Vector3D)
+	/// @internal Specialization of bracket operator (\c operator() ) for \b 3-by-4 \b transformation of \b 3D \b points (as Vector3D)
 	template< typename T >
 	Math::Vector< T, 3 > operator() ( const Math::Matrix< T, 3, 4 > &transMat, const Math::Vector< T, 3 > &vec ) const
 	{
@@ -144,7 +137,7 @@ public:
 		return Math::Vector< T, 3 > ( e1, e2, e3 );
 	}
 	
-	///* Specialization of bracket operator (\c operator() ) for \b 3-by-4 \b transformation of \b 3D \b points (as 4D vector)
+	/// @internal Specialization of bracket operator (\c operator() ) for \b 3-by-4 \b transformation of \b 3D \b points (as 4D vector)
 	template< typename T >
 	Math::Vector< T, 3 > operator() ( const Math::Matrix< T, 3, 4 > &transMat, const Math::Vector< T, 4 > &vec ) const
 	{
@@ -154,7 +147,7 @@ public:
 		return Math::Vector< T, 3 > ( e1, e2, e3 );
 	}
 	
-	///* Specialization of bracket operator (\c operator() ) for \b 4-by-4 \b transformation of \b 2D \b points
+	/// @internal Specialization of bracket operator (\c operator() ) for \b 4-by-4 \b transformation of \b 2D \b points
 	template< typename T >
 	Math::Vector< T, 4 > operator() ( const Math::Matrix< T, 4, 4 > &transMat, const Math::Vector< T, 2 > &vec ) const
 	{
@@ -165,7 +158,7 @@ public:
 		return Math::Vector< T, 4 > ( e1, e2, e3, e4 );
 	}
 	
-	///* Specialization of bracket operator (\c operator() ) for \b 4-by-4 \b transformation of \b 3D \b points
+	/// @internal Specialization of bracket operator (\c operator() ) for \b 4-by-4 \b transformation of \b 3D \b points
 	template< typename T >
 	Math::Vector< T, 4 > operator() ( const Math::Matrix< T, 4, 4 > &transMat, const Math::Vector< T, 3 > &vec ) const
 	{
@@ -176,7 +169,7 @@ public:
 		return Math::Vector< T, 4 > ( e1, e2, e3, e4 );
 	}
 	
-	///* Specialization of bracket operator (\c operator() ) for \b 4-by-4 \b transformation of \b 4D \b points
+	/// @internal Specialization of bracket operator (\c operator() ) for \b 4-by-4 \b transformation of \b 4D \b points
 	template< typename T >
 	Math::Vector< T, 4 > operator() ( const Math::Matrix< T, 4, 4 > &transMat, const Math::Vector< T, 4 > &vec ) const
 	{
@@ -202,24 +195,27 @@ public:
  * The function can transform either \b 2D, \b 3D or \b points and therefore assumes homogeneous 
  * coordinates for the lower dimensional cases ( \b 2D and \b 3D ).
  * It can perform the following actions:
- * - \b 2D : \@f \hat{p}_{2x1} = M_{2x3} \cdot [p_{1} p_{2} 1]^T \@f 
- * - \b 2D : \@f \hat{p}_{2x1} = M_{2x3} \cdot [p_{1} p_{2} p_{3}]^T \@f 
- * - \b 2D : \@f \hat{p}_{3x1} = M_{3x3} \cdot [p_{1} p_{2} 1]^T \@f 
- * - \b 2D : \@f \hat{p}_{3x1} = M_{3x3} \cdot [p_{1} p_{2} p_{3}]^T \@f
- * - \b 3D : \@f \hat{p}_{3x1} = M_{3x4} \cdot [p_{1} p_{2} 0 1]^T \@f 
- * - \b 3D : \@f \hat{p}_{3x1} = M_{3x4} \cdot [p_{1} p_{2} p_{3} 1]^T \@f 
- * - \b 3D : \@f \hat{p}_{3x1} = M_{3x4} \cdot [p_{1} p_{2} p_{3} p_{4}]^T \@f 
- * - \b 3D : \@f \hat{p}_{4x1} = M_{4x4} \cdot [p_{1} p_{2} 0 1]^T \@f
- * - \b 3D : \@f \hat{p}_{4x1} = M_{4x4} \cdot [p_{1} p_{2} p_{3} 1]^T \@f
- * - \b 3D : \@f \hat{p}_{4x1} = M_{4x4} \cdot [p_{1} p_{2} p_{3} p_{4}]^T \@f
+ * - \b 2D : @f$ \hat{p}_{2x1} = M_{2x3} \cdot [p_{1} p_{2} 1]^T @f$ 
+ * - \b 2D : @f$ \hat{p}_{2x1} = M_{2x3} \cdot [p_{1} p_{2} p_{3}]^T @f$ 
+ * - \b 2D : @f$ \hat{p}_{3x1} = M_{3x3} \cdot [p_{1} p_{2} 1]^T @f$ 
+ * - \b 2D : @f$ \hat{p}_{3x1} = M_{3x3} \cdot [p_{1} p_{2} p_{3}]^T @f$
+ * - \b 3D : @f$ \hat{p}_{3x1} = M_{3x4} \cdot [p_{1} p_{2} 0 1]^T @f$ 
+ * - \b 3D : @f$ \hat{p}_{3x1} = M_{3x4} \cdot [p_{1} p_{2} p_{3} 1]^T @f$ 
+ * - \b 3D : @f$ \hat{p}_{3x1} = M_{3x4} \cdot [p_{1} p_{2} p_{3} p_{4}]^T @f$ 
+ * - \b 3D : @f$ \hat{p}_{4x1} = M_{4x4} \cdot [p_{1} p_{2} 0 1]^T @f$
+ * - \b 3D : @f$ \hat{p}_{4x1} = M_{4x4} \cdot [p_{1} p_{2} p_{3} 1]^T @f$
+ * - \b 3D : @f$ \hat{p}_{4x1} = M_{4x4} \cdot [p_{1} p_{2} p_{3} p_{4}]^T @f$
  * 
  * Example use case:\n
- * Matrix< double, 3, 4 > trans; // <- should be filled with values \n
- * std::vector< Vector3d > points3d; // <- should be filled with values \n
- * std::vector< Vector3d > points3dOut; // <- will be filled with values, storage can be allocated with \c reserve() \n
- * transform_points( trans, points3d.begin(), points3d.end(), std::back_inserter( points3dOut ) );\n
- * or \n
- * transform_points( trans, points3d.begin(), points3d.end(), points3d.begin() );\n
+ * @code
+ * Matrix< double, 3, 4 > trans; // <- should be filled with values
+ * std::vector< Vector3d > points3d; // <- should be filled with values
+ * transform_points( trans, points3d.begin(), points3d.end(), points3d.begin() );
+ * // or
+ * std::vector< Vector3d > points3dOut; // <- will be filled with values
+ * points3dOut.reserve( n ); // <- storage allocation via reserve() and number of elements( =n )
+ * transform_points( trans, points3d.begin(), points3d.end(), std::back_inserter( points3dOut ) ); 
+ * @endcode
  * 
  * @tparam T built-in type of matrix and input/output vectors ( e.g. \c double or \c float )
  * @tparam M first dimension of matrix (rows)
