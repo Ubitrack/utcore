@@ -28,7 +28,7 @@
 #include <utMath/Vector.h>
 #include <utMath/Matrix.h>
 #include <utMath/Quaternion.h>
-#include <utMath/Functors/VectorFunctors.h>
+#include <utMath/Blas1.h>
 
 #include <math.h>
 #include <numeric> // std::accumulate
@@ -127,7 +127,7 @@ static T meanSummedDiff( const typename std::vector< Vec< T, N > >& vecA, const 
 	std::transform( vecA.begin(), vecA.end(), vecB.begin(), std::back_inserter( vecAfter ), std::minus< VecType >() );
 	std::vector< T > distsAfter;
 	distsAfter.reserve( n );
-	std::transform( vecAfter.begin(), vecAfter.end(), std::back_inserter( distsAfter ), Ubitrack::Math::Functors::Norm_2< T, N >() );
+	std::transform( vecAfter.begin(), vecAfter.end(), std::back_inserter( distsAfter ), Ubitrack::Math::Norm_2() );
 	return ( std::accumulate( distsAfter.begin(), distsAfter.end(), static_cast< T > ( 0 ) ) / n );
 }
 
@@ -143,7 +143,7 @@ static T meanSummedTranslationDiff( const std::vector< Ubitrack::Math::Pose >& p
 	std::vector< Ubitrack::Math::Pose >::const_iterator itA = poseA.begin();
 	std::vector< Ubitrack::Math::Pose >::const_iterator itEnd = poseA.end();
 	for( ; itA<itEnd; ++itA, ++itB )
-		sum += Ubitrack::Math::Functors::Norm_2< T, 3 >() ( itA->translation() - itB->translation() );
+		sum += Ubitrack::Math::Norm_2() ( static_cast< Ubitrack::Math::Vector3d > ( itA->translation() - itB->translation() ) );
 	return (sum/n);
 }
 
