@@ -32,45 +32,69 @@
 #ifndef __UBITRACK_CALIBRATION_2D3DPOSEESTIMATION_HAGER_H_INCLUDED__
 #define __UBITRACK_CALIBRATION_2D3DPOSEESTIMATION_HAGER_H_INCLUDED__
 
+#include <utCore.h>
+#include <utMath/Pose.h>
 
 #include <vector>
-#include <utCore.h>
-#include <utMath/Matrix.h>
-#include <utMath/Pose.h>
 
 namespace Ubitrack { namespace Calibration {
 
 #ifdef HAVE_LAPACK
 
 /**
- * @ingroup tracking_algorithms
- * Hager's fast and globally convergent pose estimation @cite lu2000fast.
+ * @ingroup calibration tracking_algorithms
+ * @brief An algorithm to determine a solution to the classic 2D-3D 
+ * pose estimation problem in monocular vision scenarios.
+ *
+ * This algorithm estimates a pose from given 2D and 3D point correspondences.
+ * This problem is of interest since the beginning of photogrammetry and many
+ * solution can be found that provide a solution to this problem.
+ * The hereby implemented approach is based on
+ * "Fast and Globally Convergent Pose Estimation from Video Images"
+ * from Lu et al. in 2000 ( @cite lu2000fast ):
+ *
+ * @verbatim
+@article{lu2000fast,
+ title={Fast and globally convergent pose estimation from video images},
+ author={Lu, Chien-Ping and Hager, Gregory D. and Mjolsness, Eric},
+ journal={Pattern Analysis and Machine Intelligence, IEEE Transactions on},
+ volume={22},
+ number={6},
+ pages={610--622},
+ year={2000},
+ publisher={IEEE} 
+} @endverbatim
+ *
  * 
+ * Example use case:\n
+ * @code
+ * std::vector< Vector3d > points3d; // <- should be filled with 3D object points
+ * std::vector< Vector2d > points2d; // <- should be filled with projected 3D points 
+ * Math::Pose pose; // <- will be filled with values
+ * estimatePose( points2d, pose, points3d, 50, 1e-06 );
+ * @endcode
  *
- * Note: Also exists with \c double parameters.
+ * Note: Also exists with \c float parameters. <- not now, will be added later :)
  *
- * @param p the initial pose
- * @param p2D points in image coordinates
+ * @param p2D points in (normalized) image coordinates (mabye you need to apply @f$ K^(-1) @f$ ) to the 2d points first
+ * @param p the (initial) pose and final result
  * @param p3D points in object coordinates
- * @param cam camera intrinsics matrix
- * @param nIterations number of iterations
- * @return residual of the optimization
+ * @param max_iter maximum number of allowed iterations
+ * @param min_error the minimum change in error allowed to converge
+ * @return flag that signs if the algorithm converged due to minimal error
  */
+UBITRACK_EXPORT bool estimatePose( 
+	const std::vector< Math::Vector2d > p2D,
+	Math::Pose& p,
+	const std::vector< Math::Vector3d > p3D,
+	std::size_t &max_iter, double &min_error );
 
-UBITRACK_EXPORT bool estimatePose( Math::Pose& p,
-	std::vector< Math::Vector< float, 3 > > p2D,
-	const std::vector< Math::Vector< float, 3 > > p3D,
-	const Math::Matrix< float, 3, 3 >& cam,
-	unsigned &nIterations,
-	float &error );
+// UBITRACK_EXPORT bool estimatePose( 
+	// const std::vector< Math::Vector2f > p2D,
+	// Math::Pose& p,
+	// const std::vector< Math::Vector3f > p3D,
+	// std::size_t &nIterations, float &error );
 
-UBITRACK_EXPORT bool estimatePose( Math::Pose& p,
-	std::vector< Math::Vector< double, 3 > > p2D,
-	const std::vector< Math::Vector< double, 3 > > p3D,
-	const Math::Matrix< double, 3, 3 >& cam ,
-	unsigned &nIterations ,
-	double &error );
-	
 #endif // HAVE_LAPACK
 	
 } } // namespace Ubitrack::Calibration
