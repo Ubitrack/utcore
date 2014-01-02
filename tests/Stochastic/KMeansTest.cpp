@@ -1,4 +1,5 @@
 
+#include <utMath/Blas1.h> //-> norm_2
 #include <utMath/Random/Scalar.h>
 #include <utMath/Random/Vector.h>
 #include <utMath/Stochastic/k_means.h>
@@ -40,13 +41,15 @@ void testBasicKMeans( const std::size_t n_runs, const std::size_t max_n, const s
 		for( std::size_t i = 0; i<n; ++i)
 		{
 			const std::size_t index = indices[ i ];
-			const T diff0 = Functors::Norm_2< T, 2 >()( pts2D[ i ] - centroids[ index ] );
+			Vector< T, 2 > diffVec0 = pts2D[ i ] - centroids[ index ];
+			const T diff0 = Norm_2()( diffVec0 );
 			
 			for( std::size_t k = 0; k<cluster; ++k)
 			{
 				if( index == k )
 					continue;
-				const T diff1 = Functors::Norm_2< T, 2 >()( pts2D[ i ] - centroids[ k ] );
+				Vector< T, 2 > diffVec1 = pts2D[ i ] - centroids[ k ];
+				const T diff1 = Norm_2()( diffVec1 );
 				BOOST_CHECK_MESSAGE( diff0 <= diff1, cluster << " cluster and " << n << " values, remaining difference: " << diff0 << " vs. " << diff1 << "." );
 			}
 		}

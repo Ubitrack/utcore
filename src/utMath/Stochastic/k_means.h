@@ -35,10 +35,12 @@
  
 
 // Ubitrack
-// #include <../Vector.h>
-#include <utUtil/StaticAssert.h>
-#include "../Functors/VectorFunctors.h"
+#include "../Vector.h"
+#include "../Blas1.h" // InnnerProduct
 #include "../Random/Scalar.h" // Randomness needed for kmeans++
+
+// some helper header/template stuff
+#include <utUtil/StaticAssert.h>
 #include "../Geometry/container_traits.h"
 #include "identity_iterator.h"
 
@@ -56,26 +58,41 @@ namespace {
 template< typename InputIterator  >
 struct assign_indices
 {
-	// typedef typename std::iterator_traits< ForwardIterator >::value_type vector_type;
+	typedef typename std::iterator_traits< InputIterator >::value_type vector_type;
+	typedef typename vector_type::value_type value_type;
 	const InputIterator iBegin;
 	const InputIterator iEnd;
+	// const std::size_t n;
+	// std::vector< value_type > distances;
+	// const typename std::vector< value_type >::iterator itD;
+	
 	
 	assign_indices( const InputIterator first , const InputIterator last )
 		: iBegin( first )
 		, iEnd( last )
+		// , n( std::distance( first, last ) )
+		// , distances( n, 0 )
+		// , itD ( distances.begin() )
 		{}
 	
 
 	template< template< typename, std::size_t > class VecType, typename T, std::size_t N >
 	std::size_t operator()( const VecType< T, N >& vec ) const
 	{
+		// std::vector< T > distances;
+		// distances.reserve( n );
+		// std::transform( iBegin, iEnd, Ubitrack::Util::identity< VecType< T, N > >( vec ).begin(), std::back_inserter( distances ), distance_1() );
+		// std::transform( iBegin, iEnd, Ubitrack::Util::identity< VecType< T, N > >( vec ).begin(), itD, distance_1() );
+		// const std::vector< value_type >::iterator itDist = std::min_element( itD, distances.end() );
+		// return std::distance( itD, itDist );
+		
 		std::size_t k( 0 );
 		InputIterator iter = iBegin;
-		T d = Ubitrack::Math::Functors::Norm_1< T, N >()( vec - (*iter++) );
+		T d = distance_1()( vec, (*iter++) );
 		
 		for( std::size_t k_now( 1 ) ; iter<iEnd; ++iter, ++k_now )
 		{
-			const T d_new = Ubitrack::Math::Functors::Norm_1< T, N >()( vec - (*iter) );
+			const T d_new = distance_1()( vec, (*iter) );
 			if( d_new < d )
 			{
 				d = d_new;
@@ -120,7 +137,7 @@ struct distance_1
 	template< template< typename, std::size_t > class VecType, typename T, std::size_t N >
 	T operator()( const VecType< T, N >& vec ) const
 	{
-		return Ubitrack::Math::Functors::Norm_1< T, N >()( vec );
+		return Ubitrack::Math::InnerProduct()( vec );
 	}
 
 	template< template< typename, std::size_t > class VecType, typename T, std::size_t N >
@@ -133,7 +150,7 @@ struct distance_1
 
 struct distance_2
 {
-	distance_1 distancer;
+	Ubitrack::Math::InnerProduct distancer;
 	
 	template< template< typename, std::size_t > class VecType, typename T, std::size_t N >
 	T operator()( const VecType< T, N >& vec ) const
