@@ -126,7 +126,7 @@ void Test2D3DPoseEstimationGeneral( const std::size_t n_runs, const T epsilon )
 		Pose estimatedPose;
 		T max_error( 1e-06 );
 		std::size_t max_iterations( 100 );
-		const bool b_done = Ubitrack::Calibration::estimatePose( p2D, estimatedPose, p3D, max_iterations, max_error );
+		const bool b_done = Ubitrack::Calibration::estimatePose6D_2D3D( p2D, estimatedPose, p3D, max_iterations, max_error );
 		iter_count += max_iterations;
 		
 		// estimate the differences
@@ -146,9 +146,9 @@ void Test2D3DPoseEstimationGeneral( const std::size_t n_runs, const T epsilon )
 
 void Test2D3DPoseEstimation()
 {
-	TestOptimizePose< double >( 1000, 1e-3 );
 	TestOptimizePose< float >( 1000, 1e-1f );
+	TestOptimizePose< double >( 1000, 1e-3 );
+	Test2D3DPoseEstimationGeneral< float >( 1000, 1e-01 );
 	Test2D3DPoseEstimationGeneral< double >( 1000, 1e-01 );
-	
 }
 

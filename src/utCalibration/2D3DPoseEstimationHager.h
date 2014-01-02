@@ -71,29 +71,24 @@ namespace Ubitrack { namespace Calibration {
  * std::vector< Vector3d > points3d; // <- should be filled with 3D object points
  * std::vector< Vector2d > points2d; // <- should be filled with projected 3D points 
  * Math::Pose pose; // <- will be filled with values
- * estimatePose( points2d, pose, points3d, 50, 1e-06 );
+ * estimatePose6D_2D3D( points2d, pose, points3d, 50, 1e-06 );
  * @endcode
  *
- * Note: Also exists with \c float parameters. <- not now, will be added later :)
+ * @attention : There is a version of this function ovlerloaded with \c float instead of \c double parameters.
  *
  * @param p2D points in (normalized) image coordinates (mabye you need to apply @f$ K^(-1) @f$ ) to the 2d points first
- * @param p the (initial) pose and final result
+ * @param pose the (initial) pose and final result
  * @param p3D points in object coordinates
  * @param max_iter maximum number of allowed iterations
  * @param min_error the minimum change in error allowed to converge
  * @return flag that signs if the algorithm converged due to minimal error
  */
-UBITRACK_EXPORT bool estimatePose( 
-	const std::vector< Math::Vector2d > p2D,
-	Math::Pose& p,
-	const std::vector< Math::Vector3d > p3D,
-	std::size_t &max_iter, double &min_error );
+UBITRACK_EXPORT bool estimatePose6D_2D3D(  const std::vector< Math::Vector2d >& p2D, Math::Pose& pose,
+	const std::vector< Math::Vector3d >& p3D, std::size_t &max_iter, double &min_error );
 
-// UBITRACK_EXPORT bool estimatePose( 
-	// const std::vector< Math::Vector2f > p2D,
-	// Math::Pose& p,
-	// const std::vector< Math::Vector3f > p3D,
-	// std::size_t &nIterations, float &error );
+/// @internal overloaded function with float values
+UBITRACK_EXPORT bool estimatePose6D_2D3D( const std::vector< Math::Vector2f >& p2D, Math::Pose& pose,
+	const std::vector< Math::Vector3f >& p3D, std::size_t &nIterations, float &error );
 
 #endif // HAVE_LAPACK
 	

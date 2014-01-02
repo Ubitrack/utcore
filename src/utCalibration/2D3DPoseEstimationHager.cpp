@@ -90,31 +90,32 @@ Math::Matrix< T, 3, 3 > calculateTFactorMatrix( const std::vector< Math::Matrix<
 	return ( tFactorMatrix / n );
 }
 
-/** @internal calculates the absolute orientation, old version was buggy @todo interface of absolute orientation should be changed.  */
-template< typename T >
-Math::Matrix< T, 3, 3 > absoluteOrientation( const std::vector< Math::Vector< T, 3 > > &pointsA, const std::vector< Math::Vector< T, 3 > >& pointsB )
-{
-	// Math::Pose pose = calculateAbsoluteOrientation( pointsA.begin(), pointsA.end(), pointsB.begin(), pointsB.end() );
-	Math::Pose pose = calculateAbsoluteOrientation( pointsA, pointsB );
-	return Math::Matrix< T, 3, 3 >( pose.rotation() );
-	// std::vector< Math::Matrix< T, 3, 3 > > matrices;
-	// matrices.reserve( pointsA.size() );
-	// std::transform( pointsA.begin(), pointsA.end(), pointsB.begin(), std::back_inserter( matrices )
-		// , Math::OuterProduct< 3, T >() );
+// this function got completely useless. the "old" absolute orientation is called instead
+// /** @internal calculates the absolute orientation, old version was buggy @todo interface of absolute orientation should be changed.  */
+// template< typename T >
+// Math::Matrix< T, 3, 3 > absoluteOrientation( const std::vector< Math::Vector< T, 3 > > &pointsA, const std::vector< Math::Vector< T, 3 > >& pointsB )
+// {
+	// // Math::Pose pose = calculateAbsoluteOrientation( pointsA.begin(), pointsA.end(), pointsB.begin(), pointsB.end() );
+	// Math::Pose pose = calculateAbsoluteOrientation( pointsA, pointsB );
+	// return Math::Matrix< T, 3, 3 >( pose.rotation() );
+	// // std::vector< Math::Matrix< T, 3, 3 > > matrices;
+	// // matrices.reserve( pointsA.size() );
+	// // std::transform( pointsA.begin(), pointsA.end(), pointsB.begin(), std::back_inserter( matrices )
+		// // , Math::OuterProduct< 3, T >() );
 	
-	// Math::Matrix< T, 3, 3 > B( Math::Matrix< T, 3, 3 >::zeros() );
-	// B = std::accumulate( matrices.begin(), matrices.end(), B );
-	// B /= pointsA.size();
+	// // Math::Matrix< T, 3, 3 > B( Math::Matrix< T, 3, 3 >::zeros() );
+	// // B = std::accumulate( matrices.begin(), matrices.end(), B );
+	// // B /= pointsA.size();
 	
-	// if ( Math::determinant( B ) < 0 )
-		// B *= -1;
-	// Math::Matrix< T, 3, 3 > U;
-	// Math::Vector< T, 3 > s;
-	// Math::Matrix< T, 3, 3 > Vt;
+	// // if ( Math::determinant( B ) < 0 )
+		// // B *= -1;
+	// // Math::Matrix< T, 3, 3 > U;
+	// // Math::Vector< T, 3 > s;
+	// // Math::Matrix< T, 3, 3 > Vt;
 	
-	// boost::numeric::bindings::lapack::gesvd( 'A', 'A', B, s, U, Vt );
-	// return ublas::trans( ublas::prod(  U, Vt ) );
-}
+	// // boost::numeric::bindings::lapack::gesvd( 'A', 'A', B, s, U, Vt );
+	// // return ublas::trans( ublas::prod(  U, Vt ) );
+// }
 
 /** @internal calculates the newest translation  */
 template< typename T >
@@ -168,7 +169,7 @@ public:
 
 /** @internal */
 template< typename T > 
-bool estimatePoseImpl( const std::vector< Math::Vector< T, 2 > >& p2D_in, Math::Pose& p, const std::vector< Math::Vector< T, 3 > >& p3D_in,  std::size_t &max_iter, T &max_error  )
+bool estimatePose2D3D_impl( const std::vector< Math::Vector< T, 2 > >& p2D_in, Math::Pose& p, const std::vector< Math::Vector< T, 3 > >& p3D_in,  std::size_t &max_iter, T &max_error  )
 {
 	assert( max_iter > 0 );
 	
@@ -212,7 +213,9 @@ bool estimatePoseImpl( const std::vector< Math::Vector< T, 2 > >& p2D_in, Math::
 		shiftToCenter( p2Dh );
 		
 		// Object Points are already shifted at the beginning and never being changed
-		const Math::Matrix< T, 3, 3 > R = absoluteOrientation( p3D, p2Dh );
+		Math::Matrix< T, 3, 3 > R;
+		if( !estimateRotation_3D3D( p2Dh, R,  p3D ) )
+			break;
 
 		// compute new approximation of T
 		Math::Vector< T, 3 > Tr = estimateTranslation( Vi, R, p3D, TfactorMatrix );
@@ -253,21 +256,19 @@ bool estimatePoseImpl( const std::vector< Math::Vector< T, 2 > >& p2D_in, Math::
 
 } // anonymous-namespace
 
-bool estimatePose( const std::vector< Math::Vector2d > p2D, Math::Pose& p, 
-	const std::vector< Math::Vector3d > p3D, std::size_t &max_iter, double &error )
+bool estimatePose6D_2D3D( const std::vector< Math::Vector2d >& p2D, Math::Pose& p, 
+	const std::vector< Math::Vector3d >& p3D, std::size_t &max_iter, double &error )
 {
-	LOG4CPP_DEBUG( optLogger, "starting Pose Estimate with double values." );
-	return estimatePoseImpl( p2D, p, p3D, max_iter, error );
+	LOG4CPP_DEBUG( optLogger, "starting 2D-3D pose estimate with double values." );
+	return estimatePose2D3D_impl( p2D, p, p3D, max_iter, error );
 }
 
-// absolute orientation does not provide float function-> commented this one
-// bool estimatePose( const std::vector< Math::Vector2f > p2D, Math::Pose& p, 
-	// const std::vector< Math::Vector3f > p3D, std::size_t &max_iter, float &error )
-// {
-	// LOG4CPP_DEBUG( optLogger, "starting Pose Estimate with float values." );
-	// // return true;
-	// return estimatePoseImpl( p2D, p, p3D, max_iter, error );
-// }
+bool estimatePose6D_2D3D( const std::vector< Math::Vector2f >& p2D, Math::Pose& p, 
+	const std::vector< Math::Vector3f >& p3D, std::size_t &max_iter, float &error )
+{
+	LOG4CPP_DEBUG( optLogger, "starting 2D-3D pose estimate with float values." );
+	return estimatePose2D3D_impl( p2D, p, p3D, max_iter, error );
+}
 
 #endif // HAVE_LAPACK
 
