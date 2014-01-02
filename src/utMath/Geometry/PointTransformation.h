@@ -39,6 +39,7 @@
 #include <utMath/Matrix.h>
 
 #include "container_traits.h"
+#include "../Stochastic/identity_iterator.h"
 
 #include <algorithm> //std::transform
 #include <functional> //std::bind1st
@@ -73,21 +74,20 @@ namespace Ubitrack { namespace Math { namespace Geometry {
  * @tparam N second dimension of matrix (columns), expects 3 or 4 (depending on input vector)
  * @tparam VecType type of vector to transform
  */
-template< typename T, std::size_t M, std::size_t N, typename VecType >
 struct TransformPoint
-	: public std::binary_function< Math::Matrix< T, M, N >, VecType, Math::Vector< T, M > >
 {
 
 public:
 	// internal template to catch wrong vector types and print an error message
 	template< typename notSupportedMatrixType, typename notSupportedVectorType >
-	VecType operator() ( const notSupportedMatrixType &, const notSupportedVectorType &  ) const
+	notSupportedVectorType operator() ( const notSupportedMatrixType &, const notSupportedVectorType &  ) const
 	{
 		UBITRACK_STATIC_ASSERT( false, USE_ONLY_SUPPORTED_VECTOR_MATRIX_TYPES );
-		return VecType();
+		return notSupportedVectorType();
 	}
 	
 	///* Specialization of bracket operator (\c operator() ) for \b 2-by-3 \b transformation of \b 2D \b points (as Vector2D) */
+	template< typename T >
 	Math::Vector< T, 2 > operator() ( const Math::Matrix< T, 2, 3 > &transMat, const Math::Vector< T, 2 > &vec ) const
 	{
 		const T e1 = transMat( 0, 0 ) * vec( 0 ) + transMat( 0, 1 ) * vec( 1 ) + transMat( 0, 2 );
@@ -96,6 +96,7 @@ public:
 	}
 	
 	///* Specialization of bracket operator (\c operator() )for \b 2-by-3 \b transformation of \b 2D \b points (as Vector3D) */
+	template< typename T >
 	Math::Vector< T, 2 > operator() ( const Math::Matrix< T, 2, 3 > &transMat, const Math::Vector< T, 3 > &vec ) const
 	{
 		const T e1 = transMat( 0, 0 ) * vec( 0 ) + transMat( 0, 1 ) * vec( 1 ) + transMat( 0, 2 ) * vec( 2 );
@@ -104,6 +105,7 @@ public:
 	}
 
 	///* Specialization of bracket operator (\c operator() ) for \b 3-by-3 \b transformation of \b 2D \b points (as Vector2D) */
+	template< typename T >
 	Math::Vector< T, 3 > operator() ( const Math::Matrix< T, 3, 3 > &transMat, const Math::Vector< T, 2 > &vec ) const
 	{
 		const T e1 = transMat( 0, 0 ) * vec( 0 ) + transMat( 0, 1 ) * vec( 1 ) + transMat( 0, 2 );
@@ -113,6 +115,7 @@ public:
 	}
 	
 	///* Specialization of bracket operator (\c operator() ) for \b 3-by-3 \b transformation of \b 2D \b points (as Vector3D)
+	template< typename T >
 	Math::Vector< T, 3 > operator() ( const Math::Matrix< T, 3, 3 > &transMat, const Math::Vector< T, 3 > &vec ) const
 	{
 		const T e1 = transMat( 0, 0 ) * vec( 0 ) + transMat( 0, 1 ) * vec( 1 ) + transMat( 0, 2 ) * vec( 2 );
@@ -122,6 +125,7 @@ public:
 	}
 
 	///* Specialization of bracket operator (\c operator() ) for \b 3-by-4 \b transformation of \b 3D \b points (as Vector2D)
+	template< typename T >
 	Math::Vector< T, 3 > operator() ( const Math::Matrix< T, 3, 4 > &transMat, const Math::Vector< T, 2 > &vec ) const
 	{
 		const T e1 = transMat( 0, 0 ) * vec( 0 ) + transMat( 0, 1 ) * vec( 1 ) + transMat( 0, 3 );
@@ -131,6 +135,7 @@ public:
 	}
 	
 	///* Specialization of bracket operator (\c operator() ) for \b 3-by-4 \b transformation of \b 3D \b points (as Vector3D)
+	template< typename T >
 	Math::Vector< T, 3 > operator() ( const Math::Matrix< T, 3, 4 > &transMat, const Math::Vector< T, 3 > &vec ) const
 	{
 		const T e1 = transMat( 0, 0 ) * vec( 0 ) + transMat( 0, 1 ) * vec( 1 ) + transMat( 0, 2 ) * vec( 2 ) + transMat( 0, 3 );
@@ -140,6 +145,7 @@ public:
 	}
 	
 	///* Specialization of bracket operator (\c operator() ) for \b 3-by-4 \b transformation of \b 3D \b points (as 4D vector)
+	template< typename T >
 	Math::Vector< T, 3 > operator() ( const Math::Matrix< T, 3, 4 > &transMat, const Math::Vector< T, 4 > &vec ) const
 	{
 		const T e1 = transMat( 0, 0 ) * vec( 0 ) + transMat( 0, 1 ) * vec( 1 ) + transMat( 0, 2 ) * vec( 2 ) + transMat( 0, 3 ) * vec( 3 );
@@ -149,6 +155,7 @@ public:
 	}
 	
 	///* Specialization of bracket operator (\c operator() ) for \b 4-by-4 \b transformation of \b 2D \b points
+	template< typename T >
 	Math::Vector< T, 4 > operator() ( const Math::Matrix< T, 4, 4 > &transMat, const Math::Vector< T, 2 > &vec ) const
 	{
 		const T e1 = transMat( 0, 0 ) * vec( 0 ) + transMat( 0, 1 ) * vec( 1 ) + transMat( 0, 3 );
@@ -159,6 +166,7 @@ public:
 	}
 	
 	///* Specialization of bracket operator (\c operator() ) for \b 4-by-4 \b transformation of \b 3D \b points
+	template< typename T >
 	Math::Vector< T, 4 > operator() ( const Math::Matrix< T, 4, 4 > &transMat, const Math::Vector< T, 3 > &vec ) const
 	{
 		const T e1 = transMat( 0, 0 ) * vec( 0 ) + transMat( 0, 1 ) * vec( 1 ) + transMat( 0, 2 ) * vec( 2 ) + transMat( 0, 3 );
@@ -169,6 +177,7 @@ public:
 	}
 	
 	///* Specialization of bracket operator (\c operator() ) for \b 4-by-4 \b transformation of \b 4D \b points
+	template< typename T >
 	Math::Vector< T, 4 > operator() ( const Math::Matrix< T, 4, 4 > &transMat, const Math::Vector< T, 4 > &vec ) const
 	{
 		const T e1 = transMat( 0, 0 ) * vec( 0 ) + transMat( 0, 1 ) * vec( 1 ) + transMat( 0, 2 ) * vec( 2 ) + transMat( 0, 3 ) * vec( 3 );
@@ -240,7 +249,10 @@ inline void transform_points( const Math::Matrix< T, M, N > &transformation, con
 	UBITRACK_STATIC_ASSERT( (Ubitrack::Util::is_same< value_type_in, value_type_out >::value ), INPUT_AND_OUTPUT_VECTOR_NEED_SAME_BUILTIN_TYPE );
 	UBITRACK_STATIC_ASSERT( (Ubitrack::Util::is_same< vector_type_out, Math::Vector< T, M > >::value ), OUTPUT_VECTOR_NEEDS_SAME_DIMENSION_AS_MATRIX_ROWS );
 
-	std::transform( iBegin, iEnd, iOut, std::bind1st( TransformPoint< T, M, N, vector_type_in >(), transformation ) );
+	// std::transform( iBegin, iEnd, iOut, std::bind1st( TransformPoint< T, M, N, vector_type_in >(), transformation ) );
+	const std::size_t n = std::distance( iBegin, iEnd );
+	Ubitrack::Util::identity< Math::Matrix< T, M, N > > id_container( transformation, n );
+	std::transform( id_container.begin(), id_container.end(), iBegin, iOut, TransformPoint() );
 }
 
 

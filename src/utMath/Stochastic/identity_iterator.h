@@ -36,12 +36,9 @@
  * @author Christian Waechter <christian.waechter@in.tum.de>
  */ 
 
- 
- 
+
 #ifndef __H__IDENTITY_ITERATOR__
 #define __H__IDENTITY_ITERATOR__
-
-#include <utUtil/StaticAssert.h>
 
 #include <iterator> // std::iterator, std::random_access_iterator_tag
 
@@ -69,32 +66,65 @@ class identity
 	typedef self_type iterator; 
 	
 protected:
-	const T value;
+	const T& value;
+	std::size_t n;
 	
 public:
     identity( const T& value_in )
         : std::iterator< std::random_access_iterator_tag, T >()
-		, value ( value_in ){ }
+		, value ( value_in )
+		, n( 0 ){ }
+
+	identity( const T& value_in, const std::size_t n_in )
+        : std::iterator< std::random_access_iterator_tag, T >()
+		, value ( value_in )
+		, n( n_in ){ }
 	
 	iterator begin()
 	{
-		return self_type( value );
+		return self_type( value, 0 );
 	}
 	
 	iterator end()
 	{
-		UBITRACK_STATIC_ASSERT( (false), THIS_CONTAINER_DOES_NOT_SUPPORT_AN_END_ITERATOR_FUNCTION_ON_PURPOSE );
-		return self_type( value );
+		return self_type( value, n );
 	}
 	
 	const T& operator*()
 	{
-		return (value);
+		return value;
+	}
+	
+	const T* operator->()
+	{
+		return &value;
 	}
 	
 	self_type& operator++()
 	{
+		++n;
 		return *this;
+	}
+	
+	self_type& operator--()
+	{
+		--n;
+		return *this;
+	}
+	
+	T& operator[] ( const std::size_t )
+	{
+		return value;
+	}
+	
+	bool operator!=( const self_type& rhs ) const
+	{
+		return ( n != rhs.n );
+	}
+	
+	bool operator==( const self_type& rhs ) const
+	{
+		return ( n == rhs.n );
 	}
 };
 
