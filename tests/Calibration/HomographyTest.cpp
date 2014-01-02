@@ -5,7 +5,7 @@
 #include <utMath/Random/Rotation.h>
 #include <utCalibration/Homography.h>
 #include <utMath/Functors/MatrixFunctors.h>
-#include <utMath/Functors/VectorFunctors.h>
+#include <utMath/Geometry/PointProjection.h>
 #include <utCalibration/2D3DPoseEstimation.h> // for PoseFromHomography
 
 #include "../tools.h"
@@ -144,7 +144,7 @@ void TestPoseFromHomography( const std::size_t n_runs, const T epsilon )
 		
 		std::vector< Ubitrack::Math::Vector< T, 2 > > ptsCamera;
 		ptsCamera.reserve( n );
-		std::transform( ptsFloor.begin(), ptsFloor.end(), std::back_inserter( ptsCamera ), Functors::ProjectVector< T >( projection ) );
+		Geometry::project_points( projection, ptsFloor.begin(), ptsFloor.end(), std::back_inserter( ptsCamera ) );
 		
 		
 		Matrix< T, 3, 3 > H = Ubitrack::Calibration::homographyDLT(  ptsFloor, ptsCamera );

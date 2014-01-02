@@ -2,16 +2,13 @@
 #include <utMath/Pose.h>
 #include <utMath/Vector.h>
 #include <utMath/Matrix.h>
-#include <utMath/Functors/VectorFunctors.h>
+#include <utMath/Geometry/PointTransformation.h>
 #include <utCalibration/AbsoluteOrientation.h>
 
 #include <utMath/Random/Scalar.h>
 #include <utMath/Random/Vector.h>
 #include <utMath/Random/Rotation.h>
-
-#include <utUtil/Exception.h>
 #include "../tools.h"
-
 
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
@@ -84,10 +81,11 @@ void testAbsoluteOrientationRandom( const std::size_t n_runs, const T epsilon )
 		
 		Quaternion q = randQuat();
 		Vector< T, 3 > t = randVector();
+		Matrix< T, 3, 4 > trafo( q, t );
 		
 		std::vector< Vector< T, 3 > > rightFrame;
 		rightFrame.reserve( n );
-		std::transform( leftFrame.begin(), leftFrame.end(), std::back_inserter( rightFrame ), Functors::TransformVector< T >( q, t ) );
+		Geometry::transform_points( trafo, leftFrame.begin(), leftFrame.end(), std::back_inserter( rightFrame ) );
 
 		Pose p = Ubitrack::Calibration::calculateAbsoluteOrientation ( leftFrame.begin(), leftFrame.end(), rightFrame.begin(), rightFrame.end() );
 		BOOST_CHECK_SMALL ( vectorDiff ( p.translation(), t ), epsilon );
