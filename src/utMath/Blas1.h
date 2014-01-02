@@ -49,7 +49,7 @@ namespace Ubitrack { namespace Math {
 
 
 /**
- * @ingroup math
+ * @ingroup math functor
  * Functor class to calculate the inner product 
  * of two vectors using a recursive implementation.
  */
@@ -130,7 +130,7 @@ protected:
 };
 
 /**
- * @ingroup math
+ * @ingroup math functor
  * Functor class to calculate the 1-norm
  * (aka Manhatten norm) of a vector using a recursive
  * implementation.
@@ -220,6 +220,33 @@ public:
 		typedef Math::vector_traits< VecType >::value_type value_type;
 		
 		return std::sqrt( dotterer.operator()( vec ) );
+	}
+};
+
+/**
+ * @ingroup math functor
+ * Functor class to normalize a vector
+ * by itsEuclidean norm
+ */
+struct NormalizeVector
+{
+public:
+	/**
+	 * @ingroup math
+	 * Normalizes a Math::Vector such that his 
+	 * length equals to one.
+	 *
+	 * @tparam T builtin-type of vector (e.g. \c double or \c float )
+	 * @tparam N dimension of vector
+	 *
+	 * @param vec the input vector 
+	 * @return normalized vector
+	 */
+	template< typename T, std::size_t N >
+	Math::Vector< T, N > operator() ( const Math::Vector< T, N >& vec ) const
+	{
+		const T norm ( Norm_2()( vec ) );
+		return vec * ( 1./ norm );
 	}
 };
 

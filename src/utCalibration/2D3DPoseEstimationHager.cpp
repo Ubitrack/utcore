@@ -100,7 +100,7 @@ Math::Matrix< T, 3, 3 > absoluteOrientation( const std::vector< Math::Vector< T,
 	// std::vector< Math::Matrix< T, 3, 3 > > matrices;
 	// matrices.reserve( pointsA.size() );
 	// std::transform( pointsA.begin(), pointsA.end(), pointsB.begin(), std::back_inserter( matrices )
-		// , Math::Functors::distinct_outer_product< 3, T >() );
+		// , Math::OuterProduct< 3, T >() );
 	
 	// Math::Matrix< T, 3, 3 > B( Math::Matrix< T, 3, 3 >::zeros() );
 	// B = std::accumulate( matrices.begin(), matrices.end(), B );

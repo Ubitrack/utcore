@@ -1,12 +1,12 @@
 
 #include <utMath/Vector.h>
 #include <utMath/Matrix.h>
+#include <utMath/Blas1.h>
 #include <utMath/Random/Scalar.h>
 #include <utMath/Random/Vector.h>
 #include <utMath/Random/Rotation.h>
 #include <utMath/Geometry/Conic.h>
 #include <utMath/Geometry/QuadricFunctors.h>
-#include <utMath/Functors/VectorFunctors.h>
 
 #include <algorithm> //std::transform
 #include <functional> //std::bind1st
@@ -100,7 +100,7 @@ void testBasicConicFunctors( const std::size_t n )
 	conic_lrl.reserve( n );
 	std::transform( conics.begin(), conics.end(), std::back_inserter( conic_lrl ), Geometry::ConicLeftRightLimit< T >() );
 
-	std::transform( conics.begin(), conics.end(), conics.begin(), Ubitrack::Math::Functors::NormalizeVector< T, 6 >() );
+	std::transform( conics.begin(), conics.end(), conics.begin(), Ubitrack::Math::NormalizeVector() );
 	
 	// next steps are even more useless, just check if they compile
 	std::size_t n_c = std::count_if( conics.begin(), conics.end(), Geometry::IsConicCircle< T >() );
@@ -139,7 +139,7 @@ void testRandomQuadricProjection( const std::size_t n )
 	std::vector< Ubitrack::Math::Vector< T, 6 > > conics1;
 	conics1.reserve( n );
 	std::transform( ellipsoids.begin(), ellipsoids.end(), std::back_inserter( conics1 ), std::bind1st( Geometry::ProjectEllipsoid< T >(), projection ) );
-	//std::transform( conics1.begin(), conics1.end(), conics1.begin(), Ubitrack::Math::Functors::NormalizeVector< T, 6 >() );
+	//std::transform( conics1.begin(), conics1.end(), conics1.begin(), Ubitrack::Math::NormalizeVector() );
 
 	//generate some quadrics
 	std::vector< Ubitrack::Math::Vector< T, 10 > > quadrics1;
@@ -150,7 +150,7 @@ void testRandomQuadricProjection( const std::size_t n )
 	std::vector< Ubitrack::Math::Vector< T, 6 > > conics2;
 	conics2.reserve( n );
 	std::transform( quadrics1.begin(), quadrics1.end(), std::back_inserter( conics2 ), std::bind1st( Geometry::ProjectQuadric< T >(), projection ) );
-	//std::transform( conics2.begin(), conics2.end(), conics2.begin(), Ubitrack::Math::Functors::NormalizeVector< T, 6 >() );
+	//std::transform( conics2.begin(), conics2.end(), conics2.begin(), Ubitrack::Math::NormalizeVector() );
 
 
 	// write out conics from ellipsoids and quadrics
