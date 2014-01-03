@@ -69,7 +69,7 @@ public:
 	typename Math::vector_traits< VecType >::value_type operator() ( const VecType& vec1, const VecType& vec2 ) const
 	{
 		UBITRACK_STATIC_ASSERT( ( Math::has_fixed_storage< VecType >::value ), NEED_VECTOR_OF_FIXED_STORAGE_TYPE );
-		typedef Math::vector_traits< VecType >::value_type value_type;
+		typedef typename Math::vector_traits< VecType >::value_type value_type;
 		
 		return inner_product_impl< value_type, Math::vector_traits< VecType >::size >()( vec1, vec2, 0 );
 	}
@@ -150,7 +150,7 @@ public:
 	typename Math::vector_traits< VecType >::value_type operator() ( const VecType& vec ) const
 	{
 		UBITRACK_STATIC_ASSERT( ( Math::has_fixed_storage< VecType >::value ), NEED_VECTOR_OF_FIXED_STORAGE_TYPE );
-		typedef Math::vector_traits< VecType >::value_type value_type;
+		typedef typename Math::vector_traits< VecType >::value_type value_type;
 		
 		return norm_1_impl< value_type, Math::vector_traits< VecType >::size >()( vec, 0 );
 	}
@@ -217,7 +217,7 @@ public:
 	typename Math::vector_traits< VecType >::value_type operator() ( const VecType& vec ) const
 	{
 		UBITRACK_STATIC_ASSERT( ( Math::has_fixed_storage< VecType >::value ), NEED_VECTOR_OF_FIXED_STORAGE_TYPE );
-		typedef Math::vector_traits< VecType >::value_type value_type;
+		typedef typename Math::vector_traits< VecType >::value_type value_type;
 		
 		return std::sqrt( dotterer.operator()( vec ) );
 	}

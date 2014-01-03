@@ -139,7 +139,7 @@ public:
     {
 		Math::Matrix< T, 3, 3 > tmp( Math::Matrix< T, 3, 3 >::identity() - matrix );
 		Math::Vector< T, 3 > vec_tmp = ublas::prod( tmp, vec );
-		return Math::InnerProduct()( vec_tmp );
+		return Math::InnerProduct()( vec_tmp, vec_tmp );
 	}
 };
 
@@ -161,7 +161,7 @@ struct lineOfSightProjectionMatrix
 public:
     Math::Matrix< T, 3, 3 > operator() ( const Math::Vector< T, 3 > &vec1 ) const
     {
-		const T d = Math::InnerProduct()( vec1 );
+		const T d = Math::InnerProduct()( vec1, vec1 );
 		const Math::Vector< T, 3 > vec2 = vec1 * ( 1./ d );
 		return Math::OuterProduct()( vec1, vec2 );
     }
@@ -178,8 +178,8 @@ bool estimatePose2D3D_impl( const std::vector< Math::Vector< T, 2 > >& p2D_in, M
 	std::vector< Math::Vector< T, 3 > > p2Dh;
 	p2Dh.reserve( p2D_in.size() );
 	// p2Dh.assign( p2D.begin(), p2D.end() ); // better: -> add the final coordinate
-	std::vector< Math::Vector< T, 2 > >::const_iterator it = p2D_in.begin();
-	std::vector< Math::Vector< T, 2 > >::const_iterator itEnd = p2D_in.end();
+	typename std::vector< Math::Vector< T, 2 > >::const_iterator it = p2D_in.begin();
+	typename std::vector< Math::Vector< T, 2 > >::const_iterator itEnd = p2D_in.end();
 	for( ; it != itEnd; ++it )
 		p2Dh.push_back( Math::Vector< T, 3 >( (*it)[ 0 ], (*it)[ 1 ], 1 ) );
 	

@@ -54,6 +54,41 @@
 
 namespace {
 
+// helper struct, might be removed later
+struct distance_1
+{
+	template< template< typename, std::size_t > class VecType, typename T, std::size_t N >
+	T operator()( const VecType< T, N >& vec ) const
+	{
+		return Ubitrack::Math::InnerProduct()( vec );
+	}
+
+	template< template< typename, std::size_t > class VecType, typename T, std::size_t N >
+	T operator()( const VecType< T, N >& vec1, const VecType< T, N >& vec2 ) const
+	{
+		const VecType< T, N > vec = vec1 - vec2;
+		return this->operator()( vec );
+	}
+};
+
+struct distance_2
+{
+	Ubitrack::Math::InnerProduct distancer;
+	
+	template< template< typename, std::size_t > class VecType, typename T, std::size_t N >
+	T operator()( const VecType< T, N >& vec ) const
+	{
+		return std::sqrt( distancer( vec ) );
+	}
+
+	template< template< typename, std::size_t > class VecType, typename T, std::size_t N >
+	T operator()( const VecType< T, N >& vec1, const VecType< T, N >& vec2 ) const
+	{
+		const VecType< T, N > vec = vec1 - vec2;
+		return this->operator()( vec );
+	}
+};
+
 // small template to support k-means
 template< typename InputIterator  >
 struct assign_indices
@@ -129,41 +164,6 @@ BinaryFunction k_means_accumulate( const T1 pFirst1, const T1 pLast, const T2 pF
 		op( *first1, *first2 );
 
 	return op;
-};
-
-// helper struct, might be removed later
-struct distance_1
-{
-	template< template< typename, std::size_t > class VecType, typename T, std::size_t N >
-	T operator()( const VecType< T, N >& vec ) const
-	{
-		return Ubitrack::Math::InnerProduct()( vec );
-	}
-
-	template< template< typename, std::size_t > class VecType, typename T, std::size_t N >
-	T operator()( const VecType< T, N >& vec1, const VecType< T, N >& vec2 ) const
-	{
-		const VecType< T, N > vec = vec1 - vec2;
-		return this->operator()( vec );
-	}
-};
-
-struct distance_2
-{
-	Ubitrack::Math::InnerProduct distancer;
-	
-	template< template< typename, std::size_t > class VecType, typename T, std::size_t N >
-	T operator()( const VecType< T, N >& vec ) const
-	{
-		return std::sqrt( distancer( vec ) );
-	}
-
-	template< template< typename, std::size_t > class VecType, typename T, std::size_t N >
-	T operator()( const VecType< T, N >& vec1, const VecType< T, N >& vec2 ) const
-	{
-		const VecType< T, N > vec = vec1 - vec2;
-		return this->operator()( vec );
-	}
 };
 
 } // namespace anonymous
