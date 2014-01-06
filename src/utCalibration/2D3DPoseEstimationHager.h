@@ -43,10 +43,11 @@ namespace Ubitrack { namespace Calibration {
 
 /**
  * @ingroup calibration tracking_algorithms
- * @brief An algorithm to determine a solution to the classic 2D-3D 
- * pose estimation problem in monocular vision scenarios.
+ * @brief An algorithm to determine a solution to the classic \b 2D-3D 
+ * \b pose \b estimation problem in monocular vision scenarios from given \b 3D points
+ * and corresponding \b 2D observations.
  *
- * This algorithm estimates a pose from given 2D and 3D point correspondences.
+ * This algorithm estimates a \b pose from given \b 2D and \b 3D point correspondences.
  * This problem is of interest since the beginning of photogrammetry and many
  * solution can be found that provide a solution to this problem.
  * The hereby implemented approach is based on
@@ -76,7 +77,7 @@ namespace Ubitrack { namespace Calibration {
  *
  * @attention : There is a version of this function ovlerloaded with \c float instead of \c double parameters.
  *
- * @param p2D points in (normalized) image coordinates (mabye you need to apply @f$ K^(-1) @f$ ) to the 2d points first
+ * @param p2D points in (normalized) image coordinates (mabye you need to apply @f$ K^{-1} @f$ ) to the 2d points first
  * @param pose the (initial) pose and final result
  * @param p3D points in object coordinates
  * @param max_iter maximum number of allowed iterations

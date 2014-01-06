@@ -23,7 +23,7 @@
 
 
 /**
- * @ingroup tracking_algorithms
+ * @ingroup math graph
  * @file
  * Munkres class
  * This file contains the Munkres class for using the
