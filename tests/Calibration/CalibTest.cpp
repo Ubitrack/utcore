@@ -10,6 +10,7 @@ void TestFundamentalMatrix();
 void TestHomography();
 void TestProjectionDLT();
 void TestHandEye();
+void TestDualHandEye();
 
 CalibrationTest::CalibrationTest()
 	: boost::unit_test::test_suite( "Calibration test suite" )
@@ -23,6 +24,6 @@ CalibrationTest::CalibrationTest()
 	add( BOOST_TEST_CASE( &TestHomography ) );
 	add( BOOST_TEST_CASE( &TestProjectionDLT ) );
 	add( BOOST_TEST_CASE( &TestHandEye ) );
-	
+	add( BOOST_TEST_CASE( &TestDualHandEye ) );
 }
 
