@@ -38,8 +38,7 @@
  * @author Christian Waechter <christian.waechter@in.tum.de>
  */ 
 
- 
- 
+
 #ifndef __H__BLAS_LEVEL_1__
 #define __H__BLAS_LEVEL_1__
 
@@ -50,6 +49,7 @@ namespace Ubitrack { namespace Math {
 
 /**
  * @ingroup math functor
+ * @internal
  * Functor class to calculate the inner product 
  * of two vectors using a recursive implementation.
  */
@@ -131,6 +131,7 @@ protected:
 
 /**
  * @ingroup math functor
+ * @internal
  * Functor class to calculate the 1-norm
  * (aka Manhatten norm) of a vector using a recursive
  * implementation.
@@ -195,9 +196,10 @@ protected:
 };
 
 /**
- * @ingroup math
- * Functor class to calculate the Euclidean norm
- * (aka 2-norm) of a vector using a recursive
+ * @ingroup math functor
+ * @internal
+ * Functor class to calculate the 2-norm of a vector
+ * (aka Euclidean norm) using a recursive
  * implementation.
  */
 struct Norm_2
@@ -225,6 +227,7 @@ public:
 
 /**
  * @ingroup math functor
+ * @internal
  * Functor class to normalize a vector
  * by itsEuclidean norm
  */
@@ -233,6 +236,7 @@ struct NormalizeVector
 public:
 	/**
 	 * @ingroup math
+	 * @internal
 	 * Normalizes a Math::Vector such that his 
 	 * length equals to one.
 	 *
@@ -249,6 +253,96 @@ public:
 		return vec * ( 1./ norm );
 	}
 };
+
+/**
+ * @ingroup math
+ * @brief A function that calculates the inner product of two vectors.
+ * 
+ * This function calculates the inner product of two vectors \f$ u \f$
+ * and \f$ v \f$ , each one consisting of n elements, as
+ * \f$ u^T \cdot v = \sum_{i=1}^{n} u_i \cdot v_i \f$
+ * , which is also known as the dot product or scalar product.
+ *
+ * This function template wraps a call to the InnerProduct
+ * functor. The input vectors for calculating the inner product can be
+ * of any dimension. 
+ *
+ * @tparam VecType the type of the input vectors. The type must be the same for both the input vectors.
+ * @param vec1 the \b 1st input vector
+ * @param vec2 the \b 2nd input vector
+ * @return the innner product of the two vectors
+ */
+template< typename VecType >
+inline typename Math::vector_traits< VecType >::value_type inner_product( const VecType& vec1, const VecType& vec2 )
+{
+	return InnerProduct()( vec1, vec2 );
+}
+
+/**
+ * @ingroup math
+ * @brief A function that calculates the 1-norm of a vector.
+ * 
+ * This function calculates the 1-norm of a vector \f$ v \f$ with
+ * n elements as \f$ ||v||_1 = \sum_{i=1}^{n} |v_i| \f$
+ * , which is also known as the Manhattan norm of a vector.
+ *
+ * This function template wraps a call to the Norm_1 functor.
+ * The input vector for calculating the 1-norm can be
+ * of any dimension.
+ *
+ * @tparam VecType the type of the input vector.
+ * @param vec the input vector
+ * @return the 1-norm of the input vector
+ */
+template< typename VecType >
+inline typename Math::vector_traits< VecType >::value_type norm_1( const VecType& vec )
+{
+	return Norm_1()( vec );
+}
+
+/**
+ * @ingroup math
+ * @brief A function that calculates the 2-norm of a vector.
+ * 
+ * This function calculates the 2-norm of a vector \f$ v \f$ with
+ * n elements as \f$ ||v||_2 = \sqrt{ \sum_{i=1}^{n} v_i^2 } \f$
+ * , which is also known as the Euclidean norm of a vector.
+ *
+ * This function template wraps a call to the Norm_2 functor.
+ * The input vector for calculating the 2-norm can be
+ * of any dimension.
+ *
+ * @tparam VecType the type of the input vector.
+ * @param vec the input vector
+ * @return the 2-norm of the input vector
+ */
+template< typename VecType >
+inline typename Math::vector_traits< VecType >::value_type norm_2( const VecType& vec )
+{
+	return Norm_2()( vec );
+}
+
+/**
+ * @ingroup math
+ * @brief A function that normalizes a vector by it's 2-norm.
+ * 
+ * This function normalizes a vector \f$ v \f$ with n elements
+ * such that each single element is divided by the 2-norm of
+ * the vector as \f$  v = v / ||v||_2 \f$ .
+ *
+ * This function template wraps a call to the NormalizeVector functor.
+ * The input vector for calculating the normalized vector can be
+ * of any dimension.
+ *
+ * @tparam VecType the type of the input vector.
+ * @param vec the input vector
+ * @return the normalized input vector
+ */
+template< typename VecType >
+inline VecType normalize( const VecType& vec )
+{
+	return NormalizeVector()( vec );
+}
 
 } } // namespace Ubitrack::Math
 
