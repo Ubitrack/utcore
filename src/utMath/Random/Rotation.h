@@ -49,26 +49,31 @@ namespace Ubitrack { namespace Math { namespace Random {
 
 /**
  * @ingroup math
- * Functor to generate uniformly distributed random quaternions
+ * Functor to draw random quaternions from a specified distribution
  * @todo add functionality to produce normally distributed random quaternions.
  */
 template< typename T > 
 struct Quaternion
-	: public std::unary_function< void, Math::Quaternion >
 {
-
-	public :
-		/** Standard Constructor */
-		Quaternion( )
-			: std::unary_function< void, Math::Quaternion >( )
-			{ };
-	
+	/**
+	 * @ingroup math
+	 * Functor to generate uniformly distributed random quaternions
+	 */
+	struct Uniform
+		: public std::unary_function< void, Math::Quaternion >
+	{
+		public :
+			/** Standard constructor */
+			Uniform(  )
+				: std::unary_function< void, Math::Quaternion >( )
+				{ };
+		
 		/**
 		 * Function that generates a uniformly distributed quaternion.
 		 *
 		 * The functions implements the explanation regarding random unit quaternions from the following webside:
 		 * http://planning.cs.uiuc.edu/node198.html
-		 */
+		 */		
 		const Math::Quaternion operator()( void ) const
 		{
 			const T x = distribute_uniform< T >( 0, 1 );
@@ -82,6 +87,7 @@ struct Quaternion
 			
 			return Math::Quaternion( rootxinv * std::sin( piy2 ), rootxinv * std::cos( piy2 ), rootx * std::sin( piz2 ), rootx * std::cos( piz2 ) );
 		}
+	};
 };
 
 }}} // namespace Ubitrack::Math::Random

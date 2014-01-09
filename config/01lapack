@@ -29,13 +29,6 @@ if have_boost:
 	else:
 		# set default directory
 		default_lapack_libpath = None
-		# set default configuration options
-		#if sys.platform == 'win32':
-		#	if platform == 'x64':
-		#		default_lapack_libpath = getCurrentPath() +'/../3rd/lapack/win64'
-		#	else:
-		#		default_lapack_libpath = getCurrentPath() +'/../3rd/lapack/win32'
-		#elif sys.platform == 'darwin':
 		if sys.platform == 'darwin':
 			lapack_options[ 'FRAMEWORKS' ] = [ 'vecLib' ]
 

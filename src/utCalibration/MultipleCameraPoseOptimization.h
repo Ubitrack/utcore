@@ -22,11 +22,11 @@
  */
 
 
-#include <utMath/NewFunction/Function.h>
-#include <utMath/NewFunction/Addition.h>
-#include <utMath/NewFunction/Dehomogenization.h>
-#include <utMath/NewFunction/LieRotation.h>
-#include <utMath/NewFunction/LinearTransformation.h>
+#include <utMath/Optimization/NewFunction/Function.h>
+#include <utMath/Optimization/NewFunction/Addition.h>
+#include <utMath/Optimization/NewFunction/Dehomogenization.h>
+#include <utMath/Optimization/NewFunction/LieRotation.h>
+#include <utMath/Optimization/NewFunction/LinearTransformation.h>
 #include <utMeasurement/Measurement.h>
 
 namespace Ubitrack { namespace Calibration {
@@ -40,10 +40,10 @@ template< class VType = double >
 class ObjectiveFunction
 {
 public:
-	ObjectiveFunction( const std::vector< Math::Vector< 3, VType > >& p3D, 
-		const std::vector< Math::Matrix< 3, 3 > >& cameraRotations, 
-		const std::vector< Math::Vector< 3 > >& cameraTranslations, 
-		const std::vector< Math::Matrix< 3, 3, VType > >& cameraIntrinsics, 
+	ObjectiveFunction( const std::vector< Math::Vector< VType, 3 > >& p3D, 
+		const std::vector< Math::Matrix< double, 3, 3 > >& cameraRotations, 
+		const std::vector< Math::Vector< double, 3 > >& cameraTranslations, 
+		const std::vector< Math::Matrix< VType, 3, 3 > >& cameraIntrinsics, 
 		const std::vector< std::pair< std::size_t, std::size_t > > visibilities )
 		: m_p3D( p3D )
 		, m_camR( cameraRotations )
@@ -67,7 +67,7 @@ public:
 	template< class VT1, class VT2, class MT > 
 	void evaluateWithJacobian( VT1& result, const VT2& input, MT& J ) const
 	{
-		namespace NF = Math::Function;
+		namespace NF = Math::Optimization::Function;
 		namespace ublas = boost::numeric::ublas;
 		const std::size_t n_vis( m_vis.size() );
 		for ( std::size_t i( 0 ); i < n_vis; ++i )
@@ -95,29 +95,29 @@ public:
 	}
 	
 protected:
-	const std::vector< Math::Vector< 3, VType > >& m_p3D;
-	const std::vector< Math::Matrix< 3, 3 > >& m_camR;
-	const std::vector< Math::Vector< 3 > >& m_camT;
-	const std::vector< Math::Matrix< 3, 3, VType > >& m_camI;
+	const std::vector< Math::Vector< VType, 3 > >& m_p3D;
+	const std::vector< Math::Matrix< double, 3, 3 > >& m_camR;
+	const std::vector< Math::Vector< double, 3 > >& m_camT;
+	const std::vector< Math::Matrix< VType, 3, 3 > >& m_camI;
 	const std::vector< std::pair< std::size_t, std::size_t > > m_vis;
 };
 
 
 void checkConsistency (
-	const std::vector < Math::Vector < 3 > >&  points3d,
-	const std::vector < std::vector < Math::Vector < 2 > > >& points2d,
-	const std::vector < std::vector < Math::Scalar < double > > >& points2dWeights,
+	const std::vector < Math::Vector< double, 3 > >&  points3d,
+	const std::vector < std::vector < Math::Vector< double, 2 > > >& points2d,
+	const std::vector < std::vector < Math::Scalar< double > > >& points2dWeights,
 	const std::vector < Math::Pose >& camPoses,
-	const std::vector < Math::Matrix< 3, 3 > >& camMatrices
+	const std::vector < Math::Matrix< double, 3, 3 > >& camMatrices
 	);
 
 std::pair < Math::ErrorPose , double > 
 	multipleCameraEstimatePose (
-	const std::vector < Math::Vector < 3 > >&  points3d,
-	const std::vector < std::vector < Math::Vector < 2 > > >& points2d,
-	const std::vector < std::vector < Math::Scalar < double > > >& points2dWeights,
+	const std::vector < Math::Vector< double, 3 > >&  points3d,
+	const std::vector < std::vector < Math::Vector< double, 2 > > >& points2d,
+	const std::vector < std::vector < Math::Scalar< double > > >& points2dWeights,
 	const std::vector < Math::Pose >& camPoses,
-	const std::vector < Math::Matrix< 3, 3 > >& camMatrices,
+	const std::vector < Math::Matrix< double, 3, 3 > >& camMatrices,
 	const int minCorrespondences,
 	bool hasInitialPoseProvided,
 	Math::Pose initialPose = Math::Pose(),
@@ -125,11 +125,11 @@ std::pair < Math::ErrorPose , double >
 	int endIndex = -1);
 
 UBITRACK_EXPORT void multipleCameraPoseEstimationWithLocalBundles (
-	const std::vector < Math::Vector < 3 > >&  points3d,
-	const std::vector < std::vector < Math::Vector < 2 > > >& points2d,
-	const std::vector < std::vector < Math::Scalar < double > > >& points2dWeights,
+	const std::vector < Math::Vector< double, 3 > >&  points3d,
+	const std::vector < std::vector < Math::Vector< double, 2 > > >& points2d,
+	const std::vector < std::vector < Math::Scalar< double > > >& points2dWeights,
 	const std::vector < Math::Pose >& camPoses,
-	const std::vector < Math::Matrix< 3, 3 > >& camMatrices,
+	const std::vector < Math::Matrix< double, 3, 3 > >& camMatrices,
 	const int minCorrespondences,
 	std::vector < Math::ErrorPose >& poses,
 	std::vector < Math::Scalar < double > >& poseWeights,
@@ -137,11 +137,11 @@ UBITRACK_EXPORT void multipleCameraPoseEstimationWithLocalBundles (
 	);
 
 UBITRACK_EXPORT void multipleCameraPoseEstimation (
-	const std::vector < Math::Vector < 3 > >&  points3d,
-	const std::vector < std::vector < Math::Vector < 2 > > >& points2d,
-	const std::vector < std::vector < Math::Scalar < double > > >& points2dWeights,
+	const std::vector < Math::Vector< double, 3 > >&  points3d,
+	const std::vector < std::vector < Math::Vector< double, 2 > > >& points2d,
+	const std::vector < std::vector < Math::Scalar< double > > >& points2dWeights,
 	const std::vector < Math::Pose >& camPoses,
-	const std::vector < Math::Matrix< 3, 3 > >& camMatrices,
+	const std::vector < Math::Matrix< double, 3, 3 > >& camMatrices,
 	const int minCorrespondences,
 	Math::ErrorPose& pose,
 	Math::Scalar < double > & poseWeight,

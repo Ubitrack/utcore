@@ -64,7 +64,7 @@ public:
 	 * Constructor.
 	 * @param d reference to the distortion coefficients
 	 */
-	RadialDistortionWrtP( const Math::Vector< 4, T >& d )
+	RadialDistortionWrtP( const Math::Vector< T, 4 >& d )
 		: m_d( d )
 	{}
 
@@ -126,7 +126,7 @@ public:
 	}
 	
 protected:
-	const Math::Vector< 4, T >& m_d;
+	const Math::Vector< T, 4 >& m_d;
 };
 
 
@@ -147,7 +147,7 @@ public:
 	 * Constructor.
 	 * @param p reference to the distortion coefficients
 	 */
-	RadialDistortionWrtD( const Math::Vector< 2, T >& p )
+	RadialDistortionWrtD( const Math::Vector< T, 2 >& p )
 		: m_p( p )
 	{}
 
@@ -202,7 +202,7 @@ public:
 	}
 	
 protected:
-	const Math::Vector< 2, T >& m_p;
+	const Math::Vector< T, 2 >& m_p;
 };
 
 } } } // namespace Ubitrack::Calibration::Function

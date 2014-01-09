@@ -59,11 +59,9 @@ namespace Ubitrack { namespace Math {
 template< class T > 
 typename T::value_type determinant( const T& mat )
 {
-	namespace ublas = boost::numeric::ublas;
-
 	// make a copy of mat, as the factorization will overwrite the contents	
-	Math::Matrix< 0, 0, typename T::value_type > a( mat );
-	Math::Vector< 0, int > ipiv( a.size1() );
+	Math::Matrix< typename T::value_type > a( mat );
+	Math::Vector< int > ipiv( a.size1() );
 	typedef typename T::size_type size_type;
 	
 	boost::numeric::bindings::lapack::getrf( a, ipiv );
@@ -89,7 +87,7 @@ template< class T > T invert_matrix( const T& m )
 {
 	// make a copy of m, as the factorization will overwrite the contents
 	T a( m );
-	Math::Vector< 0, int > ipiv( a.size1() );
+	Math::Vector< int > ipiv( a.size1() );
 
 	// factorize and compute inverse
 	boost::numeric::bindings::lapack::getrf( a, ipiv );
@@ -104,22 +102,22 @@ template< class T > T invert_matrix( const T& m )
  * @param mat a matrix of type M
  * @return the inverted matrix
  */
-template< typename T, typename ST > 
-boost::numeric::ublas::matrix< T, boost::numeric::ublas::column_major, ST > pseudoInvert_matrix( const boost::numeric::ublas::matrix< T, boost::numeric::ublas::column_major, ST >& mat )
+template< typename T, std::size_t M, std::size_t N > 
+Math::Matrix< T, N, M > pseudoInvert_matrix( const Math::Matrix< T, M, N >& mat )
 {
 	namespace ublas = boost::numeric::ublas;
-	typedef ublas::matrix< T, ublas::column_major, ST > M;
-	typedef typename M::size_type size_type;
+	typedef Math::Matrix< T, M, N > MatType;
+	typedef typename MatType::size_type size_type;
 	// make a copy of m, as the factorization will overwrite the contents
-	M a( mat );
+	MatType a( mat );
 	
 	size_type n = mat.size1();
 	size_type m = mat.size2();
 	size_type nSingularValues = std::min( n, m );
 	
-	Math::Vector< 0, T > s( nSingularValues );
-	Math::Matrix< 0, 0, T > U( n, n );
-	Math::Matrix< 0, 0, T > Vt( m, m );
+	Math::Vector< T > s( nSingularValues );
+	Math::Matrix< T, 0, 0 > U( n, n );
+	Math::Matrix< T, 0, 0 > Vt( m, m );
 
 	boost::numeric::bindings::lapack::gesvd( 'S', 'S', a, s, U, Vt );
 
@@ -146,7 +144,7 @@ boost::numeric::ublas::matrix< T, boost::numeric::ublas::column_major, ST > pseu
 		a = ublas::prod( U , ublas::subrange( Vt, 0, n, 0, m ) );
 	}
 
-	return M( ublas::trans( a ) );
+	return ublas::trans( a );
 }
 
 #endif // HAVE_LAPACK

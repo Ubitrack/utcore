@@ -45,7 +45,7 @@ namespace Ubitrack { namespace Math {
  * radians/s, and the direction of the vector describes the rotation axis.
  */
 class RotationVelocity
-	: public Math::Vector< 3 >
+	: public Math::Vector< double, 3 >
 {
 public:
 	/** default constructor */
@@ -58,14 +58,14 @@ public:
 	 */
 	template< class AE > 
 	RotationVelocity( const boost::numeric::ublas::vector_expression< AE >& e )
-		: Math::Vector< 3 >( e )
+		: Math::Vector< double, 3 >( e )
 	{}
 	
 	/**
 	 * constructs the velocity from three rotation speeds around the x, y and z axes
 	 */
 	RotationVelocity( double x, double y, double z )
-		: Math::Vector< 3 >( x, y, z )
+		: Math::Vector< double, 3 >( x, y, z )
 	{}
 	
 	/**
@@ -84,7 +84,7 @@ public:
 	 */
 	Quaternion integrate( double interval ) const
 	{
-		return Quaternion::fromLogarithm( Math::Vector< 3 >( *this * interval ) );
+		return Quaternion::fromLogarithm( Math::Vector< double, 3 >( *this * interval ) );
 	}
 
 	/**
@@ -99,7 +99,7 @@ public:
 	 * the axis of rotation (only valid if \c totalVelocity > 0)
 	 * @return the normalized rotation axis.
 	 */
-	Math::Vector< 3 > axis() const
+	Math::Vector< double, 3 > axis() const
 	{
 		double norm = angularVelocity();
 		if ( norm != 0 )

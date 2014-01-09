@@ -34,9 +34,10 @@
 #ifdef HAVE_LAPACK
  
 #include "Function/RotHecFunction.h"
-#include <utTracking/Kalman.h>
-#include <utMath/Function/VectorNormalize.h>
-#include <utMath/CovarianceTransform.h>
+#include <utMath/Stochastic/Kalman.h>
+#include <utMath/Stochastic/CovarianceTransform.h>
+#include <utMath/Optimization/Function/VectorNormalize.h>
+
 
 namespace Ubitrack { namespace Calibration {
 
@@ -44,25 +45,25 @@ namespace ublas = boost::numeric::ublas;
 
 RotationHecKalmanFilter::RotationHecKalmanFilter()
 {
-	m_state.value = Math::Vector< 4 >( 0, 0, 0, 1 );
-	m_state.covariance = ublas::identity_matrix< double >( 4, 4 ) * 1e2;
+	m_state.value = Math::Vector< double, 4 >( 0, 0, 0, 1 );
+	m_state.covariance = Math::Matrix< double, 4, 4 >::identity() * 1e2;
 }
 
 void RotationHecKalmanFilter::addMeasurement( const Math::Quaternion& a, const Math::Quaternion& b )
 {
-	Math::ErrorVector< 4 > kalmanMeasurement;
-	kalmanMeasurement.value = ublas::zero_vector< double >( 4 );
-	kalmanMeasurement.covariance = ublas::identity_matrix< double >( 4 ) * 1e-2;
+	Math::ErrorVector< double, 4 > kalmanMeasurement;
+	kalmanMeasurement.value = Math::Vector< double, 4 >::zeros();
+	kalmanMeasurement.covariance = Math::Matrix< double, 4, 4 >::identity() * 1e-2;
 	// TODO: for error propagation use RotHecCombine
 
 	// do the filter update
 	Function::RotHecMeasurement mf( a, b.negateIfCloser( a ) );
-	Tracking::kalmanMeasurementUpdate< 4, 4 >( m_state, mf, kalmanMeasurement, 0, m_state.value.size() );
+	Math::Stochastic::kalmanMeasurementUpdate< 4, 4 >( m_state, mf, kalmanMeasurement, 0, m_state.value.size() );
 
 	// normalize the result to ensure quaternion properties
-	m_state = Math::transformWithCovariance< 4, 4 >( Math::Function::VectorNormalize( 4 ), m_state );
+	m_state = Math::Stochastic::transformWithCovariance< 4, 4 >( Math::Optimization::Function::VectorNormalize( 4 ), m_state );
 	
-	m_state.covariance += ublas::identity_matrix< double >( 4 ) * 1e-12;
+	m_state.covariance += Math::Matrix< double, 4, 4 >::identity() * 1e-12;
 }
 
 } }

@@ -27,7 +27,7 @@
  * Functors for common matrix operations
  *
  * The Functors can easily be applied to containers like 
- * std::vector< Math::Matrix< N, N, T > > using std::transform.
+ * std::vector< Math::Matrix< T, N, N > > using std::transform.
  *
  * @author Christian Waechter <christian.waechter@in.tum.de>
  */ 
@@ -59,7 +59,7 @@ public:
 	 * @return determinant of the 2x2 matrix
 	 */
 	template< typename T >
-	T operator() ( const Math::Matrix< 2, 2, T >& matrix ) const
+	T operator() ( const Math::Matrix< T, 2, 2 >& matrix ) const
     {
 		const T A1_1 = matrix( 0, 0 );
 		const T A1_2 = matrix( 0, 1 );
@@ -76,7 +76,7 @@ public:
 	 * @return determinant of the 3x3 matrix
 	 */
 	template< typename T >
-	T operator() ( const Math::Matrix< 3, 3, T >& matrix ) const
+	T operator() ( const Math::Matrix< T, 3, 3 >& matrix ) const
     {
 		const T val1 = matrix( 0, 0 )*matrix( 1, 1 )*matrix( 1, 1 );
 		const T val2 = matrix( 0, 0 )*matrix( 1, 2 )*matrix( 1, 2 );
@@ -97,7 +97,7 @@ public:
 	 * @return determinant of the nxn matrix
 	 */
 	template< std::size_t N, typename T >
-	T operator() ( const Math::Matrix< N, N, T >& matrix ) const
+	T operator() ( const Math::Matrix< T, N, N >& matrix ) const
     {
 		return Math::determinant( matrix );
 	}
@@ -122,7 +122,7 @@ public:
 	 * @return inverse of the 2x2 matrix
 	 */
 	template< typename T >
-	Math::Matrix< 2, 2, T > operator() ( const Math::Matrix< 2, 2, T >& matrix ) const
+	Math::Matrix< T, 2, 2 > operator() ( const Math::Matrix< T, 2, 2 >& matrix ) const
     {
 		const T A1_1 = matrix( 0, 0 );
 		const T A1_2 = matrix( 0, 1 );
@@ -135,7 +135,7 @@ public:
 		pInverse[ 1 ] = -A1_2/determinant;
 		pInverse[ 2 ] = -A2_1/determinant;
 		pInverse[ 3 ] =  A1_1/determinant;
-		return Math::Matrix< 2, 2, T >( pInverse );
+		return Math::Matrix< T, 2, 2 >( pInverse );
     }
 	
 	/**
@@ -146,7 +146,7 @@ public:
 	 * @return inverse of the 3x3 matrix
 	 */
 	template< typename T >
-    const Math::Matrix< 3, 3, T > operator() ( const Math::Matrix< 3, 3, T >& matrix ) const
+    const Math::Matrix< T, 3, 3 > operator() ( const Math::Matrix< T, 3, 3 >& matrix ) const
     {
 		const T A1_1 = matrix( 0, 0 );
 		const T A1_2 = matrix( 0, 1 );
@@ -173,7 +173,7 @@ public:
 		pInverse[ 7 ] = -(A1_1*A3_2-A1_2*A3_1) / determinant;
 		pInverse[ 8 ] = (A1_1*A2_2-A1_2*A2_1) / determinant;
 		
-		return Math::Matrix< 3, 3, T >( pInverse );
+		return Math::Matrix< T, 3, 3 >( pInverse );
     }
 #ifdef HAVE_LAPACK
 	/**
@@ -184,7 +184,7 @@ public:
 	 * @return inverse of the nxn matrix
 	 */
 	template< std::size_t N, typename T >
-	Math::Matrix< N, N, T > operator() ( const Math::Matrix< N, N, T >& matrix ) const
+	Math::Matrix< T, N, N > operator() ( const Math::Matrix< T, N, N >& matrix ) const
     {
 		return Math::invert_matrix( matrix );
 	}

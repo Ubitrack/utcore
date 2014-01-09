@@ -33,7 +33,6 @@
 #ifndef __UBITRACK_TRACKING_LINEARPOSEMOTIONMODEL_H_INCLUDED__
 #define __UBITRACK_TRACKING_LINEARPOSEMOTIONMODEL_H_INCLUDED__
 
-#include <boost/numeric/ublas/vector.hpp>
 
 namespace Ubitrack { namespace Tracking {
 
@@ -110,7 +109,7 @@ public:
 protected:
 	int m_posOrder;
 	int m_oriOrder;
-	Math::Vector< 0, double > m_processNoise;
+	Math::Vector< double > m_processNoise;
 };
 
 } } // namespace Ubitrack::Tracking

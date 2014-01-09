@@ -71,7 +71,7 @@ public:
 	void jacobian( const VT2& input, MT& J ) const
 	{
 		namespace ublas = boost::numeric::ublas;
-		ublas::vector< T > result( J.size1() );
+		Math::Vector< T > result( J.size1() );
 		evaluateWithJacobian( result, input, J );
 	}
 
@@ -87,13 +87,13 @@ public:
 	{
 		namespace ublas = boost::numeric::ublas;
 		// precompute image rotation matrices
-		std::vector< Math::Matrix< 3, 3, T > > camRotations( m_net.images.size() );
+		std::vector< Math::Matrix< T, 3, 3 > > camRotations( m_net.images.size() );
 		std::size_t iV = m_imageOffset;
 		for ( std::size_t i = 0; i != m_net.images.size(); i++, iV += 6 )
 			Math::Quaternion::fromLogarithm( ublas::subrange( input, iV + 3, iV + 6 ) ).toMatrix( camRotations[ i ] );
 
 		// precompute body rotation matrices
-		std::vector< Math::Matrix< 3, 3, T > > bodyRotations( m_net.bodyPoses.size() );
+		std::vector< Math::Matrix< T, 3, 3 > > bodyRotations( m_net.bodyPoses.size() );
 		iV = m_bodyPoseOffset;
 		for ( std::size_t i = 1; i < m_net.bodyPoses.size(); i++, iV += 6 )
 			Math::Quaternion::fromLogarithm( ublas::subrange( input, iV + 3, iV + 6 ) ).toMatrix( bodyRotations[ i ] );
@@ -112,7 +112,7 @@ public:
 			ublas::vector_range< VT1 > resultRange( result, ublas::range( iM, iM + 2 ) );
 			ublas::matrix_range< MT > jRange1( J, ublas::range( iM, iM + 2 ), ublas::range( 0, J.size2() ) );
 			ublas::matrix_range< MT > jRange2( J, ublas::range( iM, iM + 2 ), ublas::range( iP, iP + 3 ) );
-			Math::Vector< 3, T > p3d( ublas::subrange( input, iP, iP + 3 ) );
+			Math::Vector< T, 3 > p3d( ublas::subrange( input, iP, iP + 3 ) );
 			evaluateSingleWorldPointWithJacobian( resultRange, input, jRange1, jRange2, 
 				camRotations, bodyRotations, it->iCamera, it->iImage, p3d );
 		}
@@ -124,7 +124,7 @@ public:
 			std::size_t iP = m_bodyPoseOffset + 6 * ( it->iBodyPose - 1 ); // offset into parameter vector
 
 			// transform point from body to world
-			Math::Vector< 3, T > worldPoint;
+			Math::Vector< T, 3 > worldPoint;
 			if ( it->iBodyPose == 0 )
 			{
 				// world-defining has identity-pose
@@ -138,7 +138,7 @@ public:
 			}
 
 			// transform from world to image and compute jacobian
-			Math::Matrix< 2, 3, T > jW2I;
+			Math::Matrix< T, 2, 3 > jW2I;
 			ublas::vector_range< VT1 > resultRange( result, ublas::range( iM, iM + 2 ) );
 			ublas::matrix_range< MT > jRange1( J, ublas::range( iM, iM + 2 ), ublas::range( 0, J.size2() ) );
 			evaluateSingleWorldPointWithJacobian( resultRange, input, jRange1, jW2I, 
@@ -150,7 +150,7 @@ public:
 				ublas::subrange( J, iM, iM + 2, iP, iP + 3 ) = jW2I;
 
 				// jacobian of body rotation
-				Math::Matrix< 3, 3, T > jBodyRot;
+				Math::Matrix< T, 3, 3 > jBodyRot;
 				Function::LieRotation< T >( m_net.bodies[ it->iBody ][ it->iPoint ] ).jacobian( 
 					ublas::subrange( input, iP + 3, iP + 6 ), jBodyRot );
 				noalias( ublas::subrange( J, iM, iM + 2, iP + 3, iP + 6 ) ) = ublas::prod( jW2I, jBodyRot );
@@ -313,10 +313,10 @@ protected:
 	 */
 	template< class VT1, class VT2, class MT, class VT3 > 
 	void evaluateSingleWorldPointWithJacobian( VT1& result, const VT2& input, MT& J, VT3& pointJacobian, 
-		const std::vector< Math::Matrix< 3, 3, T > >& camRotations,
-		const std::vector< Math::Matrix< 3, 3, T > >& bodyRotations,
+		const std::vector< Math::Matrix< T, 3, 3 > >& camRotations,
+		const std::vector< Math::Matrix< T, 3, 3 > >& bodyRotations,
 		std::size_t iCamera, std::size_t iImage,
-		const Math::Vector< 3, T >& p3d ) const
+		const Math::Vector< T, 3 >& p3d ) const
 	{
 		namespace ublas = boost::numeric::ublas;
 		// index into the parameter vector (used at various places in this routine)
@@ -324,16 +324,16 @@ protected:
 
 		// transform point into camera coordinate frame
 		iP = m_imageOffset + 6 * iImage;
-		Math::Vector< 3, T > transformed( ublas::prod( camRotations[ iImage ], p3d ) );
+		Math::Vector< T, 3 > transformed( ublas::prod( camRotations[ iImage ], p3d ) );
 		noalias( transformed ) += ublas::subrange( input, iP, iP + 3 );
 
 		// dehomogenize
-		Math::Vector< 2, T > dehomogenized;
+		Math::Vector< T, 2 > dehomogenized;
 		Function::Dehomogenization< 3 >().evaluate( dehomogenized, transformed );
 
 		// apply intrinsics camera parameters
-		Math::Vector< 2, T > distorted;
-		Math::Matrix< 2, 2, T > jDistortion;
+		Math::Vector< T, 2 > distorted;
+		Math::Matrix< T, 2, 2 > jDistortion;
 		if ( m_net.bEstimateIntrinsics )
 		{
 			// intrinsic parameters from parameter vector
@@ -355,19 +355,19 @@ protected:
 				.jacobian( ublas::subrange( input, iP, iP + 5 ), jIntrinsics );
 
 			// jacobian of intrinsic multiplication wrt. p
-			Math::Matrix< 2, 2, T > K22;
+			Math::Matrix< T, 2, 2 > K22;
 			K22( 0, 0 ) = -input( iP ); K22( 0, 1 ) = -input( iP + 1 );
 			K22( 1, 0 ) = 0;            K22( 1, 1 ) = -input( iP + 3 );
 
 			// distortion jacobian wrt D
-			Math::Matrix< 2, 4, T > jDistD;
+			Math::Matrix< T, 2, 4 > jDistD;
 			Function::RadialDistortionWrtD< T >( dehomogenized )
 				.jacobian( ublas::subrange( input, iP + 5, iP + 9 ), jDistD );
 			noalias( ublas::subrange( J, 0, 2, iP + 5, iP + 9 ) ) = ublas::prod( K22, jDistD );
 
 			// distortion jacobian wrt P
-			Math::Vector< 4, T > distCoeffs( ublas::subrange( input, iP + 5, iP + 5 + 4 ) );
-			Math::Matrix< 2, 2, T > jDistP;
+			Math::Vector< T, 4 > distCoeffs( ublas::subrange( input, iP + 5, iP + 5 + 4 ) );
+			Math::Matrix< T, 2, 2 > jDistP;
 			Function::RadialDistortionWrtP< T >( distCoeffs ).jacobian( dehomogenized, jDistP );
 			noalias( jDistortion ) = ublas::prod( K22, jDistP );
 		}
@@ -379,19 +379,19 @@ protected:
 			Function::RadialDistortionWrtD< T >( dehomogenized ).evaluate( distorted, m_net.distortions[ iCamera ] );
 
 			// project
-			const Math::Matrix< 3, 3, T >& K( m_net.intrinsics[ iCamera ] );
+			const Math::Matrix< T, 3, 3 >& K( m_net.intrinsics[ iCamera ] );
 			result( 0 ) = -( K( 0, 0 ) * distorted( 0 ) + K( 0, 1 ) * distorted( 1 ) + m_net.intrinsics[ iCamera ]( 0, 2 ) );
 			result( 1 ) = -(                              K( 1, 1 ) * distorted( 1 ) + m_net.intrinsics[ iCamera ]( 1, 2 ) );
 
 			// distortion jacobian wrt P
-			Math::Matrix< 2, 2, T > jDistP;
+			Math::Matrix< T, 2, 2 > jDistP;
 			Function::RadialDistortionWrtP< T >( m_net.distortions[ iCamera ] ).jacobian( dehomogenized, jDistP );
 			noalias( jDistortion ) = -ublas::prod( ublas::subrange( K, 0, 2, 0, 2 ), jDistP );
 		}
 
 		// jacobian of dehomogenization
-		Math::Matrix< 2, 3, T > jDehom;
-		Math::Matrix< 2, 3, T > jDehom2;
+		Math::Matrix< T, 2, 3 > jDehom;
+		Math::Matrix< T, 2, 3 > jDehom2;
 		Function::Dehomogenization< 3 >().jacobian( transformed, jDehom2 );
 
 		// multiply with dehomogenization jacobian
@@ -402,7 +402,7 @@ protected:
 		noalias( ublas::subrange( J, 0, 2, iP, iP + 3 ) ) = jDehom;
 
 		// jacobian wrt. camera orientation
-		Math::Matrix< 3, 3, T > jCamOri;
+		Math::Matrix< T, 3, 3 > jCamOri;
 		Function::LieRotation< T >( p3d ).jacobian( 
 			ublas::subrange( input, iP + 3, iP + 6 ), jCamOri );
 		noalias( ublas::subrange( J, 0, 2, iP + 3, iP + 6 ) ) = ublas::prod( jDehom, jCamOri );

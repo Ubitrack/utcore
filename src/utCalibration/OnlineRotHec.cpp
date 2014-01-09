@@ -37,14 +37,14 @@ static log4cpp::Category& logger( log4cpp::Category::getInstance( "Ubitrack.Cali
 #include "OnlineRotHec.h"
 #ifdef HAVE_LAPACK
 
-#include <utMath/Function/LinearFunction.h>
-#include <utTracking/Kalman.h>
+#include <utMath/Optimization/Function/LinearFunction.h>
+#include <utMath/Stochastic/Kalman.h>
 
 namespace Ubitrack { namespace Calibration {
 
 namespace ublas = boost::numeric::ublas;
 
-static void skewMatrix( Math::Matrix< 3, 3 >& m, const Math::Vector< 3 > v )
+static void skewMatrix( Math::Matrix< double, 3, 3 >& m, const Math::Vector< double, 3 > v )
 {
 	m( 0, 0 ) = 0;
 	m( 0, 1 ) = -v( 2 );
@@ -60,8 +60,8 @@ static void skewMatrix( Math::Matrix< 3, 3 >& m, const Math::Vector< 3 > v )
 
 OnlineRotHec::OnlineRotHec()
 {
-	m_state.value = Math::Vector< 3 >( 0, 0, 0 );
-	m_state.covariance = ublas::identity_matrix< double >( 3, 3 ) * 1e6;
+	m_state.value = Math::Vector< double, 3 >( 0, 0, 0 );
+	m_state.covariance = Math::Matrix< double, 3, 3 >::identity() * 1e6;
 }
 
 
@@ -71,16 +71,16 @@ void OnlineRotHec::addMeasurement( const Math::Quaternion& q, const Math::Quater
 	const double nq = q.w() < 0 ? -1 : 1;
 	const double nr = r.w() < 0 ? -1 : 1;
 	
-	Math::ErrorVector< 3 > kalmanMeasurement;
+	Math::ErrorVector< double, 3 > kalmanMeasurement;
 	kalmanMeasurement.value( 0 ) = r.x() * nr - q.x() * nq;
 	kalmanMeasurement.value( 1 ) = r.y() * nr - q.y() * nq;
 	kalmanMeasurement.value( 2 ) = r.z() * nr - q.z() * nq;
-	kalmanMeasurement.covariance = ublas::identity_matrix< double >( 3 );
+	kalmanMeasurement.covariance = Math::Matrix< double, 3, 3 >::identity();
 
 	// do the filter update
-	Math::Matrix< 3, 3 > h;
-	skewMatrix( h, Math::Vector< 3 >( q.x() * nq + r.x() * nr, q.y() * nq + r.y() * nr, q.z() * nq + r.z() * nr ) );
-	Tracking::kalmanMeasurementUpdate< 3, 3 >( m_state, Math::Function::LinearFunction< 3, 3, double >( h ), 
+	Math::Matrix< double, 3, 3 > h;
+	skewMatrix( h, Math::Vector< double, 3 >( q.x() * nq + r.x() * nr, q.y() * nq + r.y() * nr, q.z() * nq + r.z() * nr ) );
+	Math::Stochastic::kalmanMeasurementUpdate< 3, 3 >( m_state, Math::Optimization::Function::LinearFunction< 3, 3, double >( h ), 
 		kalmanMeasurement, 0, m_state.value.size() );
 }
 

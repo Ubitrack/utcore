@@ -40,8 +40,10 @@
 #include "Pose.h"
 
 #include <cstddef> //  std::size_t
+
 //next include is only for output stuff -> remove to own header?
-#include <iostream> //std::ostream
+#include <iosfwd> //std::ostream
+
 
 // WARNING: all boost/serialization headers should be 
 //          included AFTER all boost/archive headers
@@ -51,9 +53,6 @@
 namespace Ubitrack { namespace Math {
 
 	
-/// forward declaration of Matrix class
-template< std::size_t M, std::size_t N, typename T = double > class Matrix;
-
 
 
 
@@ -66,12 +65,12 @@ template< std::size_t M, std::size_t N, typename T = double > class Matrix;
  * @tparam N number of columns
  * @tparam T type (defaults to \c double)
  */
-template< std::size_t M, std::size_t N, typename T > class Matrix
+template< typename T, std::size_t M = 0, std::size_t N = M > class Matrix
  	: public boost::numeric::ublas::matrix< T, boost::numeric::ublas::column_major, boost::numeric::ublas::bounded_array< T, M*N > >
 {
 	public:
 		typedef boost::numeric::ublas::matrix< T, boost::numeric::ublas::column_major, boost::numeric::ublas::bounded_array< T, M*N > > base_type;
-		typedef Math::Matrix< M, N, T >	self_type;
+		typedef Math::Matrix< T, M, N >	self_type;
 		typedef T						value_type;
 		typedef typename base_type::size_type size_type;
 		
@@ -111,7 +110,7 @@ template< std::size_t M, std::size_t N, typename T > class Matrix
 		 * @param rotation a quaternion
 		 * @param position a translation vector
 		 */
-		Matrix( const Quaternion& rotation, const Vector< 3 >& position )
+		Matrix( const Quaternion& rotation, const Vector< double, 3 >& position )
 			: base_type( M, N )
 		{
 			UBITRACK_STATIC_ASSERT( ((M==3)||(M==4))&&(N==4), MATRIX_4x4_REQUIRED );
@@ -142,7 +141,7 @@ template< std::size_t M, std::size_t N, typename T > class Matrix
 
 			pose.rotation().toMatrix( *this );
 
-			Vector< 3 > position = pose.translation();
+			Vector< double, 3 > position = pose.translation();
 
 			(*this)(0,3) = T( position[0] );
 			(*this)(1,3) = T( position[1] );
@@ -195,7 +194,7 @@ template< std::size_t M, std::size_t N, typename T > class Matrix
 		 * @param e a matrix_expression
 		 */
 		template< class AE > 
-		Matrix< M, N, T >& operator=( const boost::numeric::ublas::matrix_expression< AE >& e )
+		Matrix< T, M, N >& operator=( const boost::numeric::ublas::matrix_expression< AE >& e )
 		{
 			assert( e().size1() == M && e().size2() == N );
 			base_type::operator=( e );
@@ -206,7 +205,7 @@ template< std::size_t M, std::size_t N, typename T > class Matrix
 		 * assign from base class
 		 * @param m a boost::numeric::ublas::matrix
 		 */
-		Matrix< M, N, T >& operator=( const base_type& m )
+		Matrix< T, M, N >& operator=( const base_type& m )
 		{
 			assert( m().size1() == M && m.size2() == N );
 			base_type::operator=( m );
@@ -216,17 +215,17 @@ template< std::size_t M, std::size_t N, typename T > class Matrix
         /**
          * @return N*N square identity matrix
          */
-        static Matrix< M, N, T > identity()
+        static Matrix< T, M, N > identity()
         {
-            return  boost::numeric::ublas::identity_matrix< T >( M );
+            return  boost::numeric::ublas::identity_matrix< T, boost::numeric::ublas::column_major >( M );
         }
 
         /**
          * @return M*N zero matrix
          */
-        static Matrix< M, N, T > zeros()
+        static Matrix< T, M, N > zeros()
         {
-            return  boost::numeric::ublas::zero_matrix< T >( M, N );
+            return  boost::numeric::ublas::zero_matrix< T, boost::numeric::ublas::column_major >( M, N );
         }
 
 	protected:
@@ -253,13 +252,13 @@ template< std::size_t M, std::size_t N, typename T > class Matrix
  * @tparam T type of elements, defaults to \c double
  */
 template< typename T >
-class Matrix< 0, 0, T >
+class Matrix< T, 0, 0 >
  	: public boost::numeric::ublas::matrix< T, boost::numeric::ublas::column_major, boost::numeric::ublas::unbounded_array< T > >
 {
 	public:
 		
 		typedef boost::numeric::ublas::matrix< T, boost::numeric::ublas::column_major, boost::numeric::ublas::unbounded_array< T > > base_type;
-		typedef Math::Matrix< 0, 0, T >			self_type;
+		typedef Math::Matrix< T, 0, 0 >			self_type;
 		typedef T								value_type;
 		typedef typename base_type::size_type	size_type;
 		
@@ -290,7 +289,7 @@ class Matrix< 0, 0, T >
 		 * @param e a matrix_expression
 		 */
 		template< class AE > 
-		Matrix< 0, 0, T >& operator=( const boost::numeric::ublas::matrix_expression< AE >& e )
+		Matrix< T, 0, 0 >& operator=( const boost::numeric::ublas::matrix_expression< AE >& e )
 		{
 			base_type::operator=( e );
 			return *this;
@@ -303,9 +302,9 @@ class Matrix< 0, 0, T >
 		 * @param size2 second dimension (=N) of the M-by-N zero matrix (columns)
          * @return M-by-N zero matrix
          */
-        static Matrix< 0, 0, T > zeros( const size_type size1, const size_type size2 )
+        static Matrix< T, 0, 0 > zeros( const size_type size1, const size_type size2 )
         {
-            return boost::numeric::ublas::zero_matrix< T >( size1, size2 );
+            return boost::numeric::ublas::zero_matrix< T, boost::numeric::ublas::column_major >( size1, size2 );
         }
 		
 		/**
@@ -316,9 +315,9 @@ class Matrix< 0, 0, T >
 		 * @param size dimension (=N) of the N-by-N identity matrix.
          * @return N-by-N identity matrix
          */
-        static Matrix< 0, 0, T > identity( const size_type size )
+        static Matrix< T, 0, 0 > identity( const size_type size )
         {
-            return boost::numeric::ublas::identity_matrix< T >( size );
+            return boost::numeric::ublas::identity_matrix< T, boost::numeric::ublas::column_major >( size );
         }
 		
 		/**
@@ -330,16 +329,31 @@ class Matrix< 0, 0, T >
 		 * @param value the scalar that is set on all matrix values
          * @return M-by-N scalar matrix
          */
-		static Matrix< 0, 0, T > scalar( const size_type size1, const size_type size2, const T value )
+		static Matrix< T, 0, 0 > scalar( const size_type size1, const size_type size2, const T value )
         {
-            return boost::numeric::ublas::scalar_matrix< T >( size1, size2, value );
+            return boost::numeric::ublas::scalar_matrix< T, boost::numeric::ublas::column_major >( size1, size2, value );
         }
 };
 
-/// stream output operator for a single Matrix
-template< std::size_t M, std::size_t N, typename T >
-std::ostream& operator<<( std::ostream& s, const Matrix< M, N, T >& m )
+/** stream output operator for a single Math::Matrix of a specific dimension */ 
+template<  typename T, std::size_t M, std::size_t N >
+std::ostream& operator<<( std::ostream& s, const Matrix< T, M, N >& m )
 {
+	for( std::size_t i = 0; i < M; i++ ) {
+		s << "[ ";
+		for( std::size_t j = 0; j < N; j++ )
+			s << m(i,j) << " ";
+		s << "]\n";
+	}
+	return s;
+}
+
+/** specialization for stream output operator for a single Math::Matrix of a (at compile time) unknown dimension */ 
+template<  typename T >
+std::ostream& operator<<( std::ostream& s, const Matrix< T >& m )
+{
+	const std::size_t M = m.size1();
+	const std::size_t N = m.size2();
 	for( std::size_t i = 0; i < M; i++ ) {
 		s << "[ ";
 		for( std::size_t j = 0; j < N; j++ )
@@ -371,8 +385,8 @@ void leftHandToRightHandMatrix(Ma& matrix)
 }
 
 /** compares two matrices */
-template< std::size_t M, std::size_t N, typename T >
-bool operator==( const Matrix< M, N, T >& a, const Matrix< M, N, T >& b )
+template<  typename T, std::size_t M, std::size_t N >
+bool operator==( const Matrix< T, M, N >& a, const Matrix< T, M, N >& b )
 {
 	for ( std::size_t r = 0; r < M; r++ )
 		for ( std::size_t c = 0; c < N; c++ )
@@ -382,22 +396,22 @@ bool operator==( const Matrix< M, N, T >& a, const Matrix< M, N, T >& b )
 }
 
 /// typedef for a 2-by-2 Matrix of type \c double
-typedef Math::Matrix < 2, 2, double > Matrix2x2d;
+typedef Math::Matrix< double, 2, 2 > Matrix2x2d;
 /// typedef for a 3-by-3 Matrix of type \c double
-typedef Math::Matrix < 3, 3, double > Matrix3x3d;
+typedef Math::Matrix< double, 3, 3 > Matrix3x3d;
 /// typedef for a 4-by-4 (transformation) Matrix of type \c double
-typedef Math::Matrix < 4, 4, double > Matrix4x4d;
+typedef Math::Matrix< double, 4, 4 > Matrix4x4d;
 /// typedef for a 3-by-4 (projection) Matrix of type \c double
-typedef Math::Matrix < 3, 4, double > Matrix3x4d;
+typedef Math::Matrix< double, 3, 4 > Matrix3x4d;
 
 /// typedef for a 2-by-2 Matrix of type \c float
-typedef Math::Matrix < 2, 2, float > Matrix2x2f;
+typedef Math::Matrix< float, 2, 2 > Matrix2x2f;
 /// typedef for a 3-by-3 Matrix of type \c float
-typedef Math::Matrix < 3, 3, float > Matrix3x3f;
+typedef Math::Matrix< float, 3, 3 > Matrix3x3f;
 /// typedef for a 4-by-4 (transformation) Matrix of type \c float
-typedef Math::Matrix < 4, 4, float > Matrix4x4f;
+typedef Math::Matrix< float, 4, 4 > Matrix4x4f;
 /// typedef for a 3-by-4 (projection) Matrix of type \c float
-typedef Math::Matrix < 3, 4, float > Matrix3x4f;
+typedef Math::Matrix< float, 3, 4 > Matrix3x4f;
 
 
 } } // namespace Ubitrack::Math
@@ -410,8 +424,8 @@ typedef Math::Matrix < 3, 4, float > Matrix3x4f;
 namespace boost { namespace numeric { namespace bindings { namespace traits {
 
 template< std::size_t sM, std::size_t sN, typename T, typename M >
-struct matrix_detail_traits< Ubitrack::Math::Matrix< sM, sN, T >, M > 
-	: matrix_detail_traits< typename Ubitrack::Math::Matrix< sM, sN, T >::base_type, typename detail::generate_const< M, typename M::base_type >::type >
+struct matrix_detail_traits< Ubitrack::Math::Matrix< T, sM, sN >, M > 
+	: matrix_detail_traits< typename Ubitrack::Math::Matrix< T, sM, sN >::base_type, typename detail::generate_const< M, typename M::base_type >::type >
 {
 };
 

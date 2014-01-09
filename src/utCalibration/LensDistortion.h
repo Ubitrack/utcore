@@ -45,11 +45,11 @@ namespace Ubitrack { namespace Calibration {
  * @param K 3x3 intrinsic matrix
  * @return projected and distorted point in image coordinates
  */
-UBITRACK_EXPORT Math::Vector< 2, float > projectWithDistortion( const Math::Vector< 3, float >& p, const Math::Vector< 4, float >& dist,
-	const Math::Matrix< 3, 3, float >& K );
+UBITRACK_EXPORT Math::Vector< float, 2 > projectWithDistortion( const Math::Vector< float, 3 >& p, const Math::Vector< float, 4 >& dist,
+	const Math::Matrix< float, 3, 3 >& K );
 
-UBITRACK_EXPORT Math::Vector< 2, double > projectWithDistortion( const Math::Vector< 3, double >& p, const Math::Vector< 4, double >& dist,
-	const Math::Matrix< 3, 3, double >& K );
+UBITRACK_EXPORT Math::Vector< double, 2 > projectWithDistortion( const Math::Vector< double, 3 >& p, const Math::Vector< double, 4 >& dist,
+	const Math::Matrix< double, 3, 3 >& K );
 
 
 /**
@@ -59,11 +59,11 @@ UBITRACK_EXPORT Math::Vector< 2, double > projectWithDistortion( const Math::Vec
  * @param K 3x3 intrinsic matrix
  * @return distorted point in image coordinates
  */
-UBITRACK_EXPORT Math::Vector< 2, float > lensDistort( const Math::Vector< 2, float >& p, const Math::Vector< 4, float >& dist,
-	const Math::Matrix< 3, 3, float >& K );
+UBITRACK_EXPORT Math::Vector< float, 2 > lensDistort( const Math::Vector< float, 2 >& p, const Math::Vector< float, 4 >& dist,
+	const Math::Matrix< float, 3, 3 >& K );
 
-UBITRACK_EXPORT Math::Vector< 2, double > lensDistort( const Math::Vector< 2, double >& p, const Math::Vector< 4, double >& dist,
-	const Math::Matrix< 3, 3, double >& K );
+UBITRACK_EXPORT Math::Vector< double, 2 > lensDistort( const Math::Vector< double, 2 >& p, const Math::Vector< double, 4 >& dist,
+	const Math::Matrix< double, 3, 3 >& K );
 
 #ifdef HAVE_LAPACK
 	
@@ -74,11 +74,11 @@ UBITRACK_EXPORT Math::Vector< 2, double > lensDistort( const Math::Vector< 2, do
  * @param K 3x3 intrinsic matrix
  * @return undistorted point in image coordinates
  */
-UBITRACK_EXPORT Math::Vector< 2, float > lensUnDistort( const Math::Vector< 2, float >& p, const Math::Vector< 4, float >& dist,
-	const Math::Matrix< 3, 3, float >& K );
+UBITRACK_EXPORT Math::Vector< float, 2 > lensUnDistort( const Math::Vector< float, 2 >& p, const Math::Vector< float, 4 >& dist,
+	const Math::Matrix< float, 3, 3 >& K );
 
-UBITRACK_EXPORT Math::Vector< 2, double > lensUnDistort( const Math::Vector< 2, double >& p, const Math::Vector< 4, double >& dist,
-	const Math::Matrix< 3, 3, double >& K );
+UBITRACK_EXPORT Math::Vector< double, 2 > lensUnDistort( const Math::Vector< double, 2 >& p, const Math::Vector< double, 4 >& dist,
+	const Math::Matrix< double, 3, 3 >& K );
 
 #endif
 	

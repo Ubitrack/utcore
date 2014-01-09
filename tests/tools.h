@@ -25,11 +25,13 @@
 #ifndef __TESTS_TOOLS_H_INCLUDED__
 #define __TESTS_TOOLS_H_INCLUDED__
 
-#include <boost/numeric/ublas/matrix.hpp>
-
-#include <utMath/Quaternion.h>
 #include <utMath/Vector.h>
+#include <utMath/Matrix.h>
+#include <utMath/Quaternion.h>
+#include <utMath/Blas1.h>
+
 #include <math.h>
+#include <numeric> // std::accumulate
 
 template< class T > 
 T random( T a, T b )
@@ -43,19 +45,20 @@ void randomMatrix( M& m )
 			m( i, j ) = random( typename M::value_type( -100 ), typename M::value_type( 100 ) );
 }
 
-template< int N, typename T > 
-Ubitrack::Math::Vector< N, T > randomVector( T maxVal = 100.0 )
+template< typename T, std::size_t N > 
+Ubitrack::Math::Vector< T, N > randomVector( T maxVal = 100.0 )
 {
-	Ubitrack::Math::Vector< N, T > v;
+	Ubitrack::Math::Vector< T, N > v;
 	for ( std::size_t i = 0; i < v.size(); i++ )
 		v( i ) = random( T( -maxVal ), T( maxVal ) );
 	return v;
 }
 
 template< class MA, class MB > 
-double matrixDiff( const MA& ma, const MB& mb )
+typename MA::value_type matrixDiff( const MA& ma, const MB& mb )
 {
-	double d = 0.0;
+	typedef typename MA::value_type return_type;
+	return_type d = 0.0;
 	for ( std::size_t i = 0; i < ma.size1(); i++ )
 		for ( std::size_t j = 0; j < ma.size2(); j++ )
 			d += fabs( ma( i, j ) - mb( i, j ) );
@@ -63,29 +66,32 @@ double matrixDiff( const MA& ma, const MB& mb )
 }
 
 template< class VA, class VB > 
-double vectorDiff( const VA& va, const VB& vb )
+typename VA::value_type vectorDiff( const VA& va, const VB& vb )
 {
-	double d = 0.0;
+	typedef typename VA::value_type return_type;
+	return_type d = 0.0;
 	for ( std::size_t i = 0; i < va.size(); i++ )
 		d += fabs( va( i ) - vb( i ) );
 	return d / boost::numeric::ublas::norm_2( va );
 }
 
 template< class MA, class MB > 
-double homMatrixDiff( const MA& A, const MB& B )
+typename MA::value_type homMatrixDiff( const MA& A, const MB& B )
 {
+
+	typedef typename MA::value_type value_type;
 	// normalize both H and Htest
 	// ublas is evil. Don't try this: Htest /= ublas::norm_frobenius( Htest )
-	double normA = boost::numeric::ublas::norm_frobenius( A );
-	double normB = boost::numeric::ublas::norm_frobenius( B );
+	const value_type normA = boost::numeric::ublas::norm_frobenius( A );
+	const value_type normB = boost::numeric::ublas::norm_frobenius( B );
 	
-	double dp = 0.0; // sum of differences A-B
-	double dm = 0.0; // sum of differences A+B (in case A ~ -B)
+	value_type dp = 0.0; // sum of differences A-B
+	value_type dm = 0.0; // sum of differences A+B (in case A ~ -B)
 	for ( std::size_t i = 0; i < A.size1(); i++ )
 		for ( std::size_t j = 0; j < A.size2(); j++ )
 		{
-			dp += fabs( A( i, j ) / normA - B( i, j ) / normB );
-			dm += fabs( A( i, j ) / normA + B( i, j ) / normB );
+			dp += std::fabs( A( i, j ) / normA - B( i, j ) / normB );
+			dm += std::fabs( A( i, j ) / normA + B( i, j ) / normB );
 		}
 		
 	return std::min( dp, dm );
@@ -105,6 +111,58 @@ static double quaternionDiff( const Ubitrack::Math::Quaternion& _a, const Ubitra
 		a = -a;
 	return boost::math::abs( a - b );
 }
+
+template< template < typename, std::size_t > class Vec, typename T, std::size_t N >
+static T meanSummedDiff( const typename std::vector< Vec< T, N > >& vecA, const typename std::vector< Vec< T, N > >& vecB )
+{
+	typedef typename std::vector< Vec< T, N > > container_type;
+	typedef typename container_type::value_type VecType;
+	
+	const std::size_t n = std::distance( vecA.begin(), vecA.end() );
+	const std::size_t nB = std::distance( vecB.begin(), vecB.end() );
+	assert( n == nB );
+	
+	std::vector< VecType > vecAfter;
+	vecAfter.reserve( n );
+	std::transform( vecA.begin(), vecA.end(), vecB.begin(), std::back_inserter( vecAfter ), std::minus< VecType >() );
+	std::vector< T > distsAfter;
+	distsAfter.reserve( n );
+	std::transform( vecAfter.begin(), vecAfter.end(), std::back_inserter( distsAfter ), Ubitrack::Math::Norm_2() );
+	return ( std::accumulate( distsAfter.begin(), distsAfter.end(), static_cast< T > ( 0 ) ) / n );
+}
+
+template< typename T >
+static T meanSummedTranslationDiff( const std::vector< Ubitrack::Math::Pose >& poseA, const std::vector< Ubitrack::Math::Pose >& poseB )
+{
+	const std::size_t n = std::distance( poseA.begin(), poseA.end() );
+	const std::size_t nB = std::distance( poseB.begin(), poseB.end() );
+	assert( n == nB );
+	
+	T sum = 0;
+	std::vector< Ubitrack::Math::Pose >::const_iterator itB = poseB.begin();
+	std::vector< Ubitrack::Math::Pose >::const_iterator itA = poseA.begin();
+	std::vector< Ubitrack::Math::Pose >::const_iterator itEnd = poseA.end();
+	for( ; itA<itEnd; ++itA, ++itB )
+		sum += Ubitrack::Math::Norm_2() ( static_cast< Ubitrack::Math::Vector3d > ( itA->translation() - itB->translation() ) );
+	return (sum/n);
+}
+
+template< typename T >
+static T meanSummedAngularDiff( const std::vector< Ubitrack::Math::Pose >& poseA, const std::vector< Ubitrack::Math::Pose >& poseB )
+{
+	const std::size_t n = std::distance( poseA.begin(), poseA.end() );
+	const std::size_t nB = std::distance( poseB.begin(), poseB.end() );
+	assert( n == nB );
+	
+	T sum = 0;
+	std::vector< Ubitrack::Math::Pose >::const_iterator itB = poseB.begin();
+	std::vector< Ubitrack::Math::Pose >::const_iterator itA = poseA.begin();
+	std::vector< Ubitrack::Math::Pose >::const_iterator itEnd = poseA.end();
+	for( ; itA<itEnd; ++itA, ++itB )
+		sum += Ubitrack::Math::Quaternion( itA->rotation() * ~(itB->rotation()) ).normalize().angle(); 
+	return (sum/n);
+}
+
 
 #endif
 

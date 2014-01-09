@@ -74,7 +74,7 @@ class UBITRACK_EXPORT ErrorPose
 		 * @param c a 6x6 covariance matrix
 		 */
 		template< class MT >
-		ErrorPose( const Quaternion& q, const Vector< 3 >& t, const MT& c )
+		ErrorPose( const Quaternion& q, const Vector< double, 3 >& t, const MT& c )
 			: Pose( q, t )
 			, m_covariance( c )
 		{}
@@ -94,7 +94,7 @@ class UBITRACK_EXPORT ErrorPose
 		 * get the covariance
 		 * @return covariance of the pose
 		 */
-		const Matrix< 6, 6 >& covariance() const
+		const Matrix< double, 6, 6 >& covariance() const
 		{ return m_covariance; }
 
 		/**
@@ -107,12 +107,12 @@ class UBITRACK_EXPORT ErrorPose
 		 * converts the pose to a ublas vector and the multiplicative 6x6 covariance to an 
 		 * additive 7x7 covariance matrix.
 		 */
-		void toAdditiveErrorVector( ErrorVector< 7 >& v );
+		void toAdditiveErrorVector( ErrorVector< double, 7 >& v );
 
 		/**
 		 * creates an ErrorPose from a ublas vector with an additive 7x7 covariance.
 		 */
-		static ErrorPose fromAdditiveErrorVector( const ErrorVector< 7 >& v );
+		static ErrorPose fromAdditiveErrorVector( const ErrorVector< double, 7 >& v );
 
 	protected:
 
@@ -124,7 +124,7 @@ class UBITRACK_EXPORT ErrorPose
 			ar & m_covariance;
 		}
 
-		Matrix< 6, 6 > m_covariance;
+		Matrix< double, 6, 6 > m_covariance;
 };
 
 
@@ -150,7 +150,7 @@ UBITRACK_EXPORT ErrorPose operator*( const Pose& a, const ErrorPose& b );
  * @param b point in the coordinate frame X described by \ a
  * @return point in coordinate frame Y with associated 3x3-covariance
  */
-UBITRACK_EXPORT ErrorVector< 3 > operator*( const ErrorPose& a, const Math::Vector< 3 >& b );
+UBITRACK_EXPORT ErrorVector< double, 3 > operator*( const ErrorPose& a, const Math::Vector< double, 3 >& b );
 
 /**
  * Multiplies two poses and inverts one ( A^-1 * B ).
@@ -158,7 +158,7 @@ UBITRACK_EXPORT ErrorVector< 3 > operator*( const ErrorPose& a, const Math::Vect
  */
 UBITRACK_EXPORT ErrorPose invertMultiply( const ErrorPose& a, const ErrorPose& b );
 
-UBITRACK_EXPORT ErrorVector< 3 > operator*( const ErrorPose& a, const Math::ErrorVector< 3 >& b );
+UBITRACK_EXPORT ErrorVector< double, 3 > operator*( const ErrorPose& a, const Math::ErrorVector< double, 3 >& b );
 
 /**
  * performs a linear interpolation between two poses

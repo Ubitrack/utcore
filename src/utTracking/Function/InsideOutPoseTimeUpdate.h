@@ -39,8 +39,8 @@
 
 #include "LinearTimeUpdate.h"
 #include "QuaternionTimeUpdate.h"
-#include <utMath/Function/QuaternionVectorRotation.h>
-#include <utMath/Function/RotationVelocityIntegration.h>
+#include <utMath/Optimization/Function/QuaternionVectorRotation.h>
+#include <utMath/Optimization/Function/RotationVelocityIntegration.h>
 
 namespace Ubitrack { namespace Tracking { namespace Function {
 
@@ -95,21 +95,21 @@ public:
 		ublas::vector< T > angVelRotated( 3 );
 		ublas::matrix< T, ublas::column_major > jAngVelRotatedQ( 3, 4 );
 		ublas::matrix< T, ublas::column_major > jAngVelRotatedV( 3, 3 );
-		Math::Function::QuaternionVectorRotation().evaluateWithJacobian( angVelRotated,
+		Math::Optimization::Function::QuaternionVectorRotation().evaluateWithJacobian( angVelRotated,
 			ublas::subrange( input, rs, rs + 4 ), ublas::subrange( input, rs + 4, rs + 7 ),
 			jAngVelRotatedQ, jAngVelRotatedV );
 
 		// integrate angular velocity
 		ublas::vector< T > transUpdateRotation( 4 );
 		ublas::matrix< T, ublas::column_major > jTransRotIntegrate( 4, 3 );
-		Math::Function::RotationVelocityIntegration( m_deltaTime ).evaluateWithJacobian( 
+		Math::Optimization::Function::RotationVelocityIntegration( m_deltaTime ).evaluateWithJacobian( 
 			transUpdateRotation, angVelRotated, jTransRotIntegrate );
 
 		// rotate translation by new quaternion
 		ublas::vector< T > newTranslationTmp( 3 );
 		ublas::matrix< T, ublas::column_major > jRotateTranslationQ( 3, 4 );
 		ublas::matrix< T, ublas::column_major > jRotateTranslationV( 3, 3 );
-		Math::Function::QuaternionVectorRotation().evaluateWithJacobian( newTranslationTmp,
+		Math::Optimization::Function::QuaternionVectorRotation().evaluateWithJacobian( newTranslationTmp,
 			transUpdateRotation, ublas::subrange( input, 0, 3 ), jRotateTranslationQ, jRotateTranslationV );
 
 		// add translation caused by constant velocity
@@ -138,7 +138,7 @@ public:
 		if ( m_posOrder == 1 )
 		{
 			// also rotate velocity
-			Math::Function::QuaternionVectorRotation().evaluateWithJacobian( newTranslationTmp,
+			Math::Optimization::Function::QuaternionVectorRotation().evaluateWithJacobian( newTranslationTmp,
 				transUpdateRotation, ublas::subrange( input, 3, 6 ), jRotateTranslationQ, jRotateTranslationV );
 			ublas::subrange( result, 3, 6 ) = newTranslationTmp;
 

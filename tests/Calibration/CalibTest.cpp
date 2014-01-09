@@ -7,9 +7,10 @@ void TestAbsoluteOrientation();
 void TestBundleAdjustment();
 void TestDecomposeProjection();
 void TestFundamentalMatrix();
-void TestHomographyDLT();
+void TestHomography();
 void TestProjectionDLT();
-void TestSquareHomography();
+void TestHandEye();
+void TestDualHandEye();
 
 CalibrationTest::CalibrationTest()
 	: boost::unit_test::test_suite( "Calibration test suite" )
@@ -20,8 +21,9 @@ CalibrationTest::CalibrationTest()
 	add( BOOST_TEST_CASE( &TestBundleAdjustment ) );
 	add( BOOST_TEST_CASE( &TestDecomposeProjection ) );
 	add( BOOST_TEST_CASE( &TestFundamentalMatrix ) );
-	add( BOOST_TEST_CASE( &TestHomographyDLT ) );
+	add( BOOST_TEST_CASE( &TestHomography ) );
 	add( BOOST_TEST_CASE( &TestProjectionDLT ) );
-	add( BOOST_TEST_CASE( &TestSquareHomography ) );
+	add( BOOST_TEST_CASE( &TestHandEye ) );
+	add( BOOST_TEST_CASE( &TestDualHandEye ) );
 }
 

@@ -32,7 +32,7 @@
 #ifndef __UBITRACK_TRACKING_FUNCTION_INVERTROTATIONVELOCITY_H_INCLUDED__
 #define __UBITRACK_TRACKING_FUNCTION_INVERTROTATIONVELOCITY_H_INCLUDED__
 
-#include <boost/numeric/ublas/vector.hpp>
+#include <utMath/Vector.h>
 #include <boost/numeric/ublas/vector_proxy.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 
@@ -68,7 +68,7 @@ public:
 		// compute results and jacobians
 		ublas::matrix_range< MT > jRot( jacobian, ublas::range( 0, 3 ), ublas::range( 0, 4 ) );
 		ublas::matrix_range< MT > jVel( jacobian, ublas::range( 0, 3 ), ublas::range( 4, 7 ) );
-		Math::Function::QuaternionVectorRotation().evaluateWithJacobian( result, ublas::subrange( input, 0, 4 ), 
+		Math::Optimization::Function::QuaternionVectorRotation().evaluateWithJacobian( result, ublas::subrange( input, 0, 4 ), 
 			invertedVelocity, jRot, jVel );
 
 		// adjust jacobian for inversion of q and dq

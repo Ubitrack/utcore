@@ -33,8 +33,8 @@
 #include "RotationOnlyKF.h"
 #ifdef HAVE_LAPACK
  
-#include <utMath/CovarianceTransform.h>
-#include <utMath/Function/VectorNormalize.h>
+#include <utMath/Stochastic/CovarianceTransform.h>
+#include <utMath/Optimization/Function/VectorNormalize.h>
 #include "Function/QuaternionTimeUpdate.h"
 
 // get a logger
@@ -42,7 +42,7 @@
 static log4cpp::Category& logger( log4cpp::Category::getInstance( "Ubitrack.Tracking.RotationOnlyKF" ) );
 #define KALMAN_LOGGING
 
-#include "Kalman.h"
+#include <utMath/Stochastic/Kalman.h>
 
 namespace ublas = boost::numeric::ublas;
 
@@ -51,9 +51,9 @@ namespace Ubitrack { namespace Tracking {
 RotationOnlyKF::RotationOnlyKF()
 {
 	// initialize state
-	m_state.value = ublas::zero_vector< double >( 7 );
+	m_state.value = Math::Vector< double, 7 >::zeros();
 	m_state.value( 3 ) = 1;
-	m_state.covariance = ublas::identity_matrix< double >( 7 );
+	m_state.covariance = Math::Matrix< double, 7, 7 >::identity();
 
 	m_time = 0;
 }
@@ -69,15 +69,15 @@ void RotationOnlyKF::addRotationMeasurement( const Measurement::Rotation& m )
 	timeUpdate( m.time() );
 	
 	// create measurement as ErrorVector
-	Math::ErrorVector< 4 > v;
+	Math::ErrorVector< double, 4 > v;
 	m->negateIfCloser( Math::Quaternion::fromVector( m_state.value ) ).toVector( v.value );
-	v.covariance = ublas::identity_matrix< double >( 4 ) * 0.004; // magic number, tune here
+	v.covariance = Math::Matrix< double, 4, 4 >::identity() * 0.004; // magic number, tune here
 	
 	// measurement update:
-	kalmanMeasurementUpdateIdentity< 7, 4 >( m_state, v, 0, 4 );
+	Math::Stochastic::kalmanMeasurementUpdateIdentity< 7, 4 >( m_state, v, 0, 4 );
 
 	// normalize quaternion
-	Math::transformRangeInternalWithCovariance< 7 >( Math::Function::VectorNormalize( 4 ), m_state, 0, 4, 0, 4 );
+	Math::Stochastic::transformRangeInternalWithCovariance< 7 >( Math::Optimization::Function::VectorNormalize( 4 ), m_state, 0, 4, 0, 4 );
 }
 
 
@@ -87,15 +87,15 @@ void RotationOnlyKF::addVelocityMeasurement( const Measurement::RotationVelocity
 	timeUpdate( m.time() );
 	
 	// create measurement as ErrorVector
-	Math::ErrorVector< 3 > v;
+	Math::ErrorVector< double, 3 > v;
 	v.value = *m;
-	v.covariance = ublas::identity_matrix< double >( 3 ) * 0.00001; // magic number, tune here
+	v.covariance = Math::Matrix< double, 3, 3 >::identity() * 0.00001; // magic number, tune here
 	
 	// measurement update:
-	kalmanMeasurementUpdateIdentity< 7, 3 >( m_state, v, 4, 7 );
+	Math::Stochastic::kalmanMeasurementUpdateIdentity< 7, 3 >( m_state, v, 4, 7 );
 
 	// normalize quaternion
-	Math::transformRangeInternalWithCovariance< 7 >( Math::Function::VectorNormalize( 4 ), m_state, 0, 4, 0, 4 );
+	Math::Stochastic::transformRangeInternalWithCovariance< 7 >( Math::Optimization::Function::VectorNormalize( 4 ), m_state, 0, 4, 0, 4 );
 }
 
 
@@ -110,14 +110,14 @@ void RotationOnlyKF::timeUpdate( Measurement::Timestamp t )
 	
 	// update state
 	double dt = ( (long long int)( t - m_time ) ) * 1e-9;
-	Math::transformRangeInternalWithCovariance< 7 >( Function::QuaternionTimeUpdate( dt ), m_state, 0, 4, 0, 7 );
+	Math::Stochastic::transformRangeInternalWithCovariance< 7 >( Function::QuaternionTimeUpdate( dt ), m_state, 0, 4, 0, 7 );
 	
 	// add process noise
 	// TODO: better motion model
 	double fAbsNoise = 0.001 * ( dt * dt ); // tune here
 	double fVelNoise = 4.0 * ( dt * dt ); // tune here
-	ublas::subrange( m_state.covariance, 0, 4, 0, 4 ) += ublas::identity_matrix< double >( 4 ) * fAbsNoise;
-	ublas::subrange( m_state.covariance, 4, 7, 4, 7 ) += ublas::identity_matrix< double >( 3 ) * fVelNoise;
+	ublas::subrange( m_state.covariance, 0, 4, 0, 4 ) += Math::Matrix< double, 4, 4 >::identity() * fAbsNoise;
+	ublas::subrange( m_state.covariance, 4, 7, 4, 7 ) += Math::Matrix< double, 3, 3 >::identity() * fVelNoise;
 	
 	m_time = t;
 }
@@ -127,7 +127,7 @@ Measurement::Rotation RotationOnlyKF::predict( Measurement::Timestamp t )
 {
 	// time update: forward filter to requested timestamp
 	double dt = ( t - m_time ) * 1e-9;
-	Math::ErrorVector< 4 > result = Math::transformWithCovariance< 4, 7 >( Function::QuaternionTimeUpdate( dt ), m_state );
+	Math::ErrorVector< double, 4 > result = Math::Stochastic::transformWithCovariance< 4, 7 >( Function::QuaternionTimeUpdate( dt ), m_state );
 	
 	return Measurement::Rotation( t, Math::Quaternion::fromVector( result.value ).normalize() );
 }

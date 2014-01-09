@@ -59,21 +59,21 @@ namespace Ubitrack { namespace Math { namespace Geometry {
 
 /**
  * @ingroup math
- * Wraps a Math::Vector< 10, T > to explicitly represent a quadric.
+ * Wraps a Math::Vector< T, 10 > to explicitly represent a quadric.
  *
  * @tparam T type of conic ( e.g. \c double or \c float )
  */
 template< typename T >
 struct Quadric
-	: public Math::Vector< 10, T >
+	: public Math::Vector< T, 10 >
 {
 public:
 	/** Default Constructor */
 	Quadric( ){}
 
 	/** Copy Constructor for implicit conversion */
-	Quadric( const Math::Vector< 10, T >& quadric )
-		: Math::Vector< 10, T >()
+	Quadric( const Math::Vector< T, 10 >& quadric )
+		: Math::Vector< T, 10 >()
 	{
 		(*this)[ 0 ] = quadric[ 0 ];// a (1st semi-axis for ellipsoids)
 		(*this)[ 1 ] = quadric[ 1 ];// b (2nd semi-axis for ellipsoids)
@@ -98,7 +98,7 @@ public:
  */
 template< typename T >
 struct ProjectQuadric
-	: public std::binary_function< Math::Matrix< 3, 4, T >, Math::Vector< 10, T >, Math::Vector< 6, T > >
+	: public std::binary_function< Math::Matrix< T, 3, 4 >, Math::Vector< T, 10 >, Math::Vector< T, 6 > >
 {
 public:
 	/**
@@ -114,7 +114,7 @@ public:
 	 * @param quadric a 10-vector including the quadric's parameters
 	 * @return the resulting conic
 	 */
-	Math::Vector< 6, T > operator() ( const Math::Matrix< 3, 4, T > &projection, const Math::Vector< 10, T > &quadric ) const
+	Math::Vector< T, 6 > operator() ( const Math::Matrix< T, 3, 4 > &projection, const Math::Vector< T, 10 > &quadric ) const
 	{
 		const T a ( quadric( 0 ) );
 		const T b ( quadric( 1 ) );
@@ -152,7 +152,7 @@ public:
 		// make it a point-conic:
 		const T divisor =  1/( (conic_a*(conic_e*conic_e)+conic_c*(conic_d*conic_d)+(conic_b*conic_b)*conic_f-conic_a*conic_c*conic_f*static_cast< T >( 4 )-conic_b*conic_d*conic_e) );
 		
-		Math::Vector< 6, T > iConic;
+		Math::Vector< T, 6 > iConic;
 		iConic( 0 ) = -(conic_c*conic_f*static_cast< T >( 4 ) -conic_e*conic_e) * divisor;
 		iConic( 1 ) =  2*(conic_b*conic_f*static_cast< T >( 2 ) -conic_d*conic_e) * divisor;
 		iConic( 2 )  = -(conic_a*conic_f*static_cast< T >( 4 ) -conic_d*conic_d) * divisor;
@@ -161,7 +161,7 @@ public:
 		iConic( 5 )  = -(conic_a*conic_c*static_cast< T >( 4 ) -conic_b*conic_b) * divisor;	
 		// or just make it a line-conic:
 		/*
-		Math::Vector< 6, T > iConic;
+		Math::Vector< T, 6 > iConic;
 		iConic( 0 ) = conic_a;
 		iConic( 1 ) = conic_b;
 		iConic( 2 ) = conic_c;
@@ -169,7 +169,7 @@ public:
 		iConic( 4 ) = conic_e;
 		iConic( 5 ) = conic_f;
 		*/
-		return Math::Vector< 6, T >( iConic );
+		return Math::Vector< T, 6 >( iConic );
 	}
 };
 
@@ -182,7 +182,7 @@ public:
  */
 template< typename T >
 struct Ellipsoid2Quadric
-	: public std::unary_function< Math::Vector< 6, T >, Math::Vector< 10, T > >
+	: public std::unary_function< Math::Vector< T, 6 >, Math::Vector< T, 10 > >
 {
 public:
 	/**
@@ -194,7 +194,7 @@ public:
 	 * @param quadric a 10-vector including the parameters of the quadric
 	 * @return the resulting conic
 	 */
-	Math::Vector< 10, T > operator() ( const Math::Vector< 6, T > &ellipsoid ) const
+	Math::Vector< T, 10 > operator() ( const Math::Vector< T, 6 > &ellipsoid ) const
 	{
 		const T a ( ellipsoid( 0 ) ); //1st semi-axis
 		const T b ( ellipsoid( 1 ) ); //2nd semi-axis
@@ -215,7 +215,7 @@ public:
 		//[                   c*d3*g + d4*p*r,          c*d3*f + d4*q*r, d3*c^2 + d4*r^2, d*d4*r]
 		//[                            d*d4*p,                   d*d4*q,          d*d4*r, d^2*d4]
 
-		Math::Vector< 10, T > quadric;
+		Math::Vector< T, 10 > quadric;
 		// diagonal entries first
 		quadric( 0 ) = (a*a)-(p*p);
 		quadric( 1 ) = (b*b)-(q*q);
@@ -230,7 +230,7 @@ public:
 		quadric( 7 ) = -(d*q);
 		quadric( 8 ) = -(d*r);
 
-		return Math::Vector< 10, T >( quadric );
+		return Math::Vector< T, 10 >( quadric );
 	}
 };
 
@@ -244,7 +244,7 @@ public:
  */
 template< typename T >
 struct ProjectEllipsoid
-	: public std::binary_function< Math::Matrix< 3, 4, T >, Math::Vector< 6, T >, Math::Vector< 6, T > >
+	: public std::binary_function< Math::Matrix< T, 3, 4 >, Math::Vector< T, 6 >, Math::Vector< T, 6 > >
 {
 public:
 	/**
@@ -256,7 +256,7 @@ public:
 	 * @param ellipsoid a 6-vector including the parameters of the ellipsoid
 	 * @return the resulting conic
 	 */
-	Math::Vector< 6, T > operator() ( const Math::Matrix< 3, 4, T > &projection, const Math::Vector< 6, T > &ellipsoid ) const
+	Math::Vector< T, 6 > operator() ( const Math::Matrix< T, 3, 4 > &projection, const Math::Vector< T, 6 > &ellipsoid ) const
 	{
 		const T a ( ellipsoid( 0 ) ); //1st semi-axis
 		const T b ( ellipsoid( 1 ) ); //2nd semi-axis
@@ -292,7 +292,7 @@ public:
 		// make it a point-conic:
 		const T divisor =  1/( (conic_a*(conic_e*conic_e)+conic_c*(conic_d*conic_d)+(conic_b*conic_b)*conic_f-conic_a*conic_c*conic_f*static_cast< T >( 4 )-conic_b*conic_d*conic_e) );
 
-		Math::Vector< 6, T > iConic;		
+		Math::Vector< T, 6 > iConic;		
 		iConic( 0 ) = -(conic_c*conic_f*static_cast< T >( 4 ) -conic_e*conic_e) * divisor;
 		iConic( 1 ) =  2*(conic_b*conic_f*static_cast< T >( 2 ) -conic_d*conic_e) * divisor;
 		iConic( 2 )  = -(conic_a*conic_f*static_cast< T >( 4 ) -conic_d*conic_d) * divisor;
@@ -302,7 +302,7 @@ public:
 		
 		// or just make it a line-conic:
 		/*
-		Math::Vector< 6, T > iConic;
+		Math::Vector< T, 6 > iConic;
 		iConic[ 0 ] = conic_a;
 		iConic[ 1 ] = conic_b;
 		iConic[ 2 ] = conic_c;
@@ -310,7 +310,7 @@ public:
 		iConic[ 4 ] = conic_e;
 		iConic[ 5 ] = conic_f;
 		*/
-		return Math::Vector< 6, T >( iConic );
+		return Math::Vector< T, 6 >( iConic );
 	}
 };
 
@@ -323,7 +323,7 @@ public:
  */
 template< typename T >
 struct ProjectSpheroid
-	: public std::binary_function< Math::Matrix< 3, 4, T >, Math::Vector< 4, T >, Math::Vector< 6, T > >
+	: public std::binary_function< Math::Matrix< T, 3, 4 >, Math::Vector< T, 4 >, Math::Vector< T, 6 > >
 {
 protected:
 	const ProjectEllipsoid< T > m_Projector;
@@ -332,7 +332,7 @@ public:
 
 	/** Standard constructor */
 	ProjectSpheroid()
-		: std::binary_function< Math::Matrix< 3, 4, T >, Math::Vector< 4, T >, Math::Vector< 6, T > >()
+		: std::binary_function< Math::Matrix< T, 3, 4 >, Math::Vector< T, 4 >, Math::Vector< T, 6 > >()
 		, m_Projector()
 		{}
 
@@ -345,9 +345,9 @@ public:
 	 * @param ellipsoid a 6-vector including the parameters of the ellipsoid
 	 * @return the resulting conic
 	 */
-	Math::Vector< 6, T > operator() ( const Math::Matrix< 3, 4, T > &projection, const Math::Vector< 4, T > &spheroid ) const
+	Math::Vector< T, 6 > operator() ( const Math::Matrix< T, 3, 4 > &projection, const Math::Vector< T, 4 > &spheroid ) const
 	{
-		Math::Vector< 6, T > ellipsoid;
+		Math::Vector< T, 6 > ellipsoid;
 		ellipsoid( 0 ) = spheroid( 0 ); // 1st semi axis
 		ellipsoid( 1 ) = spheroid( 0 ); // 2nd semi axis
 		ellipsoid( 2 ) = spheroid( 1 ); // 3rd semi axis

@@ -2,6 +2,7 @@
 #include <utUtil/Logging.h>
 #include "Math/MathTest.h"
 #include "Calibration/CalibTest.h"
+#include "Stochastic/StochasticTest.h"
 
 using boost::unit_test::test_suite;
 
@@ -16,8 +17,9 @@ test_suite* init_unit_test_suite( int, char* [] )
 
 	// this example will pass cause we know ahead of time number of expected failures
 	allTests->add( new MathTest );
+	allTests->add( new StochasticTest );
 	allTests->add( new CalibrationTest );
-
+	
 	return allTests;
 }
 

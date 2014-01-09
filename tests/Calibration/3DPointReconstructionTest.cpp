@@ -1,85 +1,118 @@
+#include <utCalibration/3DPointReconstruction.h>
+#include <utMath/Geometry/PointProjection.h>
+#include <utMath/Stochastic/identity_iterator.h>
+
+#include <utMath/Random/Scalar.h>
+#include <utMath/Random/Vector.h>
+#include <utMath/Random/Rotation.h>
+#include "../tools.h"
+
 #include <vector>
 #include <iostream>
 
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
-#include <utCalibration/3DPointReconstruction.h>
-#include <utMath/Functors/Vector3Functors.h>
-#include "../tools.h"
-
 using namespace Ubitrack;
-namespace ublas = boost::numeric::ublas;
 
-void Test3DPointReconstruction()
+template< typename T >
+void Test2Cameras( const std::size_t n_runs, const T epsilon )
 {
-	for( int j=0; j<100; ++j )
+	typename Math::Random::Quaternion< T >::Uniform randQuat;
+	typename Math::Random::Vector< T, 3 >::Uniform randTranslation( -10., 10. ); //translation
+	
+	typename Math::Random::Vector< T, 3 >::Uniform randVector( -1., 1. ); // 3d Points
+	
+	for( std::size_t j=0; j<n_runs; ++j )
 	{
 
-		Math::Pose CamPose1( randomQuaternion() , randomVector< 3, double >() );
-		Math::Pose CamPose2( randomQuaternion() , randomVector< 3, double >() );
-		Math::Matrix< 3, 4, double > p1( CamPose1 );
-		Math::Matrix< 3, 4, double > p2( CamPose2 );
+		Math::Pose CamPose1( randQuat() , randTranslation() );
+		Math::Pose CamPose2( randQuat() , randTranslation() );
+		Math::Matrix< T, 3, 4 > proj1( CamPose1 );
+		Math::Matrix< T, 3, 4 > proj2( CamPose2 );
 
-		Math::Matrix< 3, 3, double > K = ublas::identity_matrix< double > ( 3, 3 );
+		Math::Matrix< T, 3, 3 > K = Math::Matrix< T, 3, 3 >::identity();
 		K( 0, 0 ) = K( 1, 1 ) = 500;
 		K( 0, 2 ) = 320;
 		K( 1, 2 ) = 240;
 
-		p1 = ublas::prod( K, p1 );
-		p2 = ublas::prod( K, p2 );
+		// generate the projections
+		proj1 = boost::numeric::ublas::prod( K, proj1 );
+		proj2 = boost::numeric::ublas::prod( K, proj2 );
 		
 		//compute random points
-		unsigned int num_correspondences = static_cast< unsigned > ( random( 10.0, 30.0 ) );
-		std::vector< Math::Vector< 3 > > objPoints;
-		std::vector< Math::Vector< 2 > > points1;
-		std::vector< Math::Vector< 2 > > points2;
-		objPoints.reserve( num_correspondences );
-		points1.reserve( num_correspondences );
-		points2.reserve( num_correspondences );
+		const std::size_t n( Math::Random::distribute_uniform< std::size_t >( 10, 30 ) );
+		std::vector< Math::Vector< T, 3 > > objPoints;
+		objPoints.reserve( n );
+		std::generate_n ( std::back_inserter( objPoints ), n,  randVector );
 		
-		//project the points onto the image screen
-		for( unsigned int i=0; i<num_correspondences; ++i )
+		//project the points onto the first image screen
+		std::vector< Math::Vector< T, 2 > > points1;
+		points1.reserve( n );
+		Math::Geometry::project_points( proj1, objPoints.begin(), objPoints.end(), std::back_inserter( points1 ) );
+		
+		//project the points onto the second image screen
+		std::vector< Math::Vector< T, 2 > > points2;
+		points2.reserve( n );
+		Math::Geometry::project_points( proj2, objPoints.begin(), objPoints.end(), std::back_inserter( points2 ) );
+		
+		for( std::size_t i=0; i<n; ++i )
 		{
-			Math::Vector< 3 > v = randomVector< 3, double >();
-			Math::Vector< 2 > v1 = Math::Functors::project3x4_vector3< double >()( p1, v );
-			Math::Vector< 2 > v2 = Math::Functors::project3x4_vector3< double >()( p2, v );
-
-			objPoints.push_back( v );
-			points1.push_back( Math::Vector< 2 >( v1 ) );
-			points2.push_back( Math::Vector< 2 >( v2 ) );
-		
 			//check now the reconstructed points		
-			Math::Vector< 3 > tmp = Calibration::get3DPosition( p1, p2, points1[ i ], points2[ i ] );
-			BOOST_CHECK_SMALL( vectorDiff( tmp, objPoints[ i ] ), 1e-05 );	
+			Math::Vector< T, 3 > p3D = Calibration::get3DPosition( proj1, proj2, points1[ i ], points2[ i ] );
+			const T diffError = vectorDiff( p3D, objPoints[ i ] );
+			BOOST_CHECK( diffError < epsilon );	
 		}
 	}
+}
+
+
+template< typename T >
+void TestMulitpleCameras( const std::size_t n_runs , const T epsilon )
+{
+	typename Math::Random::Quaternion< T >::Uniform randQuat;
+	typename Math::Random::Vector< T, 3 >::Uniform randTranslation( -10., 10. ); //translation
+	
+	typename Math::Random::Vector< T, 3 >::Uniform randVector( -1., 1. ); // 3d Points
+	// typename Random::Vector< T, 3 >::Normal randPositionNoise( 0, 0.2 ); // translation gaussian noise
 	
 	// check for multi-camera setup
-	for( int j=0; j<100; ++j )
+	for( std::size_t j=0; j<n_runs; ++j )
 	{
-
-		unsigned int num_cameras = static_cast< unsigned > ( random( 2.0, 10.0 ) );
-		std::vector< Math::Matrix< 3, 4, double > > matrices; // stores projection matrices
-		std::vector< Math::Vector< 2 , double > > pts; //stores image points
-		matrices.reserve( num_cameras );
-		pts.reserve( num_cameras );
-
-		// random vector
-		Math::Vector< 3 > v = randomVector< 3, double >() * random( 2.0, 100.0 );
-
-		for( unsigned i( 0 ); i < num_cameras; ++i )
-		{
-			Math::Pose CamPose( randomQuaternion() , randomVector< 3, double >() );
-			Math::Matrix< 3, 4, double > p( CamPose );
-			Math::Vector< 2 > p2d = Math::Functors::project3x4_vector3< double >()( p, v );
-			
-			matrices.push_back( p );
-			pts.push_back( p2d );
-		}
+		// determine the amount of cameras to be used
+		const std::size_t n_cams( Math::Random::distribute_uniform< std::size_t >( 2, 10 ) );
 		
-		Math::Vector< 3, double > p3D = Calibration::get3DPosition( matrices, pts );
-		BOOST_CHECK_SMALL( vectorDiff( p3D, v ), 1e-05 );
+		// intialize some cameras:
+		std::vector< Math::Matrix< T, 3, 4 > > matrices; // stores projection matrices
+		matrices.reserve( n_cams );
+		
+		for( std::size_t i( 0 ); i < n_cams; ++i )
+		{
+			Math::Pose CamPose( randQuat() , randTranslation() );
+			Math::Matrix< T, 3, 4 > p( CamPose );
+			matrices.push_back( p );
+		}			
+			
+		// generate a random vector
+		const Math::Vector< T, 3 >  randVec = randVector();
+		
+		// generate some 2D observation of 3D random vector
+		std::vector< Math::Vector< T, 2 > > pts; //stores image points
+		pts.reserve( n_cams );
+		std::transform( matrices.begin(), matrices.end(), Util::identity< Math::Vector< T, 3 > >( randVec ).begin()
+			, std::back_inserter( pts ), Math::Geometry::ProjectPoint() );
+
+		//estimate final result
+		Math::Vector< T, 3 > p3D = Calibration::get3DPosition( matrices, pts, 0 );
+		const T diffError = vectorDiff( p3D, randVec );
+		BOOST_CHECK_SMALL( diffError, epsilon );
 	}
-	
+}
+
+void Test3DPointReconstruction()
+{
+	Test2Cameras< float >( 1000, 1e-2f );
+	Test2Cameras< double >( 1000, 1e-3 );
+	TestMulitpleCameras< float >( 1000, 1e-2f );
+	TestMulitpleCameras< double >( 1000, 1e-3 );
 }
