@@ -22,7 +22,7 @@
  */
 
  /**
- * @ingroup math stochasic
+ * @ingroup math stochastic
  * @file
  *
  * Several functions necessary for k-means calculations including the k-means algorithm.
@@ -88,22 +88,27 @@ struct Distance
 	}
 };
 
-// small template to support k-means
-template< typename InputIterator  >
+// small internal template to support k-means: 
+// assigns the indices, according to the minimal distance between
+// cluster and vector. 
+// -> index relates to number of nearest cluster
+template< typename InputIterator, typename BinaryOperator  >
 struct assign_indices
 {
 	typedef typename std::iterator_traits< InputIterator >::value_type vector_type;
 	typedef typename vector_type::value_type value_type;
 	const InputIterator iBegin;
 	const InputIterator iEnd;
+	BinaryOperator distanceFunc;
 	// const std::size_t n;
 	// std::vector< value_type > distances;
 	// const typename std::vector< value_type >::iterator itD;
 	
 	
-	assign_indices( const InputIterator first , const InputIterator last )
+	assign_indices( const InputIterator first , const InputIterator last, BinaryOperator distanceFuncIn )
 		: iBegin( first )
 		, iEnd( last )
+		, distanceFunc( distanceFuncIn )
 		// , n( std::distance( first, last ) )
 		// , distances( n, 0 )
 		// , itD ( distances.begin() )
@@ -122,11 +127,11 @@ struct assign_indices
 		
 		std::size_t k( 0 );
 		InputIterator iter = iBegin;
-		T d = SquarredDistance()( vec, (*iter++) );
+		T d = distanceFunc( vec, (*iter++) );
 		
 		for( std::size_t k_now( 1 ) ; iter<iEnd; ++iter, ++k_now )
 		{
-			const T d_new = SquarredDistance()( vec, (*iter) );
+			const T d_new = distanceFunc( vec, (*iter) );
 			if( d_new < d )
 			{
 				d = d_new;
@@ -185,7 +190,7 @@ namespace Ubitrack{ namespace Math { namespace Stochastic {
  * std::vector< Vector3d > points3dOut; // <- will be filled with values, storage can be allocated with \c reserve() \n
  * copy_greedy( points3d.begin(), points3d.end(), k, std::back_inserter( points3dOut ) );\n
  * 
- * @tparam InputIterator type of input iterator to container of input elements
+ * @tparam InputIterator type of input iterator to container of values
  * @tparam OutputIterator type of the output iterator to container for selected input elements
  * @param iBegin \c iterator pointing to first element in the input container/storage class of the elements ( usually \c begin() )
  * @param iEnd \c iterator pointing behind the last element in the input container/storage class of the elements ( usually \c end() )
@@ -228,8 +233,8 @@ void copy_greedy( const InputIterator iBegin, const InputIterator iEnd, const st
  * @param n_cluster a value that signs how many elements should be selected and put to the output iterator
  * @param itSelected output \c iterator pointing to first element in container/storage class for storing the selected elements ( usually \c begin() or \c std::back_inserter(container) )
  */ 
-template< typename InputIterator, typename OutputIterator >
-void copy_probability( const InputIterator iBegin, const InputIterator iEnd, const std::size_t n_cluster, OutputIterator itSelected )
+template< typename InputIterator, typename OutputIterator, typename BinaryOperator >
+void copy_probability( const InputIterator iBegin, const InputIterator iEnd, const std::size_t n_cluster, OutputIterator itSelected, BinaryOperator distanceFunc )
 {
 	typedef typename std::iterator_traits< InputIterator >::value_type vector_type;
 	typedef typename vector_type::value_type value_type;
@@ -241,20 +246,20 @@ void copy_probability( const InputIterator iBegin, const InputIterator iEnd, con
 	// assign first selected element
 	InputIterator itNewOut = (iBegin+index);
 	*itSelected++ = *(itNewOut);
-	
+
 	// calculate distances to first element
 	std::vector< value_type > distances;
 	distances.reserve( n );
-	std::transform( iBegin, iEnd, Util::identity< vector_type >( *itNewOut ).begin(), std::back_inserter( distances ), Distance() );
+	std::transform( iBegin, iEnd, Util::identity< vector_type >( *itNewOut ).begin(), std::back_inserter( distances ), distanceFunc );
 
 	value_type dist_sum = std::accumulate( distances.begin(), distances.end(), static_cast< value_type >( 0 ) );
-					
+
 	for( size_type k( 1 ); k < n_cluster; ++k, ++itSelected )
 	{
 		value_type max_range = Math::Random::distribute_uniform< value_type >( 0, dist_sum );
-				
+
 		for( index = 0; index < n-1; ++index )
-			if ( max_range <= distances[ index ] ) 
+			if ( max_range <= distances[ index ] )
 				break;
 			else
 				max_range -= distances[ index ];
@@ -266,13 +271,13 @@ void copy_probability( const InputIterator iBegin, const InputIterator iEnd, con
 		// calculate the distances to the new value
 		std::vector< value_type > distances_temp;
 		distances_temp.reserve( n );
-		std::transform( iBegin, iEnd, Util::identity< vector_type >( *itNewOut ).begin(), std::back_inserter( distances_temp ), Distance() );		
-	
+		std::transform( iBegin, iEnd, Util::identity< vector_type >( *itNewOut ).begin(), std::back_inserter( distances_temp ), distanceFunc );
+
 		// determine the minimal distance to one of earlier chosen points
 		std::transform( distances.begin(), distances.end(), distances_temp.begin(), distances.begin(), std::min< value_type > );
 		
 		// calculate newest maximal distance (should be smaller than before)
-		dist_sum = std::accumulate( distances.begin(), distances.end(), static_cast< value_type >( 0 ) );     
+		dist_sum = std::accumulate( distances.begin(), distances.end(), static_cast< value_type >( 0 ) );
 	}
 };
 
@@ -319,7 +324,7 @@ typename std::iterator_traits< OutputIterator >::value_type::value_type k_means(
 	//assign indices for the first time
 	indices_container_type indices;
 	indices.reserve( n_cluster );
-	std::transform( iBegin, iEnd, std::back_inserter( indices ), assign_indices< mean_type_iterator >( itMeanBegin, itMeanEnd ) );
+	std::transform( iBegin, iEnd, std::back_inserter( indices ), assign_indices< mean_type_iterator, BinaryOperator >( itMeanBegin, itMeanEnd, distanceFunc ) );
 	
 	
 	std::size_t i( 0 );
@@ -349,7 +354,7 @@ typename std::iterator_traits< OutputIterator >::value_type::value_type k_means(
 		// means.assign( means_temp.begin(), means_temp.end() );
 
 		// finally assign the indices to the corresponding clusters for the new loop
-		std::transform( iBegin, iEnd, indices.begin(), assign_indices< mean_type_iterator >( itMeanBegin, itMeanEnd ) );
+		std::transform( iBegin, iEnd, indices.begin(), assign_indices< mean_type_iterator, BinaryOperator >( itMeanBegin, itMeanEnd, distanceFunc ) );
 		
 		if( diff_error < epsilon )
 			break;
@@ -413,7 +418,7 @@ void k_means( const InputIterator iBeginValues, const InputIterator iEndValues, 
 	// copy_probability( iBeginValues, iEndValues, n_cluster, means.begin() ) );
 	// std::cout << "Means probability " << means << std::endl;
 	
-	copy_probability( iBeginValues, iEndValues, n_cluster, std::back_inserter( means ) );
+	copy_probability( iBeginValues, iEndValues, n_cluster, std::back_inserter( means ), Distance() );
 	
 	k_means( iBeginValues, iEndValues, means.begin(), means.end(), itIndices, SquarredDistance() );
 	
