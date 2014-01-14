@@ -77,7 +77,7 @@ struct Distance
 	template< template< typename, std::size_t > class VecType, typename T, std::size_t N >
 	T operator()( const VecType< T, N >& vec ) const
 	{
-		return Norm_2()( vec );
+		return Ubitrack::Math::Norm_2()( vec );
 	}
 
 	template< template< typename, std::size_t > class VecType, typename T, std::size_t N >
@@ -127,11 +127,11 @@ struct assign_indices
 		
 		std::size_t k( 0 );
 		InputIterator iter = iBegin;
-		T d = distanceFunc( vec, (*iter++) );
+		value_type d = distanceFunc( vec, (*iter++) );
 		
 		for( std::size_t k_now( 1 ) ; iter<iEnd; ++iter, ++k_now )
 		{
-			const T d_new = distanceFunc( vec, (*iter) );
+			const value_type d_new = distanceFunc( vec, (*iter) );
 			if( d_new < d )
 			{
 				d = d_new;
@@ -299,12 +299,12 @@ typename std::iterator_traits< OutputIterator >::value_type::value_type k_means(
 {
 	// some typedefs regarding the input vector type
 	typedef typename std::iterator_traits< InputIterator >::value_type vector_in_type;
-	typedef typename vector_in_type::value_type value_type;
 	
 	// some typedefs regarding the output iterator container (including the means)
 	typedef typename std::iterator_traits< OutputIterator >::value_type vector_out_type;
 	typedef typename std::vector< vector_out_type > mean_container_type;
 	typedef typename mean_container_type::iterator mean_type_iterator;
+	typedef typename vector_out_type::value_type value_type; // <- the means define the distance type
 	
 	// some typedefs regarding the indices container
 	typedef typename Ubitrack::Util::container_traits< IndicesIterator >::value_type indices_type;
@@ -351,7 +351,6 @@ typename std::iterator_traits< OutputIterator >::value_type::value_type k_means(
 		
 		// store the new means values
 		itMeanEnd = std::copy( means_temp.begin(), means_temp.end(), itMeanBegin );
-		// means.assign( means_temp.begin(), means_temp.end() );
 
 		// finally assign the indices to the corresponding clusters for the new loop
 		std::transform( iBegin, iEnd, indices.begin(), assign_indices< mean_type_iterator, BinaryOperator >( itMeanBegin, itMeanEnd, distanceFunc ) );
