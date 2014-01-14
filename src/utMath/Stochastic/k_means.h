@@ -54,8 +54,8 @@
 
 namespace {
 
-// helper struct, might be removed later
-struct distance_1
+// helper struct, might be (re)moved later
+struct SquarredDistance
 {
 	template< template< typename, std::size_t > class VecType, typename T, std::size_t N >
 	T operator()( const VecType< T, N >& vec ) const
@@ -71,14 +71,13 @@ struct distance_1
 	}
 };
 
-struct distance_2
+// helper struct, might be (re)moved later
+struct Distance
 {
-	Ubitrack::Math::InnerProduct distancer;
-	
 	template< template< typename, std::size_t > class VecType, typename T, std::size_t N >
 	T operator()( const VecType< T, N >& vec ) const
 	{
-		return std::sqrt( distancer( vec ) );
+		return Norm_2()( vec );
 	}
 
 	template< template< typename, std::size_t > class VecType, typename T, std::size_t N >
@@ -116,18 +115,18 @@ struct assign_indices
 	{
 		// std::vector< T > distances;
 		// distances.reserve( n );
-		// std::transform( iBegin, iEnd, Ubitrack::Util::identity< VecType< T, N > >( vec ).begin(), std::back_inserter( distances ), distance_1() );
-		// std::transform( iBegin, iEnd, Ubitrack::Util::identity< VecType< T, N > >( vec ).begin(), itD, distance_1() );
+		// std::transform( iBegin, iEnd, Ubitrack::Util::identity< VecType< T, N > >( vec ).begin(), std::back_inserter( distances ), SquarredDistance() );
+		// std::transform( iBegin, iEnd, Ubitrack::Util::identity< VecType< T, N > >( vec ).begin(), itD, SquarredDistance() );
 		// const std::vector< value_type >::iterator itDist = std::min_element( itD, distances.end() );
 		// return std::distance( itD, itDist );
 		
 		std::size_t k( 0 );
 		InputIterator iter = iBegin;
-		T d = distance_1()( vec, (*iter++) );
+		T d = SquarredDistance()( vec, (*iter++) );
 		
 		for( std::size_t k_now( 1 ) ; iter<iEnd; ++iter, ++k_now )
 		{
-			const T d_new = distance_1()( vec, (*iter) );
+			const T d_new = SquarredDistance()( vec, (*iter) );
 			if( d_new < d )
 			{
 				d = d_new;
@@ -246,7 +245,7 @@ void copy_probability( const InputIterator iBegin, const InputIterator iEnd, con
 	// calculate distances to first element
 	std::vector< value_type > distances;
 	distances.reserve( n );
-	std::transform( iBegin, iEnd, Util::identity< vector_type >( *itNewOut ).begin(), std::back_inserter( distances ), distance_2() );
+	std::transform( iBegin, iEnd, Util::identity< vector_type >( *itNewOut ).begin(), std::back_inserter( distances ), Distance() );
 
 	value_type dist_sum = std::accumulate( distances.begin(), distances.end(), static_cast< value_type >( 0 ) );
 					
@@ -267,7 +266,7 @@ void copy_probability( const InputIterator iBegin, const InputIterator iEnd, con
 		// calculate the distances to the new value
 		std::vector< value_type > distances_temp;
 		distances_temp.reserve( n );
-		std::transform( iBegin, iEnd, Util::identity< vector_type >( *itNewOut ).begin(), std::back_inserter( distances_temp ), distance_2() );		
+		std::transform( iBegin, iEnd, Util::identity< vector_type >( *itNewOut ).begin(), std::back_inserter( distances_temp ), Distance() );		
 	
 		// determine the minimal distance to one of earlier chosen points
 		std::transform( distances.begin(), distances.end(), distances_temp.begin(), distances.begin(), std::min< value_type > );
@@ -278,12 +277,20 @@ void copy_probability( const InputIterator iBegin, const InputIterator iEnd, con
 };
 
 
-/// @internal function only, please see other k-means for explanation
-template< typename InputIterator, typename OutputIterator, typename IndicesIterator >
+/** @internal function only, please see other k-means for explanation
+ *
+ *
+ * @tparam InputIterator type of input iterator to container of values
+ * @tparam OutputIterator type of the output iterator to container of the clusters
+ * @tparam IndicesIterator type of the output iterator to container of the indices
+ * @tparam BinaryOperator type of the evaluation function to estimate distance of elements
+ */
+ 
+template< typename InputIterator, typename OutputIterator, typename IndicesIterator, typename BinaryOperator >
 typename std::iterator_traits< OutputIterator >::value_type::value_type k_means( 
 	const InputIterator iBegin, const InputIterator iEnd
 	, OutputIterator itMeanBegin, OutputIterator itMeanEnd
-	, IndicesIterator indicesOut )
+	, IndicesIterator indicesOut, BinaryOperator distanceFunc )
 {
 	// some typedefs regarding the input vector type
 	typedef typename std::iterator_traits< InputIterator >::value_type vector_in_type;
@@ -334,7 +341,7 @@ typename std::iterator_traits< OutputIterator >::value_type::value_type k_means(
 		// calculate the summarized difference
 		std::vector< value_type > norms1;
 		norms1.reserve( n_cluster );
-		std::transform( itMeanBegin, itMeanEnd, means_temp.begin(), std::back_inserter( norms1 ), distance_1() );
+		std::transform( itMeanBegin, itMeanEnd, means_temp.begin(), std::back_inserter( norms1 ), distanceFunc );
 		diff_error = std::accumulate( norms1.begin(), norms1.end(), static_cast< value_type >( 0 ) ) / n_cluster;
 		
 		// store the new means values
@@ -408,7 +415,7 @@ void k_means( const InputIterator iBeginValues, const InputIterator iEndValues, 
 	
 	copy_probability( iBeginValues, iEndValues, n_cluster, std::back_inserter( means ) );
 	
-	k_means( iBeginValues, iEndValues, means.begin(), means.end() , itIndices );
+	k_means( iBeginValues, iEndValues, means.begin(), means.end(), itIndices, SquarredDistance() );
 	
 	// copy the resulting mean values to output iterator
 	std::copy( means.begin(), means.end(), itCentroids );
