@@ -31,7 +31,7 @@ void testBasicKMeans( const std::size_t n_runs, const std::size_t max_n, const s
 		
 		//reserve some space for mean values 
 		std::vector< Vector< T, 2 > > centroids;
-		centroids.reserve( n );
+		centroids.reserve( cluster );
 		
 		// execute the k-means algorithm
 		Stochastic::k_means( pts2D.begin(), pts2D.end(), cluster, std::back_inserter( centroids ), std::back_inserter( indices ) );
