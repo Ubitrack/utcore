@@ -32,6 +32,8 @@
 
 #include "HandEyeCalibrationDual.h"
 
+#include <utMath/Pose.h>
+#include <utMath/Matrix.h>
 #include <utMath/Blas1.h> // inner_product
 #include <utMath/Stochastic/identity_iterator.h>
 

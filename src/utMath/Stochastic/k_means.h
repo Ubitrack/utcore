@@ -22,7 +22,7 @@
  */
 
  /**
- * @ingroup math stochasic
+ * @ingroup math stochastic
  * @file
  *
  * Several functions necessary for k-means calculations including the k-means algorithm.
@@ -54,8 +54,8 @@
 
 namespace {
 
-// helper struct, might be removed later
-struct distance_1
+// helper struct, might be (re)moved later
+struct SquarredDistance
 {
 	template< template< typename, std::size_t > class VecType, typename T, std::size_t N >
 	T operator()( const VecType< T, N >& vec ) const
@@ -71,14 +71,13 @@ struct distance_1
 	}
 };
 
-struct distance_2
+// helper struct, might be (re)moved later
+struct Distance
 {
-	Ubitrack::Math::InnerProduct distancer;
-	
 	template< template< typename, std::size_t > class VecType, typename T, std::size_t N >
 	T operator()( const VecType< T, N >& vec ) const
 	{
-		return std::sqrt( distancer( vec ) );
+		return Ubitrack::Math::Norm_2()( vec );
 	}
 
 	template< template< typename, std::size_t > class VecType, typename T, std::size_t N >
@@ -89,22 +88,27 @@ struct distance_2
 	}
 };
 
-// small template to support k-means
-template< typename InputIterator  >
+// small internal template to support k-means: 
+// assigns the indices, according to the minimal distance between
+// cluster and vector. 
+// -> index relates to number of nearest cluster
+template< typename InputIterator, typename BinaryOperator  >
 struct assign_indices
 {
 	typedef typename std::iterator_traits< InputIterator >::value_type vector_type;
 	typedef typename vector_type::value_type value_type;
 	const InputIterator iBegin;
 	const InputIterator iEnd;
+	BinaryOperator distanceFunc;
 	// const std::size_t n;
 	// std::vector< value_type > distances;
 	// const typename std::vector< value_type >::iterator itD;
 	
 	
-	assign_indices( const InputIterator first , const InputIterator last )
+	assign_indices( const InputIterator first , const InputIterator last, BinaryOperator distanceFuncIn )
 		: iBegin( first )
 		, iEnd( last )
+		, distanceFunc( distanceFuncIn )
 		// , n( std::distance( first, last ) )
 		// , distances( n, 0 )
 		// , itD ( distances.begin() )
@@ -116,18 +120,18 @@ struct assign_indices
 	{
 		// std::vector< T > distances;
 		// distances.reserve( n );
-		// std::transform( iBegin, iEnd, Ubitrack::Util::identity< VecType< T, N > >( vec ).begin(), std::back_inserter( distances ), distance_1() );
-		// std::transform( iBegin, iEnd, Ubitrack::Util::identity< VecType< T, N > >( vec ).begin(), itD, distance_1() );
+		// std::transform( iBegin, iEnd, Ubitrack::Util::identity< VecType< T, N > >( vec ).begin(), std::back_inserter( distances ), SquarredDistance() );
+		// std::transform( iBegin, iEnd, Ubitrack::Util::identity< VecType< T, N > >( vec ).begin(), itD, SquarredDistance() );
 		// const std::vector< value_type >::iterator itDist = std::min_element( itD, distances.end() );
 		// return std::distance( itD, itDist );
 		
 		std::size_t k( 0 );
 		InputIterator iter = iBegin;
-		T d = distance_1()( vec, (*iter++) );
+		value_type d = distanceFunc( vec, (*iter++) );
 		
 		for( std::size_t k_now( 1 ) ; iter<iEnd; ++iter, ++k_now )
 		{
-			const T d_new = distance_1()( vec, (*iter) );
+			const value_type d_new = distanceFunc( vec, (*iter) );
 			if( d_new < d )
 			{
 				d = d_new;
@@ -176,7 +180,7 @@ namespace Ubitrack{ namespace Math { namespace Stochastic {
  * @brief picks the first k elements of a given range.
  *
  * This function can be applied to nearly any container structure
- * providing access to the single container elements via forward iterators.
+ * providing access to the single container elements via input iterators.
  * Although designed for stl-containers * (e.g. \c std::vector,
  * \c std::list or \c std::set, etc ) the algorithm is not limited
  * to these ones but can be used via any pointer to data-structures.
@@ -186,19 +190,19 @@ namespace Ubitrack{ namespace Math { namespace Stochastic {
  * std::vector< Vector3d > points3dOut; // <- will be filled with values, storage can be allocated with \c reserve() \n
  * copy_greedy( points3d.begin(), points3d.end(), k, std::back_inserter( points3dOut ) );\n
  * 
- * @tparam ForwardIterator1 type of forward iterator to container of input elements
- * @tparam ForwardIterator2 type of the output iterator to container for selected input elements
+ * @tparam InputIterator type of input iterator to container of values
+ * @tparam OutputIterator type of the output iterator to container for selected input elements
  * @param iBegin \c iterator pointing to first element in the input container/storage class of the elements ( usually \c begin() )
  * @param iEnd \c iterator pointing behind the last element in the input container/storage class of the elements ( usually \c end() )
  * @param n_cluster a value that signs how many elements should be selected and put to the output iterator
  * @param itSelected output \c iterator pointing to first element in container/storage class for storing the selected elements ( usually \c begin() or \c std::back_inserter(container) )
  */ 
-template< typename ForwardIterator, typename OutputIterator >
-void copy_greedy( const ForwardIterator iBegin, const ForwardIterator iEnd, const std::size_t n_cluster, OutputIterator itSelected )
+template< typename InputIterator, typename OutputIterator >
+void copy_greedy( const InputIterator iBegin, const InputIterator iEnd, const std::size_t n_cluster, OutputIterator itSelected )
 {
-	typedef typename std::iterator_traits< ForwardIterator >::value_type vector_type;
-	const ForwardIterator itFinal = iBegin + n_cluster;
-	for( ForwardIterator iter = iBegin;  iter<itFinal ; ++iter )
+	typedef typename std::iterator_traits< InputIterator >::value_type vector_type;
+	const InputIterator itFinal = iBegin + n_cluster;
+	for( InputIterator iter = iBegin;  iter<itFinal ; ++iter )
 		(*itSelected++) = ( *iter );
 };
 
@@ -211,7 +215,7 @@ void copy_greedy( const ForwardIterator iBegin, const ForwardIterator iEnd, cons
  * algorithm to find good initial values for the centroids.
  *
  * This function can be applied to nearly any container structure
- * providing access to the single container elements via forward iterators.
+ * providing access to the single container elements via input iterators.
  * Although designed for stl-containers * (e.g. \c std::vector,
  * \c std::list or \c std::set, etc ) the algorithm is not limited
  * to these ones but can be used via any pointer to data-structures.
@@ -222,17 +226,17 @@ void copy_greedy( const ForwardIterator iBegin, const ForwardIterator iEnd, cons
  * std::vector< Vector3d > points3dOut; // <- will be filled with values, storage can be allocated with \c reserve() \n
  * copy_greedy( points3d.begin(), points3d.end(), k, std::back_inserter( points3dOut ) );\n
  * 
- * @tparam ForwardIterator1 type of forward iterator to container of input elements
- * @tparam ForwardIterator2 type of the output iterator to container for selected input elements
+ * @tparam InputIterator type of input iterator to container of input elements
+ * @tparam OutputIterator type of the output iterator to container for selected input elements
  * @param iBegin \c iterator pointing to first element in the input container/storage class of the elements ( usually \c begin() )
  * @param iEnd \c iterator pointing behind the last element in the input container/storage class of the elements ( usually \c end() )
  * @param n_cluster a value that signs how many elements should be selected and put to the output iterator
  * @param itSelected output \c iterator pointing to first element in container/storage class for storing the selected elements ( usually \c begin() or \c std::back_inserter(container) )
  */ 
-template< typename ForwardIterator, typename OutputIterator >
-void copy_probability( const ForwardIterator iBegin, const ForwardIterator iEnd, const std::size_t n_cluster, OutputIterator itSelected )
+template< typename InputIterator, typename OutputIterator, typename BinaryOperator >
+void copy_probability( const InputIterator iBegin, const InputIterator iEnd, const std::size_t n_cluster, OutputIterator itSelected, BinaryOperator distanceFunc )
 {
-	typedef typename std::iterator_traits< ForwardIterator >::value_type vector_type;
+	typedef typename std::iterator_traits< InputIterator >::value_type vector_type;
 	typedef typename vector_type::value_type value_type;
 	typedef typename std::size_t size_type;
 
@@ -240,22 +244,22 @@ void copy_probability( const ForwardIterator iBegin, const ForwardIterator iEnd,
 	std::size_t index = Math::Random::distribute_uniform< std::size_t >( 0, n );
 	
 	// assign first selected element
-	ForwardIterator itNewOut = (iBegin+index);
+	InputIterator itNewOut = (iBegin+index);
 	*itSelected++ = *(itNewOut);
-	
+
 	// calculate distances to first element
 	std::vector< value_type > distances;
 	distances.reserve( n );
-	std::transform( iBegin, iEnd, Util::identity< vector_type >( *itNewOut ).begin(), std::back_inserter( distances ), distance_2() );
+	std::transform( iBegin, iEnd, Util::identity< vector_type >( *itNewOut ).begin(), std::back_inserter( distances ), distanceFunc );
 
 	value_type dist_sum = std::accumulate( distances.begin(), distances.end(), static_cast< value_type >( 0 ) );
-					
+
 	for( size_type k( 1 ); k < n_cluster; ++k, ++itSelected )
 	{
 		value_type max_range = Math::Random::distribute_uniform< value_type >( 0, dist_sum );
-				
+
 		for( index = 0; index < n-1; ++index )
-			if ( max_range <= distances[ index ] ) 
+			if ( max_range <= distances[ index ] )
 				break;
 			else
 				max_range -= distances[ index ];
@@ -267,58 +271,60 @@ void copy_probability( const ForwardIterator iBegin, const ForwardIterator iEnd,
 		// calculate the distances to the new value
 		std::vector< value_type > distances_temp;
 		distances_temp.reserve( n );
-		std::transform( iBegin, iEnd, Util::identity< vector_type >( *itNewOut ).begin(), std::back_inserter( distances_temp ), distance_2() );		
-	
+		std::transform( iBegin, iEnd, Util::identity< vector_type >( *itNewOut ).begin(), std::back_inserter( distances_temp ), distanceFunc );
+
 		// determine the minimal distance to one of earlier chosen points
 		std::transform( distances.begin(), distances.end(), distances_temp.begin(), distances.begin(), std::min< value_type > );
 		
 		// calculate newest maximal distance (should be smaller than before)
-		dist_sum = std::accumulate( distances.begin(), distances.end(), static_cast< value_type >( 0 ) );     
+		dist_sum = std::accumulate( distances.begin(), distances.end(), static_cast< value_type >( 0 ) );
 	}
 };
 
 
-/// internal function only, please see other k-means for explanation
-template<  typename ForwardIterator, typename OutputIterator, typename IndicesIterator, template < typename, std::size_t > class VecType, typename T, std::size_t N >
-T k_means( const ForwardIterator iBegin, const ForwardIterator iEnd, const std::size_t n_cluster, OutputIterator itOut, IndicesIterator indicesOut, VecType< T, N > )
+/** @internal function only, please see other k-means for explanation
+ *
+ *
+ * @tparam InputIterator type of input iterator to container of values
+ * @tparam OutputIterator type of the output iterator to container of the clusters
+ * @tparam IndicesIterator type of the output iterator to container of the indices
+ * @tparam BinaryOperator type of the evaluation function to estimate distance of elements
+ */
+ 
+template< typename InputIterator, typename OutputIterator, typename IndicesIterator, typename BinaryOperator >
+typename std::iterator_traits< OutputIterator >::value_type::value_type k_means( 
+	const InputIterator iBegin, const InputIterator iEnd
+	, OutputIterator itMeanBegin, OutputIterator itMeanEnd
+	, IndicesIterator indicesOut, BinaryOperator distanceFunc )
 {
 	// some typedefs regarding the input vector type
-	typedef typename std::iterator_traits< ForwardIterator >::value_type vector_type;
-	typedef typename vector_type::value_type value_type;
+	typedef typename std::iterator_traits< InputIterator >::value_type vector_in_type;
+	
+	// some typedefs regarding the output iterator container (including the means)
+	typedef typename std::iterator_traits< OutputIterator >::value_type vector_out_type;
+	typedef typename std::vector< vector_out_type > mean_container_type;
+	typedef typename mean_container_type::iterator mean_type_iterator;
+	typedef typename vector_out_type::value_type value_type; // <- the means define the distance type
 	
 	// some typedefs regarding the indices container
 	typedef typename Ubitrack::Util::container_traits< IndicesIterator >::value_type indices_type;
 	typedef typename std::vector< indices_type > indices_container_type;
-	
-	typedef typename std::vector< vector_type > mean_container_type;
-	typedef typename mean_container_type::iterator mean_type_iterator;
-	
+
 	// we use a quadratic type for epsilon, such that we do not need to calculate square roots later
 	const value_type epsilon = std::pow( static_cast< value_type > (1e-02), 2 );
 	const std::size_t max_iter = 100; // I hope the name says all
 	
-	// std::cout << "Vector Type " << typeid( vector_type ).name() << " of dimension=" << N << " and type=" << typeid( T ).name() << "\n";	
+	// std::cout << "Vector Type " << typeid( vector_in_type ).name() << " of dimension=" << N << " and type=" << typeid( T ).name() << "\n";	
 	
 	const std::size_t n = std::distance( iBegin, iEnd );
+	const std::size_t n_cluster = std::distance( itMeanBegin, itMeanEnd );
 	assert( n > n_cluster );
 	// std::cout << "k-means called with " << n << " elements to determine " << n_cluster << " clusters\n";
-	
-	// the sum of the different means, saved separately for each dimension.
-	mean_container_type means;
-	means.reserve( n_cluster );
-	
-	// copy_greedy( iBegin, iEnd, n_cluster, std::back_inserter( means ) );
-	// std::cout << "Means greedy " << means << std::endl;
-	// copy_probability( iBegin, iEnd, n_cluster, means.begin() ) );
-	// std::cout << "Means probability " << means << std::endl;
-	
-	copy_probability( iBegin, iEnd, n_cluster, std::back_inserter( means ) );
-	
 
 	//assign indices for the first time
 	indices_container_type indices;
 	indices.reserve( n_cluster );
-	std::transform( iBegin, iEnd, std::back_inserter( indices ), assign_indices< mean_type_iterator >( means.begin(), means.end() ) );
+	std::transform( iBegin, iEnd, std::back_inserter( indices ), assign_indices< mean_type_iterator, BinaryOperator >( itMeanBegin, itMeanEnd, distanceFunc ) );
 	
 	
 	std::size_t i( 0 );
@@ -328,7 +334,7 @@ T k_means( const ForwardIterator iBegin, const ForwardIterator iEnd, const std::
 		// set some "fresh" (empty) mean values 
 		mean_container_type means_temp;
 		means_temp.reserve( n_cluster );
-		means_temp.assign( n_cluster, vector_type::zeros() );
+		means_temp.assign( n_cluster, vector_in_type::zeros() );
 				
 		//accumulate the means from the clusters 
 		k_means_accumulate( iBegin, iEnd, indices.begin(), assign_to_mean< mean_type_iterator >( means_temp.begin() ) );
@@ -340,21 +346,19 @@ T k_means( const ForwardIterator iBegin, const ForwardIterator iEnd, const std::
 		// calculate the summarized difference
 		std::vector< value_type > norms1;
 		norms1.reserve( n_cluster );
-		std::transform( means.begin(), means.end(), means_temp.begin(), std::back_inserter( norms1 ), distance_1() );
+		std::transform( itMeanBegin, itMeanEnd, means_temp.begin(), std::back_inserter( norms1 ), distanceFunc );
 		diff_error = std::accumulate( norms1.begin(), norms1.end(), static_cast< value_type >( 0 ) ) / n_cluster;
 		
 		// store the new means values
-		means.assign( means_temp.begin(), means_temp.end() );
+		itMeanEnd = std::copy( means_temp.begin(), means_temp.end(), itMeanBegin );
 
 		// finally assign the indices to the corresponding clusters for the new loop
-		std::transform( iBegin, iEnd, indices.begin(), assign_indices< mean_type_iterator >( means.begin(), means.end() ) );
+		std::transform( iBegin, iEnd, indices.begin(), assign_indices< mean_type_iterator, BinaryOperator >( itMeanBegin, itMeanEnd, distanceFunc ) );
 		
 		if( diff_error < epsilon )
 			break;
-	}	
+	}
 	
-	// copy the resulting mean values to output iterator
-	std::copy( means.begin(), means.end(), itOut );
 	// and copy the indices to the corresponding output iterator
 	std::copy( indices.begin(), indices.end(), indicesOut );
 	
@@ -366,7 +370,7 @@ T k_means( const ForwardIterator iBegin, const ForwardIterator iEnd, const std::
 // template< typename InputIterator, typename OutputIterator >
 // void k_means( const InputIterator iBeginValues, const InputIterator iEndValues, const std::size_t n_cluster, OutputIterator itIndices )
 // {
-	// typedef typename std::iterator_traits< ForwardIterator >::value_type VecType;
+	// typedef typename std::iterator_traits< InputIterator >::value_type VecType;
 	// std::vector< VecType > means;
 	// k_means( iBeginValues, iEndValues, n_cluster, std::back_inserter( means ), itIndices, *iBeginValues );
 // };
@@ -376,7 +380,7 @@ T k_means( const ForwardIterator iBegin, const ForwardIterator iEnd, const std::
  * @brief determines k centroids of clusters from a set of elements
  *
  * This function can be applied to nearly any container structure
- * providing access to the single container elements via forward iterators.
+ * providing access to the single container elements via input iterators.
  * Although designed for stl-containers * (e.g. \c std::vector,
  * \c std::list or \c std::set, etc ) the algorithm is not limited
  * to these ones but can be used via any pointer to data-structures.
@@ -388,7 +392,7 @@ T k_means( const ForwardIterator iBegin, const ForwardIterator iEnd, const std::
  * std::vector< std::size_t > indices; // <- will sign to with cluster a point belongs corresponds to the elements from the input iterators, storage can be allocated with \c reserve() \n
  * k_means( points3d.begin(), points3d.end(), k, std::back_inserter( points3dOut ), std::back_inserter( indices ) );\n
  * 
- * @tparam ForwardIterator type of forward iterator to container of input elements
+ * @tparam InputIterator type of input iterator to container of input elements
  * @tparam OutputIterator1 type of the output iterator to container of the clusters
  * @tparam OutputIterator2 type of the output iterator to container of the indices
  * @param iBeginValues \c iterator pointing to first element in the input container/storage class of the input elements ( usually \c begin() )
@@ -400,7 +404,25 @@ T k_means( const ForwardIterator iBegin, const ForwardIterator iEnd, const std::
 template< typename InputIterator, typename OutputIterator1, typename OutputIterator2 >
 void k_means( const InputIterator iBeginValues, const InputIterator iEndValues, const std::size_t n_cluster, OutputIterator1 itCentroids, OutputIterator2 itIndices )
 {
-	k_means( iBeginValues, iEndValues, n_cluster, itCentroids, itIndices, *iBeginValues );
+	typedef typename std::iterator_traits< InputIterator >::value_type vector_type;	
+	typedef typename std::vector< vector_type > mean_container_type;
+	typedef typename mean_container_type::iterator mean_type_iterator;
+	
+	// the sum of the different means, saved separately for each dimension.
+	mean_container_type means;
+	means.reserve( n_cluster );
+	
+	// copy_greedy( iBeginValues, iEndValues, n_cluster, std::back_inserter( means ) );
+	// std::cout << "Means greedy " << means << std::endl;
+	// copy_probability( iBeginValues, iEndValues, n_cluster, means.begin() ) );
+	// std::cout << "Means probability " << means << std::endl;
+	
+	copy_probability( iBeginValues, iEndValues, n_cluster, std::back_inserter( means ), Distance() );
+	
+	k_means( iBeginValues, iEndValues, means.begin(), means.end(), itIndices, SquarredDistance() );
+	
+	// copy the resulting mean values to output iterator
+	std::copy( means.begin(), means.end(), itCentroids );
 };
 
 } } } // namespace Ubitrack::Math::Stochastic

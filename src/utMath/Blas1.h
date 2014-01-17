@@ -56,6 +56,7 @@ namespace Ubitrack { namespace Math {
 struct InnerProduct	
 {
 public:
+	
 	/**
 	 * @ingroup math
 	 * Calculates the inner product of two vectors.
@@ -68,10 +69,7 @@ public:
 	template< typename VecType >
 	typename Math::vector_traits< VecType >::value_type operator() ( const VecType& vec1, const VecType& vec2 ) const
 	{
-		UBITRACK_STATIC_ASSERT( ( Math::has_fixed_storage< VecType >::value ), NEED_VECTOR_OF_FIXED_STORAGE_TYPE );
-		typedef typename Math::vector_traits< VecType >::value_type value_type;
-		
-		return inner_product_impl< value_type, Math::vector_traits< VecType >::size >()( vec1, vec2, 0 );
+		return this->operator()( vec1, vec2, typename Math::vector_traits< VecType >::storage_category() );
 	}
 	
 	/**
@@ -91,6 +89,36 @@ public:
 	}
 
 protected:
+
+	/// @internal function for fixed storage vectors, uses the internal functor
+	template< typename VecType >
+	typename Math::vector_traits< VecType >::value_type operator() ( const VecType& vec1, const VecType& vec2, const fixed_storage_tag ) const
+	{
+		UBITRACK_STATIC_ASSERT( ( Math::has_fixed_storage< VecType >::value ), NEED_FIXED_STORAGE_VECTOR_TYPE );
+		typedef typename Math::vector_traits< VecType >::value_type value_type;
+		
+		return inner_product_impl< value_type, Math::vector_traits< VecType >::size >()( vec1, vec2, 0 );
+	}
+	
+	/// @internal function for dynamic storage vectors, calculates the result using a loop
+	template< typename VecType >
+	typename Math::vector_traits< VecType >::value_type operator() ( const VecType& vec1, const VecType& vec2, const dynamic_storage_tag ) const
+	{
+	
+		UBITRACK_STATIC_ASSERT( ( Math::has_dynamic_storage< VecType >::value ), NEED_DYNAMIC_storage_category_VECTOR );
+		typedef typename Math::vector_traits< VecType >::size_type size_type;
+		typedef typename Math::vector_traits< VecType >::value_type value_type;	
+		
+		const size_type size1 = Math::vector_traits< VecType >::size( vec1 );
+		const size_type size2 = Math::vector_traits< VecType >::size( vec2 );
+		assert( size1 == size2 );
+		
+		value_type result( 0 );
+		for( size_type i = 0; i<size1; ++i )
+			result += ( vec1[ i ] * vec2[ i ] );
+		
+		return result;
+	}
 	/**
 	 * @ingroup math
 	 * Internal functor that implements the calculation of the
@@ -150,13 +178,39 @@ public:
 	template< typename VecType >
 	typename Math::vector_traits< VecType >::value_type operator() ( const VecType& vec ) const
 	{
-		UBITRACK_STATIC_ASSERT( ( Math::has_fixed_storage< VecType >::value ), NEED_VECTOR_OF_FIXED_STORAGE_TYPE );
+		return this->operator()( vec, typename Math::vector_traits< VecType >::storage_category() );
+	}
+	
+protected:
+
+	/// @internal function for fixed storage vectors, uses the internal functor
+	template< typename VecType >
+	typename Math::vector_traits< VecType >::value_type operator() ( const VecType& vec, const fixed_storage_tag ) const
+	{
+		UBITRACK_STATIC_ASSERT( ( Math::has_fixed_storage< VecType >::value ), NEED_FIXED_STORAGE_VECTOR_TYPE );
 		typedef typename Math::vector_traits< VecType >::value_type value_type;
 		
 		return norm_1_impl< value_type, Math::vector_traits< VecType >::size >()( vec, 0 );
 	}
 	
-protected:
+	/// @internal function for dynamic storage vectors, calculates the result using a loop
+	template< typename VecType >
+	typename Math::vector_traits< VecType >::value_type operator() ( const VecType& vec, const dynamic_storage_tag ) const
+	{
+	
+		UBITRACK_STATIC_ASSERT( ( Math::has_dynamic_storage< VecType >::value ), NEED_DYNAMIC_storage_category_VECTOR );
+		typedef typename Math::vector_traits< VecType >::size_type size_type;
+		typedef typename Math::vector_traits< VecType >::value_type value_type;	
+		
+		const size_type size = Math::vector_traits< VecType >::size( vec );
+		
+		value_type result( 0 );
+		for( size_type i = 0; i<size; ++i )
+			result += std::fabs( vec[ i ] );
+		
+		return result;
+	}
+	
 	/**
 	 * @ingroup math
 	 * Internal functor that implements the calculation of the
@@ -204,8 +258,6 @@ protected:
  */
 struct Norm_2
 {
-protected:
-	static const InnerProduct dotterer;
 public:
 	/**
 	 * @ingroup math
@@ -218,10 +270,7 @@ public:
 	template< typename VecType >
 	typename Math::vector_traits< VecType >::value_type operator() ( const VecType& vec ) const
 	{
-		UBITRACK_STATIC_ASSERT( ( Math::has_fixed_storage< VecType >::value ), NEED_VECTOR_OF_FIXED_STORAGE_TYPE );
-		typedef typename Math::vector_traits< VecType >::value_type value_type;
-		
-		return std::sqrt( dotterer.operator()( vec ) );
+		return std::sqrt( InnerProduct().operator()< VecType >( vec, vec ) );
 	}
 };
 
@@ -297,7 +346,7 @@ inline typename Math::vector_traits< VecType >::value_type inner_product( const 
 template< typename VecType >
 inline typename Math::vector_traits< VecType >::value_type norm_1( const VecType& vec )
 {
-	return Norm_1()( vec );
+	return Norm_1().operator()< VecType >( vec );
 }
 
 /**
@@ -319,7 +368,7 @@ inline typename Math::vector_traits< VecType >::value_type norm_1( const VecType
 template< typename VecType >
 inline typename Math::vector_traits< VecType >::value_type norm_2( const VecType& vec )
 {
-	return Norm_2()( vec );
+	return Norm_2().operator()< VecType >( vec );
 }
 
 /**
@@ -341,7 +390,7 @@ inline typename Math::vector_traits< VecType >::value_type norm_2( const VecType
 template< typename VecType >
 inline VecType normalize( const VecType& vec )
 {
-	return NormalizeVector()( vec );
+	return NormalizeVector().operator()< VecType >( vec );
 }
 
 } } // namespace Ubitrack::Math

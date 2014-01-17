@@ -142,15 +142,74 @@ void testBasicNorm1Functors( const std::size_t n, const T epsilon )
 		}
 	}
 }
+	
+
+template< typename T >
+void testNorm1Function( const std::size_t n, const T epsilon )
+{	
+	// some random test values
+	{
+
+		// generate some random vectors		
+		for( std::size_t i = 0; i<n; ++i )
+		{
+			//choose size of vector
+			std::size_t dim = Random::distribute_uniform< std::size_t >( 1, 100 );
+			
+			//set some random entries
+			Vector< T > point( dim );
+			for( std::size_t d = 0; d<dim; ++d )
+				point[ d ]  = Random::distribute_uniform< T >( -100., 100. );
+				
+			//calculate the result and compare to boost:
+			const T norm1_1 = norm_1( point );
+			const T norm1_2 = boost::numeric::ublas::norm_1( point );
+			BOOST_CHECK_SMALL( norm1_1 - norm1_2, epsilon );
+		}
+	}
+}
+
+
+template< typename T >
+void testNorm2Function( const std::size_t n, const T epsilon )
+{	
+	// some random test values
+	{
+
+		// generate some random vectors		
+		for( std::size_t i = 0; i<n; ++i )
+		{
+			//choose size of vector
+			std::size_t dim = Random::distribute_uniform< std::size_t >( 1, 100 );
+			
+			//set some random entries
+			Vector< T > point( dim );
+			for( std::size_t d = 0; d<dim; ++d )
+				point[ d ]  = Random::distribute_uniform< T >( -100., 100. );
+				
+			//calculate the result and compare to boost:
+			const T norm2_1 = norm_2( point );
+			const T norm2_2 = boost::numeric::ublas::norm_2( point );
+			BOOST_CHECK_SMALL( norm2_1 - norm2_2, epsilon );
+		}
+	}
+}
 
 void TestBlas1()
 {
 	testBasicInnerProductFunctors< float >( 100000, 1e-02f );
 	testBasicInnerProductFunctors< double >( 100000, 1e-10 );
 	testBasicNorm2Functors< float >( 100000, 1e-02f );
-	testBasicNorm2Functors< double >( 1000000, 1e-10 );
+	testBasicNorm2Functors< double >( 100000, 1e-10 );
 	testBasicNorm1Functors< float >( 100000, 1e-02f );
-	testBasicNorm1Functors< double >( 1000000, 1e-10 );
+	testBasicNorm1Functors< double >( 100000, 1e-10 );
+	
+	// Function calls
+	testNorm1Function< float >( 100000, 1e-02f );
+	testNorm1Function< double >( 100000, 1e-10 );
+	testNorm2Function< float >( 100000, 1e-02f );
+	testNorm2Function< double >( 100000, 1e-10 );
+	
 }
 
 
