@@ -14,7 +14,7 @@ void TestHandEye();
 void TestDualHandEye();
 
 CalibrationTest::CalibrationTest()
-	: boost::unit_test::test_suite( "Calibration test suite" )
+	: boost::unit_test::test_suite( "CalibrationTests" )
 {
 	add( BOOST_TEST_CASE( &TestTipCalibration ) );
 	// add( BOOST_TEST_CASE( &Test2D3DPoseEstimation ) );
