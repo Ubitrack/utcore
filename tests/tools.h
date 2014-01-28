@@ -75,6 +75,16 @@ typename VA::value_type vectorDiff( const VA& va, const VB& vb )
 	return d / boost::numeric::ublas::norm_2( va );
 }
 
+template< class VA, class VB > 
+typename VA::value_type vectorDistance( const VA& va, const VB& vb )
+{
+	typedef typename VA::value_type return_type;
+	return_type d = 0.0;
+	for ( std::size_t i = 0; i < va.size(); i++ )
+		d += fabs( va( i ) - vb( i ) );
+	return std::sqrt( d );
+}
+
 template< class MA, class MB > 
 typename MA::value_type homMatrixDiff( const MA& A, const MB& B )
 {
