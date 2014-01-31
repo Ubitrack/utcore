@@ -10,7 +10,7 @@ void TestQuaternionConversion();
 
 
 MathTest::MathTest()
-	: boost::unit_test::test_suite( "Math test suite" )
+	: boost::unit_test::test_suite( "MathTests" )
 {
 	add( BOOST_TEST_CASE( &TestBlas1 ) );
 	add( BOOST_TEST_CASE( &TestBlas2 ) );

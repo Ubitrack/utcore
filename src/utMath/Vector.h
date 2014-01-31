@@ -48,7 +48,6 @@
 #include <boost/serialization/access.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 
-
 namespace Ubitrack { namespace Math {
 
 /// forward declaration of Vector class with default template parameter

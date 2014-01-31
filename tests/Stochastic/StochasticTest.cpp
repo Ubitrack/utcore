@@ -7,7 +7,7 @@ void TestExpectationMaximization();
 
 
 StochasticTest::StochasticTest()
-	: boost::unit_test::test_suite( "Stochastic test suite" )
+	: boost::unit_test::test_suite( "StochasticTests" )
 {
 	add( BOOST_TEST_CASE( &TestKMeans ) );
 	add( BOOST_TEST_CASE( &TestExpectationMaximization ) );

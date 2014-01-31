@@ -2,6 +2,7 @@
  * AndroidLogAppender.cpp
  *
  */
+#ifdef ANDROID
 
 #include "PortabilityImpl.hh"
 #ifdef LOG4CPP_HAVE_UNISTD_H
@@ -70,3 +71,6 @@ namespace log4cpp {
         return true;
     }      
 }
+
+
+#endif // ANDROID

@@ -13,7 +13,7 @@ test_suite* init_unit_test_suite( int, char* [] )
 	Ubitrack::Util::initLogging();
 	
 	// create a test suite
-	test_suite* allTests = BOOST_TEST_SUITE( "Module utcore" );
+	test_suite* allTests = BOOST_TEST_SUITE( "utcore" );
 
 	// this example will pass cause we know ahead of time number of expected failures
 	allTests->add( new MathTest );

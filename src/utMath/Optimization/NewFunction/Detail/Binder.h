@@ -119,13 +119,13 @@ private:
 	{
 		// assume evaluate() has already been called
 		// first, pass on to jacobian of parameter to left
-		m_func.i_multiplyJacobian< LHSize >( p, l, j, m_param.value( p ) );
+		m_func.template i_multiplyJacobian< LHSize >( p, l, j, m_param.value( p ) );
 
 		if ( CParam::wantsJacobian )
 		{
 			Detail::ResultMatrix< LHSize * CParam::staticSize, LHSize, CParam::staticSize > jResult( j.size1(), m_param.size() );
 			m_func.i_multiplyJacobian1( p, l, jResult, m_param.value( p ) );
-			m_param.i_multiplyJacobian< LHSize >( p, jResult, j );
+			m_param.template i_multiplyJacobian< LHSize >( p, jResult, j );
 		}
 	}
 	
@@ -135,13 +135,13 @@ private:
 	{
 		// assume evaluate() has already been called
 		// first, pass on to jacobian of parameter to left
-		m_func.i_multiplyJacobian< LHSize >( p, l, j, m_param.value( p ), p1 );
+		m_func.template i_multiplyJacobian< LHSize >( p, l, j, m_param.value( p ), p1 );
 		
 		if ( CParam::wantsJacobian )
 		{
 			Detail::ResultMatrix< LHSize * CParam::staticSize, LHSize, CParam::staticSize > jResult( j.size1(), m_param.size() );
 			m_func.i_multiplyJacobian1( p, l, jResult, m_param.value( p ), p1 );
-			m_param.i_multiplyJacobian< LHSize >( p, jResult, j );
+			m_param.template i_multiplyJacobian< LHSize >( p, jResult, j );
 		}
 	}
 	
@@ -151,13 +151,13 @@ private:
 	{
 		// assume evaluate() has already been called
 		// first, pass on to jacobian of parameter to left
-		// m_func.i_multiplyJacobian< LHSize >( p, l, j, m_param.value( p ), p1, p2 ); // only 3 parameters supported
+		// m_func.template i_multiplyJacobian< LHSize >( p, l, j, m_param.value( p ), p1, p2 ); // only 3 parameters supported
 		
 		if ( CParam::wantsJacobian )
 		{
 			Detail::ResultMatrix< LHSize * CParam::staticSize, LHSize, CParam::staticSize > jResult( j.size1(), m_param.size() );
 			m_func.i_multiplyJacobian1( p, l, jResult, m_param.value( p ), p1, p2 );
-			m_param.i_multiplyJacobian< LHSize >( p, jResult, j );
+			m_param.template i_multiplyJacobian< LHSize >( p, jResult, j );
 		}
 	}
 

@@ -56,6 +56,20 @@ Vector< double, 3 > Pose::operator*( const Vector< double, 3 >& x ) const
 	return Vector< double, 3 >( ( m_rotation * x ) + m_translation );
 }
 
+bool Pose::operator==( const Pose& other ) const
+{
+	if ((m_rotation == other.rotation()) && (m_translation == other.translation()))
+		return true;
+	return false;
+}
+
+bool Pose::operator!=( const Pose& other ) const
+{
+	if ((m_rotation == other.rotation()) && (m_translation == other.translation()))
+		return false;
+	return true;
+}
+
 std::ostream& operator<<( std::ostream& s, const Pose& p )
 {
 	s << p.m_translation << " " << p.m_rotation;
