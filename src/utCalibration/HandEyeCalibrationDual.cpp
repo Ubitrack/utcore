@@ -43,7 +43,7 @@
 #ifdef HAVE_LAPACK
 #include <boost/numeric/bindings/lapack/gesvd.hpp>
 namespace lapack = boost::numeric::bindings::lapack;
-#endif
+
 
 
 namespace Ubitrack{ namespace Math {
@@ -365,8 +365,6 @@ bool estimatePose6D_6D6D_impl( const ForwardIterator itBeginEye, const ForwardIt
 	
 } // anonymous-namespace
 
-#ifdef HAVE_LAPACK
-
 UBITRACK_EXPORT bool estimatePose6D_6D6D( const std::vector< Math::Pose >& eyes, Math::Pose& pose,
 	const std::vector< Math::Pose >& hands )
 {
@@ -377,9 +375,8 @@ UBITRACK_EXPORT bool estimatePose6D_6D6D( const std::vector< Math::Pose >& eyes,
 	// return estimatePose6D_6D6D_impl< false, double >( eyes.begin(), eyes.end(), pose, hands.begin(), hands.end() );
 }
 
+
+
+}} // namespace Ubitrack::Calibration
+
 #endif // HAVE_LAPACK
-
-}}
-
-
-
