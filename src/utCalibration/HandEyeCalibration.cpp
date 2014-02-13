@@ -55,8 +55,8 @@ template< typename T >
 class TransformCont
 {
 	private:
-		std::vector<Math::Matrix< 4, 4, T > > m_hg;
-		std::vector<Math::Matrix< 4, 4, T > > m_hc;
+		std::vector<Math::Matrix< T, 4, 4 > > m_hg;
+		std::vector<Math::Matrix< T, 4, 4 > > m_hc;
 		
 	public:
 		void setNumber( const std::size_t i, bool bUseAllPairs )
@@ -69,47 +69,47 @@ class TransformCont
 		std::size_t getNumber() const
 		{ return m_hg.size(); }
 		
-		void push_back_hg( const Math::Matrix< 4, 4, T > &hg )
+		void push_back_hg( const Math::Matrix< T, 4, 4 > &hg )
 		{ m_hg.push_back( hg ); }
 		
-		void push_back_hc( const Math::Matrix< 4, 4, T > &hc )
+		void push_back_hc( const Math::Matrix< T, 4, 4 > &hc )
 		{ m_hc.push_back( hc ); }
 			
-		const Math::Matrix< 4, 4, T >& hg_at( const std::size_t i ) const
+		const Math::Matrix< T, 4, 4 >& hg_at( const std::size_t i ) const
 		{ return m_hg[ i ]; }
 		
-		const Math::Matrix< 4, 4, T >& hc_at( const std::size_t i ) const
+		const Math::Matrix< T, 4, 4 >& hc_at( const std::size_t i ) const
 		{ return m_hc[ i ]; }
 };
 
 
 /** \internal */
 template<typename T> 
-Math::Vector<3, T> computeSidesTrans(const Math::Matrix<4, 4, T>& hgij, const Math::Matrix<4, 4, T>& hcij, Math::Matrix<3, 3, T> rcg, 
-	Math::Matrix<3, 3, T> & leftT)
+Math::Vector< T, 3 > computeSidesTrans( const Math::Matrix< T, 4, 4 >& hgij, const Math::Matrix< T, 4, 4 >& hcij, Math::Matrix< T, 3, 3 > rcg, 
+	Math::Matrix< T, 3, 3 > & leftT)
 {
 
-	Math::Matrix<3, 3, T> rgij = ublas::subrange(hgij, 0, 3, 0, 3);
-	Math::Vector<3, T> tgij = ublas::subrange(ublas::column(hgij, 3), 0, 3);
-	Math::Vector<3, T> tcij = ublas::subrange(ublas::column(hcij, 3), 0, 3);
+	Math::Matrix< T, 3, 3 > rgij = ublas::subrange(hgij, 0, 3, 0, 3 );
+	Math::Vector< T, 3 > tgij = ublas::subrange( ublas::column(hgij, 3), 0, 3 );
+	Math::Vector< T, 3 > tcij = ublas::subrange( ublas::column(hcij, 3), 0, 3 );
 
-	leftT = rgij - Math::Matrix< 3, 3, T >::identity();
+	leftT = rgij - Math::Matrix< T, 3, 3 >::identity();
 
 	return (ublas::prod(rcg, tcij) - tgij);
 }
 
 
 template<typename T> 
-Math::Vector<3, T> computeTcg(TransformCont<T>& tc, const Math::Matrix<3, 3, T>& rcg)
+Math::Vector< T, 3 > computeTcg( TransformCont< T >& tc, const Math::Matrix< T, 3, 3 >& rcg)
 {
-	Math::Matrix< 0, 0, T > tA(3*tc.getNumber(), 3);
-	Math::Matrix< 0, 0, T > tB(3*tc.getNumber(), 1);
+	Math::Matrix< T, 0, 0 > tA(3*tc.getNumber(), 3);
+	Math::Matrix< T, 0, 0 > tB(3*tc.getNumber(), 1);
 
-	Math::Matrix<4, 4, T> hgij;
-	Math::Matrix<4, 4, T> hcij;
-	Math::Matrix<3, 3, T> leftT;
+	Math::Matrix< T, 4, 4 > hgij;
+	Math::Matrix< T, 4, 4 > hcij;
+	Math::Matrix< T, 3, 3 > leftT;
 
-	Math::Vector<3, T> rightT;
+	Math::Vector< T, 3 > rightT;
 
 	for(int i=0;i<tc.getNumber();i++)
 	{
@@ -138,7 +138,7 @@ Math::Vector<3, T> computeTcg(TransformCont<T>& tc, const Math::Matrix<3, 3, T>&
 
 	lapack::gels('N', tA, tB);			//pcg_ will be written to tB, solves tA*tcg = tB and tcg -> tB
 
-	Math::Vector<3, T> tcg;
+	Math::Vector< T, 3 > tcg;
 
 	tcg(0) = tB(0, 0);
 	tcg(1) = tB(1, 0);
@@ -148,10 +148,10 @@ Math::Vector<3, T> computeTcg(TransformCont<T>& tc, const Math::Matrix<3, 3, T>&
 }
 
 
-template<typename T> 
-Math::Matrix<3, 3, T> skew(const Math::Vector<3, T>& rotVec)
+template< typename T > 
+Math::Matrix< T, 3, 3 > skew(const Math::Vector< T, 3 >& rotVec)
 {
-	Math::Matrix<3, 3, T> skew;
+	Math::Matrix< T, 3, 3 > skew;
 	skew(0, 0) = 0.0;
 	skew(0, 1) = - rotVec(2);
 	skew(0, 2) = rotVec(1);
@@ -165,8 +165,8 @@ Math::Matrix<3, 3, T> skew(const Math::Vector<3, T>& rotVec)
 }
 
 
-template<typename T> 
-Math::Matrix<3, 3, T> getMatrix(const Math::Vector<3, T>& source)
+template< typename T > 
+Math::Matrix< T, 3, 3 > getMatrix( const Math::Vector< T, 3 >& source)
 {   
 	T v[3];	
 	v[0] = source(0) * source(0);
@@ -177,15 +177,15 @@ Math::Matrix<3, 3, T> getMatrix(const Math::Vector<3, T>& source)
 	T a = (T)1.0 - length/(T)2.0;											//(1 - |Pr|²/2)
 	
 	// ublas::identity_matrix<T> id(3);
-	Math::Matrix< 3, 3, T > identity = Math::Matrix< 3, 3, T >::identity() * a;
+	Math::Matrix< T, 3, 3 > identity = Math::Matrix< T, 3, 3 >::identity() * a;
 
-	Math::Matrix< 3, 3, T > skewT = skew(source);
+	Math::Matrix< T, 3, 3 > skewT = skew(source);
 
 	T alpha = std::sqrt(4 - length);
 	
 	skewT *= T (alpha);
 	
-	Math::Matrix< 3, 3, T > right;
+	Math::Matrix< T, 3, 3 > right;
 
 	right = outer_prod(source, source) + skewT;
 
@@ -195,13 +195,13 @@ Math::Matrix<3, 3, T> getMatrix(const Math::Vector<3, T>& source)
 } 
 
 
-template<typename T> 
-Math::Matrix<3, 3, T> getRcg(const Math::Vector<3, T>& pcg_)
+template< typename T > 
+Math::Matrix< T, 3, 3 > getRcg(const Math::Vector< T, 3 >& pcg_)
 {
 	double v[3];
 	double twice[3];
 
-	Math::Vector<3, T> pcg;
+	Math::Vector< T, 3 > pcg;
 
 	for(int i=0; i<3; i++)
 	{
@@ -220,8 +220,8 @@ Math::Matrix<3, 3, T> getRcg(const Math::Vector<3, T>& pcg_)
 }
 
 
-template<typename T> 
-Math::Vector<3, T> getQuaternion(const Math::Matrix<3, 3, T>& source)
+template< typename T > 
+Math::Vector< T, 3 > getQuaternion(const Math::Matrix< T, 3, 3 >& source)
 {
     T quat[4];
 
@@ -283,7 +283,7 @@ Math::Vector<3, T> getQuaternion(const Math::Matrix<3, 3, T>& source)
         quat[3] = -quat[3];
     }
 
-	Math::Vector<3, T> destination;
+	Math::Vector< T, 3 > destination;
 
 	destination(0) = quat[0];
 	destination(1) = quat[1];
@@ -294,12 +294,12 @@ Math::Vector<3, T> getQuaternion(const Math::Matrix<3, 3, T>& source)
 } 
 
 
-template<typename T> 
-Math::Vector<3, T> computeSidesRot(const Math::Matrix<4, 4, T>& hgij, const Math::Matrix<4, 4, T>& hcij, Math::Matrix<3, 3, T>& skewP)	//computes  P'cg
+template< typename T > 
+Math::Vector< T, 3 > computeSidesRot( const Math::Matrix< T, 4, 4 >& hgij, const Math::Matrix< T, 4, 4 >& hcij, Math::Matrix< T, 3, 3 >& skewP)	//computes  P'cg
 {
-	Math::Matrix<3, 3, T> source;
-	Math::Vector<3, T> pgij;
-	Math::Vector<3, T> pcij;
+	Math::Matrix< T, 3, 3 > source;
+	Math::Vector< T, 3> pgij;
+	Math::Vector< T, 3 > pcij;
 
 	//copy rgij to source
 	source = ublas::subrange(hgij, 0, 3, 0, 3);
@@ -313,24 +313,24 @@ Math::Vector<3, T> computeSidesRot(const Math::Matrix<4, 4, T>& hgij, const Math
 	//convert rcij to pcij
 	pcij = getQuaternion(source);
 
-	Math::Vector<3, T> temp = (pgij + pcij);
+	Math::Vector< T, 3 > temp = (pgij + pcij);
 
 	skewP = skew(temp);
 	return (pcij - pgij);	
 }
 
 
-template<typename T> 
-Math::Matrix<3, 3, T> computePcg(TransformCont<T>& tc)
+template< typename T > 
+Math::Matrix< T, 3, 3 > computePcg( TransformCont< T >& tc)
 {
-	Math::Matrix< 0, 0, T > tA(3*tc.getNumber(), 3);
-	Math::Matrix< 0, 0, T > tB(3*tc.getNumber(), 1);
+	Math::Matrix< T, 0, 0 > tA(3*tc.getNumber(), 3);
+	Math::Matrix< T, 0, 0 > tB(3*tc.getNumber(), 1);
 
-	Math::Matrix<4, 4, T> hgij;
-	Math::Matrix<4, 4, T> hcij;
-	Math::Matrix<3, 3, T> skew;
+	Math::Matrix< T, 4, 4 > hgij;
+	Math::Matrix< T, 4, 4 > hcij;
+	Math::Matrix< T, 3, 3 > skew;
 	
-	Math::Vector<3, T> rightR;
+	Math::Vector< T, 3 > rightR;
 
 	for(int i=0;i<tc.getNumber();i++)
 	{
@@ -358,7 +358,7 @@ Math::Matrix<3, 3, T> computePcg(TransformCont<T>& tc)
 
 	lapack::gels('N', tA, tB);			//pcg_ will be written to tB, solves tA*Pcg_ = tB and Pcg_ -> tB
 
-	Math::Vector<3, T> pcg_;
+	Math::Vector< T, 3 > pcg_;
 
 	pcg_(0) = tB(0, 0);
 	pcg_(1) = tB(1, 0);
@@ -369,9 +369,9 @@ Math::Matrix<3, 3, T> computePcg(TransformCont<T>& tc)
 
 
 template<typename T>
-Math::Matrix< 4, 4, T> computeTransformation(const Math::Matrix<4, 4, T>& hi, const Math::Matrix<4, 4, T>& hj, int mode) //mode: 0 to compute Hgij, 1 to compute Hcij
+Math::Matrix< T, 4, 4 > computeTransformation(const Math::Matrix< T, 4, 4 >& hi, const Math::Matrix< T, 4, 4 >& hj, int mode) //mode: 0 to compute Hgij, 1 to compute Hcij
 {
-	Math::Matrix< 4, 4, T> inverted;
+	Math::Matrix< T, 4, 4 > inverted;
 
 	if(mode == 0) //Hgij
 	{
@@ -387,11 +387,11 @@ Math::Matrix< 4, 4, T> computeTransformation(const Math::Matrix<4, 4, T>& hi, co
 
 
 template<typename T> 
-void fillTransformationVectors( TransformCont<T>& tc, const std::vector<Math::Matrix< 4, 4, T> >& hand, const std::vector<Math::Matrix< 4, 4, T> >& eye, bool bUseAllPairs )
+void fillTransformationVectors( TransformCont<T>& tc, const std::vector<Math::Matrix< T, 4, 4 > >& hand, const std::vector<Math::Matrix< T, 4, 4 > >& eye, bool bUseAllPairs )
 {
-	Math::Matrix< 4, 4, T> hij;
-	Math::Matrix< 4, 4, T> hi;
-	Math::Matrix< 4, 4, T> hj;
+	Math::Matrix< T, 4, 4 > hij;
+	Math::Matrix< T, 4, 4 > hi;
+	Math::Matrix< T, 4, 4 > hj;
 	const std::size_t n_hands( hand.size() ) ;
 	for( std::size_t i( 0 ); i<(n_hands-1); ++i )
 	{
@@ -417,7 +417,7 @@ void fillTransformationVectors( TransformCont<T>& tc, const std::vector<Math::Ma
 
 
 template<typename T> 
-Math::Pose performHandEyeCalibrationImp ( const std::vector<Math::Matrix< 4, 4, T > >& hand,  const std::vector<Math::Matrix< 4, 4, T > >& eye, bool bUseAllPairs )
+Math::Pose performHandEyeCalibrationImp ( const std::vector<Math::Matrix< T, 4, 4 > >& hand,  const std::vector<Math::Matrix< T, 4, 4 > >& eye, bool bUseAllPairs )
 {
 	static log4cpp::Category& logger(log4cpp::Category::getInstance( "Ubitrack.Calibration.HandEyeCalibration" )); 
 	const std::size_t n_eyes( eye.size() );
@@ -427,32 +427,32 @@ Math::Pose performHandEyeCalibrationImp ( const std::vector<Math::Matrix< 4, 4, 
 		UBITRACK_THROW ( "Input sizes do not match" );		
 	}
 
-	if( n_eyes <= 2)
+	if( n_eyes <= 2 )
 	{
-		Math::Vector< 3, T >* v = new Math::Vector< 3, T >( 0, 0, 0 );
+		Math::Vector< T, 3 >* v = new Math::Vector< T, 3 >( 0, 0, 0 );
 		Math::Quaternion* q = new Math::Quaternion();
 		return Math::Pose( *q, *v);
 	}
 	
-	TransformCont<T> tc;
+	TransformCont< T > tc;
 
 	tc.setNumber( n_eyes, bUseAllPairs );
 
 	fillTransformationVectors( tc, hand, eye, bUseAllPairs );			//readies values //ai = eye, bi = hand
-	Math::Matrix<3, 3, T> rcg = computePcg<T>(tc);		//returns Rcg
-	Math::Vector<3, T> tcg = computeTcg(tc, rcg);
+	Math::Matrix< T, 3, 3 > rcg = computePcg< T >( tc );		//returns Rcg
+	Math::Vector< T, 3 > tcg = computeTcg( tc, rcg );
 
 	return Math::Pose(Math::Quaternion(rcg), tcg);
 }
 
 
-Math::Pose performHandEyeCalibration ( const std::vector< Math::Matrix< 4, 4, float > >& hand,  const std::vector< Math::Matrix < 4, 4, float > >& eye, bool bUseAllPairs )
+Math::Pose performHandEyeCalibration ( const std::vector< Math::Matrix< float, 4, 4 > >& hand,  const std::vector< Math::Matrix< float, 4, 4 > >& eye, bool bUseAllPairs )
 {
 	return performHandEyeCalibrationImp (hand, eye, bUseAllPairs );
 }
 
 
-Math::Pose performHandEyeCalibration ( const std::vector< Math::Matrix< 4, 4, double > >& hand,  const std::vector< Math::Matrix < 4, 4, double > >& eye, bool bUseAllPairs )
+Math::Pose performHandEyeCalibration ( const std::vector< Math::Matrix< double, 4, 4 > >& hand,  const std::vector< Math::Matrix< double, 4, 4 > >& eye, bool bUseAllPairs )
 {
 	return performHandEyeCalibrationImp (hand, eye, bUseAllPairs );
 }
@@ -460,9 +460,9 @@ Math::Pose performHandEyeCalibration ( const std::vector< Math::Matrix< 4, 4, do
 
 void fillTransformationVectors( TransformCont<double>& tc, const std::vector<Math::Pose>& hand, const std::vector<Math::Pose>& eye, bool bUseAllPairs )
 {
-	Math::Matrix< 4, 4, double > hij;
-	Math::Matrix< 4, 4, double > hi;
-	Math::Matrix< 4, 4, double > hj;
+	Math::Matrix< double, 4, 4 > hij;
+	Math::Matrix< double, 4, 4 > hi;
+	Math::Matrix< double, 4, 4 > hj;
 	const std::size_t n_hands( hand.size() );
 	for( std::size_t i( 0 ) ; i<(n_hands-1); ++i )
 	{
@@ -470,15 +470,15 @@ void fillTransformationVectors( TransformCont<double>& tc, const std::vector<Mat
 		for( std::size_t k( i+1 ); k<to; ++k )
 		{
 			//first we compute the hg
-			hi = Math::Matrix< 4, 4, double >(hand.at(i));
-			hj = Math::Matrix< 4, 4, double >(hand.at(k));
+			hi = Math::Matrix< double, 4, 4 >(hand.at(i));
+			hj = Math::Matrix< double, 4, 4 >(hand.at(k));
 
 			hij = computeTransformation(hi, hj, 0);
 			tc.push_back_hg(hij);
 
 			//second we compute the hc
-			hi =  Math::Matrix< 4, 4, double >(eye.at(i));
-			hj =  Math::Matrix< 4, 4, double >(eye.at(k));
+			hi =  Math::Matrix< double, 4, 4 >(eye.at(i));
+			hj =  Math::Matrix< double, 4, 4 >(eye.at(k));
 
 			hij = computeTransformation( hi, hj, 1 );
 			tc.push_back_hc(hij);
@@ -499,20 +499,20 @@ Math::Pose performHandEyeCalibration ( const std::vector< Math::Pose >& hand,  c
 
 	if( n_eyes <= 2 )
 	{
-		Math::Vector<3, double>* v = new Math::Vector<3, double>(0, 0, 0);
+		Math::Vector< double, 3 >* v = new Math::Vector< double, 3 >( 0, 0, 0 );
 		Math::Quaternion* q = new Math::Quaternion();
 		return Math::Pose( *q, *v);
 	}
 
-	TransformCont<double> tc;
+	TransformCont< double > tc;
 
 	tc.setNumber( n_eyes, bUseAllPairs );
 
 	fillTransformationVectors( tc, hand, eye, bUseAllPairs );			//readies values //ai = eye, bi = hand
-	Math::Matrix<3, 3, double> rcg = computePcg<double>(tc);									//returns also Rcg
-	Math::Vector<3, double> tcg = computeTcg(tc, rcg);
+	Math::Matrix< double, 3, 3 > rcg = computePcg< double >( tc );									//returns also Rcg
+	Math::Vector< double, 3 > tcg = computeTcg( tc, rcg );
 
-	return Math::Pose(Math::Quaternion(rcg), tcg);
+	return Math::Pose(Math::Quaternion( rcg ), tcg);
 }
 
 }}

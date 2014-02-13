@@ -46,7 +46,7 @@ public:
 	 * constructor.
 	 * @param v reference to the vector to rotate (must stay constant during the lifetime of the function object
 	 */
-	QuaternionRotation( const Math::Vector< 3, VType >& v )
+	QuaternionRotation( const Math::Vector< VType, 3 >& v )
 		: m_v( v )
 	{}
 	
@@ -104,7 +104,7 @@ public:
 	}
 	
 protected:
-	const Math::Vector< 3, VType >& m_v;
+	const Math::Vector< VType, 3 >& m_v;
 };
 
 } } } // namespace Ubitrack::Calibration::Function

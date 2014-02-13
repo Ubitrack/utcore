@@ -32,7 +32,7 @@ namespace Ubitrack { namespace Math {
 
 
 // create quaternion from (assumed) rotation matrix
-Quaternion::Quaternion( const Math::Matrix< 0, 0, double >& mat )
+Quaternion::Quaternion( const Math::Matrix< double, 0, 0 >& mat )
 {
 	double S, X, Y, Z, W;
 	double T = 1.0 + mat(0,0) + mat(1,1) + mat(2,2);
@@ -76,19 +76,19 @@ Quaternion::Quaternion( const Math::Matrix< 0, 0, double >& mat )
 
 // retrieve Euler angles corresponding to whatever sequence the bloody Kuka robot uses
 //
-// return value: Vector<3>( angle_x_axis, angle_y_axis, angle_z_axis )
+// return value: Vector< double, 3 >( angle_x_axis, angle_y_axis, angle_z_axis )
 //
 // note that the angles are returned in x-y-z order, but are probably applied as z-y-x
 // (though nobody can be really sure - ask three times, you'll get four different answers,
 // none of them correct). this sequence has been arrived at through a ton of guesswork,
 // but it gives proper results when applied to the robot.
-Vector<3> Quaternion::getEulerAngles() const {
+Vector< double, 3 > Quaternion::getEulerAngles() const {
 
 	double rx = 0.0;
 	double ry = 0.0;
 	double rz = 0.0;
 
-	Matrix< 3, 3, double > m;
+	Matrix< double, 3, 3 > m;
 	toMatrix( m );
 
 	//std::cout << m << std::endl;
@@ -125,7 +125,7 @@ Vector<3> Quaternion::getEulerAngles() const {
 		rz   = atan2( tr_y, tr_x );
 	}
 
-	return Vector<3>( rx, ry, rz ); 
+	return Vector< double, 3 >( rx, ry, rz ); 
 }
 
 
@@ -135,7 +135,7 @@ Vector<3> Quaternion::getEulerAngles() const {
  * Note in particular the section about "Alternative Euler Angle
  * Sequences" and the referenced literature (available for download).
  */
-Vector<3> Quaternion::getEulerAngles( Quaternion::t_EulerSequence seq ) const
+Vector< double, 3 > Quaternion::getEulerAngles( Quaternion::t_EulerSequence seq ) const
 {
 	int sign;
 
@@ -183,7 +183,7 @@ Vector<3> Quaternion::getEulerAngles( Quaternion::t_EulerSequence seq ) const
 		beta  = boost::math::constants::pi<double>() / 2;
 		gamma = 0;
 
-		return Vector<3>( alpha, beta, gamma );
+		return Vector< double, 3 >( alpha, beta, gamma );
 	}
 	// Singularity at south pole
 	if ( beta < -0.998 ) 
@@ -192,21 +192,21 @@ Vector<3> Quaternion::getEulerAngles( Quaternion::t_EulerSequence seq ) const
 		beta  = -boost::math::constants::pi<double>() / 2;
 		gamma = 0;
 
-		return Vector<3>( alpha, beta, gamma );
+		return Vector< double, 3 >( alpha, beta, gamma );
 	}
 
 	alpha = atan2( 2*( w_*x_ - sign*y_*z_ ), ( 1 - 2*(x_*x_ + y_*y_ ) ) );
 	beta  = asin( beta );
 	gamma = atan2( 2*( w_*z_ - sign*x_*y_ ), ( 1 - 2*(y_*y_ + z_*z_ ) ) );
 
-	return Vector<3>( alpha, beta, gamma ); 
+	return Vector< double, 3 >( alpha, beta, gamma ); 
 }
 
 
 // rotate a vector by a quaternion
-Vector< 3 > Quaternion::operator*( const Vector< 3 >& vec ) const
+Vector< double, 3 > Quaternion::operator*( const Vector< double, 3 >& vec ) const
 {
-	Vector< 3 > r;
+	Vector< double, 3 > r;
 
 	// precomputation of some values
 	double xy = x() * y();
@@ -226,7 +226,7 @@ Vector< 3 > Quaternion::operator*( const Vector< 3 >& vec ) const
 }
 
 
-Vector< 3 > Quaternion::toLogarithm() const
+Vector< double, 3 > Quaternion::toLogarithm() const
 {
 	// always take the quaternion with w > 0
 	double s = w() >= 0 ? 1 : -1;
@@ -240,14 +240,14 @@ Vector< 3 > Quaternion::toLogarithm() const
 	if ( imagLen > 1e-12 )
 	{
 		s = s * omega / imagLen;
-		return Vector< 3 >( x() * s, y() * s, z() * s );
+		return Vector< double, 3 >( x() * s, y() * s, z() * s );
 	}
 	else
-		return Vector< 3 >( 0, 0, 0 );
+		return Vector< double, 3 >( 0, 0, 0 );
 }
 
 
-Quaternion Quaternion::fromLogarithm( const Vector< 3 >& v )
+Quaternion Quaternion::fromLogarithm( const Vector< double, 3 >& v )
 {
 	double omega = boost::numeric::ublas::norm_2( v );
 	if ( omega > 1e-12 )

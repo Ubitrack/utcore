@@ -24,10 +24,20 @@ double computeCorrelationDirect ( const std::vector< double >& left,
 	double var1 = 0.0;
 	double var2 = 0.0;
 
+	double m1 = 0.0;
+	double m2 = 0.0;
+
 	for (int i=0; i<len; i++) {
-		res += left[i]*right[i];
-		var1 += left[i]*left[i];
-		var2 += right[i]*right[i];
+		m1 += left[i];
+		m2 += right[i];
+	}
+	m1 /= (double)(len);
+	m2 /= (double)(len);
+
+	for (int i=0; i<len; i++) {
+		res += (left[i]-m1)*(right[i]-m2);
+		var1 += (left[i]-m1)*(left[i]-m1);
+		var2 += (right[i]-m2)*(right[i]-m2);
 	}
 
 	double denom = sqrt(var1*var2);

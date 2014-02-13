@@ -28,7 +28,7 @@
 namespace Ubitrack { namespace Math {
 
 
-Pose::Pose( const Matrix< 0, 0, double >& mat )
+Pose::Pose( const Matrix< double, 0, 0 >& mat )
 {
 	m_rotation = Quaternion( mat );
 
@@ -51,9 +51,23 @@ Pose Pose::operator*( const Pose& Q ) const
 	);
 }
 
-Vector< 3 > Pose::operator*( const Vector< 3 >& x ) const
+Vector< double, 3 > Pose::operator*( const Vector< double, 3 >& x ) const
 {
-	return Vector< 3 >( ( m_rotation * x ) + m_translation );
+	return Vector< double, 3 >( ( m_rotation * x ) + m_translation );
+}
+
+bool Pose::operator==( const Pose& other ) const
+{
+	if ((m_rotation == other.rotation()) && (m_translation == other.translation()))
+		return true;
+	return false;
+}
+
+bool Pose::operator!=( const Pose& other ) const
+{
+	if ((m_rotation == other.rotation()) && (m_translation == other.translation()))
+		return false;
+	return true;
 }
 
 std::ostream& operator<<( std::ostream& s, const Pose& p )

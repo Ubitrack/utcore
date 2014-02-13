@@ -38,8 +38,8 @@
 #include <assert.h>
 #include <cstddef> //  std::size_t
 //next three includes are only for output stuff -> remove to own header?
-#include <iterator> //std::outstream_iterator
-#include <iostream> //std::ostream
+#include <iosfwd> //std::ostream
+// #include <iterator> //std::ostream_iterator
 #include <algorithm> //std::copy
 
 
@@ -48,11 +48,10 @@
 #include <boost/serialization/access.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 
-
 namespace Ubitrack { namespace Math {
 
 /// forward declaration of Vector class with default template parameter
-template< std::size_t N, class T = double > class Vector;
+//template< std::size_t N, class T = double > class Vector;
 
 /**
  * @ingroup math
@@ -61,12 +60,12 @@ template< std::size_t N, class T = double > class Vector;
  * @param N size of the vector
  * @param T type of elements, defaults to double
  */
-template< std::size_t N, class T > class Vector
+template< typename T, std::size_t N = 0 > class Vector
 	: public boost::numeric::ublas::vector< T, boost::numeric::ublas::bounded_array< T, N > >
 {
 	public:
 		typedef boost::numeric::ublas::vector< T, boost::numeric::ublas::bounded_array< T, N > > base_type;
-		typedef Math::Vector< N, T >	self_type;
+		typedef Math::Vector< T, N >	self_type;
 		typedef T						value_type;
 		typedef std::size_t				size_type;
 
@@ -148,7 +147,7 @@ template< std::size_t N, class T > class Vector
 		 * @param e a vector_expression
 		 */
 		template< class AE > 
-		Vector< N, T >& operator=( const boost::numeric::ublas::vector_expression< AE >& e )
+		Vector< T, N >& operator=( const boost::numeric::ublas::vector_expression< AE >& e )
 		{
 			assert( e().size() == N );
 			base_type::operator=( e );
@@ -159,21 +158,21 @@ template< std::size_t N, class T > class Vector
 		 * assign from base class
 		 * @param v a ublas::vector
 		 */
-		Vector< N, T >& operator=( const base_type& v )
+		Vector< T, N >& operator=( const base_type& v )
 		{
 			assert( v().size() == N );
 			base_type::operator=( v );
 			return *this;
 		}
 
-		Vector< N, T >& operator<( const base_type& v )
+		Vector< T, N >& operator<( const base_type& v )
 		{
 			assert( v().size() == N );
 			base_type::operator<( v );
 			return *this;
 		}
 
-		bool operator<( const Vector< N, T >& v ) const
+		bool operator<( const Vector< T, N >& v ) const
 		{
 			for( size_type i = 0; i < N; i++ )
 			{
@@ -185,7 +184,7 @@ template< std::size_t N, class T > class Vector
 		/**
 		 * Returns vector of zeros
 		 */
-		static Vector< N, T> zeros()
+		static Vector< T, N > zeros()
 		{
 			return boost::numeric::ublas::zero_vector< T >( N );
 		}
@@ -211,13 +210,13 @@ template< std::size_t N, class T > class Vector
  * @tparam T type of elements, defaults to double
  */
 template< typename T >
-class Vector< 0, T >
+class Vector< T, 0 >
 	: public boost::numeric::ublas::vector< T, boost::numeric::ublas::unbounded_array< T > >
 {
 	public:
 		// some typedefs for templated algorithm design
 		typedef boost::numeric::ublas::vector< T, boost::numeric::ublas::unbounded_array< T > > base_type;
-		typedef Math::Vector< 0, T >			self_type;
+		typedef Math::Vector< T, 0 >			self_type;
 		typedef T								value_type;
 		typedef typename base_type::size_type	size_type;
 
@@ -245,7 +244,7 @@ class Vector< 0, T >
 		 * @param e a vector_expression
 		 */
 		template< class AE > 
-		Vector< 0, T >& operator=( const boost::numeric::ublas::vector_expression< AE >& e )
+		Vector< T, 0 >& operator=( const boost::numeric::ublas::vector_expression< AE >& e )
 		{
 			base_type::operator=( e );
 			return *this;
@@ -254,29 +253,42 @@ class Vector< 0, T >
 		/**
          * Returns Vector of zeros
          */
-        static Vector< 0, T > zeros( const size_type size )
+        static Vector< T, 0 > zeros( const size_type size )
         {
             return boost::numeric::ublas::zero_vector< T >( size );
         }
 };
 
-/** stream output operator for a single Math::Vector */
-template< std::size_t N, typename T >
-std::ostream& operator<<( std::ostream& s, const Vector< N, T >& v )
+/** stream output operator for a single Math::Vector of a specific dimension */
+template< typename T, std::size_t N >
+std::ostream& operator<<( std::ostream& s, const Vector< T, N >& v )
 {
 	s << "[ ";
-	for( std::size_t i = 0; i < N; i++ )
-		s << v[i] << " ";
+	for( std::size_t i = 0; i < N; ++i )
+		s << v[ i ] << " ";
+	s << "]";
+	return s;
+}
+
+
+/** specialization for stream output operator for a single Math::Vector of a (at compile time) unknown dimension */
+template< typename T >
+std::ostream& operator<<( std::ostream& s, const Vector< T >& v )
+{
+	const std::size_t n ( v.size() );
+	s << "[ ";
+	for( std::size_t i = 0; i<n; ++i )
+		s << v[ i ] << " ";
 	s << "]";
 	return s;
 }
 
 /** stream output operator for any (stl-)container of Math::Vector */
-template< std::size_t N, typename T, template < typename V_TYPE, typename V_ALLOC > class container >
-std::ostream& operator<<( std::ostream& s, const container< Math::Vector< N, T >, std::allocator< Math::Vector< N, T > > >& vec_cont )
+template< typename T, std::size_t N, template < typename , typename > class container >
+std::ostream& operator<<( std::ostream& s, const container< Math::Vector< T, N >, std::allocator< Math::Vector< T, N > > >& vec_cont )
 {
 	s << "[ ";
-	std::copy( vec_cont.begin(), vec_cont.end(), std::ostream_iterator< Math::Vector< N, T > > ( s, " " ) );
+	std::copy( vec_cont.begin(), vec_cont.end(), std::ostream_iterator< Math::Vector< T, N > > ( s, " " ) );
 	s << "]";
 	return s;
 }
@@ -288,13 +300,13 @@ std::ostream& operator<<( std::ostream& s, const container< Math::Vector< N, T >
  * @param t interpolation point between 0.0 and 1.0
  * @return the interpolated vector
  */
-template< std::size_t N, class T >
-Vector < N, T > linearInterpolate ( const Vector< N, T >& x, const Vector< N, T >& y, double t ) 
+template< typename T, std::size_t N >
+Vector < T, N > linearInterpolate ( const Vector< T, N >& x, const Vector< T, N >& y, double t ) 
 {
 	T w1 = 1.0 - t;
 	T w2 = t;
 
-	return Vector< N, T >( w1*x + w2*y );
+	return Vector< T, N >( w1*x + w2*y );
 }
 
 
@@ -305,10 +317,10 @@ Vector < N, T > linearInterpolate ( const Vector< N, T >& x, const Vector< N, T 
  * @return the cross product of a and b
  */
 template< class E1, class E2 >
-Vector< 3, typename E1::value_type > cross_prod( 
+Vector< typename E1::value_type, 3 > cross_prod( 
 	const boost::numeric::ublas::vector_expression< E1 >& a, const boost::numeric::ublas::vector_expression< E2 >& b )
 {
-	Vector< 3, typename E1::value_type > r;
+	Vector< typename E1::value_type, 3 > r;
 	r( 0 ) = a()( 1 ) * b()( 2 ) - a()( 2 ) * b()( 1 );
 	r( 1 ) = a()( 2 ) * b()( 0 ) - a()( 0 ) * b()( 2 );
 	r( 2 ) = a()( 0 ) * b()( 1 ) - a()( 1 ) * b()( 0 );
@@ -317,8 +329,8 @@ Vector< 3, typename E1::value_type > cross_prod(
 
 
 /** compares two vectors */
-template< std::size_t N, typename T >
-bool operator==( const Vector< N, T >& a, const Vector< N, T >& b )
+template< typename T, std::size_t N >
+bool operator==( const Vector< T, N >& a, const Vector< T, N >& b )
 {
 	for ( std::size_t c = 0; c < N; c++ )
 		if ( a( c ) != b( c ) )
@@ -327,19 +339,19 @@ bool operator==( const Vector< N, T >& a, const Vector< N, T >& b )
 }
 
 /// typedef for 2 dimensional Vector of type \c double
-typedef Math::Vector< 2, double > Vector2d;
+typedef Math::Vector< double, 2 > Vector2d;
 /// typedef for 3 dimensional Vector of type \c double
-typedef Math::Vector< 3, double > Vector3d;
+typedef Math::Vector< double, 3 > Vector3d;
 /// typedef for 4 dimensional Vector of type \c double
-typedef Math::Vector < 4, double > Vector4d;
+typedef Math::Vector < double, 4 > Vector4d;
 
 
 /// typedef for 2 dimensional Vector of type \c float
-typedef Math::Vector< 2, float > Vector2f;
+typedef Math::Vector< float, 2 > Vector2f;
 /// typedef for 3 dimensional Vector of type \c float
-typedef Math::Vector< 3, float > Vector3f;
+typedef Math::Vector< float, 3 > Vector3f;
 /// typedef for 4 dimensional Vector of type \c float
-typedef Math::Vector< 4, float > Vector4f;
+typedef Math::Vector< float, 4 > Vector4f;
 
 } } // namespace Ubitrack::Math
 
@@ -351,8 +363,8 @@ typedef Math::Vector< 4, float > Vector4f;
 namespace boost { namespace numeric { namespace bindings { namespace traits {
 
 template< std::size_t sN, typename T, typename M >
-struct vector_detail_traits< Ubitrack::Math::Vector< sN, T >, M > 
-	: vector_detail_traits< typename Ubitrack::Math::Vector< sN, T >::base_type, typename detail::generate_const< M, typename M::base_type >::type >
+struct vector_detail_traits< Ubitrack::Math::Vector< T, sN >, M > 
+	: vector_detail_traits< typename Ubitrack::Math::Vector< T, sN >::base_type, typename detail::generate_const< M, typename M::base_type >::type >
 {
 };
 

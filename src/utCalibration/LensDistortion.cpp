@@ -33,70 +33,70 @@
 #include "Function/RadialDistortion.h"
 
 #ifdef HAVE_LAPACK
-#include <utMath/LevenbergMarquardt.h>
+#include <utMath/Optimization/LevenbergMarquardt.h>
 #endif
 
 namespace Ubitrack { namespace Calibration {
 
 template< typename T >
-Math::Vector< 2, T > projectWithDistortionImpl( const Math::Vector< 3, T >& p, const Math::Vector< 4, T >& dist,
-	const Math::Matrix< 3, 3, T >& K )
+Math::Vector< T, 2 > projectWithDistortionImpl( const Math::Vector< T, 3 >& p, const Math::Vector< T, 4 >& dist,
+	const Math::Matrix< T, 3, 3 >& K )
 {
 	// dehomogenize point
-	Math::Vector< 2, T > dehomogenized( p( 0 ) / p( 2 ), p( 1 ) / p( 2 ) );
+	Math::Vector< T, 2 > dehomogenized( p( 0 ) / p( 2 ), p( 1 ) / p( 2 ) );
 
 	// distort
-	Math::Vector< 2, T > dp;
+	Math::Vector< T, 2 > dp;
 	Function::radialDistortion( dp, dehomogenized, dist );
 
 	// back to image coordinates
-	return Math::Vector< 2, T >( 
+	return Math::Vector< T, 2 >( 
 		( dp( 0 ) * K( 0, 0 ) + dp( 1 ) * K( 0, 1 ) + K( 0, 2 ) ) / K( 2, 2 ), 
 		(                       dp( 1 ) * K( 1, 1 ) + K( 1, 2 ) ) / K( 2, 2 ) );
 }
 
 
-Math::Vector< 2, float > projectWithDistortion( const Math::Vector< 3, float >& p, const Math::Vector< 4, float >& dist,
-	const Math::Matrix< 3, 3, float >& K )
+Math::Vector< float, 2 > projectWithDistortion( const Math::Vector< float, 3 >& p, const Math::Vector< float, 4 >& dist,
+	const Math::Matrix< float, 3, 3 >& K )
 {
 	return projectWithDistortionImpl( p, dist, K );
 }
 
 
-Math::Vector< 2, double > projectWithDistortion( const Math::Vector< 3, double >& p, const Math::Vector< 4, double >& dist,
-	const Math::Matrix< 3, 3, double >& K )
+Math::Vector< double, 2 > projectWithDistortion( const Math::Vector< double, 3 >& p, const Math::Vector< double, 4 >& dist,
+	const Math::Matrix< double, 3, 3 >& K )
 {
 	return projectWithDistortionImpl( p, dist, K );
 }
 
 
 template< typename T >
-Math::Vector< 2, T > lensDistortImpl( const Math::Vector< 2, T >& p, const Math::Vector< 4, T >& dist,
-	const Math::Matrix< 3, 3, T >& K )
+Math::Vector< T, 2 > lensDistortImpl( const Math::Vector< T, 2 >& p, const Math::Vector< T, 4 >& dist,
+	const Math::Matrix< T, 3, 3 >& K )
 {
 	// unproject point to normalized camera coordinates (assuming K( 2, 2 ) == +/-1)
 	T x2 = ( p( 1 ) - K( 1, 2 ) * K( 2, 2 ) ) / K( 1, 1 );
 	T x1 = ( p( 0 ) - K( 0, 1 ) * x2 - K( 0, 2 ) * K( 2, 2 ) ) / K( 0, 0 );
-	Math::Vector< 2, T > camPoint( x1, x2 );
+	Math::Vector< T, 2 > camPoint( x1, x2 );
 
 	// distort
-	Math::Vector< 2, T > dp;
+	Math::Vector< T, 2 > dp;
 	Function::radialDistortion( dp, camPoint, dist );
 
 	// back to image coordinates
-	return Math::Vector< 2, T >( dp( 0 ) * K( 0, 0 ) + dp( 1 ) * K( 0, 1 ) + K( 0, 2 ) * K( 2, 2 ), dp( 1 ) * K( 1, 1 ) + K( 1, 2 ) * K( 2, 2 ) );
+	return Math::Vector< T, 2 >( dp( 0 ) * K( 0, 0 ) + dp( 1 ) * K( 0, 1 ) + K( 0, 2 ) * K( 2, 2 ), dp( 1 ) * K( 1, 1 ) + K( 1, 2 ) * K( 2, 2 ) );
 }
 
 
-Math::Vector< 2, float > lensDistort( const Math::Vector< 2, float >& p, const Math::Vector< 4, float >& dist,
-	const Math::Matrix< 3, 3, float >& K )
+Math::Vector< float, 2 > lensDistort( const Math::Vector< float, 2 >& p, const Math::Vector< float, 4 >& dist,
+	const Math::Matrix< float, 3, 3 >& K )
 { 
 	return lensDistortImpl( p, dist, K ); 
 }
 
 
-Math::Vector< 2, double > lensDistort( const Math::Vector< 2, double >& p, const Math::Vector< 4, double >& dist,
-	const Math::Matrix< 3, 3, double >& K )
+Math::Vector< double, 2 > lensDistort( const Math::Vector< double, 2 >& p, const Math::Vector< double, 4 >& dist,
+	const Math::Matrix< double, 3, 3 >& K )
 { 
 	return lensDistortImpl( p, dist, K ); 
 }
@@ -104,33 +104,33 @@ Math::Vector< 2, double > lensDistort( const Math::Vector< 2, double >& p, const
 #ifdef HAVE_LAPACK
 
 template< typename T >
-Math::Vector< 2, T > lensUnDistortImpl( const Math::Vector< 2, T >& p, const Math::Vector< 4, T >& dist,
-	const Math::Matrix< 3, 3, T >& K )
+Math::Vector< T, 2 > lensUnDistortImpl( const Math::Vector< T, 2 >& p, const Math::Vector< T, 4 >& dist,
+	const Math::Matrix< T, 3, 3 >& K )
 {
 	// unproject point to normalized camera coordinates (assuming K( 2, 2 ) == +/-1)
 	T x2 = ( p( 1 ) - K( 1, 2 ) * K( 2, 2 ) ) / K( 1, 1 );
 	T x1 = ( p( 0 ) - K( 0, 1 ) * x2 - K( 0, 2 ) * K( 2, 2 ) ) / K( 0, 0 );
-	Math::Vector< 2, T > camPoint( x1, x2 );
+	Math::Vector< T, 2 > camPoint( x1, x2 );
 
 	// non-linear minimization
-	Math::Vector< 2, T > dp( camPoint );
+	Math::Vector< T, 2 > dp( camPoint );
 	Function::RadialDistortionWrtP< T > distFunc( dist );
-	Math::levenbergMarquardt( distFunc, dp, camPoint, Math::OptTerminate( 5, 1e-5 ), Math::OptNoNormalize() );
+	Math::Optimization::levenbergMarquardt( distFunc, dp, camPoint, Math::Optimization::OptTerminate( 5, 1e-5 ), Math::Optimization::OptNoNormalize() );
 
 	// back to image coordinates
-	return Math::Vector< 2, T >( dp( 0 ) * K( 0, 0 ) + dp( 1 ) * K( 0, 1 ) + K( 0, 2 ) * K( 2, 2 ), dp( 1 ) * K( 1, 1 ) + K( 1, 2 ) * K( 2, 2 ) );
+	return Math::Vector< T, 2 >( dp( 0 ) * K( 0, 0 ) + dp( 1 ) * K( 0, 1 ) + K( 0, 2 ) * K( 2, 2 ), dp( 1 ) * K( 1, 1 ) + K( 1, 2 ) * K( 2, 2 ) );
 }
 
 
-Math::Vector< 2, float > lensUnDistort( const Math::Vector< 2, float >& p, const Math::Vector< 4, float >& dist,
-	const Math::Matrix< 3, 3, float >& K )
+Math::Vector< float, 2 > lensUnDistort( const Math::Vector< float, 2 >& p, const Math::Vector< float, 4 >& dist,
+	const Math::Matrix< float, 3, 3 >& K )
 { 
 	return lensUnDistortImpl( p, dist, K ); 
 }
 
 
-Math::Vector< 2, double > lensUnDistort( const Math::Vector< 2, double >& p, const Math::Vector< 4, double >& dist,
-	const Math::Matrix< 3, 3, double >& K )
+Math::Vector< double, 2 > lensUnDistort( const Math::Vector< double, 2 >& p, const Math::Vector< double, 4 >& dist,
+	const Math::Matrix< double, 3, 3 >& K )
 { 
 	return lensUnDistortImpl( p, dist, K ); 
 }

@@ -84,7 +84,7 @@ public:
 	Measurement::Rotation predict( Measurement::Timestamp t );
 
 	/** get internal state (mostly for debugging) */
-	const Math::Vector< 7 >& getState() const
+	const Math::Vector< double, 7 >& getState() const
 	{ return m_state.value; }
 	
 protected:
@@ -92,7 +92,7 @@ protected:
 	void timeUpdate( Measurement::Timestamp t );
 	
 	/** the state */
-	Math::ErrorVector< 7 > m_state;
+	Math::ErrorVector< double, 7 > m_state;
 	
 	/** timestamp of the current state */
 	Measurement::Timestamp m_time;

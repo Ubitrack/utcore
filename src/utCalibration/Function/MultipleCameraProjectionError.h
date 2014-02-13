@@ -62,8 +62,8 @@ public:
 	 * @param visibilities reference to a vector of observations. Each vector element contains a 
 	 *    pair (i_p, i_c) which specifies that camera i_c has measured point i_p.
 	 */
-	MultipleCameraProjectionError( const std::vector< Math::Vector< 3, VType > >& p3D, 
-		const std::vector< Math::Matrix< 3, 4, VType > >& cameras, 
+	MultipleCameraProjectionError( const std::vector< Math::Vector< VType, 3 > >& p3D, 
+		const std::vector< Math::Matrix< VType, 3, 4 > >& cameras, 
 		const std::vector< std::pair< std::size_t, std::size_t > > visibilities )
 		: m_p3D( p3D )
 		, m_cam( cameras )
@@ -88,19 +88,19 @@ public:
 
 		// convert quaternion to matrix (for speedup)
 		Quaternion rotQ( Quaternion::fromVector( ublas::subrange( input, 3, 7 ) ) );
-		Matrix< 3, 3, VType > rot( rotQ );
+		Matrix< VType, 3, 3 > rot( rotQ );
 		
 		// create matrices
-		Matrix< 2, 3, VType > projJ;
-		Matrix< 3, 3, VType > rotJ;
-		Vector< 3, VType > rotated;
-		Vector< 3, VType > projected;
+		Matrix< VType, 2, 3 > projJ;
+		Matrix< VType, 3, 3 > rotJ;
+		Vector< VType, 3 > rotated;
+		Vector< VType, 3 > projected;
 		
 		for ( std::size_t i( 0 ); i < m_vis.size(); i++ )
 		{
 			// shortcuts
-			const Math::Vector< 3, VType >& p3D( m_p3D[ m_vis[ i ].first ] );
-			const Math::Matrix< 3, 4, VType >& cam( m_cam[ m_vis[ i ].second ] );
+			const Math::Vector< VType, 3 >& p3D( m_p3D[ m_vis[ i ].first ] );
+			const Math::Matrix< VType, 3, 4 >& cam( m_cam[ m_vis[ i ].second ] );
 			
 			// rotate & project points
 			noalias( rotated ) = ublas::prod( rot, p3D ) + ublas::subrange( input, 0, 3 );
@@ -119,8 +119,8 @@ public:
 	}
 	
 protected:
-	const std::vector< Math::Vector< 3, VType > >& m_p3D;
-	const std::vector< Math::Matrix< 3, 4, VType > >& m_cam;
+	const std::vector< Math::Vector< VType, 3 > >& m_p3D;
+	const std::vector< Math::Matrix< VType, 3, 4 > >& m_cam;
 	const std::vector< std::pair< std::size_t, std::size_t > > m_vis;
 };
 

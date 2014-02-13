@@ -49,9 +49,7 @@
 #include <utMath/Matrix.h>
 #include <utUtil/Exception.h>
 #include <utUtil/StaticAssert.h>
-#include <utMath/Functors/VectorFunctors.h>
 #include <utMath/Functors/MatrixFunctors.h>
-#include <utCalibration/Homography.h>
 
 // std
 #include <numeric>
@@ -68,21 +66,21 @@ namespace Ubitrack { namespace Math { namespace Geometry {
 
 /**
  * @ingroup math
- * Wraps a Math::Vector< 6, T > to explicitly represent a conic.
+ * Wraps a Math::Vector< T, 6 > to explicitly represent a conic.
  *
  * @tparam T type of conic ( e.g. \c double or \c float )
  */
 template< typename T >
 struct Conic
-	: public Math::Vector< 6, T >
+	: public Math::Vector< T, 6 >
 {
 public:
 	/** Default Constructor */
 	Conic( ){}
 
 	/** Copy Constructor for implicit conversion */
-	Conic( const Math::Vector< 6, T >& conic )
-		: Math::Vector< 6, T >()
+	Conic( const Math::Vector< T, 6 >& conic )
+		: Math::Vector< T, 6 >()
 	{
 		(*this)[ 0 ] = conic[ 0 ];
 		(*this)[ 1 ] = conic[ 1 ];
@@ -103,7 +101,7 @@ public:
  */
 template< typename T >
 struct MatrixFromConic
-	: public std::unary_function< Math::Vector< 6, T >, Math::Matrix< 3, 3, T > >
+	: public std::unary_function< Math::Vector< T, 6 >, Math::Matrix< T, 3, 3 > >
 {
 public:
 	/**
@@ -114,7 +112,7 @@ public:
 	 * @param conic the conic expressed as a vector
 	 * @return the 3x3-matrix representation of the conic
 	 */
-	Math::Matrix< 3, 3, T > operator() ( const Math::Vector< 6, T > &conic ) const
+	Math::Matrix< T, 3, 3 > operator() ( const Math::Vector< T, 6 > &conic ) const
 	{
 		boost::numeric::ublas::matrix< T, boost::numeric::ublas::column_major > matrix( 3, 3 );
 		matrix( 0, 0 ) = conic[ 0 ];
@@ -123,7 +121,7 @@ public:
 		matrix( 2, 0 ) = matrix( 0, 2 ) = conic[ 3 ] * static_cast< T > ( 0.5 );
 		matrix( 2, 1 ) = matrix( 1, 2 ) = conic[ 4 ] * static_cast< T > ( 0.5 );
 		matrix( 2, 2 ) = conic[ 5 ];
-		return Math::Matrix< 3, 3, T >( matrix );
+		return Math::Matrix< T, 3, 3 >( matrix );
 	}
 };
 
@@ -136,7 +134,7 @@ public:
  */
 template< typename T >
 struct ConicFromMatrix
-	: public std::unary_function< Math::Matrix< 3, 3, T >, Math::Vector< 6, T > >
+	: public std::unary_function< Math::Matrix< T, 3, 3 >, Math::Vector< T, 6 > >
 {
 public:
 
@@ -148,9 +146,9 @@ public:
 	 * @param matrix the 3x3-matrix representation of the conic
 	 * @return the conic as a 6-vector
 	 */
-	Math::Vector< 6, T > operator() ( const Math::Matrix< 3, 3, T >  &matrix ) const
+	Math::Vector< T, 6 > operator() ( const Math::Matrix< T, 3, 3 >  &matrix ) const
 	{
-		Math::Vector< 6, T > conic;
+		Math::Vector< T, 6 > conic;
 		conic[ 0 ] = matrix( 0, 0 );
 		conic[ 1 ] = ( matrix( 1, 0 ) + matrix( 0, 1 ) );
 		conic[ 2 ] = matrix( 1, 1 );
@@ -171,7 +169,7 @@ public:
  */
 template< typename T >
 struct ConicInverse
-	: public std::unary_function< Math::Vector< 6, T >, Math::Vector< 6, T > >
+	: public std::unary_function< Math::Vector< T, 6 >, Math::Vector< T, 6 > >
 {
 public:
 
@@ -184,7 +182,7 @@ public:
 	 * @param conic the conic to be inverted
 	 * @return the dual (=inverse) conic
 	 */
-	Math::Vector< 6, T > operator() ( const Math::Vector< 6, T > &conic ) const
+	Math::Vector< T, 6 > operator() ( const Math::Vector< T, 6 > &conic ) const
 	{
 		const T a = conic( 0 );
 		const T b = conic( 1 );
@@ -194,14 +192,14 @@ public:
 		const T f = conic( 5 );
 		const T divisor =  static_cast< T >( 1 ) /( (a*(e*e)+c*(d*d)+(b*b)*f-a*c*f*4-b*d*e) );
 		
-		Math::Vector< 6, T > iConic;
+		Math::Vector< T, 6 > iConic;
 		iConic( 0 ) = -(c*f*4-e*e) * divisor;
 		iConic( 1 ) =  2 * (b*f*2-d*e) * divisor;
 		iConic( 2 )  = -(a*f*4-d*d) * divisor;
 		iConic( 3 )  = 2 * (-(b*e-c*d*2) * divisor );
 		iConic( 4 )  = 2 * (a*e*2-b*d) * divisor;
 		iConic( 5 )  = -(a*c*4-b*b) * divisor;
-		return Math::Vector< 6, T >( iConic );
+		return Math::Vector< T, 6 >( iConic );
 	};
 };
 
@@ -215,7 +213,7 @@ public:
  */
 template< typename T >
 struct ConicDeterminant
-	: public std::unary_function< Math::Vector< 6, T >, T >
+	: public std::unary_function< Math::Vector< T, 6 >, T >
 {
 public:
 	/**
@@ -225,7 +223,7 @@ public:
 	 * @param a 6-vector describing the conic parameters
 	 * @return the determinant of the conic
 	 */
-	T operator() ( const Math::Vector< 6, T > &conic ) const
+	T operator() ( const Math::Vector< T, 6 > &conic ) const
 	{
 		const T a = conic( 0 );
 		const T b = conic( 1 );
@@ -249,7 +247,7 @@ public:
  */
 template< typename T >
 struct ConicAngle
-	: public std::unary_function< Math::Vector< 6, T >, T >
+	: public std::unary_function< Math::Vector< T, 6 >, T >
 {
 public:
 	/**
@@ -263,7 +261,7 @@ public:
 	 * @param conic the input conic.
 	 * @return the angle
 	 */
-	T operator() ( const Math::Vector< 6, T > &conic ) const
+	T operator() ( const Math::Vector< T, 6 > &conic ) const
 	{
 		const T a = conic( 0 );
 		const T b = conic( 1 );
@@ -283,7 +281,7 @@ public:
  */
 template< typename T >
 struct ConicSemiAxes
-	: public std::unary_function< Math::Vector< 6, T >, Math::Vector< 2, T > >
+	: public std::unary_function< Math::Vector< T, 6 >, Math::Vector< T, 2 > >
 {
 protected:
 	ConicAngle< T > m_angulator;
@@ -297,7 +295,7 @@ public:
 	 * @param conic the input conic.
 	 * @return the size of the conics' semi-axes.
 	 */
-	Math::Vector< 2, T > operator() ( const Math::Vector< 6, T > &conic ) const
+	Math::Vector< T, 2 > operator() ( const Math::Vector< T, 6 > &conic ) const
 	{
 		const T theta0 = m_angulator( conic );
 		const T a = conic( 0 );
@@ -327,7 +325,7 @@ public:
 		const T at = std::sqrt( num/a1 );
 		const T bt = std::sqrt( num/c1 );
 	
-		return Math::Vector< 2, T >( at,bt );
+		return Math::Vector< T, 2 >( at,bt );
 	}
 
 	/**
@@ -341,7 +339,7 @@ public:
 	 * @param conic the input conic.
 	 * @return the size of the conics' semi-axes.
 	 */
-	/*Math::Vector< 2, T > operator() ( const Math::Vector< 6, T > &conic ) const
+	/*Math::Vector< T, 2 > operator() ( const Math::Vector< T, 6 > &conic ) const
 	{
 		const T a = conic( 0 );
 		const T b = conic( 1 );// * static_cast< T > ( 0.5 );
@@ -355,7 +353,7 @@ public:
 		const T lower3 = ( a + c ) ;
 		const T aPrime = std::sqrt( upper / ( lower1 * ( lower2 - lower3 )  ) );
 		const T bPrime = std::sqrt( upper / ( lower1 * ( - lower2 - lower3 )  ) );
-		return Math::Vector< 2, T >( aPrime, bPrime );
+		return Math::Vector< T, 2 >( aPrime, bPrime );
 	}*/
 };
 
@@ -371,7 +369,7 @@ public:
  */
 template< typename T >
 struct ConicCenter
-	: public std::unary_function< Math::Vector< 6, T >, Math::Vector< 2, T > >
+	: public std::unary_function< Math::Vector< T, 6 >, Math::Vector< T, 2 > >
 {
 public:
 	/**
@@ -387,7 +385,7 @@ public:
 	 * @param conic the input conic.
 	 * @return the center of the conic
 	 */
-	Math::Vector< 2, T > operator() ( const Math::Vector< 6, T >& conic ) const
+	Math::Vector< T, 2 > operator() ( const Math::Vector< T, 6 >& conic ) const
 	{
 		const T a = conic( 0 );
 		const T b = conic( 1 ) * static_cast< T > ( 0.5 );
@@ -404,7 +402,7 @@ public:
 		const T x = ( c*d - b*e ) * divisor;
 		// a*e-b*d / divisor
 		const T y = ( a*e - b*d ) * divisor;
-		return Math::Vector< 2, T >( x, y );
+		return Math::Vector< T, 2 >( x, y );
 	}
 };
 
@@ -418,7 +416,7 @@ public:
  */
 template< typename T >
 struct ConicEccentricity
-	: public std::unary_function< Math::Vector< 6, T >, T >
+	: public std::unary_function< Math::Vector< T, 6 >, T >
 {
 protected:
 	/// helper functor to estimate the determinant
@@ -427,7 +425,7 @@ public:
 
 	/** Standard constructor */
 	ConicEccentricity( ) :
-		std::unary_function< Math::Vector< 6, T >, T >()
+		std::unary_function< Math::Vector< T, 6 >, T >()
 		, m_determiner( )
 		{};
 	/**
@@ -437,7 +435,7 @@ public:
 	 * @param input conic
 	 * @return the eccentricity
 	 */
-	T operator() ( const Math::Vector< 6, T > &conic ) const
+	T operator() ( const Math::Vector< T, 6 > &conic ) const
 	{
 		const T a = conic( 0 );
 		const T b = conic( 1 ) * static_cast< T > ( 0.5 );
@@ -462,7 +460,7 @@ public:
  */
 template< typename T >
 struct ConicArea
-	: public std::unary_function< Math::Vector< 6, T >, T >
+	: public std::unary_function< Math::Vector< T, 6 >, T >
 {
 protected:
 	const Geometry::ConicSemiAxes< T > m_axerer;
@@ -470,7 +468,7 @@ protected:
 public:
 	/** Standard constructor */
 	ConicArea( ) :
-		std::unary_function< Math::Vector< 6, T >, T >()
+		std::unary_function< Math::Vector< T, 6 >, T >()
 		, m_axerer( )
 		{};
 	/**
@@ -481,10 +479,10 @@ public:
 	 * @param conic input conic
 	 * @return the area of the conic
 	 */
-	T operator() ( const Math::Vector< 6, T > &conic ) const
+	T operator() ( const Math::Vector< T, 6 > &conic ) const
 	{
-		const Math::Vector< 2, T > semi_axes = m_axerer( conic );
-		return ( M_PI * semi_axes( 0 ) * semi_axes( 1 ) );
+		const Math::Vector< T, 2 > semi_axes = m_axerer( conic );
+		return ( static_cast< T > ( M_PI ) * semi_axes( 0 ) * semi_axes( 1 ) );
 	};
 };
 
@@ -498,7 +496,7 @@ public:
  */
 template< typename T >
 struct IsConicCircle
-	: public std::unary_function< Math::Vector< 6, T >, bool >
+	: public std::unary_function< Math::Vector< T, 6 >, bool >
 {
 protected:
 	const T m_error;
@@ -510,8 +508,8 @@ public:
 	 * @tparam T type of conic ( e.g. \c double or \c float )
 	 * @param epsilon the minimal error to be tolerated for b being zero
 	 */
-	IsConicCircle( const T error = static_cast< T > ( 0.01 ) )
-		: std::unary_function< Math::Vector< 6, T >, bool >( )
+	IsConicCircle( const T error = static_cast< T > ( 1e-3 ) )
+		: std::unary_function< Math::Vector< T, 6 >, bool >( )
 		, m_error( error )
 	{ }
 
@@ -523,7 +521,7 @@ public:
 	 * @param conic the input conic
 	 * @return flag if conic is circle or not 
 	 */
-	bool operator() ( const Math::Vector< 6, T > &conic ) const
+	bool operator() ( const Math::Vector< T, 6 > &conic ) const
 	{
 		// b ~ 0
 		if( std::fabs( conic( 1 ) ) > m_error )
@@ -547,7 +545,7 @@ public:
  */
 template< typename T >
 struct IsConicDegenerate
-	: public std::unary_function< Math::Vector< 6, T >, bool >
+	: public std::unary_function< Math::Vector< T, 6 >, bool >
 {
 protected:
 
@@ -562,20 +560,20 @@ public:
 	 * @tparam T type of conic ( e.g. \c double or \c float )
 	 * @param epsilon the minimal error to be tolerated for the determinant
 	 */
-	IsConicDegenerate( const T epsilon = static_cast< T > ( 1e-5 ) )
-		: std::unary_function< Math::Vector< 6, T >, bool >()
+	IsConicDegenerate( const T epsilon = static_cast< T > ( 1e-3 ) )
+		: std::unary_function< Math::Vector< T, 6 >, bool >()
 		, m_epsilon( epsilon )
 		, m_determiner( )
 		{}
 	
 	/**
 	 * @ingroup math
-	 * Calculates if a conic is degenerated, by calcualting the detereminant.
+	 * Calculates if a conic is degenerated, by calculating the determinant.
 	 *
 	 * @param conic the input conic
 	 * @return signs if conic is degenerate or not
 	 */
-	bool operator() ( const Math::Vector< 6, T > &conic ) const
+	bool operator() ( const Math::Vector< T, 6 > &conic ) const
 	{
 		return std::fabs( m_determiner( conic ) ) < m_epsilon ;
 	}
@@ -590,7 +588,7 @@ public:
  */
 template< typename T >
 struct IsConicEllipse
-	: public std::unary_function< Math::Vector< 6, T >, bool >
+	: public std::unary_function< Math::Vector< T, 6 >, bool >
 {
 public:
 	/**
@@ -601,10 +599,37 @@ public:
 	 * @param conic the input conic
 	 * @return flag if conic is ellipse or not 
 	 */
-	bool operator() ( const Math::Vector< 6, T > &conic ) const
+	bool operator() ( const Math::Vector< T, 6 > &conic ) const
 	{
-		//ellipses must statisfy : bb-4ac < 0 
+		//ellipses must satisfy : bb-4ac < 0 
 		return ( conic( 1 ) * conic( 1 ) - 4 * conic( 0 ) * conic( 2 ) ) < 0 ? true : false;
+	}
+};
+
+/**
+ * @ingroup math
+ * Signs if conic is an hyperbola.
+ *
+ * This functor class can be applied to STL-containers
+ * of conics via a STL-algorithms.
+ */
+template< typename T >
+struct IsConicHyperbola
+	: public std::unary_function< Math::Vector< T, 6 >, bool >
+{
+public:
+	/**
+	 * @ingroup math
+	 * Signs if conic is an hyperbola.
+	 *
+	 * @tparam T type of conic ( e.g. \c double or \c float )
+	 * @param conic the input conic
+	 * @return flag if conic is hyperbola or not 
+	 */
+	bool operator() ( const Math::Vector< T, 6 > &conic ) const
+	{
+		//ellipses must satisfy : bb-4ac > 0 
+		return ( conic( 1 ) * conic( 1 ) - 4 * conic( 0 ) * conic( 2 ) ) > 0 ? true : false;
 	}
 };
 
@@ -618,7 +643,7 @@ public:
  */
 template< typename T >
 struct IsConicParabola
-	: public std::unary_function< Math::Vector< 6, T >, bool >
+	: public std::unary_function< Math::Vector< T, 6 >, bool >
 {
 protected:
 	const T m_epsilon;
@@ -631,8 +656,8 @@ public:
 	 * @tparam T type of conic ( e.g. \c double or \c float )
 	 * @param epsilon tolerance value for accepting a conic as parabola
 	 */
-	IsConicParabola( const T epsilon = 1e-5 )
-		: std::unary_function< Math::Vector< 6, T >, bool >()
+	IsConicParabola( const T epsilon = 1e-2 )
+		: std::unary_function< Math::Vector< T, 6 >, bool >()
 		, m_epsilon( epsilon )
 		{}
 	
@@ -644,9 +669,9 @@ public:
 	 * @param conic the input conic
 	 * @return flag if conic is parabola or not 
 	 */
-	bool operator() ( const Math::Vector< 6, T > &conic ) const
+	bool operator() ( const Math::Vector< T, 6 > &conic ) const
 	{
-		// parabola statisfy : bb-4ac == 0 
+		// parabola satisfy : bb-4ac == 0 
 		// epsilon is applied since it might never be exactly zero
 		return std::fabs( conic( 1 ) * conic( 1 ) - 4 * conic( 0 ) * conic( 2 ) ) < m_epsilon;
 	}
@@ -665,7 +690,7 @@ public:
  */
 template< typename T >
 struct ScaleConicUnsafe
-	: public std::unary_function< Math::Vector< 6, T >, Math::Vector< 6, T > >
+	: public std::unary_function< Math::Vector< T, 6 >, Math::Vector< T, 6 > >
 {
 protected:
 	/// scale for major semi-axes
@@ -688,7 +713,7 @@ public:
 	 * @param scaleB the scale for the minor semi-axis
 	 */
 	ScaleConicUnsafe( const T scaleA, const T scaleB )
-		: std::unary_function< Math::Vector< 6, T >, Math::Vector< 6, T > >( )
+		: std::unary_function< Math::Vector< T, 6 >, Math::Vector< T, 6 > >( )
 		, m_scaleA1(  static_cast< T >( 1 ) / scaleA )
 		, m_scaleA2(  m_scaleA1 * m_scaleA1 )
 		, m_scaleB1(  static_cast< T >( 1 ) / scaleB )
@@ -709,7 +734,7 @@ public:
 	 * @param scale the scale for the both the semi-axes
 	 */
 	ScaleConicUnsafe( const T scale )
-		: std::unary_function< Math::Vector< 6, T >, Math::Vector< 6, T > >( )
+		: std::unary_function< Math::Vector< T, 6 >, Math::Vector< T, 6 > >( )
 		, m_scaleA1( static_cast< T >( 1 ) / scale )
 		, m_scaleA2(  m_scaleA1 * m_scaleA1 )
 		, m_scaleB1(  m_scaleA1 )
@@ -733,9 +758,9 @@ public:
 	 * @param conic the input conic.
 	 * @return the scaled conic. 
 	 */
-	Math::Vector< 6, T > operator() ( const Math::Vector< 6, T > &conic ) const
+	Math::Vector< T, 6 > operator() ( const Math::Vector< T, 6 > &conic ) const
 	{
-		Math::Vector< 6, T > vec;
+		Math::Vector< T, 6 > vec;
 		const T a = conic[ 0 ];
 		const T b = conic[ 1 ];
 		const T c = conic[ 2 ];
@@ -748,7 +773,7 @@ public:
 		vec[ 3 ] = d * m_scaleA1;
 		vec[ 4 ] = e * m_scaleB1;
 		vec[ 5 ] = f;
-		return Math::Vector< 6, T >( vec );
+		return Math::Vector< T, 6 >( vec );
 	}
 };
 
@@ -762,7 +787,7 @@ public:
  */
 template< typename T >
 struct TranslateConic
-	: public std::binary_function< Math::Vector< 2, T >, Math::Vector< 6, T >, Math::Vector< 6, T > >
+	: public std::binary_function< Math::Vector< T, 2 >, Math::Vector< T, 6 >, Math::Vector< T, 6 > >
 {
 public:
 	/**
@@ -774,7 +799,7 @@ public:
 	 * @param conic the input conic.
 	 * @return the translated conic. 
 	 */
-	Math::Vector< 6, T > operator() ( const Math::Vector< 2, T > &translation, const Math::Vector< 6, T > &conic ) const
+	Math::Vector< T, 6 > operator() ( const Math::Vector< T, 2 > &translation, const Math::Vector< T, 6 > &conic ) const
 	{
 		
 		const T a = conic( 0 );
@@ -801,7 +826,7 @@ public:
 		// T[2][1] = e-a31*b-a32*c;
 		// T[2][2] = f-a31*d-a32*e+a31*(-d+a*a31+a32*b)+a32*(-e+a31*b+a32*c);
 		
-		Math::Vector< 6, T > vec;
+		Math::Vector< T, 6 > vec;
 		vec( 0 ) = conic( 0 );
 		vec( 1 ) = conic( 1 );
 		vec( 2 ) = conic( 2 );
@@ -812,7 +837,7 @@ public:
 		
 		vec( 3 ) *= 2;
 		vec( 4 ) *= 2;
-		return Math::Vector< 6, T >( vec );
+		return Math::Vector< T, 6 >( vec );
 	}
 };
 
@@ -826,7 +851,7 @@ public:
  */
 template< typename T >
 struct ConicPixel
-	: public std::binary_function< Math::Vector< 6, T >, Math::Vector< 2, T >, T >
+	: public std::binary_function< Math::Vector< T, 6 >, Math::Vector< T, 2 >, T >
 {
 public:
 	/**
@@ -842,7 +867,7 @@ public:
 	 * @param pixel input pixel
 	 * @return resulting product
 	 */
-	T operator() ( const Math::Vector< 6, T > &conic, const Math::Vector< 2, T > &pixel  ) const
+	T operator() ( const Math::Vector< T, 6 > &conic, const Math::Vector< T, 2 > &pixel  ) const
 	{
 		const T x = pixel[ 0 ];
 		const T y = pixel[ 1 ];
@@ -867,7 +892,7 @@ public:
  */
 template< typename T >
 struct FlipConicHorizontal
-	: public std::unary_function< Math::Vector< 6, T >, Math::Vector< 6, T > >
+	: public std::unary_function< Math::Vector< T, 6 >, Math::Vector< T, 6 > >
 {
 protected:
 	/** signs where to reflect the conic at the y-axis */
@@ -888,11 +913,11 @@ public:
 	 * @param height the value of the y-axis, usually image height (will be subtracted by one)
 	 */
 	FlipConicHorizontal( const T height )
-		: std::unary_function< Math::Vector< 6, T >, Math::Vector< 6, T > >( )
+		: std::unary_function< Math::Vector< T, 6 >, Math::Vector< T, 6 > >( )
 		, m_y( height - 1  )
 	{ }
 	
-	Math::Vector< 6, T > operator() ( const Math::Vector< 6, T > &conic ) const
+	Math::Vector< T, 6 > operator() ( const Math::Vector< T, 6 > &conic ) const
 	{
 		const T a = conic[ 0 ];
 		const T b = conic[ 1 ] * static_cast< T > ( 0.5 );
@@ -905,7 +930,7 @@ public:
 		// [       a,        -b,               d + b*y]
 		// [      -b,         c,             - e - c*y]
 		// [ d + b*y, - e - c*y, f + e*y + y*(e + c*y)]
-		Math::Vector< 6, T > vec;
+		Math::Vector< T, 6 > vec;
 		vec[ 0 ] = a;
 		vec[ 1 ] = -b;
 		vec[ 2 ] = c;
@@ -915,7 +940,7 @@ public:
 		vec[ 1 ] *= 2;
 		vec[ 3 ] *= 2;
 		vec[ 4 ] *= 2;
-		return Math::Vector< 6, T >( vec );
+		return Math::Vector< T, 6 >( vec );
 	}
 };
 
@@ -929,7 +954,7 @@ public:
  */
 template< typename T >
 struct ConicUpperLowerLimit
-	: public std::unary_function< Math::Vector< 6, T >, Math::Vector< 2, T > >
+	: public std::unary_function< Math::Vector< T, 6 >, Math::Vector< T, 2 > >
 {
 public:
 	/**
@@ -943,7 +968,7 @@ public:
 	 * @param conic input conic
 	 * @return the upper and lower limits of the conic
 	 */
-	Math::Vector< 2, T > operator() ( const Math::Vector< 6, T > &conic ) const
+	Math::Vector< T, 2 > operator() ( const Math::Vector< T, 6 > &conic ) const
 	{
 
 		const T a = conic( 0 );
@@ -962,9 +987,9 @@ public:
 		const T y2 = -( (upper1/lower) - (upper2/lower) );
 	
 		if ( y1 < y2 )
-			return Math::Vector< 2, T >( y1, y2 );
+			return Math::Vector< T, 2 >( y1, y2 );
 		else
-			return Math::Vector< 2, T >( y2, y1 );
+			return Math::Vector< T, 2 >( y2, y1 );
 	}
 };
 
@@ -978,7 +1003,7 @@ public:
  */
 template< typename T >
 struct ConicLeftRightLimit
-	: public std::unary_function< Math::Vector< 6, T >, Math::Vector< 2, T > >
+	: public std::unary_function< Math::Vector< T, 6 >, Math::Vector< T, 2 > >
 {
 public:
 	/**
@@ -991,7 +1016,7 @@ public:
 	 * @param conic input conic
 	 * @return the left and right limits of the conic
 	 */
-	Math::Vector< 2, T > operator() ( const Math::Vector< 6, T > &conic ) const
+	Math::Vector< T, 2 > operator() ( const Math::Vector< T, 6 > &conic ) const
 	{
 		const T a = conic( 0 );
 		const T b = conic( 1 ) * static_cast< T > ( 0.5 );
@@ -1003,7 +1028,7 @@ public:
 		const T x1 = (b*e-c*d+c*std::sqrt((a*(e*e)+c*(d*d)+(b*b)*f-a*c*f-b*d*e*2)/c))/(a*c-b*b);
 		const T x2 = -(-b*e+c*d+c*std::sqrt((a*(e*e)+c*(d*d)+(b*b)*f-a*c*f-b*d*e*2)/c))/(a*c-b*b);
 
-		return ( x1 < x2 ) ? Math::Vector< 2, T >( x1, x2 ) : Math::Vector< 2, T >( x2, x1 );
+		return ( x1 < x2 ) ? Math::Vector< T, 2 >( x1, x2 ) : Math::Vector< T, 2 >( x2, x1 );
     }
 };
 
@@ -1018,7 +1043,7 @@ public:
  */
 template< typename T >
 struct ConicHorizontalIntersection
-	: public std::binary_function< Math::Vector< 6, T >, T, Math::Vector< 2, T > >
+	: public std::binary_function< Math::Vector< T, 6 >, T, Math::Vector< T, 2 > >
 {
 public:
 	/**
@@ -1029,14 +1054,14 @@ public:
 	 * @param y the height of the line
 	 * @return the left/right x-values of the intersection
 	 */
-	Math::Vector< 2, T > operator() ( const Math::Vector< 6, T > &conic, const T y ) const
+	Math::Vector< T, 2 > operator() ( const Math::Vector< T, 6 > &conic, const T y ) const
 	{
 		const T b = conic( 1 )*0.5 * y + conic( 3 ) * static_cast< T > ( 0.5 ); 
 		const T c = ( conic( 2 ) * y + conic( 4 ) ) * y + conic( 5 );
 		const T d = std::sqrt( b * b - conic( 0 ) * c );
 		const T x1 = ( (-b + d) / conic( 0 ) );
 		const T x2 = ( (-b - d) / conic( 0 ) );
-		return ( x1 < x2 ) ? Math::Vector< 2, T >( x1, x2 ) : Math::Vector< 2, T >( x2, x1 );
+		return ( x1 < x2 ) ? Math::Vector< T, 2 >( x1, x2 ) : Math::Vector< T, 2 >( x2, x1 );
 	}
 };
 

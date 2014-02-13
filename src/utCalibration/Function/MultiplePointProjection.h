@@ -64,7 +64,7 @@ public:
 	 * @param p reference to vector of 3D-points to be projected (must stay constant during lifetime of the object)
 	 * @param cam reference to 3x3 camera intrinsics matrix (must stay constant during lifetime of the object)
 	 */
-	MultiplePointProjection( const std::vector< Math::Vector< 3, VType > >& p3D, const Math::Matrix< 3, 3, VType >& cam )
+	MultiplePointProjection( const std::vector< Math::Vector< VType, 3 > >& p3D, const Math::Matrix< VType, 3, 3 >& cam )
 		: m_p3D( p3D )
 		, m_cam( cam )
 	{}
@@ -87,13 +87,13 @@ public:
 
 		// convert quaternion to matrix (for speedup)
 		Quaternion rotQ( Quaternion::fromVector( ublas::subrange( input, 3, 7 ) ) );
-		Matrix< 3, 3, VType > rot( rotQ );
+		Matrix< VType, 3, 3 > rot( rotQ );
 		
 		for ( std::size_t i ( 0 ); i < m_p3D.size(); ++i )
 		{
 			// rotate & project points
-			Vector< 3, VType > rotated( ublas::prod( rot, m_p3D[ i ] ) + ublas::subrange( input, 0, 3 ) );
-			Vector< 3, VType > projected( ublas::prod( m_cam, rotated ) );
+			Vector< VType, 3 > rotated( ublas::prod( rot, m_p3D[ i ] ) + ublas::subrange( input, 0, 3 ) );
+			Vector< VType, 3 > projected( ublas::prod( m_cam, rotated ) );
 			ublas::noalias( ublas::subrange( result, i * 2, (i+1) * 2 ) ) = ublas::subrange( projected, 0, 2 ) / projected( 2 );
 		}
 	}
@@ -123,13 +123,13 @@ public:
 
 		// convert quaternion to matrix (for speedup)
 		Quaternion rotQ( Quaternion::fromVector( ublas::subrange( input, 3, 7 ) ) );
-		Matrix< 3, 3, VType > rot( rotQ );
+		Matrix< VType, 3, 3 > rot( rotQ );
 		
 		// create matrices
-		Matrix< 2, 3, VType > projJ;
-		Matrix< 3, 4, VType > rotJ;
-		Vector< 3, VType > rotated;
-		Vector< 3, VType > projected;
+		Matrix< VType, 2, 3 > projJ;
+		Matrix< VType, 3, 4 > rotJ;
+		Vector< VType, 3 > rotated;
+		Vector< VType, 3 > projected;
 		
 		for ( unsigned i = 0; i < m_p3D.size(); i++ )
 		{
@@ -150,8 +150,8 @@ public:
 	}
 	
 protected:
-	const std::vector< Math::Vector< 3, VType > >& m_p3D;
-	const Math::Matrix< 3, 3, VType >& m_cam;
+	const std::vector< Math::Vector< VType, 3 > >& m_p3D;
+	const Math::Matrix< VType, 3, 3 >& m_cam;
 };
 
 } } } // namespace Ubitrack::Calibration::Function

@@ -23,7 +23,7 @@
 
 
 /**
- * @ingroup tracking_algorithms
+ * @ingroup math graph
  * @file
  * Munkres class
  * This file contains the Munkres class for using the
@@ -69,7 +69,7 @@ public:
 	Munkres();
 
 	/** Constructor directly using a matrix which should be solved */
-	Munkres( Math::Matrix< 0, 0, T > & matrix);
+	Munkres( Math::Matrix< T, 0, 0 > & matrix);
 
 	/** this function must be called AFTER the input data was set*/
 	void solve();
@@ -78,13 +78,13 @@ public:
 	 * sets the input data
 	 * @param matrix the matrix to be solved
 	 */
-	void setMatrix( Math::Matrix< 0, 0, T > & matrix );
+	void setMatrix( Math::Matrix< T, 0, 0 > & matrix );
 
 	/**
 	 * returns the result as a masked Matrix
 	 * @return every 1 in the matrix represents a match
 	 */
-	Math::Matrix< 0, 0, T >  getMaskMatrix();
+	Math::Matrix< T, 0, 0 >  getMaskMatrix();
 
 	/**
 	 * returns the result as a ordered list of matches
@@ -112,7 +112,7 @@ private:
 	int step5();
 	int step6();
 	boost::numeric::ublas::matrix< int > mask_matrix;
-	Math::Matrix< 0, 0, T > m_matrix;
+	Math::Matrix< T, 0, 0 > m_matrix;
 	bool *row_mask;
 	bool *col_mask;
 	std::size_t saverow, savecol;
@@ -129,7 +129,7 @@ Munkres< T >::Munkres()
 }
 
 template< typename T >
-Munkres< T >::Munkres( Math::Matrix< 0, 0, T > & matrix)
+Munkres< T >::Munkres( Math::Matrix< T, 0, 0 > & matrix)
 {	
 	saverow = 0; 
 	savecol = 0;
@@ -354,7 +354,7 @@ int Munkres< T >::step5()
 }
 
 template< typename T >
-void Munkres< T >::setMatrix( Math::Matrix< 0, 0, T > & matrix )
+void Munkres< T >::setMatrix( Math::Matrix< T, 0, 0 > & matrix )
 {
 	//find maximum matrix value vMax
 	T vMax = static_cast< T >( 0 );
@@ -451,7 +451,7 @@ void Munkres< T >::solve()
 }
 
 template< typename T >
-Math::Matrix< 0, 0, T >  Munkres< T >::getMaskMatrix()
+Math::Matrix< T, 0, 0 >  Munkres< T >::getMaskMatrix()
 {
 	return mask_matrix;
 }

@@ -54,27 +54,27 @@ namespace Ubitrack { namespace Calibration {
 
 /** \internal */
 template< typename T >
-Math::Matrix< 3, 4, T >projectionDLTImpl( const std::vector< Math::Vector< 3, T > >& fromPoints,
-	const std::vector< Math::Vector< 2, T > >& toPoints )
+Math::Matrix< T, 3, 4 >projectionDLTImpl( const std::vector< Math::Vector< T, 3 > >& fromPoints,
+	const std::vector< Math::Vector< T, 2 > >& toPoints )
 {
 	assert( fromPoints.size() == toPoints.size() );
 	assert( fromPoints.size() >= 6 );
 
 	// normalize input points
-	Math::Vector< 3, T > fromShift;
-	Math::Vector< 3, T > fromScale;
+	Math::Vector< T, 3 > fromShift;
+	Math::Vector< T, 3 > fromScale;
 	Math::Geometry::estimateNormalizationParameters( fromPoints.begin(), fromPoints.end(), fromShift, fromScale );
 	
-	Math::Vector< 2, T > toShift;
-	Math::Vector< 2, T > toScale;
+	Math::Vector< T, 2 > toShift;
+	Math::Vector< T, 2 > toScale;
 	Math::Geometry::estimateNormalizationParameters( toPoints.begin(), toPoints.end(), toShift, toScale );
 
 	// construct equation system
-	Math::Matrix< 0, 0, T > A( 2 * fromPoints.size(), 12 );
+	Math::Matrix< T, 0, 0 > A( 2 * fromPoints.size(), 12 );
 	for ( unsigned i = 0; i < fromPoints.size(); i++ )
 	{
-		Math::Vector< 2, T > to = ublas::element_div( toPoints[ i ] - toShift, toScale );
-		Math::Vector< 3, T > from = ublas::element_div( fromPoints[ i ] - fromShift, fromScale );
+		Math::Vector< T, 2 > to = ublas::element_div( toPoints[ i ] - toShift, toScale );
+		Math::Vector< T, 3 > from = ublas::element_div( fromPoints[ i ] - fromShift, fromScale );
 
 		A( i * 2,  0 ) = A( i * 2, 1 ) = A( i * 2, 2 ) = A( i * 2, 3 ) = 0;
 		A( i * 2,  4 ) = -from( 0 );
@@ -97,28 +97,28 @@ Math::Matrix< 3, 4, T >projectionDLTImpl( const std::vector< Math::Vector< 3, T 
 	}
 
 	// solve using SVD
-	Math::Vector< 0, T > s( 12 );
-	Math::Matrix< 12, 12, T > Vt;
-	Math::Matrix< 0, 0, T > U( 2 * fromPoints.size(), 2 * fromPoints.size() );
+	Math::Vector< T > s( 12 );
+	Math::Matrix< T, 12, 12 > Vt;
+	Math::Matrix< T, 0, 0 > U( 2 * fromPoints.size(), 2 * fromPoints.size() );
 	lapack::gesvd( 'N', 'A', A, s, U, Vt );
 
 	// copy result to 3x4 matrix
-	Math::Matrix< 3, 4, T > P;
+	Math::Matrix< T, 3, 4 > P;
 	P( 0, 0 ) = Vt( 11, 0 ); P( 0, 1 ) = Vt( 11, 1 ); P( 0, 2 ) = Vt( 11,  2 ); P( 0, 3 ) = Vt( 11,  3 );
 	P( 1, 0 ) = Vt( 11, 4 ); P( 1, 1 ) = Vt( 11, 5 ); P( 1, 2 ) = Vt( 11,  6 ); P( 1, 3 ) = Vt( 11,  7 );
 	P( 2, 0 ) = Vt( 11, 8 ); P( 2, 1 ) = Vt( 11, 9 ); P( 2, 2 ) = Vt( 11, 10 ); P( 2, 3 ) = Vt( 11, 11 );
 
 	// reverse normalization
-	const Math::Matrix< 3, 3, T > toCorrect( Math::Geometry::generateNormalizationMatrix( toShift, toScale, true ) );
-	Math::Matrix< 3, 4, T > Ptemp( ublas::prod( toCorrect, P ) );
-	const Math::Matrix< 4, 4, T > fromCorrect( Math::Geometry::generateNormalizationMatrix( fromShift, fromScale, false ) );
+	const Math::Matrix< T, 3, 3 > toCorrect( Math::Geometry::generateNormalizationMatrix( toShift, toScale, true ) );
+	Math::Matrix< T, 3, 4 > Ptemp( ublas::prod( toCorrect, P ) );
+	const Math::Matrix< T, 4, 4 > fromCorrect( Math::Geometry::generateNormalizationMatrix( fromShift, fromScale, false ) );
 	ublas::noalias( P ) = ublas::prod( Ptemp, fromCorrect );
 
 	// normalize result to have a viewing direction of length 1 (optional)
 	T fViewDirLen = sqrt( P( 2, 0 ) * P( 2, 0 ) + P( 2, 1 ) * P( 2, 1 ) + P( 2, 2 ) * P( 2, 2 ) );
 	
 	// if first point is projected onto a negative z value, negate matrix
-	const Math::Vector< 3, T > p1st = fromPoints[ 0 ];
+	const Math::Vector< T, 3 > p1st = fromPoints[ 0 ];
 	if ( P( 2, 0 ) * p1st( 0 ) + P( 2, 1 ) * p1st( 1 ) + P( 2, 2 ) * p1st( 2 ) + P( 2, 3 ) < 0 )
 		fViewDirLen = -fViewDirLen;
 	
@@ -127,33 +127,33 @@ Math::Matrix< 3, 4, T >projectionDLTImpl( const std::vector< Math::Vector< 3, T 
 	return P;
 }
 
-Math::Matrix< 3, 4, float > projectionDLT( const std::vector< Math::Vector< 3, float > >& fromPoints,
-	const std::vector< Math::Vector< 2, float > >& toPoints )
+Math::Matrix< float, 3, 4 > projectionDLT( const std::vector< Math::Vector< float, 3 > >& fromPoints,
+	const std::vector< Math::Vector< float, 2 > >& toPoints )
 {
 	return projectionDLTImpl( fromPoints, toPoints );
 }
 
-Math::Matrix< 3, 4, double > projectionDLT( const std::vector< Math::Vector< 3, double > >& fromPoints,
-	const std::vector< Math::Vector< 2, double > >& toPoints )
+Math::Matrix< double, 3, 4 > projectionDLT( const std::vector< Math::Vector< double, 3 > >& fromPoints,
+	const std::vector< Math::Vector< double, 2 > >& toPoints )
 {
 	return projectionDLTImpl( fromPoints, toPoints );
 }
 
 
 /** \internal */
-template< typename T > void decomposeProjectionImpl( Math::Matrix< 3, 3, T >& k,
-	Math::Matrix< 3, 3, T >& r, Math::Vector< 3, T >& t, const Math::Matrix< 3, 4, T >& p_ )
+template< typename T > void decomposeProjectionImpl( Math::Matrix< T, 3, 3 >& k,
+	Math::Matrix< T, 3, 3 >& r, Math::Vector< T, 3 >& t, const Math::Matrix< T, 3, 4 >& p_ )
 {
 	// copy matrix
-	Math::Matrix< 3, 4, T > P( p_ );
-	ublas::matrix_range< Math::Matrix< 3, 4, T > > A( P, ublas::range( 0, 3 ), ublas::range( 0, 3 ) );
+	Math::Matrix< T, 3, 4 > P( p_ );
+	ublas::matrix_range< Math::Matrix< T, 3, 4 > > A( P, ublas::range( 0, 3 ), ublas::range( 0, 3 ) );
 
 	// origin must lie in front of camera
 	if ( P( 2, 3 ) < 0 )
 		P *= -1;
 
 	// perform RQ decomposition
-	Math::Vector< 3, T > tau;
+	Math::Vector< T, 3 > tau;
 	lapack::gerqf( A, tau );
 
 	// generate matrix k
@@ -167,7 +167,7 @@ template< typename T > void decomposeProjectionImpl( Math::Matrix< 3, 3, T >& k,
 	// do some normalization
 	// normalization is done by changing the product K R to (K S) (S^-1 R),
 	// where S(i,i) == +/- 1 and S(i,j) == 0 for i!=j. Thus, S == S^-1
-	Math::Vector< 3, T > scale( 1, 1, 1 );
+	Math::Vector< T, 3 > scale( 1, 1, 1 );
 
 	// det( R ) must be positive
 	if ( Math::determinant( r ) < 0 )
@@ -198,20 +198,20 @@ template< typename T > void decomposeProjectionImpl( Math::Matrix< 3, 3, T >& k,
 	k *= f;
 
 	// compute translation vector: t = K^-1 p^4
-	Math::Matrix< 3, 1, T > ttmp = ublas::subrange( P, 0, 3, 3, 4 );
+	Math::Matrix< T, 3, 1 > ttmp = ublas::subrange( P, 0, 3, 3, 4 );
 	blas::trsm( 'L', 'U', 'N', 'N', 1.0f, k, ttmp );
 	t = ublas::column( ttmp, 0 );
 }
 
 
-void decomposeProjection( Math::Matrix< 3, 3, float >& k,
-	Math::Matrix< 3, 3, float >& r, Math::Vector< 3, float >& t, const Math::Matrix< 3, 4, float >& p )
+void decomposeProjection( Math::Matrix< float, 3, 3 >& k,
+	Math::Matrix< float, 3, 3 >& r, Math::Vector< float, 3 >& t, const Math::Matrix< float, 3, 4 >& p )
 {
 	decomposeProjectionImpl( k, r, t, p );
 }
 
-void decomposeProjection( Math::Matrix< 3, 3, double >& k,
-	Math::Matrix< 3, 3, double >& r, Math::Vector< 3, double >& t, const Math::Matrix< 3, 4, double >& p )
+void decomposeProjection( Math::Matrix< double, 3, 3 >& k,
+	Math::Matrix< double, 3, 3 >& r, Math::Vector< double, 3 >& t, const Math::Matrix< double, 3, 4 >& p )
 {
 	decomposeProjectionImpl( k, r, t, p );
 }
@@ -220,9 +220,9 @@ void decomposeProjection( Math::Matrix< 3, 3, double >& k,
 
 /** \internal */
 template < typename T >
-Math::Matrix< 4, 4, T > projectionMatrixToOpenGLimp( T l, T r, T b, T t, T n, T f, Math::Matrix< 3, 4, T > m )
+Math::Matrix< T, 4, 4 > projectionMatrixToOpenGLimp( T l, T r, T b, T t, T n, T f, Math::Matrix< T, 3, 4 > m )
 {
-	Math::Matrix< 4, 4, T > m2;
+	Math::Matrix< T, 4, 4 > m2;
 	ublas::subrange( m2, 0, 3, 0, 4 ) = m;
 
 	T norm  = sqrt ( m2( 2, 0 )*m2( 2, 0 ) + m2( 2, 1 )*m2( 2, 1 ) + m2( 2, 2 )*m2( 2, 2 ) );
@@ -237,7 +237,7 @@ Math::Matrix< 4, 4, T > projectionMatrixToOpenGLimp( T l, T r, T b, T t, T n, T 
 	m2( 2, 3 ) += add;
 
 	//compute ortho matrix
-	Math::Matrix< 4, 4, T > ortho;
+	Math::Matrix< T, 4, 4 > ortho;
 
 	ortho( 0, 0 ) = static_cast< T >( 2.0 ) / ( r - l );
 	ortho( 0, 1 ) = static_cast< T >( 0.0 );
@@ -259,20 +259,20 @@ Math::Matrix< 4, 4, T > projectionMatrixToOpenGLimp( T l, T r, T b, T t, T n, T 
 	return ublas::prod( ortho, m2 );
 }
 
-Math::Matrix< 4, 4, double > projectionMatrixToOpenGL( double l, double r, double b, double t, double n, double f, Math::Matrix< 3, 4, double > m )
+Math::Matrix< double, 4, 4 > projectionMatrixToOpenGL( double l, double r, double b, double t, double n, double f, Math::Matrix< double, 3, 4 > m )
 {
 	return projectionMatrixToOpenGLimp( l, r, b, t, n, f, m );
 }
 
-Math::Matrix< 4, 4, float > projectionMatrixToOpenGL( float l, float r, float b, float t, float n, float f, Math::Matrix< 3, 4, float > m )
+Math::Matrix< float, 4, 4 > projectionMatrixToOpenGL( float l, float r, float b, float t, float n, float f, Math::Matrix< float, 3, 4 > m )
 {
 	return projectionMatrixToOpenGLimp( l, r, b, t, n, f, m );
 }
 
-Math::Matrix< 4, 4, double > projectionMatrixToOpenGL( double l, double r, double b, double t, double n, double f, Math::Matrix< 3, 3, double > m )
+Math::Matrix< double, 4, 4 > projectionMatrixToOpenGL( double l, double r, double b, double t, double n, double f, Math::Matrix< double, 3, 3 > m )
 {
 	//construct the 4th column
-	Math::Matrix< 3, 4, double > mat;
+	Math::Matrix< double, 3, 4 > mat;
 	mat( 0, 3 ) = 0.0;
 	mat( 1, 3 ) = 0.0;
 	mat( 2, 3 ) = 0.0;
@@ -281,10 +281,10 @@ Math::Matrix< 4, 4, double > projectionMatrixToOpenGL( double l, double r, doubl
 	return projectionMatrixToOpenGLimp( l, r, b, t, n, f, mat );
 }
 
-Math::Matrix< 4, 4, float > projectionMatrixToOpenGL( float l, float r, float b, float t, float n, float f, Math::Matrix< 3, 3, float > m )
+Math::Matrix< float, 4, 4 > projectionMatrixToOpenGL( float l, float r, float b, float t, float n, float f, Math::Matrix< float, 3, 3 > m )
 {
 	//construct the 4th column
-	Math::Matrix< 3, 4, float > mat;
+	Math::Matrix< float, 3, 4 > mat;
 	mat( 0, 3 ) = float( 0.0 );
 	mat( 1, 3 ) = float( 0.0 );
 	mat( 2, 3 ) = float( 0.0 );
@@ -293,13 +293,13 @@ Math::Matrix< 4, 4, float > projectionMatrixToOpenGL( float l, float r, float b,
 	return projectionMatrixToOpenGLimp( l, r, b, t, n, f, mat );
 }
 
-Math::Matrix< 4, 4, double > offAxisProjectionMatrix( Math::Vector< 3, double >& eye, Math::Vector< 3, double >& ll, Math::Vector< 3, double >& ul, Math::Vector< 3, double >& lr, double n, double f, double sw, double sh ) {
+Math::Matrix< double, 4, 4 > offAxisProjectionMatrix( Math::Vector< double, 3 >& eye, Math::Vector< double, 3 >& ll, Math::Vector< double, 3 >& ul, Math::Vector< double, 3 >& lr, double n, double f, double sw, double sh ) {
 
-	Math::Vector<3> Xs = (lr - ll) / sw;
-	Math::Vector<3> Ys = (ul - ll) / sh;
-	Math::Vector<3> Zs = cross_prod(Xs, Ys);
+	Math::Vector< double, 3 > Xs = (lr - ll) / sw;
+	Math::Vector< double, 3 > Ys = (ul - ll) / sh;
+	Math::Vector< double, 3 > Zs = cross_prod(Xs, Ys);
 
-	Math::Vector<3> Es = eye - ll;
+	Math::Vector< double, 3 > Es = eye - ll;
 
 	double distance = inner_prod(Es, Zs);
 
@@ -319,7 +319,7 @@ Math::Matrix< 4, 4, double > offAxisProjectionMatrix( Math::Vector< 3, double >&
 	double C = -((f+n)/(f-n));
 	double D = -((2*f*n)/(f-n));
 
-	Math::Matrix< 4, 4, double > proj ( Math::Matrix< 4, 4, double >::zeros() );
+	Math::Matrix< double, 4, 4 > proj ( Math::Matrix< double, 4, 4 >::zeros() );
 	proj(0,0) = (2*n)/(right-left);
 	proj(1,1) = (2*n)/(top-buttom);
 	proj(0,2) = A;
@@ -328,27 +328,27 @@ Math::Matrix< 4, 4, double > offAxisProjectionMatrix( Math::Vector< 3, double >&
 	proj(3,2) = -1;
 	proj(2,3) = D;
 
-	Math::Matrix< 4, 4, double > translation = Math::Matrix< 4, 4, double >::identity();
+	Math::Matrix< double, 4, 4 > translation = Math::Matrix< double, 4, 4 >::identity();
 	translation(0, 3) = -eye(0);
 	translation(1, 3) = -eye(1);
 	translation(2, 3) = -eye(2);
 
 	// Build a rotation matrix.
-	Math::Matrix< 4, 4, double > m = Math::Matrix< 4, 4, double >::zeros();
+	Math::Matrix< double, 4, 4 > m = Math::Matrix< double, 4, 4 >::zeros();
 	m(0, 0) = Xs(0); m(0, 1) = Ys(0); m(0, 2) = Zs(0);
 	m(1, 0) = Xs(1); m(1, 1) = Ys(1); m(1, 2) = Zs(1);
 	m(2, 0) = Xs(2); m(2, 1) = Ys(2); m(2, 2) = Zs(2);
 								m(3, 3) = 1.0;
 	
 	// The rotation matrix is orthogonal so we can transpose it instead of inverting.
-	Math::Matrix<4, 4> view = boost::numeric::ublas::prod(boost::numeric::ublas::trans(m), translation );
-	Math::Matrix<4, 4> view2 = boost::numeric::ublas::prod(proj, view);
+	Math::Matrix< double, 4, 4 > view = boost::numeric::ublas::prod(boost::numeric::ublas::trans(m), translation );
+	Math::Matrix< double, 4, 4 > view2 = boost::numeric::ublas::prod(proj, view);
 	return view2;
 }
 
 
 template< class T >
-void correctOriginImpl( Math::Matrix< 3, 3, T >& k, int origin, int height )
+void correctOriginImpl( Math::Matrix< T, 3, 3 >& k, int origin, int height )
 {
 	if ( !origin )
 	{
@@ -357,10 +357,10 @@ void correctOriginImpl( Math::Matrix< 3, 3, T >& k, int origin, int height )
 	}
 }
 
-void correctOrigin( Math::Matrix< 3, 3, float >& k, int origin, int height )
+void correctOrigin( Math::Matrix< float, 3, 3 >& k, int origin, int height )
 { correctOriginImpl( k, origin, height ); }
 
-void correctOrigin( Math::Matrix< 3, 3, double >& k, int origin, int height )
+void correctOrigin( Math::Matrix< double, 3, 3 >& k, int origin, int height )
 { correctOriginImpl( k, origin, height ); }
 
 } } // namespace Ubitrack::Calibration

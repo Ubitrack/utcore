@@ -33,8 +33,8 @@
 #include "PoseKalmanFilter.h"
 #ifdef HAVE_LAPACK
  
-#include <utMath/CovarianceTransform.h>
-#include <utMath/Function/VectorNormalize.h>
+#include <utMath/Stochastic/CovarianceTransform.h>
+#include <utMath/Optimization/Function/VectorNormalize.h>
 #include <utUtil/Exception.h>
 #include "Function/PoseTimeUpdate.h"
 #include "Function/InsideOutPoseTimeUpdate.h"
@@ -45,7 +45,7 @@
 static log4cpp::Category& logger( log4cpp::Category::getInstance( "Ubitrack.Tracking.PoseKalmanFilter" ) );
 
 #define KALMAN_LOGGING
-#include "Kalman.h"
+#include <utMath/Stochastic/Kalman.h>
 
 namespace ublas = boost::numeric::ublas;
 
@@ -65,10 +65,10 @@ struct PoseMeasurement
 	{
 		ublas::subrange( result, 0, 3 ) = ublas::subrange( input, 0, 3 );
 		ublas::subrange( result, 3, 7 ) = ublas::subrange( input, m_rotStart, m_rotStart + 4 );
-		ublas::subrange( jacobian, 0, 3, 0, 3 ) = Ubitrack::Math::Matrix< 3, 3, double >::identity();
-		ublas::subrange( jacobian, 0, 3, 3, m_rotStart + 4 ) = Ubitrack::Math::Matrix< 0, 0, double >::zeros( 3, m_rotStart + 4 - 3 );
-		ublas::subrange( jacobian, 3, 7, 0, m_rotStart ) = Ubitrack::Math::Matrix< 0, 0, double >::zeros( 4, m_rotStart );
-		ublas::subrange( jacobian, 3, 7, m_rotStart, m_rotStart + 4 ) = Ubitrack::Math::Matrix< 4, 4, double >::identity();
+		ublas::subrange( jacobian, 0, 3, 0, 3 ) = Ubitrack::Math::Matrix< double, 3, 3 >::identity();
+		ublas::subrange( jacobian, 0, 3, 3, m_rotStart + 4 ) = Ubitrack::Math::Matrix< double, 0, 0 >::zeros( 3, m_rotStart + 4 - 3 );
+		ublas::subrange( jacobian, 3, 7, 0, m_rotStart ) = Ubitrack::Math::Matrix< double, 0, 0 >::zeros( 4, m_rotStart );
+		ublas::subrange( jacobian, 3, 7, m_rotStart, m_rotStart + 4 ) = Ubitrack::Math::Matrix< double, 4, 4 >::identity();
 	}
 };
 
@@ -79,8 +79,8 @@ namespace Ubitrack { namespace Tracking {
 PoseKalmanFilter::PoseKalmanFilter( const LinearPoseMotionModel& motionModel, bool bInsideOut )
 	: m_motionModel( motionModel )
 	, m_bInsideOut( bInsideOut )
-	, m_state( Math::Vector< 0, double >::zeros( motionModel.stateSize() ) )
-	, m_covariance( Math::Matrix< 0, 0, double >::identity( motionModel.stateSize() ) )
+	, m_state( Math::Vector< double >::zeros( motionModel.stateSize() ) )
+	, m_covariance( Math::Matrix< double, 0, 0 >::identity( motionModel.stateSize() ) )
 	, m_time( 0 )
 {
 	if ( bInsideOut && ( m_motionModel.posOrder() > 1 || m_motionModel.oriOrder() != 1 ) )
@@ -111,7 +111,7 @@ void PoseKalmanFilter::addPoseMeasurement( const Measurement::ErrorPose& m )
 	timeUpdate( m.time() );
 	
 	// create measurement as ErrorVector
-	Math::ErrorVector< 7 > v;
+	Math::ErrorVector< double, 7 > v;
 	m->toAdditiveErrorVector( v );
 	LOG4CPP_TRACE( logger, "Additive covariance: " << v.covariance );
 	
@@ -120,7 +120,7 @@ void PoseKalmanFilter::addPoseMeasurement( const Measurement::ErrorPose& m )
 		ublas::subrange( v.value, 3, 7 ) *= -1;
 	
 	// measurement update:
-	kalmanMeasurementUpdate( m_state, m_covariance, PoseMeasurement( iR ), v.value, v.covariance, 0, iR + 4 );
+	Math::Stochastic::kalmanMeasurementUpdate( m_state, m_covariance, PoseMeasurement( iR ), v.value, v.covariance, 0, iR + 4 );
 
 	// normalize quaternion
 	normalize();
@@ -141,16 +141,16 @@ void PoseKalmanFilter::addRotationMeasurement( const Measurement::Rotation& m )
 	timeUpdate( m.time() );
 	
 	// create measurement as ErrorVector
-	Math::ErrorVector< 4 > v;
+	Math::ErrorVector< double, 4 > v;
 	m->toVector( v.value );
-	v.covariance = Math::Matrix< 4, 4, double >::identity() * 0.004; // magic number, tune here
+	v.covariance = Math::Matrix< double, 4, 4 >::identity() * 0.004; // magic number, tune here
 
 	// invert quaternion if necessary
 	if ( ublas::inner_prod( rotSubState, v.value ) < 0 )
 		v.value *= -1;
 	
 	// measurement update:
-	kalmanMeasurementUpdateIdentity( m_state, m_covariance, v.value, v.covariance, iR, iR + 4 );
+	Math::Stochastic::kalmanMeasurementUpdateIdentity( m_state, m_covariance, v.value, v.covariance, iR, iR + 4 );
 
 	// normalize quaternion
 	normalize();
@@ -168,13 +168,13 @@ void PoseKalmanFilter::addRotationVelocityMeasurement( const Measurement::Rotati
 	timeUpdate( m.time() );
 	
 	// create measurement as ErrorVector
-	Math::ErrorVector< 3 > v;
+	Math::ErrorVector< double, 3 > v;
 	v.value = *m;
-	v.covariance = Math::Matrix< 3, 3, double >::identity() * 1e-11; // magic number, tune here
+	v.covariance = Math::Matrix< double, 3, 3 >::identity() * 1e-11; // magic number, tune here
 	
 	// measurement update:
 	int iV = 4 + 3 * ( m_motionModel.posOrder() + 1 ); // shortcut for first index of rotation velocity
-	kalmanMeasurementUpdateIdentity( m_state, m_covariance, v.value, v.covariance, iV, iV + 3 );
+	Math::Stochastic::kalmanMeasurementUpdateIdentity( m_state, m_covariance, v.value, v.covariance, iV, iV + 3 );
 
 	// normalize quaternion
 	normalize();
@@ -192,13 +192,13 @@ void PoseKalmanFilter::addInverseRotationVelocityMeasurement( const Measurement:
 	timeUpdate( m.time() );
 	
 	// create measurement as ErrorVector
-	Math::ErrorVector< 3 > v;
+	Math::ErrorVector< double, 3 > v;
 	v.value = *m;
-	v.covariance = Math::Matrix< 3, 3, double >::identity() * 1e-11; // magic number, tune here
+	v.covariance = Math::Matrix< double, 3, 3 >::identity() * 1e-11; // magic number, tune here
 	
 	// measurement update:
 	int iR = 3 * ( m_motionModel.posOrder() + 1 ); // shortcut for first index of orientation
-	kalmanMeasurementUpdate( m_state, m_covariance, Function::InvertRotationVelocity(), v.value, v.covariance, iR, iR + 7 );
+	Math::Stochastic::kalmanMeasurementUpdate( m_state, m_covariance, Function::InvertRotationVelocity(), v.value, v.covariance, iR, iR + 7 );
 
 	// normalize quaternion
 	normalize();
@@ -218,11 +218,11 @@ void PoseKalmanFilter::timeUpdate( Measurement::Timestamp t )
 	double dt = ( (long long int)( t - m_time ) ) * 1e-9;
 	LOG4CPP_DEBUG( logger, "Time update to t = " << t << ", dt = " << dt );
 	if ( m_bInsideOut )
-		Math::transformWithCovariance( 
+		Math::Stochastic::transformWithCovariance( 
 			Function::InsideOutPoseTimeUpdate( dt, m_motionModel.posOrder() ), 
 				m_state, m_covariance, m_state, m_covariance );
 	else
-		Math::transformWithCovariance( 
+		Math::Stochastic::transformWithCovariance( 
 			Function::PoseTimeUpdate( dt, m_motionModel.posOrder(), m_motionModel.oriOrder() ),
 				m_state, m_covariance, m_state, m_covariance );
 	
@@ -239,7 +239,7 @@ void PoseKalmanFilter::normalize()
 	if ( m_motionModel.oriOrder() >= 0 )
 	{
 		// normalize quaternion
-		Math::transformRangeInternalWithCovariance( Math::Function::VectorNormalize( 4 ), 
+		Math::Stochastic::transformRangeInternalWithCovariance( Math::Optimization::Function::VectorNormalize( 4 ), 
 			m_state, m_covariance, iR, iR + 4, iR, iR + 4 );
 	}
 
@@ -249,7 +249,7 @@ void PoseKalmanFilter::normalize()
 		if ( ublas::norm_2( ublas::subrange( m_state, iR + 4, iR + 7 ) ) > 10.0 )
 		{
 			LOG4CPP_NOTICE( logger, "Kalman Filter orientation instability detected. Resetting orientation derivatives." );
-			ublas::subrange( m_state, iR + 4, m_state.size() ) = Math::Vector< 0, double >::zeros( 3 * m_motionModel.oriOrder() );
+			ublas::subrange( m_state, iR + 4, m_state.size() ) = Math::Vector< double >::zeros( 3 * m_motionModel.oriOrder() );
 		}
 	}
 	
@@ -258,8 +258,8 @@ void PoseKalmanFilter::normalize()
 		if ( fabs( m_state( 0 ) ) > 1e3 || fabs( m_state( 1 ) ) > 1e3 || fabs( m_state( 2 ) ) > 1e3 )
 		{
 			LOG4CPP_NOTICE( logger, "Kalman Filter position instability detected. Resetting." );
-			m_state = Math::Vector< 0, double >::zeros( m_motionModel.stateSize() );
-			m_covariance = Math::Matrix< 0, 0, double >::identity( m_motionModel.stateSize() );
+			m_state = Math::Vector< double >::zeros( m_motionModel.stateSize() );
+			m_covariance = Math::Matrix< double, 0, 0 >::identity( m_motionModel.stateSize() );
 			m_time = 0;
 		}
  */	
@@ -279,14 +279,14 @@ Measurement::ErrorPose PoseKalmanFilter::predictPose( Measurement::Timestamp t )
 	LOG4CPP_DEBUG( logger, "predicting for t=" << t << ", dt=" << dt );
 
 	// update state
-	Math::Vector< 0, double > newState( m_state.size() );
-	Math::Matrix< 0, 0, double > newCovariance( m_state.size(), m_state.size() );
+	Math::Vector< double > newState( m_state.size() );
+	Math::Matrix< double, 0, 0 > newCovariance( m_state.size(), m_state.size() );
 	if ( m_bInsideOut )
-		Math::transformWithCovariance( 
+		Math::Stochastic::transformWithCovariance( 
 			Function::InsideOutPoseTimeUpdate( dt, m_motionModel.posOrder() ), 
 				newState, newCovariance, m_state, m_covariance );
 	else
-		Math::transformWithCovariance( 
+		Math::Stochastic::transformWithCovariance( 
 			Function::PoseTimeUpdate( dt, m_motionModel.posOrder(), m_motionModel.oriOrder() ),
 				newState, newCovariance, m_state, m_covariance );
 	
@@ -295,7 +295,7 @@ Measurement::ErrorPose PoseKalmanFilter::predictPose( Measurement::Timestamp t )
 	LOG4CPP_TRACE( logger, "predicted state:" << newState );
 	
 	// convert to 7x7 error
-	Math::ErrorVector< 7 > newPose;
+	Math::ErrorVector< double, 7 > newPose;
 	ublas::subrange( newPose.value, 0, 3 ) = ublas::subrange( newState, 0, 3 );
 	ublas::subrange( newPose.value, 3, 7 ) = ublas::subrange( newState, iR, iR + 4 );
 	ublas::subrange( newPose.covariance, 0, 3, 0, 3 ) = ublas::subrange( newCovariance, 0, 3, 0, 3 );

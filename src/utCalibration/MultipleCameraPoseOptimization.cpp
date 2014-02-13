@@ -30,17 +30,24 @@
  *
  * @author Daniel Pustka <daniel.pustka@in.tum.de>
  */
-#include <log4cpp/Category.hh>
+ 
+ 
+#include "MultipleCameraPoseOptimization.h"
+
+
+
+//#define OPTIMIZATION_LOGGING
 
 // get a logger
+#include <log4cpp/Category.hh>
 static log4cpp::Category& logger( log4cpp::Category::getInstance( "Ubitrack.Calibration.2D6DPoseEstimation" ) );
 //static log4cpp::Category& optLogger( log4cpp::Category::getInstance( "Ubitrack.Calibration.2D6DPoseEstimation.LM" ) );
 
-//#define OPTIMIZATION_LOGGING
-#include <utMath/LevenbergMarquardt.h>
+
+#include <utMath/Optimization/LevenbergMarquardt.h>
 #include <utCalibration/2D3DPoseEstimation.h>
 #include <utUtil/Exception.h>
-#include "MultipleCameraPoseOptimization.h"
+
 
 
 namespace Ubitrack { namespace Calibration {
@@ -50,11 +57,11 @@ namespace Ubitrack { namespace Calibration {
 
 std::pair < Math::ErrorPose , double > 
 	multipleCameraEstimatePose (
-	const std::vector < Math::Vector < 3 > >&  points3d,
-	const std::vector < std::vector < Math::Vector < 2 > > >& points2d,
-	const std::vector < std::vector < Math::Scalar < double > > >& points2dWeights,
+	const std::vector < Math::Vector< double, 3 > >&  points3d,
+	const std::vector < std::vector < Math::Vector< double, 2 > > >& points2d,
+	const std::vector < std::vector < Math::Scalar< double > > >& points2dWeights,
 	const std::vector < Math::Pose >& camPoses,
-	const std::vector < Math::Matrix< 3, 3 > >& camMatrices,
+	const std::vector < Math::Matrix< double, 3, 3 > >& camMatrices,
 	const int minCorrespondences,
 	bool hasInitialPoseProvided,
 	Math::Pose initialPose,
@@ -72,13 +79,13 @@ std::pair < Math::ErrorPose , double >
 	std::vector< std::pair< std::size_t, std::size_t > > observations;
 
 	// local 3dpoints for all cameras
-	std::vector< Math::Vector<3> > p3dLocal;
+	std::vector< Math::Vector< double, 3 > > p3dLocal;
 
 	// local 3dpoints for each cameras (filtered - only available if observation exists)
-	std::vector< std::vector < Math::Vector<3> > > p3dLocalFiltered ( numberCameras );
+	std::vector< std::vector < Math::Vector< double, 3 > > > p3dLocalFiltered ( numberCameras );
 
 	// local 2d points for each camera
-	std::vector< std::vector < Math::Vector<2> > > p2dLocal ( numberCameras );
+	std::vector< std::vector < Math::Vector< double, 2 > > > p2dLocal ( numberCameras );
 
 	// observationCountTotal will count the number of total observations (=corners with weight != 0) in all cameras
 	std::size_t observationCountTotal( 0 );
@@ -129,7 +136,7 @@ std::pair < Math::ErrorPose , double >
 		}
 
 		// Now create the measurement vector from the local 2d points for LM optimization
-		Math::Vector< 0, double > measurements( 2 * observationCountTotal );
+		Math::Vector< double > measurements( 2 * observationCountTotal );
 		std::size_t iIndex = 0;
 		for ( std::size_t cameraIndex = 0; cameraIndex < numberCameras; cameraIndex++ ) {
 			for ( std::size_t pointIndex = 0; pointIndex < p2dLocal.at(cameraIndex).size(); pointIndex++ ) {
@@ -140,14 +147,14 @@ std::pair < Math::ErrorPose , double >
 		}
 
 		// create camera matrices and rotations for LM optimization
-		std::vector< Math::Matrix< 3, 3 > > camRotations( camPoses.size() );
-		std::vector< Math::Vector< 3 > > camTranslations( camPoses.size() );
+		std::vector< Math::Matrix< double, 3, 3 > > camRotations( camPoses.size() );
+		std::vector< Math::Vector< double, 3 > > camTranslations( camPoses.size() );
 		for ( std::size_t cameraIndex = 0; cameraIndex < numberCameras; cameraIndex++ )
 		{
 			OPT_LOG_DEBUG( "Camera "<<cameraIndex<<" pose:"  << camPoses[ cameraIndex ] );
 			OPT_LOG_DEBUG( "Camera "<<cameraIndex<<" matrix:"  << camMatrices[ cameraIndex ] );
 
-			camRotations[ cameraIndex ] = Math::Matrix< 3, 3 >( camPoses[ cameraIndex ].rotation() );
+			camRotations[ cameraIndex ] = Math::Matrix< double, 3, 3 >( camPoses[ cameraIndex ].rotation() );
 			camTranslations[ cameraIndex ] = camPoses[ cameraIndex ].translation();
 		}
 
@@ -155,14 +162,14 @@ std::pair < Math::ErrorPose , double >
 		OPT_LOG_DEBUG( "Optimizing pose over " << numberCameras << " cameras using " << observationCountTotal << " observations" );
 
 		ObjectiveFunction< double > f( p3dLocal, camRotations, camTranslations, camMatrices, observations );
-		Math::Vector< 6 > param;
+		Math::Vector< double, 6 > param;
 		ublas::subrange( param, 0, 3 ) = initialPose.translation();
 		ublas::subrange( param, 3, 6 ) = initialPose.rotation().toLogarithm();
 
-		double res = Math::levenbergMarquardt( f, param, measurements, Math::OptTerminate( 10, 1e-6 ), Math::OptNoNormalize() );
+		double res = Math::Optimization::levenbergMarquardt( f, param, measurements, Math::Optimization::OptTerminate( 10, 1e-6 ), Math::Optimization::OptNoNormalize() );
 
         // Create an error pose with covariance matrix that has the residual on its diagonal entries
-		Math::ErrorPose finalPose( Math::Quaternion::fromLogarithm( ublas::subrange( param, 3, 6 ) ), ublas::subrange( param, 0, 3 ), Math::Matrix< 6, 6 >::identity( ) * res );
+		Math::ErrorPose finalPose( Math::Quaternion::fromLogarithm( ublas::subrange( param, 3, 6 ) ), ublas::subrange( param, 0, 3 ), Math::Matrix< double, 6, 6 >::identity( ) * res );
 		OPT_LOG_DEBUG( "Estimated pose: " << finalPose << ", residual: " << res );
 
 		// Everything went fine -  set weight to 1.0 and return pose
@@ -175,11 +182,11 @@ std::pair < Math::ErrorPose , double >
 }
 
 void checkConsistency (
-	const std::vector < Math::Vector < 3 > >&  points3d,
-	const std::vector < std::vector < Math::Vector < 2 > > >& points2d,
-	const std::vector < std::vector < Math::Scalar < double > > >& points2dWeights,
+	const std::vector < Math::Vector< double, 3 > >&  points3d,
+	const std::vector < std::vector < Math::Vector< double, 2 > > >& points2d,
+	const std::vector < std::vector < Math::Scalar< double > > >& points2dWeights,
 	const std::vector < Math::Pose >& camPoses,
-	const std::vector < Math::Matrix< 3, 3 > >& camMatrices
+	const std::vector < Math::Matrix< double, 3, 3 > >& camMatrices
 	)
 {
 	size_t numberCameras = points2dWeights.size();
@@ -204,11 +211,11 @@ void checkConsistency (
 
 
 void multipleCameraPoseEstimationWithLocalBundles (
-	const std::vector < Math::Vector < 3 > >&  points3d,
-	const std::vector < std::vector < Math::Vector < 2 > > >& points2d,
-	const std::vector < std::vector < Math::Scalar < double > > >& points2dWeights,
+	const std::vector < Math::Vector< double, 3 > >&  points3d,
+	const std::vector < std::vector < Math::Vector< double, 2 > > >& points2d,
+	const std::vector < std::vector < Math::Scalar< double > > >& points2dWeights,
 	const std::vector < Math::Pose >& camPoses,
-	const std::vector < Math::Matrix< 3, 3 > >& camMatrices,
+	const std::vector < Math::Matrix< double, 3, 3 > >& camMatrices,
 	const int minCorrespondences,
 	std::vector < Math::ErrorPose >& poses,
 	std::vector < Math::Scalar < double > >& poseWeights,
@@ -245,11 +252,11 @@ void multipleCameraPoseEstimationWithLocalBundles (
 
 
 void multipleCameraPoseEstimation (
-	const std::vector < Math::Vector < 3 > >&  points3d,
-	const std::vector < std::vector < Math::Vector < 2 > > >& points2d,
-	const std::vector < std::vector < Math::Scalar < double > > >& points2dWeights,
+	const std::vector < Math::Vector< double, 3 > >&  points3d,
+	const std::vector < std::vector < Math::Vector< double, 2 > > >& points2d,
+	const std::vector < std::vector < Math::Scalar< double > > >& points2dWeights,
 	const std::vector < Math::Pose >& camPoses,
-	const std::vector < Math::Matrix< 3, 3 > >& camMatrices,
+	const std::vector < Math::Matrix< double, 3, 3 > >& camMatrices,
 	const int minCorrespondences,
 	Math::ErrorPose& pose,
 	Math::Scalar < double > & poseWeight,

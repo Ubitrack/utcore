@@ -30,17 +30,15 @@
 
 #ifndef __UBITRACK_ERROR_ERRORVECTOR_H_INCLUDED__
 #define __UBITRACK_ERROR_ERRORVECTOR_H_INCLUDED__
- 
+
+
+#include <utMath/Vector.h>
+#include <utMath/Matrix.h>
 
 #include <boost/numeric/ublas/vector_proxy.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 #include <boost/numeric/bindings/blas/blas3.hpp>
 #include <boost/numeric/bindings/traits/ublas_matrix.hpp>
-
-#include <utMath/Vector.h>
-#include <utMath/Matrix.h>
-#include <utCore.h>
-
 
 namespace Ubitrack { namespace Math {
 
@@ -48,10 +46,10 @@ namespace Ubitrack { namespace Math {
  * This class stores an N-vector with an associated covariance matrix 
  * and provides methods for transformations, etc.
  *
- * @param N size of the vector
- * @param VType type of vector/matrix elements
+ * @tparam T type of vector/matrix elements
+ * @tparam N size of the vector
  */
-template< int N, class VType = double >
+template< typename T, std::size_t N >
 struct ErrorVector
 {
 	/** default constructor */
@@ -66,16 +64,16 @@ struct ErrorVector
 	{}
 
 	/** vector contents */
-	Math::Vector< N, VType > value;
+	Math::Vector< T, N > value;
 
 	/** covariance matrix of \c value */
-	Math::Matrix< N, N, VType > covariance;
+	Math::Matrix< T, N, N > covariance;
 
 	/** compute RMS value (in this case: square-root of trace of covariance matrix) */
-	VType getRMS( void ) 
+	T getRMS( void ) 
 	{
-		VType trace = 0;
-		for ( int i = 0; i < N; i++ ) 
+		T trace = 0;
+		for ( std::size_t i = 0; i < N; i++ ) 
 		{
 			trace += covariance( i,i );
 		}
@@ -97,8 +95,8 @@ struct ErrorVector
 
 
 /// stream output operator
-template< int N, class VType >
-std::ostream& operator<<( std::ostream& s, const ErrorVector<N, VType>& v )
+template< typename T, std::size_t N >
+std::ostream& operator<<( std::ostream& s, const ErrorVector< T, N >& v )
 {
 	s << v.value << std::endl << v.covariance;
 	return s;

@@ -108,10 +108,10 @@ public:
 	Measurement::ErrorPose predictPose( Measurement::Timestamp t );
 
 	/** type of internal state representation */
-	typedef Math::Vector< 0, double > StateType;
+	typedef Math::Vector< double > StateType;
 
 	/** type of internal state representation */
-	typedef Math::Matrix< 0, 0, double > CovarianceType;
+	typedef Math::Matrix< double, 0, 0 > CovarianceType;
 
 	/** returns the internal state */
 	const StateType& getState() const

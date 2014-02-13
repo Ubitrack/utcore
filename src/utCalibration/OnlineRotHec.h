@@ -65,7 +65,7 @@ public:
 	Math::Quaternion computeResult() const;
 
 protected:
-	Math::ErrorVector< 3 > m_state;
+	Math::ErrorVector< double, 3 > m_state;
 };
 
 } } // namespace Ubitrack::Calibration

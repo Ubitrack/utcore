@@ -58,31 +58,31 @@ template< typename Type > class Measurement;
 
 //single measurements
 typedef Measurement< Math::Scalar< double > > Distance;
-typedef Measurement< Math::Vector< 2 >      > Position2D;
-typedef Measurement< Math::Vector< 3 >      > Position;
-typedef Measurement< Math::Vector< 3 >      > Vector3D; // e.g. magnetic field vector
-typedef Measurement< Math::Vector< 4 >      > Vector4D;
-typedef Measurement< Math::Vector< 8 >      > Vector8D; // New distortion model
+typedef Measurement< Math::Vector< double, 2 >      > Position2D;
+typedef Measurement< Math::Vector< double, 3 >      > Position;
+typedef Measurement< Math::Vector< double, 3 >      > Vector3D; // e.g. magnetic field vector
+typedef Measurement< Math::Vector< double, 4 >      > Vector4D;
+typedef Measurement< Math::Vector< double, 8 >      > Vector8D; // New distortion model
 typedef Measurement< Math::Quaternion       > Rotation;
-typedef Measurement< Math::Matrix< 3, 3 >   > Matrix3x3;
-typedef Measurement< Math::Matrix< 3, 4 >   > Matrix3x4;
-typedef Measurement< Math::Matrix< 4, 4 >   > Matrix4x4;
+typedef Measurement< Math::Matrix< double, 3, 3 >   > Matrix3x3;
+typedef Measurement< Math::Matrix< double, 3, 4 >   > Matrix3x4;
+typedef Measurement< Math::Matrix< double, 4, 4 >   > Matrix4x4;
 typedef Measurement< Math::Scalar< int >    > Button;
 typedef Measurement< Math::Pose             > Pose;
 typedef Measurement< Math::ErrorPose        > ErrorPose;
-typedef Measurement< Math::ErrorVector< 3 > > ErrorPosition;
+typedef Measurement< Math::ErrorVector< double, 3 > > ErrorPosition;
 typedef Measurement< Math::RotationVelocity > RotationVelocity;
 typedef Measurement< Math::CameraIntrinsics< double > > CameraIntrinsics;
 
 //multiple measurements
 typedef Measurement< std::vector < Math::Pose > > PoseList;
-typedef Measurement< std::vector < Math::Vector< 2 > > > PositionList2;
-typedef Measurement< std::vector < Math::Vector< 3 > > > PositionList;
+typedef Measurement< std::vector < Math::Vector< double, 2 > > > PositionList2;
+typedef Measurement< std::vector < Math::Vector< double, 3 > > > PositionList;
 typedef Measurement< std::vector < Math::Scalar< double > > > DistanceList;
 typedef Measurement< std::vector < Math::Scalar< unsigned long > > > IDList;
 typedef Measurement< std::vector < Math::ErrorPose > > ErrorPoseList;
-typedef Measurement< std::vector < Math::ErrorVector< 2 > > > ErrorPositionList2;
-typedef Measurement< std::vector < Math::ErrorVector< 3 > > > ErrorPositionList;
+typedef Measurement< std::vector < Math::ErrorVector< double, 2 > > > ErrorPositionList2;
+typedef Measurement< std::vector < Math::ErrorVector< double, 3 > > > ErrorPositionList;
 
 //typedef Measurement< Math::ErrorFeaturePosition< 3 > > ErrorFeaturePosition;
 //typedef Measurement< std::vector < Math::ErrorFeaturePosition< 3 , FeatureDescriptor> > > ErrorFeaturePositionList3D<class FeatureDescriptor> ;

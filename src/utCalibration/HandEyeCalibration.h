@@ -55,9 +55,9 @@ namespace Ubitrack { namespace Calibration {
  * @param eye vector containing a series of eye (camera) poses in the eye coordinate system
  * @return the transformation between eye and hand (e.g. camera and attached marker)
  */
-UBITRACK_EXPORT Math::Pose performHandEyeCalibration ( const std::vector< Math::Matrix< 4, 4, float > >& hand,  const std::vector< Math::Matrix < 4, 4, float > >& eye, bool bUseAllPairs = true );
+UBITRACK_EXPORT Math::Pose performHandEyeCalibration ( const std::vector< Math::Matrix< float, 4, 4 > >& hand,  const std::vector< Math::Matrix< float, 4, 4 > >& eye, bool bUseAllPairs = true );
 
-UBITRACK_EXPORT Math::Pose performHandEyeCalibration ( const std::vector< Math::Matrix< 4, 4, double > >& hand,  const std::vector< Math::Matrix < 4, 4, double > >& eye, bool bUseAllPairs = true );
+UBITRACK_EXPORT Math::Pose performHandEyeCalibration ( const std::vector< Math::Matrix< double, 4, 4 > >& hand,  const std::vector< Math::Matrix< double, 4, 4 > >& eye, bool bUseAllPairs = true );
 
 UBITRACK_EXPORT Math::Pose performHandEyeCalibration ( const std::vector< Math::Pose >& hand,  const std::vector< Math::Pose >& eye, bool bUseAllPairs = true );
 

@@ -32,7 +32,7 @@
 #ifndef __UBITRACK_CALIBRATION_FUNCTION_CAMERAINTRINSICSMULTIPLICATION_H_INCLUDED__
 #define __UBITRACK_CALIBRATION_FUNCTION_CAMERAINTRINSICSMULTIPLICATION_H_INCLUDED__
 
-#include <utMath/NewFunction/MultiVariateFunction.h>
+#include <utMath/Optimization/NewFunction/MultiVariateFunction.h>
  
 namespace Ubitrack { namespace Calibration { namespace Function {
 
@@ -41,7 +41,7 @@ namespace Ubitrack { namespace Calibration { namespace Function {
  * We assume that the lower right matrix element is -1. See src/Vision/Readme.txt why.
  */
 class CameraIntrinsicsMultiplication
-	: public Math::Function::MultiVariateFunction< CameraIntrinsicsMultiplication, 2 >
+	: public Math::Optimization::Function::MultiVariateFunction< CameraIntrinsicsMultiplication, 2 >
 {
 public:
 
@@ -94,6 +94,6 @@ public:
 	}
 };
 
-} } } // namespace Ubitrack::Calibration::Function
+}}} // namespace Ubitrack::Calibration::Function
 
 #endif

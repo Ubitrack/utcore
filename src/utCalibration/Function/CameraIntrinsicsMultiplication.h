@@ -47,7 +47,7 @@ public:
 	 * Constructor.
 	 * @param p reference to the point being transformed
 	 */
-	CameraIntrinsicsMultiplication( const Math::Vector< 2, T >& p )
+	CameraIntrinsicsMultiplication( const Math::Vector< T, 2 >& p )
 		: m_p( p )
 	{}
 
@@ -100,7 +100,7 @@ public:
 	}
 	
 protected:
-	const Math::Vector< 2, T >& m_p;
+	const Math::Vector< T, 2 >& m_p;
 };
 
 } } } // namespace Ubitrack::Calibration::Function
