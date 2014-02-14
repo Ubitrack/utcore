@@ -30,7 +30,7 @@ Import ( '*' )
 
 # b)
 sources = globSourceFiles( '*.cpp' )
-
+headers = globSourceFiles( '*.h' )
 # c)
 tinyxml_options = { 'CPPDEFINES' : [ 'TIXML_USE_STL' ], 'CPPPATH' : [ getCurrentPath() ] }
 
@@ -49,6 +49,7 @@ elif sys.platform.startswith( 'linux' ):
 # compile all source files into single library
 # {buildenvironment, source files, name of the library, build target}
 libs = setupStaticLibraryBuild(env, sources, 'tinyxml', 'core')
+setupIncludeInstall(env, headers, 'tinyxml', 'includes')
 
 # f)
 tinyxml_options[ 'LIBS' ] = []
@@ -61,6 +62,6 @@ have_tinyxml = libs != 0
 Export( [ 'tinyxml_options', 'have_tinyxml' ] )
 
 # h)
-headers = globSourceFiles( '*.h' )
-sources = globSourceFiles( '*.cpp' )
+
 createVisualStudioProject(env, sources, headers, 'tinyxml')
+
