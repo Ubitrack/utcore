@@ -9,7 +9,7 @@
 #include <utMath/Pose.h>
 #include <utMath/Vector.h>
 #include <utMath/Matrix.h>
-#include <utMath/Functors/VectorFunctors.h>
+//#include <utMath/Functors/VectorFunctors.h>
 
 #include <utMath/Random/Scalar.h>
 #include <utMath/Random/Vector.h>
