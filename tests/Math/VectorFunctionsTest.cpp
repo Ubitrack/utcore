@@ -150,7 +150,7 @@ void TestVectorFunctions()
 	testDistance< double >( 1000000, 1e-10 );
 	testNormalization< double >( 1000000, 1e-10 );
 	
-	testDistance< float >( 1000000, 1e-10f );
+	testDistance< float >( 1000000, 1e-04f );
 	testNormalization< float >( 1000000, 1e-06f );
 }
 

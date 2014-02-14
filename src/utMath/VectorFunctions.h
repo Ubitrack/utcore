@@ -163,7 +163,7 @@ inline typename Math::vector_traits< VecType >::value_type distance( const VecTy
 template< typename InputIterator, typename OutputIterator >
 inline void distance( const InputIterator iBegin, const InputIterator iEnd, OutputIterator iOut )
 {
-	std::transform( iBegin, iEnd, iOut, Distance< std::iterator_traits< InputIterator >::value_type >() );
+	std::transform( iBegin, iEnd, iOut, Distance< typename std::iterator_traits< InputIterator >::value_type >() );
 }
 
 /**
@@ -188,7 +188,7 @@ inline void distance( const InputIterator iBegin, const InputIterator iEnd, Outp
 template< typename InputIterator, typename OutputIterator >
 inline void distance( const InputIterator iBegin1, const InputIterator iEnd1, const InputIterator iBegin2, OutputIterator iOut )
 {
-	std::transform( iBegin1, iEnd1, iBegin2 iOut, Distance< std::iterator_traits< InputIterator >::value_type >() );
+	std::transform( iBegin1, iEnd1, iBegin2, iOut, Distance< typename std::iterator_traits< InputIterator >::value_type >() );
 }
 
 /**
@@ -234,7 +234,7 @@ inline VecType normalize( const VecType& vec )
 template< typename ForwardIterator >
 inline void normalize( const ForwardIterator iBegin, const ForwardIterator iEnd, ForwardIterator iOut )
 {
-	std::transform( iBegin, iEnd, iOut, Normalize< std::iterator_traits< ForwardIterator >::value_type >() );
+	std::transform( iBegin, iEnd, iOut, Normalize< typename std::iterator_traits< ForwardIterator >::value_type >() );
 }
 
 } } // namespace Ubitrack::Math
