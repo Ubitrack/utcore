@@ -110,10 +110,10 @@ struct Weighted
 
 
 /** stream output operator for any weighted type */
-template< typename classType, typename weightType >
-std::ostream& operator<<( std::ostream& s, const Ubitrack::Math::Stochastic::Weighted< classType, weightType >& weighted )
-{
-	s << "weight=" << weighted.weight << "\n";
-	s << static_cast< classType >( weighted );
-	return s;
-}
+// template< typename classType, typename weightType >
+// std::ostream& operator<<( std::ostream& s, const Ubitrack::Math::Stochastic::Weighted< classType, weightType >& weighted )
+// {
+	// s << "weight=" << weighted.weight << "\n";
+	// s << static_cast< classType >( weighted );
+	// return s;
+// }

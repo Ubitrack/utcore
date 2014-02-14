@@ -1,7 +1,7 @@
 
 #include <utMath/Vector.h>
 #include <utMath/Matrix.h>
-#include <utMath/Blas1.h>
+#include <utMath/VectorFunctions.h>
 #include <utMath/Random/Scalar.h>
 #include <utMath/Random/Vector.h>
 #include <utMath/Random/Rotation.h>
@@ -100,7 +100,7 @@ void testBasicConicFunctors( const std::size_t n )
 	conic_lrl.reserve( n );
 	std::transform( conics.begin(), conics.end(), std::back_inserter( conic_lrl ), Geometry::ConicLeftRightLimit< T >() );
 
-	std::transform( conics.begin(), conics.end(), conics.begin(), Ubitrack::Math::NormalizeVector() );
+	std::transform( conics.begin(), conics.end(), conics.begin(), Ubitrack::Math::Normalize< Ubitrack::Math::Vector< T, 6 > >() );
 	
 	// next steps are even more useless, just check if they compile
 	std::size_t n_c = std::count_if( conics.begin(), conics.end(), Geometry::IsConicCircle< T >() );

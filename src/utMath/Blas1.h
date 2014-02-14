@@ -39,8 +39,8 @@
  */ 
 
 
-#ifndef __H__BLAS_LEVEL_1__
-#define __H__BLAS_LEVEL_1__
+#ifndef __UBITRACK_MATH_BLAS_LEVEL_1_H__
+#define __UBITRACK_MATH_BLAS_LEVEL_1_H__
 
 #include "vector_traits.h"
 
@@ -275,35 +275,6 @@ public:
 };
 
 /**
- * @ingroup math functor
- * @internal
- * Functor class to normalize a vector
- * by itsEuclidean norm
- */
-struct NormalizeVector
-{
-public:
-	/**
-	 * @ingroup math
-	 * @internal
-	 * Normalizes a Math::Vector such that his 
-	 * length equals to one.
-	 *
-	 * @tparam T builtin-type of vector (e.g. \c double or \c float )
-	 * @tparam N dimension of vector
-	 *
-	 * @param vec the input vector 
-	 * @return normalized vector
-	 */
-	template< typename T, std::size_t N >
-	Math::Vector< T, N > operator() ( const Math::Vector< T, N >& vec ) const
-	{
-		const T norm ( Norm_2()( vec ) );
-		return vec * ( 1./ norm );
-	}
-};
-
-/**
  * @ingroup math
  * @brief A function that calculates the inner product of two vectors.
  * 
@@ -371,28 +342,6 @@ inline typename Math::vector_traits< VecType >::value_type norm_2( const VecType
 	return Norm_2().operator()< VecType >( vec );
 }
 
-/**
- * @ingroup math
- * @brief A function that normalizes a vector by it's 2-norm.
- * 
- * This function normalizes a vector \f$ v \f$ with n elements
- * such that each single element is divided by the 2-norm of
- * the vector as \f$  v = v / ||v||_2 \f$ .
- *
- * This function template wraps a call to the NormalizeVector functor.
- * The input vector for calculating the normalized vector can be
- * of any dimension.
- *
- * @tparam VecType the type of the input vector.
- * @param vec the input vector
- * @return the normalized input vector
- */
-template< typename VecType >
-inline VecType normalize( const VecType& vec )
-{
-	return NormalizeVector().operator()< VecType >( vec );
-}
-
 } } // namespace Ubitrack::Math
 
-#endif //__H__BLAS_LEVEL_1__
+#endif //__UBITRACK_MATH_BLAS_LEVEL_1_H__

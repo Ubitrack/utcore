@@ -40,8 +40,8 @@
  */ 
 
 
-#ifndef __H__BLAS_LEVEL_2__
-#define __H__BLAS_LEVEL_2__
+#ifndef __UBITRACK_MATH_BLAS_LEVEL_2_H__
+#define __UBITRACK_MATH_BLAS_LEVEL_2_H__
 
 // #include "vector_traits.h"
 
@@ -180,4 +180,4 @@ protected:
 
 } } // namespace Ubitrack::Math
 
-#endif //__H__BLAS_LEVEL_2__
+#endif //__UBITRACK_MATH_BLAS_LEVEL_2_H__

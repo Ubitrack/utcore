@@ -10,6 +10,7 @@ void TestDecomposeProjection();
 void TestFundamentalMatrix();
 void TestHomography();
 void TestProjectionDLT();
+void TestCorrelation();
 void TestHandEye();
 void TestDualHandEye();
 
@@ -27,5 +28,7 @@ CalibrationTest::CalibrationTest()
 	add( BOOST_TEST_CASE( &TestProjectionDLT ) );
 	add( BOOST_TEST_CASE( &TestHandEye ) );
 	add( BOOST_TEST_CASE( &TestDualHandEye ) );
+	add( BOOST_TEST_CASE( &TestCorrelation ) );
+
 }
 
