@@ -18,12 +18,13 @@ using namespace Ubitrack::Math;
 template< typename T >
 void testDistance( const std::size_t n, const T epsilon )
 {
+	const T maxValue = 100.;
 	// some 10d values
 	{
 		typedef Vector< T, 10 > vector_type;
 		
 		// random vector parameters
-		typename Random::Vector< T, 10 >::Uniform randVector( -50., 50. ); 
+		typename Random::Vector< T, 10 >::Uniform randVector( -maxValue, maxValue ); 
 
 		// generate some random vectors
 		std::vector< vector_type > points10d;
@@ -46,7 +47,7 @@ void testDistance( const std::size_t n, const T epsilon )
 	
 		typedef Vector< T, 3 > vector_type;
 		// random vector parameters
-		typename Random::Vector< T, 3 >::Uniform randVector( -100., 100. ); 
+		typename Random::Vector< T, 3 >::Uniform randVector( -maxValue, maxValue ); 
 
 		// generate some random vectors
 		std::vector< vector_type > points3dA;
@@ -75,7 +76,7 @@ void testDistance( const std::size_t n, const T epsilon )
 	
 		typedef Vector< T, 3 > vector_type;
 		// random vector parameters
-		typename Random::Vector< T, 3 >::Uniform randVector( -100., 100. ); 
+		typename Random::Vector< T, 3 >::Uniform randVector( -maxValue, maxValue ); 
 
 		// generate some random vectors
 		std::vector< vector_type > points3dA;
@@ -98,14 +99,103 @@ void testDistance( const std::size_t n, const T epsilon )
 	}
 }
 
+
+template< typename T >
+void testSquarredDistance( const std::size_t n, const T epsilon )
+{
+	const T maxValue = 1.;
+	// some 10d values
+	{
+		typedef Vector< T, 10 > vector_type;
+		
+		// random vector parameters
+		typename Random::Vector< T, 10 >::Uniform randVector( -maxValue, maxValue ); 
+
+		// generate some random vectors
+		std::vector< vector_type > points10d;
+		points10d.reserve( n );
+		std::generate_n ( std::back_inserter( points10d ), n, randVector );
+		
+		std::vector< T > results;
+		results.reserve( n );
+		std::transform( points10d.begin(), points10d.end(), std::back_inserter( results ), SquarredDistance< vector_type >() );
+		
+		for( std::size_t i = 0; i<n; ++i )
+		{
+			const T norm = norm_2( points10d[ i ] );
+			const T dist = results[ i ] - (norm*norm);
+			BOOST_CHECK_SMALL( dist, epsilon );
+		}
+	}
+	
+	// some 3d values
+	{
+	
+		typedef Vector< T, 3 > vector_type;
+		// random vector parameters
+		typename Random::Vector< T, 3 >::Uniform randVector( -maxValue, maxValue ); 
+
+		// generate some random vectors
+		std::vector< vector_type > points3dA;
+		points3dA.reserve( n );
+		std::generate_n ( std::back_inserter( points3dA ), n,  randVector );
+		
+		
+		// generate some random vectors
+		std::vector< vector_type > points3dB;
+		points3dB.reserve( n );
+		std::generate_n ( std::back_inserter( points3dB ), n, randVector );
+		
+		std::vector< T > results;
+		results.reserve( n );
+		std::transform( points3dA.begin(), points3dA.end(), points3dB.begin(), std::back_inserter( results ), SquarredDistance< vector_type >() );
+		for( std::size_t i = 0; i<n; ++i )
+		{
+			const vector_type diffVector = points3dA[ i ] - points3dB[ i ];
+			const T norm = norm_2( diffVector );
+			const T dist = results[ i ] - (norm*norm);
+			BOOST_CHECK_SMALL( dist, epsilon );
+		}					 
+	}
+	
+	// some 3d values
+	{
+	
+		typedef Vector< T, 3 > vector_type;
+		// random vector parameters
+		typename Random::Vector< T, 3 >::Uniform randVector( -maxValue, maxValue ); 
+
+		// generate some random vectors
+		std::vector< vector_type > points3dA;
+		points3dA.reserve( n );
+		std::generate_n ( std::back_inserter( points3dA ), n,  randVector );
+		
+		
+		// generate some random vectors
+		std::vector< vector_type > points3dB;
+		points3dB.reserve( n );
+		std::generate_n ( std::back_inserter( points3dB ), n, randVector );
+		
+		for( std::size_t i = 0; i<n; ++i )
+		{
+			const T result = squarred_distance( points3dA[ i ], points3dB[ i ] );
+			const vector_type diffVector = points3dA[ i ] - points3dB[ i ];
+			const T norm = norm_2( diffVector );
+			const T dist = result - (norm*norm);
+			BOOST_CHECK_SMALL( dist, epsilon );
+		}					 
+	}
+}
+
 template< typename T >
 void testNormalization( const std::size_t n, const T epsilon )
 {
+	const T maxValue = 1.;
 	// some 10d values
 	{
 		typedef Vector< T, 10 > vector_type;
 		// random vector parameters
-		typename Random::Vector< T, 10 >::Uniform randVector( -0.5, 0.5 ); 
+		typename Random::Vector< T, 10 >::Uniform randVector( -maxValue, maxValue ); 
 
 		// generate some random vectors
 		std::vector< vector_type > points10d;
@@ -118,7 +208,7 @@ void testNormalization( const std::size_t n, const T epsilon )
 		
 		for( std::size_t i = 0; i<n; ++i )
 		{
-			const T diff = 1. - norm_2( results[ i ] );
+			const T diff = 1 - norm_2( results[ i ] );
 			BOOST_CHECK_SMALL( diff, epsilon );
 		}
 	}
@@ -128,7 +218,7 @@ void testNormalization( const std::size_t n, const T epsilon )
 	{
 		typedef Vector< T, 3 > vector_type;
 		// random vector parameters
-		typename Random::Vector< T, 3 >::Uniform randVector( -100., 100. ); 
+		typename Random::Vector< T, 3 >::Uniform randVector( -maxValue, maxValue );
 
 		// generate some random vectors
 		std::vector< vector_type > points3dA;
@@ -138,7 +228,7 @@ void testNormalization( const std::size_t n, const T epsilon )
 		for( std::size_t i = 0; i<n; ++i )
 		{
 			const vector_type result = normalize( points3dA[ i ] );
-			const T diff = 1. - norm_2( result );
+			const T diff = 1 - norm_2( result );
 			BOOST_CHECK_SMALL( diff, epsilon );
 		}					 
 	}
@@ -147,11 +237,13 @@ void testNormalization( const std::size_t n, const T epsilon )
 
 void TestVectorFunctions()
 {
-	testDistance< double >( 1000000, 1e-10 );
-	testNormalization< double >( 1000000, 1e-10 );
+	testDistance< double >( 100000, 1e-10 );
+	testSquarredDistance< double >( 100000, 1e-10 );
+	testNormalization< double >( 10000, 1e-10 );
 	
-	testDistance< float >( 1000000, 1e-04f );
-	testNormalization< float >( 1000000, 1e-06f );
+	testDistance< float >( 100000, 1e-04f );
+	testSquarredDistance< float >( 100000, 1e-05f );
+	testNormalization< float >( 100000, 1e-06f );
 }
 
 
