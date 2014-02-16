@@ -38,9 +38,13 @@ namespace Ubitrack{ namespace Math { namespace Stochastic {
 template< typename T, std::size_t N >
 struct Gaussian
 {
-	/** simple typedef to type of Gaussian structure. */
+	/** typedef to built-in type of Gaussian distribution */
 	typedef T value_type;
+	
+	/** typedef to dimension type of Gaussian distribution */
 	typedef std::size_t size_type;
+	
+	/** dimension of the Gaussian distribution */
 	static const size_type size = N; 
 		
 	/** the mean value */
@@ -56,37 +60,37 @@ struct Gaussian
 	T squarredVariance;
 };
 
+/// @internal a function that sets all values of the gaussian to zero
+template< typename T, std::size_t N >
+void reset( Gaussian< T, N > &gaussian )
+{
+	// set all values of the gaussian type to zero
+	std::fill( gaussian.mean, gaussian.mean+N, static_cast< T >( 0 ) );
+	std::fill( gaussian.covariance, gaussian.covariance+(N*N), static_cast< T >( 0 ) );
+	gaussian.variance = gaussian.squarredVariance = 0;
+}
 
-/// @internal a function that estimates a Gaussian distribution
+
+/// @internal a function that estimates a (weighted) Gaussian distribution
 template< typename T, std::size_t N, typename InputIterator1, typename InputIterator2 >
 bool estimate_gaussian( const InputIterator1 itBegin, const InputIterator1 itEnd, const InputIterator2 itWeights, Gaussian< T, N > &gaussian )
 {
-	const std::size_t n = std::distance( itBegin, itEnd );
+	// zero out the gaussian
+	reset( gaussian );
 	
-	if( n == 0 )// no value exit early
-		return false;
-		
-	// set the covariance to zero elements
-	gaussian.variance = gaussian.squarredVariance = 0;
-	std::fill( gaussian.covariance, gaussian.covariance+(N*N), static_cast< T >( 0 ) );
-	if( n == 1 ) //only one value, simple case
-	{
-		for( std::size_t i( 0 ); i < N; ++i )
-			gaussian.mean[ i ] = (*itBegin)[ i ];
-		return true;
-	}
-	// since we got that far also zero out the mean value
-	std::fill( gaussian.mean, gaussian.mean+N, static_cast< T >( 0 ) );
-	// Calculate (weighted) mean value
-	{
+	std::size_t n( 0 );
+	{ // calculate (weighted) mean value
 		InputIterator2 weightIter( itWeights );
-		for( InputIterator1 valIter ( itBegin ); valIter != itEnd; ++valIter, ++weightIter )
+		for( InputIterator1 valIter ( itBegin ); valIter != itEnd; ++valIter, ++weightIter, ++n )
 			for( std::size_t i( 0 ); i < N; ++i )
 				gaussian.mean[ i ] += (*weightIter) * (*valIter)[ i ];
+				
+		if( n < 1 )
+			return false;
 	}
 		
-	// Calculate (weighted) covariance
-	{
+	
+	{ // calculate (weighted) covariance
 		InputIterator2 weightIter( itWeights );
 		for( InputIterator1 valIter ( itBegin ); valIter != itEnd; ++valIter, ++weightIter )
 			for( std::size_t i1( 0 ); i1 < N; ++i1 )
@@ -94,8 +98,7 @@ bool estimate_gaussian( const InputIterator1 itBegin, const InputIterator1 itEnd
 					gaussian.covariance[ i2*N+i1 ] = gaussian.covariance[ i1*N+i2 ] += ( *weightIter ) * ((*valIter)[ i1 ] - gaussian.mean[ i1 ] ) * ( (*valIter)[ i2 ] - gaussian.mean[ i2 ] );
 	}
 	
-	{
-		//sum up the squared diagonal entries
+	{//sum up the squared diagonal entries
 		for( std::size_t i( 0 ); i < N; ++i )	
 			gaussian.squarredVariance += ( gaussian.covariance[i*N+i] * gaussian.covariance[i*N+i] );
 			
@@ -104,38 +107,28 @@ bool estimate_gaussian( const InputIterator1 itBegin, const InputIterator1 itEnd
 	return true;
 };
 
+/// @internal a function that estimates a Gaussian distribution
 template< typename T, std::size_t N, typename InputIterator >
 bool estimate_gaussian( const InputIterator itBegin, const InputIterator itEnd, Gaussian< T, N > &gaussian )
 {
-	const std::size_t n = std::distance( itBegin, itEnd );
-		
-	if( n == 0 )// no value exit early
-		return;
-
-	// set the covariance to zero elements
-	gaussian.variance = gaussian.squarredVariance = 0;
-	std::fill( gaussian.covariance, gaussian.covariance+(N*N), static_cast< T >( 0 ) );
-	if( n == 1 ) //only one value, simple case
-	{
-		for( std::size_t i( 0 ); i < N; ++i )
-			gaussian.mean[ i ] = (*itBegin)[ i ];
-		return true;
-	}
-	// since we got that far also zero out the mean value
-	std::fill( gaussian.mean, gaussian.mean+N, static_cast< T >( 0 ) );
+	reset( gaussian );
 	
-	// calculate mean value
-	{
-		for( InputIterator it ( itBegin ); it != itEnd; ++it )
+	std::size_t n( 0 );
+	
+	{ // calculate mean value
+		for( InputIterator it ( itBegin ); it != itEnd; ++it, ++n )
 			for( std::size_t i( 0 ); i < N; ++i )
 				gaussian.mean[ i ] += (*it)[ i ];
 	
+		if( n < 1 )
+			return false;
+			
 		for( std::size_t i( 0 ); i < N; ++i )
 			gaussian.mean[ i ] /= n;
 	}
 	
-	// calculate covariance
-	{
+	
+	{ // calculate covariance
 		for( InputIterator it ( itBegin ); it != itEnd; ++it )
 			for( std::size_t i1( 0 ); i1 < N; ++i1 )
 				for( std::size_t i2( i1 ); i2 < N; ++i2 )
@@ -145,8 +138,7 @@ bool estimate_gaussian( const InputIterator itBegin, const InputIterator itEnd, 
 			gaussian.covariance[ i ] /= n;
 	}
 	
-	{
-		//sum up the squared diagonal entries
+	{ //sum up the squared diagonal entries
 		for( std::size_t i( 0 ); i < N; ++i )	
 			gaussian.squarredVariance += ( gaussian.covariance[i*N+i] * gaussian.covariance[i*N+i] );
 			
@@ -176,63 +168,63 @@ bool estimate_gaussian( const InputIterator itBegin, const InputIterator itEnd, 
 };
 
 
-template< typename T, std::size_t N, typename InputIterator1, typename InputIterator2 >
-bool estimate_gaussian( const InputIterator1 itBegin, const InputIterator1 itEnd, const InputIterator2 itIndices, const typename std::iterator_traits< InputIterator2 >::value_type comp_value, Gaussian< T, N > &gaussian )
-{
-	const std::size_t n = std::distance( itBegin, itEnd );
+// template< typename T, std::size_t N, typename InputIterator1, typename InputIterator2 >
+// bool estimate_gaussian( const InputIterator1 itBegin, const InputIterator1 itEnd, const InputIterator2 itIndices, const typename std::iterator_traits< InputIterator2 >::value_type comp_value, Gaussian< T, N > &gaussian )
+// {
+	// const std::size_t n = std::distance( itBegin, itEnd );
 		
-	if( n == 0 )// no value exit early
-		return false;
+	// if( n == 0 )// no value exit early
+		// return false;
 
-	// set the covariance to zero elements
-	gaussian.variance = gaussian.squarredVariance = 0;
-	std::fill( gaussian.covariance, gaussian.covariance+(N*N), static_cast< T >( 0 ) );
-	if( n == 1 ) //only one value, simple case
-	{
-		for( std::size_t i( 0 ); i < N; ++i )
-			gaussian.mean[ i ] = (*itBegin)[ i ];
-		return true;
-	}
-	// since we got that far also zero out the mean value
-	std::fill( gaussian.mean, gaussian.mean+N, static_cast< T >( 0 ) );
+	// // set the covariance to zero elements
+	// gaussian.variance = gaussian.squarredVariance = 0;
+	// std::fill( gaussian.covariance, gaussian.covariance+(N*N), static_cast< T >( 0 ) );
+	// if( n == 1 ) //only one value, simple case
+	// {
+		// for( std::size_t i( 0 ); i < N; ++i )
+			// gaussian.mean[ i ] = (*itBegin)[ i ];
+		// return true;
+	// }
+	// // since we got that far also zero out the mean value
+	// std::fill( gaussian.mean, gaussian.mean+N, static_cast< T >( 0 ) );
 	
-	std::size_t count( 0 );
-	// calculate mean value
-	{
-		InputIterator2 indexIter( itIndices );
-		for( InputIterator1 it ( itBegin ); it != itEnd; ++it, ++indexIter )
-			if( (*indexIter) == comp_value )
-			{
-				count++;
-				for( std::size_t i( 0 ); i < N; ++i )
-					gaussian.mean[ i ] += (*it)[ i ];
-			}
-		for( std::size_t i( 0 ); i < N; ++i )
-			gaussian.mean[ i ] /= count;
-	}
+	// std::size_t count( 0 );
+	// // calculate mean value
+	// {
+		// InputIterator2 indexIter( itIndices );
+		// for( InputIterator1 it ( itBegin ); it != itEnd; ++it, ++indexIter )
+			// if( (*indexIter) == comp_value )
+			// {
+				// count++;
+				// for( std::size_t i( 0 ); i < N; ++i )
+					// gaussian.mean[ i ] += (*it)[ i ];
+			// }
+		// for( std::size_t i( 0 ); i < N; ++i )
+			// gaussian.mean[ i ] /= count;
+	// }
 	
-	// calculate covariance
-	{
-		InputIterator2 indexIter( itIndices );
-		for( InputIterator1 it ( itBegin ); it != itEnd; ++it, ++indexIter )
-			if( (*indexIter) == comp_value )
-				for( std::size_t i1( 0 ); i1 < N; ++i1 )
-					for( std::size_t i2( i1 ); i2 < N; ++i2 )
-						gaussian.covariance[ i2*N+i1 ] = gaussian.covariance[ i1*N+i2 ] += ((*it)[ i1 ] - gaussian.mean[ i1 ]) * ( (*it)[ i2 ] - gaussian.mean[ i2 ]);
+	// // calculate covariance
+	// {
+		// InputIterator2 indexIter( itIndices );
+		// for( InputIterator1 it ( itBegin ); it != itEnd; ++it, ++indexIter )
+			// if( (*indexIter) == comp_value )
+				// for( std::size_t i1( 0 ); i1 < N; ++i1 )
+					// for( std::size_t i2( i1 ); i2 < N; ++i2 )
+						// gaussian.covariance[ i2*N+i1 ] = gaussian.covariance[ i1*N+i2 ] += ((*it)[ i1 ] - gaussian.mean[ i1 ]) * ( (*it)[ i2 ] - gaussian.mean[ i2 ]);
 				
-		for( std::size_t i( 0 ); i < (N*N); ++i )
-			gaussian.covariance[ i ] /= count;
-	}
+		// for( std::size_t i( 0 ); i < (N*N); ++i )
+			// gaussian.covariance[ i ] /= count;
+	// }
 	
-	{
-		//sum up the squared diagonal entries
-		for( std::size_t i( 0 ); i < N; ++i )	
-			gaussian.squarredVariance += ( gaussian.covariance[i*N+i] * gaussian.covariance[i*N+i] );
+	// {
+		// //sum up the squared diagonal entries
+		// for( std::size_t i( 0 ); i < N; ++i )	
+			// gaussian.squarredVariance += ( gaussian.covariance[i*N+i] * gaussian.covariance[i*N+i] );
 			
-		gaussian.variance = std::sqrt( gaussian.squarredVariance );
-	}
-	return true;
-}
+		// gaussian.variance = std::sqrt( gaussian.squarredVariance );
+	// }
+	// return true;
+// }
 
 
 

@@ -37,8 +37,8 @@
  */ 
 
 
-#ifndef __H__IDENTITY_ITERATOR__
-#define __H__IDENTITY_ITERATOR__
+#ifndef __UBITRACK_UTIL_IDENTITY_ITERATOR_H__
+#define __UBITRACK_UTIL_IDENTITY_ITERATOR_H__
 
 #include <iterator> // std::iterator, std::random_access_iterator_tag
 
@@ -130,4 +130,4 @@ public:
 
 } } //namespace Ubitrack::Util
 
-#endif // __H__IDENTITY_ITERATOR__
+#endif // __UBITRACK_UTIL_IDENTITY_ITERATOR_H__
