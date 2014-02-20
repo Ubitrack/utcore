@@ -59,8 +59,13 @@ x' = q * e_r * x * e_r^* * q^* + t + e_t
 class UBITRACK_EXPORT ErrorPose
 	: public Pose
 {
-	friend class ::boost::serialization::access;
+	typedef double value_type;
 
+	protected:
+
+	/** the 6-by-6 matrix that represents the covariance */
+	Matrix< double, 6, 6 > m_covariance;
+	
 	public:
 
 		/** doesn't make much sense, but sometimes we need a default constructor */
@@ -116,6 +121,8 @@ class UBITRACK_EXPORT ErrorPose
 
 	protected:
 
+		friend class ::boost::serialization::access;
+		
 		/// serialize Pose object
 		template< class Archive > 
 		void serialize( Archive& ar, const unsigned int version )
@@ -123,8 +130,6 @@ class UBITRACK_EXPORT ErrorPose
 			Pose::serialize( ar, version );
 			ar & m_covariance;
 		}
-
-		Matrix< double, 6, 6 > m_covariance;
 };
 
 

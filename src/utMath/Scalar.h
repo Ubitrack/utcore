@@ -52,6 +52,11 @@ class Scalar
 {
 public:
 
+	typedef Builtin value_type;
+	
+	/** the value of the built-in type*/
+	Builtin m_value;
+	
 	/** Sometimes we need a default constructor */
 	inline Scalar()
 		: m_value( Builtin() )
@@ -73,7 +78,7 @@ public:
 	inline operator Builtin() const
 	{ return m_value; } 
 
-	Builtin m_value;
+	
 	
 protected:
 	friend class ::boost::serialization::access;

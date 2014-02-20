@@ -59,6 +59,8 @@ template< typename T, std::size_t M, std::size_t N > class Matrix;
 class UBITRACK_EXPORT Quaternion
  	: public boost::math::quaternion<double>
 {
+	typedef double value_type;
+	
 	friend class boost::serialization::access;
 
 	public:

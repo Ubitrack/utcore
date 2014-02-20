@@ -54,6 +54,14 @@ template< typename T, std::size_t M, std::size_t N > class Matrix;
 class UBITRACK_EXPORT Pose
 {
 
+	typedef double value_type;
+	
+	/** the rotational part of the pose, defined as a quaternion */
+	Quaternion m_rotation;
+	
+	/** the translational part of the pose, defined as a vector */
+	Vector< double, 3 >	m_translation;
+	
 	friend UBITRACK_EXPORT std::ostream& operator<<( std::ostream& s, const Pose& p );
 	friend class ::boost::serialization::access;
 
@@ -174,10 +182,6 @@ class UBITRACK_EXPORT Pose
 			ar & m_rotation;
 			ar & m_translation;
 		}
-
-		Quaternion m_rotation;
-		Vector< double, 3 >	m_translation;
-
 };
 
 
