@@ -31,94 +31,19 @@
 
 
 #include "HandEyeCalibrationDual.h"
+#include "HandEyeDataSelection.h"
 
-#include <utMath/Pose.h>
+
 #include <utMath/Matrix.h>
 #include <utMath/Blas1.h> // inner_product
-#include <utMath/Stochastic/identity_iterator.h>
 
 #include <algorithm> //std::transform
 
 //shortcuts to namespaces
 #ifdef HAVE_LAPACK
 #include <boost/numeric/bindings/lapack/gesvd.hpp>
-namespace lapack = boost::numeric::bindings::lapack;
-
-
 
 namespace Ubitrack{ namespace Math {
-
-template< typename T >
-struct Pose2DualQuaternion
-{
-	typedef typename Math::Vector< T, 8 > return_value;
-	
-	Math::Vector< T, 8 > operator()( const Math::Pose& pose ) const
-	{
-		const T qw = pose.rotation().w();
-		const T qx = pose.rotation().x();
-		const T qy = pose.rotation().y();
-		const T qz = pose.rotation().z();
-		
-		const T tx = pose.translation()[ 0 ];
-		const T ty = pose.translation()[ 1 ];
-		const T tz = pose.translation()[ 2 ];
-		
-		// dual-quaternion return value: (q | q')
-		// order: q  :=  (qw  | qx  qy  qz )
-		// order: q' :=  (q'w | q'x q'y q'z)
-		Math::Vector< T, 8 > dualQuat;
-		
-		// first, the easy part: :)
-		// quaternion goes into quaterion part (q) 
-		dualQuat( 0 ) = qw;
-		dualQuat( 1 ) = qx;
-		dualQuat( 2 ) = qy;
-		dualQuat( 3 ) = qz;
-				
-		// second, the tricky part:
-		// translation t goes into quaterion dual part (q' == aka q prime )
-		// how does it work?
-		// you take translation t and make a quaternion q_t out of it,
-		// assuming zero for the real part an (t/2) as the imaginary parts.
-		// you apply quaternion multiplication to q_t with q from the right side
-		// and done. 
-		// summary: q' := q( t/2, 0) * q
-		//
-		// technically it is done in two parts
-		// part 1: inner product of imaginary part from q and t
-		// -(1/2) * (q_xyz' *t) 
-		dualQuat( 4 ) = -0.5* ( tx*qx + ty*qy + tz*qz );
-		
-		// part 2:
-		// (1/2) * (cross_product(t, q_xyz) + q_w*t)
-		dualQuat( 5 ) = 0.5* ( ( ty*qz - tz*qy ) + qw*tx );
-		dualQuat( 6 ) = 0.5* ( ( tz*qx - tx*qz ) + qw*ty );
-		dualQuat( 7 ) = 0.5* ( ( tx*qy - ty*qx ) + qw*tz );
-		
-		return dualQuat;
-	}
-};
-
-template< typename T >
-struct difference_dual_a
-{
-	Math::Vector< T, 8 > operator()( const Math::Pose& pose1, const Math::Pose& pose2 ) const
-	{
-		const Math::Pose pose = (~pose2) * pose1;
-		return Pose2DualQuaternion< T >()( pose );
-	}
-};
-
-template< typename T >
-struct difference_dual_b
-{		
-	Math::Vector< T, 8 > operator()( const Math::Pose& pose1, const Math::Pose& pose2 ) const
-	{
-		const Math::Pose pose = (pose2) * (~pose1);
-		return Pose2DualQuaternion< T >()( pose );
-	}
-};
 
 struct SolveQuadratic
 {
@@ -144,112 +69,41 @@ namespace Ubitrack { namespace Calibration {
 
 namespace {
 
-
-/** 
- * @internal
- * @brief 
- * This function computes a result among the input values from first to last using the given binary operator
- *
- * This template function is inspired from http://www.cplusplus.com/reference/numeric/adjacent_difference/
- */
-template <class InputIterator, class OutputIterator, class BinaryOperation >
-OutputIterator own_adjacent_difference ( InputIterator first, InputIterator last, OutputIterator result, BinaryOperation binary_op )
-{
-	if (first!=last)
-	{
-		typename std::iterator_traits< InputIterator >::value_type val,prev;
-		prev = *first;
-		while(++first!=last)
-		{
-			val = *first;
-			*++result++ = binary_op( val,prev );
-			prev = val;
-		}
-		++result;
-	}
-	return result;
-}
-
-template< typename ForwardIterator >
-void generate_diff_poses( const ForwardIterator begin, const ForwardIterator end )
-{
-
-}
-
-template< bool use_all_pairs, typename T, typename ForwardIterator >
-bool estimatePose6D_6D6D_impl( const ForwardIterator itBeginEye, const ForwardIterator itEndEye,
+template< typename InputIterator >
+bool estimatePose6D_6D6D_impl( InputIterator itBeginEye, const InputIterator itEndEye,
 	Math::Pose& pose,
-	const ForwardIterator itBeginHand, const ForwardIterator itEndHand )
+	InputIterator itBeginHand, const InputIterator itEndHand )
 {
-	typedef typename Ubitrack::Math::Pose2DualQuaternion< T >::return_value dual_type;
+	typedef typename std::iterator_traits< InputIterator >::value_type dual_type;
+	typedef typename dual_type::value_type value_type;
 	
-	const std::size_t n_in = std::distance( itBeginEye, itEndEye );
-	assert( n_in > 2 );
-	assert( n_in == std::distance( itBeginHand, itEndHand ) );
-	const std::size_t n = n_in-1;
-	const std::size_t m = use_all_pairs ? (n*n_in)/2 : n;
-	
-	// std::cout << "Received " << n_in << " poses, using " << m << " difference poses.\n";
-	
-	std::vector< dual_type > dualA; // <- paper from Daniilidis uses a and b to specify dual quaternions
-	{ // set the first dual quaternion from input differences
-		dualA.reserve( m );
-		if( !use_all_pairs )
-			own_adjacent_difference ( itBeginEye, itEndEye, std::back_inserter( dualA ), Ubitrack::Math::difference_dual_a< T >() );
-		else
-		{
-			ForwardIterator itPose = itBeginEye;
-			for( ;itPose != itEndEye; )
-			{
-				Ubitrack::Util::identity< Math::Pose > id( *itPose );
-				std::advance( itPose, 1 );
-				std::transform( itPose , itEndEye, id.begin(), std::back_inserter( dualA ), Ubitrack::Math::difference_dual_a< T >() );
-			}
-		}
-	}
-	
-	std::vector< dual_type > dualB;  // <- paper from Daniilidis uses a and b to specify dual quaternions
-	{
-		dualB.reserve( m );
-		if( !use_all_pairs )
-			own_adjacent_difference ( itBeginHand, itEndHand, std::back_inserter( dualB ), Ubitrack::Math::difference_dual_b< T >() );
-		else
-		{
-			ForwardIterator itPose = itBeginHand;
-			for( ;itPose != itEndHand; )
-			{
-				Ubitrack::Util::identity< Math::Pose > id( *itPose );
-				std::advance( itPose, 1 );
-				std::transform( itPose , itEndHand, id.begin(), std::back_inserter( dualB ), Ubitrack::Math::difference_dual_b< T >() );
-			}
-		}
-	}
-	
-	assert( dualA.size() == dualB.size() );
-	assert( dualA.size() == m );
+	const std::size_t n = std::distance( itBeginEye, itEndEye );
+	const std::size_t n2 = std::distance( itBeginHand, itEndHand );
+	assert( n == n2 );
+	assert( n > 2 );
 	
 	// create a 6*n-by-8 matrix with the following scheme:
 	// [a  - b ] [a  + b ]_x [0 0 0]^T [0_{3x3}]
 	// [a' - b'] [a' + b']_x [a - b]   [a + b ]_x
-	Math::Matrix< T > matrixT( 6*m, 8 ); // <- all values get in there
-	for( std::size_t index = 0; index<m; ++index )
+	Math::Matrix< value_type > matrixT( 6*n, 8 ); // <- all values get in there
+	for( std::size_t index = 0; index<n; ++index, ++itBeginEye, ++itBeginHand )
 	{
-		const dual_type a = dualA[ index ];
-		const dual_type b = dualB[ index ];
+		const dual_type a = *itBeginEye;
+		const dual_type b = *itBeginHand;
 
-		const T ax = a[ 1 ];
-		const T ay = a[ 2 ];
-		const T az = a[ 3 ];
-		const T apx = a[ 5 ];
-		const T apy = a[ 6 ];
-		const T apz = a[ 7 ];
+		const value_type ax = a[ 1 ];
+		const value_type ay = a[ 2 ];
+		const value_type az = a[ 3 ];
+		const value_type apx = a[ 5 ];
+		const value_type apy = a[ 6 ];
+		const value_type apz = a[ 7 ];
 		
-		const T bx = b[ 1 ];
-		const T by = b[ 2 ];
-		const T bz = b[ 3 ];
-		const T bpx = b[ 5 ];
-		const T bpy = b[ 6 ];
-		const T bpz = b[ 7 ];
+		const value_type bx = b[ 1 ];
+		const value_type by = b[ 2 ];
+		const value_type bz = b[ 3 ];
+		const value_type bpx = b[ 5 ];
+		const value_type bpy = b[ 6 ];
+		const value_type bpz = b[ 7 ];
 
 		const std::size_t i = (index*6);
 		matrixT( i+0, 0 ) = ax-bx;
@@ -302,9 +156,9 @@ bool estimatePose6D_6D6D_impl( const ForwardIterator itBeginEye, const ForwardIt
 		matrixT( i+5, 7 ) = 0;
 	}
 		
-	Math::Vector< T, 8 > s;
-	Math::Matrix< T > u( 6*m, 6*m );
-	Math::Matrix< T, 8, 8 > vt;
+	Math::Vector< value_type, 8 > s;
+	Math::Matrix< value_type > u( 6*n, 6*n );
+	Math::Matrix< value_type, 8, 8 > vt;
 	
 	// see http://dlib.net/dlib/matrix/lapack/gesvd.h.html for parameters of 'gesvd'
 	int i = boost::numeric::bindings::lapack::gesvd( 'N', 'S', matrixT, s, u, vt );
@@ -318,7 +172,7 @@ bool estimatePose6D_6D6D_impl( const ForwardIterator itBeginEye, const ForwardIt
 	// check if last two singular values are smallest (near zero)
 	// and other ones are bigger. 
 	// luckily lapack returns smallest values always at the end
-	const T epsilon( 1e-02 );
+	const value_type epsilon( 1e-02 );
 	if( s( 7 ) > epsilon || s( 6 ) > epsilon || s( 5 ) < epsilon )
 	{
 		std::cout << "Matrix Vt\n" << vt << "\n and corresponding singular values.\n";
@@ -326,24 +180,24 @@ bool estimatePose6D_6D6D_impl( const ForwardIterator itBeginEye, const ForwardIt
 		return false;
 	}
 
-	Math::Vector< T, 4 > u1( vt( 6, 0 ), vt( 6, 1 ), vt( 6, 2 ), vt( 6, 3 ) );
-	Math::Vector< T, 4 > v1( vt( 6, 4 ), vt( 6, 5 ), vt( 6, 6 ), vt( 6, 7 ) );
-	Math::Vector< T, 4 > u2( vt( 7, 0 ), vt( 7, 1 ), vt( 7, 2 ), vt( 7, 3 ) );
-	Math::Vector< T, 4 > v2( vt( 7, 4 ), vt( 7, 5 ), vt( 7, 6 ), vt( 7, 7 ) );
+	Math::Vector< value_type, 4 > u1( vt( 6, 0 ), vt( 6, 1 ), vt( 6, 2 ), vt( 6, 3 ) );
+	Math::Vector< value_type, 4 > v1( vt( 6, 4 ), vt( 6, 5 ), vt( 6, 6 ), vt( 6, 7 ) );
+	Math::Vector< value_type, 4 > u2( vt( 7, 0 ), vt( 7, 1 ), vt( 7, 2 ), vt( 7, 3 ) );
+	Math::Vector< value_type, 4 > v2( vt( 7, 4 ), vt( 7, 5 ), vt( 7, 6 ), vt( 7, 7 ) );
 	
-	const T a = inner_product( u1, v1 );
-	const T b = inner_product( u1, v2 ) + inner_product( u2, v1 ); 
-	const T c = inner_product( u2, v2 );
-	const Math::Vector< T, 3 > quEq( c, b, a );
-	const Math::Vector< T, 2 > s12 = Ubitrack::Math::SolveQuadratic()( quEq );
+	const value_type a = inner_product( u1, v1 );
+	const value_type b = inner_product( u1, v2 ) + inner_product( u2, v1 ); 
+	const value_type c = inner_product( u2, v2 );
+	const Math::Vector< value_type, 3 > quEq( c, b, a );
+	const Math::Vector< value_type, 2 > s12 = Ubitrack::Math::SolveQuadratic()( quEq );
 	
-	const T dotU1 = inner_product( u1, u1 );
-	const T dotU1U2_2 = inner_product( u1, u2 ) * 2; // <- 2 times inner product
-	const T dotU2 = inner_product( u2, u2 );
-	const T s1 = s12[ 0 ] * s12[ 0 ] * dotU1 + s12[ 0 ] * dotU1U2_2 + dotU2;
-	const T s2 = s12[ 1 ] * s12[ 1 ] * dotU1 + s12[ 1 ] * dotU1U2_2 + dotU2;
-	const T lambda2 = (s1 > s2) ? std::sqrt( 1/s1 ) : std::sqrt( 1/s2 );
-	const T lambda1 = (s1 > s2) ? lambda2 * s12[ 0 ] : lambda2 * s12[ 1 ];
+	const value_type dotU1 = inner_product( u1, u1 );
+	const value_type dotU1U2_2 = inner_product( u1, u2 ) * 2; // <- 2 times inner product
+	const value_type dotU2 = inner_product( u2, u2 );
+	const value_type s1 = s12[ 0 ] * s12[ 0 ] * dotU1 + s12[ 0 ] * dotU1U2_2 + dotU2;
+	const value_type s2 = s12[ 1 ] * s12[ 1 ] * dotU1 + s12[ 1 ] * dotU1U2_2 + dotU2;
+	const value_type lambda2 = (s1 > s2) ? std::sqrt( 1/s1 ) : std::sqrt( 1/s2 );
+	const value_type lambda1 = (s1 > s2) ? lambda2 * s12[ 0 ] : lambda2 * s12[ 1 ];
 	
 	if( (lambda1 != lambda1) || (lambda2 != lambda2) )
 	{
@@ -352,13 +206,13 @@ bool estimatePose6D_6D6D_impl( const ForwardIterator itBeginEye, const ForwardIt
 	}
 
 	// prepare the result
-	Math::Vector< T, 4 > q = (lambda1 * u1) + (lambda2 * u2); 
-	Math::Vector< T, 4 > qp = (lambda1 * v1) + (lambda2 * v2);
+	Math::Vector< value_type, 4 > q = (lambda1 * u1) + (lambda2 * u2); 
+	Math::Vector< value_type, 4 > qp = (lambda1 * v1) + (lambda2 * v2);
 	Math::Quaternion qprime( qp( 1 ), qp( 2 ), qp( 3 ), qp( 0 ) );
 	Math::Quaternion q_conj( -q( 1 ), -q( 2 ), -q( 3 ), q( 0 ) );
 	Math::Quaternion t_final = qprime*q_conj;
 	
-	pose = Ubitrack::Math::Pose( Ubitrack::Math::Quaternion( q( 1 ), q( 2 ), q( 3 ), q( 0 )), Ubitrack::Math::Vector< T, 3 >( 2*t_final.x(), 2*t_final.y(), 2*t_final.z() ) );
+	pose = Ubitrack::Math::Pose( Ubitrack::Math::Quaternion( q( 1 ), q( 2 ), q( 3 ), q( 0 )), Ubitrack::Math::Vector< value_type, 3 >( 2*t_final.x(), 2*t_final.y(), 2*t_final.z() ) );
 	
 	return true;
 };
@@ -368,11 +222,34 @@ bool estimatePose6D_6D6D_impl( const ForwardIterator itBeginEye, const ForwardIt
 UBITRACK_EXPORT bool estimatePose6D_6D6D( const std::vector< Math::Pose >& eyes, Math::Pose& pose,
 	const std::vector< Math::Pose >& hands )
 {
-	// // uses all distinct pairs of input poses:
-	return estimatePose6D_6D6D_impl< true, double >( eyes.begin(), eyes.end(), pose, hands.begin(), hands.end() );
+
+	typedef Ubitrack::Math::Vector< double, 8 > dual_type; // defining the input values of the algorithm.
+	const bool use_all_pairs = true; // <-- sign if all distinct pairs of poses should be used or only the neighbouring
+
 	
-	// uses only the direct paris from input poses:
-	// return estimatePose6D_6D6D_impl< false, double >( eyes.begin(), eyes.end(), pose, hands.begin(), hands.end() );
+	// checking the validity of inputs
+	const std::size_t n_in = std::distance( eyes.begin(), eyes.end() );
+	const std::size_t n_in2 = std::distance( hands.begin(), hands.end() );
+	assert( n_in == n_in2 );
+	assert( n_in > 2 ); // <- algorithm needs at least 3 relative movements
+	
+	// determening the amount of relative pose movements
+	const std::size_t n = n_in-1;
+	const std::size_t m = use_all_pairs ? (n*n_in)/2 : n;
+	
+	
+	// generate the relative pose movements for the eye in forward direction
+	std::vector< dual_type > dualA; // <- paper from Daniilidis uses a and b to specify dual quaternions
+	dualA.reserve( m );
+	generate_relative_pose6D_impl< use_all_pairs, true >( eyes.begin(), eyes.end(), std::back_inserter( dualA ) );
+	
+	// generate the relative pose movements for the hand in backward direction
+	std::vector< dual_type > dualB;  // <- paper from Daniilidis uses a and b to specify dual quaternions
+	dualB.reserve( m );
+	generate_relative_pose6D_impl< use_all_pairs, false >( hands.begin(), hands.end(), std::back_inserter( dualB ) );
+
+	return estimatePose6D_6D6D_impl( dualA.begin(), dualA.end(), pose, dualB.begin(), dualB.end() );
+	
 }
 
 
