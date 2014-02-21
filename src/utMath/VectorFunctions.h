@@ -124,23 +124,23 @@ public:
 /**
  * @ingroup math functor
  * @internal
- * Functor class to calculate the squarred Euclidean distance 
+ * Functor class to calculate the squared Euclidean distance 
  * between two vectors.
  *
  * @tparam VecType type of vector (e.g. \c Math::Vector3d or \c Math::Vector3f )
  */
 template< typename VecType >
-struct SquarredDistance
+struct SquaredDistance
 {
 public:
 
 	/**
 	 * @ingroup math
 	 * @internal
-	 * Calculates the squarred Euclidean distance of a vector to the origin.
+	 * Calculates the squared Euclidean distance of a vector to the origin.
 	 *
 	 * @param vec the input vector 
-	 * @return squarred length of the vector (squarred Euclidean distance between the origin and the vector)
+	 * @return squared length of the vector (squared Euclidean distance between the origin and the vector)
 	 */
 	typename Math::vector_traits< VecType >::value_type operator()( const VecType& vec ) const
 	{
@@ -150,11 +150,11 @@ public:
 	/**
 	 * @ingroup math
 	 * @internal
-	 * Calculates the quarred Euclidean distance between two vectors.
+	 * Calculates the squared Euclidean distance between two vectors.
 	 *
 	 * @param vec1 the 1st input vector 
 	 * @param vec2 the 2nd input vector 
-	 * @return squarred Euclidean distance between the two vectors
+	 * @return squared Euclidean distance between the two vectors
 	 */
 	typename Math::vector_traits< VecType >::value_type operator()( const VecType& vec1, const VecType& vec2 ) const
 	{
@@ -236,73 +236,73 @@ inline void distance( const InputIterator iBegin1, const InputIterator iEnd1, co
 
 /**
  * @ingroup math
- * @brief A function that calculates the squarred Euclidean distance between two vectors.
+ * @brief A function that calculates the squared Euclidean distance between two vectors.
  * 
- * This function calculates the squarred Euclidean distance \f$ d \f$ between two
+ * This function calculates the squared Euclidean distance \f$ d \f$ between two
  * vectors \f$ v_1 \f$ and \f$ v_2 \f$ as \f$  d = ||v_1 - v_2||_2^2 \f$ .
  *
- * This function template wraps a call to the \c SquarredDistance functor.
- * The input vector for calculating the squarred Euclidean distance can be of any
+ * This function template wraps a call to the \c SquaredDistance functor.
+ * The input vector for calculating the squared Euclidean distance can be of any
  * dimension.
  *
  * @tparam VecType the type of the input vector.
  * @param vec1 the 1st input vector
  * @param vec2 the 2nd input vector
- * @return the squarred Euclidean distance between the two vectors.
+ * @return the squared Euclidean distance between the two vectors.
  */
 template< typename VecType >
-inline typename Math::vector_traits< VecType >::value_type squarred_distance( const VecType& vec1, const VecType& vec2 )
+inline typename Math::vector_traits< VecType >::value_type squared_distance( const VecType& vec1, const VecType& vec2 )
 {
-	return SquarredDistance< VecType >().operator()( vec1, vec2 );
+	return SquaredDistance< VecType >().operator()( vec1, vec2 );
 }
 
 /**
  * @ingroup math
- * @brief A function that calculates the squarred Euclidean distance between vectors and the origin.
+ * @brief A function that calculates the squared Euclidean distance between vectors and the origin.
  * 
  * This function calculates the Euclidean distance \f$ d_i \f$ between 
  * vectors \f$ v_i \f$ and the origin \f$  d_i = || v_i ||_2^2 \f$ .
  *
  * This function template wraps a call to the \c std::transform with
- * \c SquarredDistance functor as the unary function.
- * The input vectors for calculating the squarred Euclidean Distance can be
+ * \c SquaredDistance functor as the unary function.
+ * The input vectors for calculating the squared Euclidean Distance can be
  * of any dimension.
  *
  * @tparam InputIterator type of forward iterator to container of input vectors
- * @tparam OutputIterator type of forward iterator to container of squarred Euclidean distances
+ * @tparam OutputIterator type of forward iterator to container of squared Euclidean distances
  * @param iBegin \c iterator pointing to first element in the input container/storage class of the \b vectors ( usually \c begin() )
  * @param iEnd \c iterator pointing behind the last element in the input container/storage class of the \b vectors ( usually \c end() )
- * @param iOut output \c iterator pointing to first element in container/storage class for storing the squarred Euclidean distances as a result ( usually \c begin() or \c std::back_inserter(container) )
+ * @param iOut output \c iterator pointing to first element in container/storage class for storing the squared Euclidean distances as a result ( usually \c begin() or \c std::back_inserter(container) )
  */
 template< typename InputIterator, typename OutputIterator >
-inline void squarred_distance( const InputIterator iBegin, const InputIterator iEnd, OutputIterator iOut )
+inline void squared_distance( const InputIterator iBegin, const InputIterator iEnd, OutputIterator iOut )
 {
-	std::transform( iBegin, iEnd, iOut, SquarredDistance< typename std::iterator_traits< InputIterator >::value_type >() );
+	std::transform( iBegin, iEnd, iOut, SquaredDistance< typename std::iterator_traits< InputIterator >::value_type >() );
 }
 
 /**
  * @ingroup math
- * @brief A function that calculates the squarred Euclidean distance between two vectors.
+ * @brief A function that calculates the squared Euclidean distance between two vectors.
  * 
  * This function calculates the Euclidean distance \f$ d_i \f$ between 
  * two vectors \f$ v1_i \f$ and \f$ v2_i \f$ as \f$  d_i = || v1_i - v2_i ||_2^2 \f$ .
  *
  * This function template wraps a call to the \c std::transform with
- * \c SquarredDistance functor as the binary function.
- * The input vectors for calculating the squarred Euclidean distance can be
+ * \c SquaredDistance functor as the binary function.
+ * The input vectors for calculating the squared Euclidean distance can be
  * of any dimension.
  *
  * @tparam InputIterator type of forward iterator to container of input vectors
- * @tparam OutputIterator type of forward iterator to container of squarred Euclidean distances
+ * @tparam OutputIterator type of forward iterator to container of squared Euclidean distances
  * @param iBegin1 \c iterator pointing to first element in the 1st input container/storage class of the \b vectors ( usually \c begin() )
  * @param iEnd1 \c iterator pointing behind the last element in the 1st input container/storage class of the \b vectors ( usually \c end() )
  * @param iBegin2 \c iterator pointing to first element in the 2nd input container/storage class of the \b vectors ( usually \c begin() )
- * @param iOut output \c iterator pointing to first element in container/storage class for storing the squarred Euclidean distances as a result ( usually \c begin() or \c std::back_inserter(container) )
+ * @param iOut output \c iterator pointing to first element in container/storage class for storing the squared Euclidean distances as a result ( usually \c begin() or \c std::back_inserter(container) )
  */
 template< typename InputIterator, typename OutputIterator >
-inline void squarred_distance( const InputIterator iBegin1, const InputIterator iEnd1, const InputIterator iBegin2, OutputIterator iOut )
+inline void squared_distance( const InputIterator iBegin1, const InputIterator iEnd1, const InputIterator iBegin2, OutputIterator iOut )
 {
-	std::transform( iBegin1, iEnd1, iBegin2, iOut, SquarredDistance< typename std::iterator_traits< InputIterator >::value_type >() );
+	std::transform( iBegin1, iEnd1, iBegin2, iOut, SquaredDistance< typename std::iterator_traits< InputIterator >::value_type >() );
 }
 
 /**

@@ -101,7 +101,7 @@ void testDistance( const std::size_t n, const T epsilon )
 
 
 template< typename T >
-void testSquarredDistance( const std::size_t n, const T epsilon )
+void testSquaredDistance( const std::size_t n, const T epsilon )
 {
 	const T maxValue = 1.;
 	// some 10d values
@@ -118,7 +118,7 @@ void testSquarredDistance( const std::size_t n, const T epsilon )
 		
 		std::vector< T > results;
 		results.reserve( n );
-		std::transform( points10d.begin(), points10d.end(), std::back_inserter( results ), SquarredDistance< vector_type >() );
+		std::transform( points10d.begin(), points10d.end(), std::back_inserter( results ), SquaredDistance< vector_type >() );
 		
 		for( std::size_t i = 0; i<n; ++i )
 		{
@@ -148,7 +148,7 @@ void testSquarredDistance( const std::size_t n, const T epsilon )
 		
 		std::vector< T > results;
 		results.reserve( n );
-		std::transform( points3dA.begin(), points3dA.end(), points3dB.begin(), std::back_inserter( results ), SquarredDistance< vector_type >() );
+		std::transform( points3dA.begin(), points3dA.end(), points3dB.begin(), std::back_inserter( results ), SquaredDistance< vector_type >() );
 		for( std::size_t i = 0; i<n; ++i )
 		{
 			const vector_type diffVector = points3dA[ i ] - points3dB[ i ];
@@ -178,7 +178,7 @@ void testSquarredDistance( const std::size_t n, const T epsilon )
 		
 		for( std::size_t i = 0; i<n; ++i )
 		{
-			const T result = squarred_distance( points3dA[ i ], points3dB[ i ] );
+			const T result = squared_distance( points3dA[ i ], points3dB[ i ] );
 			const vector_type diffVector = points3dA[ i ] - points3dB[ i ];
 			const T norm = norm_2( diffVector );
 			const T dist = result - (norm*norm);
@@ -238,11 +238,11 @@ void testNormalization( const std::size_t n, const T epsilon )
 void TestVectorFunctions()
 {
 	testDistance< double >( 100000, 1e-10 );
-	testSquarredDistance< double >( 100000, 1e-10 );
+	testSquaredDistance< double >( 100000, 1e-10 );
 	testNormalization< double >( 10000, 1e-10 );
 	
 	testDistance< float >( 100000, 1e-04f );
-	testSquarredDistance< float >( 100000, 1e-05f );
+	testSquaredDistance< float >( 100000, 1e-05f );
 	testNormalization< float >( 100000, 1e-06f );
 }
 

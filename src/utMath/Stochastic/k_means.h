@@ -386,7 +386,7 @@ void k_means( const InputIterator iBeginValues, const InputIterator iEndValues, 
 	
 	copy_probability( iBeginValues, iEndValues, n_cluster, std::back_inserter( means ), Distance< vector_type >() );
 	
-	k_means( iBeginValues, iEndValues, means.begin(), means.end(), itIndices, SquarredDistance< vector_type >() );
+	k_means( iBeginValues, iEndValues, means.begin(), means.end(), itIndices, SquaredDistance< vector_type >() );
 	
 	// copy the resulting mean values to output iterator
 	std::copy( means.begin(), means.end(), itCentroids );
