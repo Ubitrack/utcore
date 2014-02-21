@@ -37,7 +37,6 @@
 
 #include <utCore.h>
 #include <utMath/Pose.h>
-#include <utMath/Matrix.h>
 
 #include <vector>
 

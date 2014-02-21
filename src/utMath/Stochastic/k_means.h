@@ -217,7 +217,7 @@ void copy_probability( const InputIterator iBegin, const InputIterator iEnd, con
 	// calculate distances to first element
 	std::vector< value_type > distances;
 	distances.reserve( n );
-	std::transform( iBegin, iEnd, Util::identity< vector_type >( *itNewOut ).begin(), std::back_inserter( distances ), distanceFunc );
+	std::transform( iBegin, iEnd, Ubitrack::Util::identity< vector_type >( *itNewOut ).begin(), std::back_inserter( distances ), distanceFunc );
 
 	value_type dist_sum = std::accumulate( distances.begin(), distances.end(), static_cast< value_type >( 0 ) );
 
@@ -238,7 +238,7 @@ void copy_probability( const InputIterator iBegin, const InputIterator iEnd, con
 		// calculate the distances to the new value
 		std::vector< value_type > distances_temp;
 		distances_temp.reserve( n );
-		std::transform( iBegin, iEnd, Util::identity< vector_type >( *itNewOut ).begin(), std::back_inserter( distances_temp ), distanceFunc );
+		std::transform( iBegin, iEnd, Ubitrack::Util::identity< vector_type >( *itNewOut ).begin(), std::back_inserter( distances_temp ), distanceFunc );
 
 		// determine the minimal distance to one of earlier chosen points
 		std::transform( distances.begin(), distances.end(), distances_temp.begin(), distances.begin(), std::min< value_type > );

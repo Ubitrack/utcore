@@ -13,6 +13,7 @@ void TestProjectionDLT();
 void TestCorrelation();
 void TestHandEye();
 void TestDualHandEye();
+void TestHandEyeDataSelection();
 
 CalibrationTest::CalibrationTest()
 	: boost::unit_test::test_suite( "CalibrationTests" )
@@ -28,7 +29,9 @@ CalibrationTest::CalibrationTest()
 	add( BOOST_TEST_CASE( &TestProjectionDLT ) );
 	add( BOOST_TEST_CASE( &TestHandEye ) );
 	add( BOOST_TEST_CASE( &TestDualHandEye ) );
+	add( BOOST_TEST_CASE( &TestHandEyeDataSelection ) );
 	add( BOOST_TEST_CASE( &TestCorrelation ) );
+	
 
 }
 
