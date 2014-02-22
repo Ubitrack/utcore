@@ -73,7 +73,7 @@ public:
 	 */
 	VecType operator() ( const VecType& vec ) const
 	{
-		const typename Math::vector_traits< VecType >::value_type norm ( Norm_2()( vec ) );
+		const typename Math::Util::vector_traits< VecType >::value_type norm ( Norm_2()( vec ) );
 		return vec / norm;
 	}
 };
@@ -99,7 +99,7 @@ public:
 	 * @param vec the input vector 
 	 * @return length of the vector (Euclidean distance between the origin and the vector)
 	 */
-	typename Math::vector_traits< VecType >::value_type operator()( const VecType& vec ) const
+	typename Math::Util::vector_traits< VecType >::value_type operator()( const VecType& vec ) const
 	{
 		return Ubitrack::Math::Norm_2()( vec );
 	}
@@ -113,7 +113,7 @@ public:
 	 * @param vec2 the 2nd input vector 
 	 * @return Euclidean distance between the two vectors
 	 */
-	typename Math::vector_traits< VecType >::value_type operator()( const VecType& vec1, const VecType& vec2 ) const
+	typename Math::Util::vector_traits< VecType >::value_type operator()( const VecType& vec1, const VecType& vec2 ) const
 	{
 		const VecType vec ( vec1 - vec2 );
 		return this->operator()( vec );
@@ -142,7 +142,7 @@ public:
 	 * @param vec the input vector 
 	 * @return squared length of the vector (squared Euclidean distance between the origin and the vector)
 	 */
-	typename Math::vector_traits< VecType >::value_type operator()( const VecType& vec ) const
+	typename Math::Util::vector_traits< VecType >::value_type operator()( const VecType& vec ) const
 	{
 		return Ubitrack::Math::InnerProduct()( vec );
 	}
@@ -156,7 +156,7 @@ public:
 	 * @param vec2 the 2nd input vector 
 	 * @return squared Euclidean distance between the two vectors
 	 */
-	typename Math::vector_traits< VecType >::value_type operator()( const VecType& vec1, const VecType& vec2 ) const
+	typename Math::Util::vector_traits< VecType >::value_type operator()( const VecType& vec1, const VecType& vec2 ) const
 	{
 		const VecType vec ( vec1 - vec2 );
 		return this->operator()( vec );
@@ -180,7 +180,7 @@ public:
  * @return the Euclidean distance between the two vectors.
  */
 template< typename VecType >
-inline typename Math::vector_traits< VecType >::value_type distance( const VecType& vec1, const VecType& vec2 )
+inline typename Math::Util::vector_traits< VecType >::value_type distance( const VecType& vec1, const VecType& vec2 )
 {
 	return Distance< VecType >().operator()( vec1, vec2 );
 }
@@ -251,7 +251,7 @@ inline void distance( const InputIterator iBegin1, const InputIterator iEnd1, co
  * @return the squared Euclidean distance between the two vectors.
  */
 template< typename VecType >
-inline typename Math::vector_traits< VecType >::value_type squared_distance( const VecType& vec1, const VecType& vec2 )
+inline typename Math::Util::vector_traits< VecType >::value_type squared_distance( const VecType& vec1, const VecType& vec2 )
 {
 	return SquaredDistance< VecType >().operator()( vec1, vec2 );
 }
