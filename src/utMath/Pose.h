@@ -30,15 +30,17 @@
  */
 
 
-#ifndef __POSE_H_INCLUDED__
-#define __POSE_H_INCLUDED__
+#ifndef __UBITRACK_MATH_POSE_H_INCLUDED__
+#define __UBITRACK_MATH_POSE_H_INCLUDED__
+
 
 #include <utCore.h>
-#include "cast_assign.h"
-#include <boost/numeric/ublas/vector_proxy.hpp>
-#include <boost/numeric/ublas/matrix_proxy.hpp>
 #include "Vector.h"
 #include "Quaternion.h"
+#include "Util/cast_assign.h"
+
+#include <boost/numeric/ublas/vector_proxy.hpp>
+#include <boost/numeric/ublas/matrix_proxy.hpp>
 
 
 namespace Ubitrack { namespace Math {
@@ -127,7 +129,7 @@ class UBITRACK_EXPORT Pose
 			boost::numeric::ublas::vector_range< VType > rotSub( v, boost::numeric::ublas::range( 3, 7 ) );
 			m_rotation.toVector( rotSub );
 			boost::numeric::ublas::vector_range< VType > posSub( v, boost::numeric::ublas::range( 0, 3 ) );
-			vector_cast_assign( posSub, m_translation );
+			Math::Util::vector_cast_assign( posSub, m_translation );
 		}
 		
 		/**
@@ -201,5 +203,5 @@ UBITRACK_EXPORT Pose linearInterpolate ( const Pose& x, const Pose& y, double t 
 
 } } // namespace Ubitrack::Math
 
-#endif // __POSE_H_INCLUDED__
+#endif // __UBITRACK_MATH_POSE_H_INCLUDED__
 

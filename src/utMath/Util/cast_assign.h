@@ -29,8 +29,8 @@
  * @author Daniel Pustka <pustka@in.tum.de>
  */
 
-#ifndef _Ubitrack_Math_cast_assign_INCLUDED_
-#define _Ubitrack_Math_cast_assign_INCLUDED_
+#ifndef __UBITRACK_MATH_UTIL_CAST_ASSIGN_H__
+#define __UBITRACK_MATH_UTIL_CAST_ASSIGN_H__
 
 // This include is needed as workaround on Linux, at least with gcc 4.1)
 #include <boost/numeric/ublas/functional.hpp>
@@ -38,7 +38,7 @@
 #include <boost/numeric/ublas/detail/matrix_assign.hpp>
 #include <boost/numeric/ublas/detail/vector_assign.hpp>
 
-namespace Ubitrack { namespace Math {
+namespace Ubitrack { namespace Math { namespace Util {
 
 /**
  * internal class used by the assignments
@@ -73,6 +73,6 @@ template < class T1, class T2 >
 void vector_cast_assign( T1& v1, const T2& v2 )
 { boost::numeric::ublas::vector_assign< scalar_cast_assign >( v1, v2 ); }
 
-} } // namespace Ubitrack::Math
+} } } // namespace Ubitrack::Math::Util
 
-#endif // _Ubitrack_Math_cast_assign_INCLUDED_
+#endif // __UBITRACK_MATH_UTIL_CAST_ASSIGN_H__

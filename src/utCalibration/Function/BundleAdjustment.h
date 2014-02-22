@@ -34,7 +34,7 @@
 #include <boost/numeric/ublas/vector_proxy.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 
-#include <utMath/cast_assign.h>
+#include <utMath/Util/cast_assign.h>
 #include "Dehomogenization.h"
 #include "RadialDistortion.h"
 #include "CameraIntrinsicsMultiplication.h"
@@ -212,8 +212,8 @@ public:
 		{
 			ublas::vector_range< VT > trans( v, ublas::range( iV, iV + 3 ) );
 			ublas::vector_range< VT > rot( v, ublas::range( iV + 3, iV + 6 ) );
-			Math::vector_cast_assign( trans, it->translation() );
-			Math::vector_cast_assign( rot, it->rotation().toLogarithm() );
+			Math::Util::vector_cast_assign( trans, it->translation() );
+			Math::Util::vector_cast_assign( rot, it->rotation().toLogarithm() );
 			//TODO: it->rotation().toLogarithm( vr );
 		}
 
@@ -223,8 +223,8 @@ public:
 		{
 			ublas::vector_range< VT > trans( v, ublas::range( iV, iV + 3 ) );
 			ublas::vector_range< VT > rot( v, ublas::range( iV + 3, iV + 6 ) );
-			Math::vector_cast_assign( trans, it->translation() );
-			Math::vector_cast_assign( rot, it->rotation().toLogarithm() );
+			Math::Util::vector_cast_assign( trans, it->translation() );
+			Math::Util::vector_cast_assign( rot, it->rotation().toLogarithm() );
 			//TODO: it->rotation().toLogarithm( vr );
 		}
 
