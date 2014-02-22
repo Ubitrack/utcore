@@ -54,7 +54,7 @@ void pose6D_selection_impl( const InputIterator itBeginEye, const InputIterator 
 	const std::size_t n_in = std::distance( itBeginEye, itEndEye );
 	const std::size_t n_2 = std::distance( itBeginHand, itEndHand );
 	assert( n_in == n_2 );
-	assert( n_in > 2 );
+	assert( n_in > 2u );
 	
 	const std::size_t n = n_in-1;
 	const std::size_t m = use_all_pairs ? (n*n_in)/2 : n;
