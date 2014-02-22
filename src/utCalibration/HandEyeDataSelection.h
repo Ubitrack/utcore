@@ -36,6 +36,7 @@
 #include <utCore.h>
 #include <utMath/Pose.h> //includes quaternion
 #include <utMath/Vector.h>
+#include <utMath/Util/RotationCast.h>
 #include <utMath/Geometry/container_traits.h>
 #include <utMath/Stochastic/identity_iterator.h>
 
@@ -62,99 +63,6 @@ struct RotationDistance< Math::Vector< T, 6 > >
 		return std::sqrt( x*x+y*y+z*z );
 	}
 };
-
-template< typename rotation_type >
-struct rotation_cast
-{
-	typedef rotation_type return_type;
-	
-	template< typename rotation_in >
-	return_type operator()( const rotation_in & pose )const
-	{
-		UBITRACK_STATIC_ASSERT( (false), NO_ROTATION_CONVERSION_AVAILABLE );
-		return rotation_type();
-	}
-};
-
-
-
-template< typename T >
-struct rotation_cast< Math::Vector< T, 4 > >
-{
-	typedef Math::Vector< T, 4 > result_type;
-	
-	template< typename rotation_in >
-	result_type operator()( const rotation_in & pose )const
-	{
-		UBITRACK_STATIC_ASSERT( (false), NO_ROTATION_CONVERSION_AVAILABLE );
-		return result_type();
-	}
-	
-	
-	result_type operator()( const Math::Quaternion & quat ) const
-	{
-		const T angle = 2 * std::acos( quat.w() );
-		const T divisor = std::sqrt( 1 - quat.w()*quat.w() );
-		const T x = quat.x() / divisor;
-		const T y = quat.y() / divisor;
-		const T z = quat.z() / divisor;
-		return Math::Vector< T, 4 >( x, y, z, angle );
-	}
-};
-
-template< typename T >
-struct rotation_cast< Math::Vector< T, 3 > >
-{
-	typedef Math::Vector< T, 3 > result_type;
-	
-	template< typename rotation_in >
-	result_type operator()( const rotation_in & pose )const
-	{
-		UBITRACK_STATIC_ASSERT( (false), NO_ROTATION_CONVERSION_AVAILABLE );
-		return result_type();
-	}
-	
-	
-	result_type operator()( const Math::Quaternion & quat ) const
-	{
-		Math::Vector< T, 4 > rot = rotation_cast< Math::Vector< T, 4 > >()( quat );
-		const T x = rot[ 0 ];
-		const T y = rot[ 1 ];
-		const T z = rot[ 2 ];
-		const T a = rot[ 3 ];
-		const T dst = std::sqrt( x*x+y*y+z*z );
-		return Math::Vector< T, 3 >( a*x/dst, a*y/dst, a*z/dst );
-	}
-};
-
-template< >
-struct rotation_cast< Math::Quaternion >
-{
-	typedef Math::Quaternion result_type;
-	
-	template< typename rotation_in >
-	result_type operator()( const rotation_in & pose )const
-	{
-		UBITRACK_STATIC_ASSERT( (false), NO_ROTATION_CONVERSION_AVAILABLE );
-		return result_type();
-	}
-	
-	template< typename T >
-	result_type operator()( const Math::Vector< T, 3 > & rotAxis ) const
-	{
-		const T x = rotAxis[ 0 ];
-		const T y = rotAxis[ 1 ];
-		const T z = rotAxis[ 2 ];
-		const T angle = std::sqrt( x*x+y*y+z*z );
-		
-		const T qx = x/angle * std::sin( angle / 2 );
-		const T qy = y/angle * std::sin( angle / 2 );
-		const T qz = z/angle * std::sin( angle / 2 );
-		const T qw = std::cos( angle / 2 );
-		return Math::Quaternion( qx, qy, qz, qw );
-	}
-};
-
 
 /**
  * @internal Functor that casts a pose of one type into a pose of another one type.
@@ -197,7 +105,7 @@ struct pose_cast< Math::Pose  >
 	result_type operator()( const Math::Vector< T, 6 > &pose ) const
 	{
 		const Math::Vector< T, 3 > rotationAxis( pose[ 0 ], pose[ 1 ], pose[ 2 ] );
-		const Math::Quaternion quatRot( rotation_cast< Math::Quaternion >()( rotationAxis ) );
+		const Math::Quaternion quatRot( Math::Util::RotationCast< Math::Quaternion >()( rotationAxis ) );
 		const Math::Vector< double, 3 > translation( pose[ 3 ], pose[ 4 ], pose[ 5 ] );
 
 		return Math::Pose( quatRot, translation );
@@ -227,11 +135,11 @@ struct pose_cast< Math::Vector< T, 7 >  >
 	{
 		Math::Vector< T, 7 > result;
 		
-		Math::Vector< T, 4 > rot = rotation_cast< Math::Vector< T, 4 > >()( pose.rotation() );
-		result[ 0 ] = rot[ 3 ];
-		result[ 1 ] = rot[ 0 ];
-		result[ 2 ] = rot[ 1 ];
-		result[ 3 ] = rot[ 2 ];
+		Math::Vector< T, 4 > rot = Math::Util::RotationCast< Math::Vector< T, 4 > >()( pose.rotation() );
+		result[ 0 ] = rot[ 0 ];
+		result[ 1 ] = rot[ 1 ];
+		result[ 2 ] = rot[ 2 ];
+		result[ 3 ] = rot[ 3 ];
 		result[ 4 ] = pose.translation()[ 0 ];
 		result[ 5 ] = pose.translation()[ 1 ];
 		result[ 6 ] = pose.translation()[ 2 ];
@@ -263,7 +171,7 @@ struct pose_cast< Math::Vector< T, 6 >  >
 	{
 		Math::Vector< T, 6 > result;
 		
-		Math::Vector< T, 3 > rot = rotation_cast< Math::Vector< T, 3 > >()( pose.rotation() );
+		Math::Vector< T, 3 > rot = Math::Util::RotationCast< Math::Vector< T, 3 > >()( pose.rotation() );
 		result[ 0 ] = rot[ 0 ];
 		result[ 1 ] = rot[ 1 ];
 		result[ 2 ] = rot[ 2 ];
@@ -486,56 +394,50 @@ void generate_relative_pose6D_impl( const InputIterator itBegin, const InputIter
 
 /**
  * @ingroup calibration tracking_algorithms
- * @brief An algorithm to determine a solution to the classic \b Hand-Eye
- * \b Calibration problem, based on given \b 6D \b pose correspondences.
+ * @brief An algorithm to determine adequate relative poses as an input 
+ * to  \b Hand-Eye \b Calibration approaches.
  
- * This algorithm estimates a \b pose from given \b 6D \b pose correspondences.
- * This problem is well known from robotics research but is also of special 
- * interest for Augmented Reality scenarios. Among all the many solutions
- * that can be found to this problem the implementation of this solution is 
- * based on the the publication 'Hand-Eye Calibration Using Dual Quaternions'
- * from Konstantinos Daniilidis in 1999 ( @cite daniilidis1999hand ).
- *
- * The hand eye calibration can be seen as a solution to determine the a priori
- * unkown pose \b p that specifies a spatial transformation from one coordinate
- * frame to another one which are rigidly connected to each other. Several
- * observations (at least three) in each coordinate frame are necessary
- * to determine a solution to the hand-eye problem.\n
- * If @f$ a_i * p * b_i \f$ describes this spatial transformation, typically \n
- * @f$ a_i @f$ are n poses in a camera coordinate frame, specifying the pose from
- * the camera (eye) to an observed target, that is usually rigidly connected to
- * a robot or similar. \n
- * @f$ b_i @f$ are n poses in a robots' coordinate frame, specifying the pose from
- * the robots' base to the robots' hand (holding the camera). \n
- * The number of n(n-1)/2 distinct pose pairs are used to determine the
- * solution using their pose differences.
+ * This algorithm selects \b relative \b pose correspondences from given
+ * \b 6D \b relative \b pose correspondences.
+ * The quality of an Hand-Eye calibration depdends on the input data.
+ * Several publications describes the effects of the input data onto the 
+ * resulting final pose. As an example relative poses with a small angle
+ * should be rejected for the calibration procedure as it leds to numerical
+ * instabil or singular results.
+ * The method implemented here was introduced from Schmidt & Niermann 2008
+ * and uses a clustering method for automatic pose selection ( @cite schmidt2008data ).
+ * Actually the method for clustering could be exchanged with other methods later.
  *
  * @verbatim
- @article{daniilidis1999hand,
-  title={Hand-eye calibration using dual quaternions},
-  author={Daniilidis, Konstantinos},
+@article{schmidt2008data,
+  title={Data selection for hand-eye calibration: a vector quantization approach},
+  author={Schmidt, Jochen and Niemann, Heinrich},
   journal={The International Journal of Robotics Research},
-  volume={18},
-  number={3},
-  pages={286--298},
-  year={1999},
+  volume={27},
+  number={9},
+  pages={1027--1053},
+  year={2008},
   publisher={SAGE Publications}
 } @endverbatim
  *
  * Example use case:\n
  * @code
- * std::vector< Pose > posesA; // <- should be filled with poses in one coordinate system (eye)
- * std::vector< Pose > posesB; // <- should be filled with corresponding poses from another coordinate system (hand)
+ * std::vector< Pose > relPosesA; // <- should be filled with relative poses in one coordinate system (eye)
+ * std::vector< Pose > relPosesB; // <- should be filled with corresponding relative poses from another coordinate system (hand)
+ * std::vector< Pose > selectedRelPosesA; //  <- will be filled with n (n = select) relative poses selected from the input data
+ * std::vector< Pose > selectedRelPosesB; //  <- will be filled with n (n = select) corresponding relative poses from the input data
+ 
  * Math::Pose pose; // <- will be filled with a solution, if there is one.
- * estimatePose6D_6D6D( posesA, pose, posesB );
+ * estimatePose6D_6D6D( relPosesA, relPosesB, n, selectedRelPosesA, selectedRelPosesB );
  * @endcode
  *
- * @attention : Other versions might occur in future, this algorithm is still under development.
+ * @attention : This version implements method 3.6 from the publication. Other methods might come later...
  *
- * @param eyes \b 6D \b poses in the \b 1st coordinate system.
- * @param pose the pose, if a solution can be found.
- * @param hands corresponding \b 6D \b poses in the \b 2nd coordinate system.
- * @return a flag that signs if the algorithm has succesfully determined a solution.
+ * @param eyes \b relative \b 6D \b poses in the \b 1st coordinate system.
+ * @param hands corresponding \b relative \b 6D \b poses in the \b 2nd coordinate system.
+ * @param select amount of reltive poses to select
+ * @param eyesOut contains n ( n=select) \b relative \b 6D \b poses from the from the input data
+ * @param handsOut contains n ( n=select) corresponding \b relative \b 6D \b poses from the input data
  */
 UBITRACK_EXPORT void select_6DPoses( const std::vector< Math::Pose >& eyes, const std::vector< Math::Pose >& hands
 	, const std::size_t select
