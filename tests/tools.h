@@ -27,6 +27,7 @@
 
 #include <utMath/Vector.h>
 #include <utMath/Matrix.h>
+#include <utMath/MatrixOperations.h>
 #include <utMath/Quaternion.h>
 #include <utMath/Blas1.h>
 
@@ -105,6 +106,17 @@ typename MA::value_type homMatrixDiff( const MA& A, const MB& B )
 		}
 		
 	return std::min( dp, dm );
+}
+
+template< class MA, class MB > 
+typename MA::value_type rotMatrixDiff( const MA& R1, const MB& R2 )
+{
+
+	typedef typename MA::value_type value_type;
+	
+	// R1 * R2^T ( == // R1 * R2^-1 )
+	const MA R = boost::numeric::ublas::prod( R1, boost::numeric::ublas::trans( R2 ) );
+	return Ubitrack::Math::determinant( R );
 }
 
 static Ubitrack::Math::Quaternion randomQuaternion()

@@ -5,7 +5,6 @@ void TestBlas1();
 void TestBlas2();
 void TestVectorFunctions();
 void TestLapack();
-void TestQuaternionConversion();
 
 
 MathTest::MathTest()
@@ -15,5 +14,4 @@ MathTest::MathTest()
 	add( BOOST_TEST_CASE( &TestBlas2 ) );
 	add( BOOST_TEST_CASE( &TestVectorFunctions ) );
 	add( BOOST_TEST_CASE( &TestLapack ) );
-	// add( BOOST_TEST_CASE( &TestQuaternionConversion ) );
 }

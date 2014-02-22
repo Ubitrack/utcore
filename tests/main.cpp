@@ -2,6 +2,7 @@
 #include <boost/test/unit_test.hpp>
 #include <utUtil/Logging.h>
 #include "Math/MathTest.h"
+#include "MathUtil/MathUtilTest.h"
 #include "Geometry/GeometryTest.h"
 #include "Stochastic/StochasticTest.h"
 #include "Calibration/CalibTest.h"
@@ -19,6 +20,7 @@ test_suite* init_unit_test_suite( int, char* [] )
 
 	// this example will pass cause we know ahead of time number of expected failures
 	allTests->add( new MathTest );
+	allTests->add( new MathUtilTest );
 	allTests->add( new GeometryTest );
 	allTests->add( new StochasticTest );
 	allTests->add( new CalibrationTest );
