@@ -421,15 +421,15 @@ void generate_relative_pose6D_impl( const InputIterator itBegin, const InputIter
 } @endverbatim
  *
  * Example use case:\n
- * @code
- * std::vector< Pose > relPosesA; // <- should be filled with relative poses in one coordinate system (eye)
- * std::vector< Pose > relPosesB; // <- should be filled with corresponding relative poses from another coordinate system (hand)
- * std::vector< Pose > selectedRelPosesA; //  <- will be filled with n (n = select) relative poses selected from the input data
- * std::vector< Pose > selectedRelPosesB; //  <- will be filled with n (n = select) corresponding relative poses from the input data
+ @code
+ std::vector< Pose > relPosesA; // <- should be filled with relative poses in one coordinate system (eye)
+ std::vector< Pose > relPosesB; // <- should be filled with corresponding relative poses from another coordinate system (hand)
+ std::vector< Pose > selectedRelPosesA; //  <- will be filled with n (n = select) relative poses selected from the input data
+ std::vector< Pose > selectedRelPosesB; //  <- will be filled with n (n = select) corresponding relative poses from the input data
  
- * Math::Pose pose; // <- will be filled with a solution, if there is one.
- * estimatePose6D_6D6D( relPosesA, relPosesB, n, selectedRelPosesA, selectedRelPosesB );
- * @endcode
+ Math::Pose pose; // <- will be filled with a solution, if there is one.
+ estimatePose6D_6D6D( relPosesA, relPosesB, n, selectedRelPosesA, selectedRelPosesB );
+ @endcode
  *
  * @attention : This version implements method 3.6 from the publication. Other methods might come later...
  *

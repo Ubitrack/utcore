@@ -81,14 +81,15 @@ namespace Ubitrack { namespace Calibration {
 } @endverbatim
  *
  * Example use case:\n
- * @code
- * std::vector< Pose > posesA; // <- should be filled with poses in one coordinate system (eye)
- * std::vector< Pose > posesB; // <- should be filled with corresponding poses from another coordinate system (hand)
- * Math::Pose pose; // <- will be filled with a solution, if there is one.
- * estimatePose6D_6D6D( posesA, pose, posesB );
- * @endcode
+ @code
+ std::vector< Pose > posesA; // <- should be filled with poses in one coordinate system (eye)
+ std::vector< Pose > posesB; // <- should be filled with corresponding poses from another coordinate system (hand)
+ Math::Pose pose; // <- will be filled with a solution, if there is one.
+ estimatePose6D_6D6D( posesA, pose, posesB );
+ @endcode
  *
  * @attention : Other versions might occur in future, this algorithm is still under development.
+ * @note : Also have a look at \b select_6DPoses and \b generate_relative_6DPoses wihich might be of interest in future versions
  *
  * @param eyes \b 6D \b poses in the \b 1st coordinate system.
  * @param pose the pose, if a solution can be found.
