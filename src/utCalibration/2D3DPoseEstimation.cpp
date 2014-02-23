@@ -37,6 +37,7 @@
 #include "Function/ProjectivePoseNormalize.h"
 
 #include <utMath/MatrixOperations.h>
+#include <utMath/VectorFunctions.h>
 #include <utMath/Stochastic/BackwardPropagation.h>
 #include <utCalibration/Homography.h>
 #include <utCalibration/Projection.h>
@@ -113,14 +114,14 @@ Math::Pose poseFromHomographyImpl( const Matrix< T, 3, 3 >& H, const Matrix< T, 
 	ublas::column( R, 1 ) /= fYLen;
 
 	// compute third row as vector product
-	ublas::column( R, 2 ) = cross_prod( ublas::column( R, 0 ), ublas::column( R, 1 ) );
+	ublas::column( R, 2 ) = cross_product( ublas::column( R, 0 ), ublas::column( R, 1 ) );
 	
 	// normalize cross product
 	const T fZLen = ublas::norm_2( ublas::column( R, 2 ) );
 	ublas::column( R, 2 ) /= fZLen;
 	
 	// recompute y vector from x and z
-	ublas::column( R, 1 ) = cross_prod( ublas::column( R, 2 ), ublas::column( R, 0 ) );
+	ublas::column( R, 1 ) = cross_product( ublas::column( R, 2 ), ublas::column( R, 0 ) );
 
 #endif
 	// compute rotation quaternion from matrix
@@ -426,14 +427,14 @@ Math::ErrorPose computePose(
 				UBITRACK_THROW( "Pose estimation requires four coplanar points in general position but three of them are colinear" );
 			}
 
-			vZ = Math::cross_prod( vX, vZ );
+			vZ = Math::cross_product( vX, vZ );
 			f = ublas::norm_2( vZ );
 			vZ /= f;
 
 			Math::Matrix< double, 3, 3 > P;
 			ublas::row( P, 0 ) = vX;
 			ublas::row( P, 2 ) = vZ;
-			ublas::row( P, 1 ) = Math::cross_prod( vZ, vX );
+			ublas::row( P, 1 ) = Math::cross_product( vZ, vX );
 
 			// compute a translation
 			Math::Vector< double, 3 > t( -ublas::prod( P, p3d[ 0 ] ) );

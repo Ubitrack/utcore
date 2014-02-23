@@ -30,7 +30,9 @@
  */
 
 #include "Projection.h"
+#include <utMath/VectorFunctions.h>
 #include <utMath/Geometry/PointNormalization.h>
+
 
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 #include <boost/numeric/ublas/vector_proxy.hpp>
@@ -297,7 +299,7 @@ Math::Matrix< double, 4, 4 > offAxisProjectionMatrix( Math::Vector< double, 3 >&
 
 	Math::Vector< double, 3 > Xs = (lr - ll) / sw;
 	Math::Vector< double, 3 > Ys = (ul - ll) / sh;
-	Math::Vector< double, 3 > Zs = cross_prod(Xs, Ys);
+	Math::Vector< double, 3 > Zs = cross_product(Xs, Ys);
 
 	Math::Vector< double, 3 > Es = eye - ll;
 
