@@ -43,7 +43,7 @@
 #ifndef __UBITRACK_MATH_BLAS_LEVEL_2_H__
 #define __UBITRACK_MATH_BLAS_LEVEL_2_H__
 
-// #include "vector_traits.h"
+#include "Util/vector_traits.h"
 
 #include "Vector.h"
 #include "Matrix.h"
@@ -177,6 +177,31 @@ protected:
 		}
 	};
 };
+
+/**
+ * @ingroup math
+ * @brief A function that calculates the outer product of two vectors.
+ * 
+ * This function calculates the outer product of two vectors \f$ u \f$
+ * and \f$ v \f$ , each one consisting of n elements, as
+ * \f$ u \cdot v^T  \f$ .
+ *
+ * This function template wraps a call to the \b OuterProduct
+ * \b functor. The input vectors for calculating the outer product can be
+ * of any dimension. 
+ *
+ * @tparam VecType1 the type of the 1st input vectors.
+ * @tparam VecType1 the type of the 2nd input vectors.
+ * @param vec1 the \b 1st input vector
+ * @param vec2 the \b 2nd input vector
+ * @return the outer product of the two vectors as a Matrix
+ */
+template< typename VecType1, typename VecType2 >
+inline Math::Matrix< typename Math::Util::vector_traits< VecType1 >::value_type, Math::Util::vector_traits< VecType1 >::size, Math::Util::vector_traits< VecType2 >::size >
+outer_product( const VecType1& vec1, const VecType2& vec2 )
+{
+	return OuterProduct()( vec1, vec2 );
+}
 
 } } // namespace Ubitrack::Math
 

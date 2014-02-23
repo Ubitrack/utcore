@@ -351,6 +351,30 @@ inline void normalize( const ForwardIterator iBegin, const ForwardIterator iEnd,
 	std::transform( iBegin, iEnd, iOut, Normalize< typename std::iterator_traits< ForwardIterator >::value_type >() );
 }
 
+/**
+ * @ingroup math
+ * @brief A function that calculates the cross product of two vectors.
+ * 
+ * This function calculates the corss product \f$ v \f$ between two
+ * vectors \f$ a \f$ and \f$ b \f$ as \f$  v = a \times b \f$ .
+ *
+ *
+ * @tparam VecType the type of the input vectors.
+ * @param lhs the 1st input vector
+ * @param rhs the 2nd input vector
+ * @return the cross product vector
+ */
+template< typename VecType >
+inline Math::Vector< typename VecType::value_type, 3 > cross_product( const VecType& lhs, const VecType& rhs )
+{
+	typedef typename VecType::value_type T; //shortcut
+
+	const T x = ( lhs[ 1 ] * rhs[ 2 ] ) - ( lhs[ 2 ] * rhs[ 1 ] );
+	const T y = ( lhs[ 2 ] * rhs[ 0 ] ) - ( lhs[ 0 ] * rhs[ 2 ] );
+	const T z = ( lhs[ 0 ] * rhs[ 1 ] ) - ( lhs[ 1 ] * rhs[ 0 ] );
+	return Math::Vector< T, 3 >( x, y, z );
+}
+
 } } // namespace Ubitrack::Math
 
 #endif //__UBTRACK_MATH_VECTOR_FUNCTIONS_H__
