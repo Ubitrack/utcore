@@ -30,8 +30,8 @@
  */
 
 
-#ifndef _Ubitrack_Math_Quaternion_INCLUDED_
-#define _Ubitrack_Math_Quaternion_INCLUDED_
+#ifndef __UBITRACK_MATH_QUATERNION_H_INCLUDED__
+#define __UBITRACK_MATH_QUATERNION_H_INCLUDED__
 
 
 #include <utCore.h>
@@ -282,7 +282,7 @@ class UBITRACK_EXPORT Quaternion
 };
 
 
-/// stream output operator
+/// @internal stream output operator
 UBITRACK_EXPORT std::ostream& operator<<( std::ostream& s, const Quaternion& q );
 
 template< class M >
@@ -356,5 +356,5 @@ UBITRACK_EXPORT Quaternion linearInterpolate( const Quaternion& a, const Quatern
 
 } } // namespace Ubitrack::Math
 
-#endif // _Ubitrack_Math_Quaternion_INCLUDED_
+#endif // __UBITRACK_MATH_QUATERNION_H_INCLUDED__
 

@@ -30,8 +30,8 @@
  */
 
 
-#ifndef __Scalar_h_INCLUDED__
-#define __Scalar_h_INCLUDED__
+#ifndef __UBITRACK_MATH_SCALAR_H_INCLUDED__
+#define __UBITRACK_MATH_SCALAR_H_INCLUDED__
 
 #include <utCore.h>
 #include <boost/serialization/access.hpp>
@@ -89,12 +89,12 @@ protected:
 	{ ar & m_value; }
 };
 
-/** comparison for Scalars */
+/** @internal comparison for Scalars */
 template< class Builtin >
 bool operator<( Scalar< Builtin > a, Scalar< Builtin > b )
 { return a.m_value < b.m_value; }
 
 } } // namespace Ubitrack::Math
 
-#endif
+#endif // __UBITRACK_MATH_SCALAR_H_INCLUDED__
 

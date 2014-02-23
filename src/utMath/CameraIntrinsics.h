@@ -30,8 +30,8 @@
  */
 
 
-#ifndef __CAMERA_INTRINSICS_H_INCLUDED__
-#define __CAMERA_INTRINSICS_H_INCLUDED__
+#ifndef __UBITRACK_MATH_CAMERA_INTRINSICS_H_INCLUDED__
+#define __UBITRACK_MATH_CAMERA_INTRINSICS_H_INCLUDED__
 
 //std
 #include <ostream>
@@ -171,7 +171,7 @@ protected:
 	}
 };
 
-/** stream output operator */
+/** @internal stream output operator */
 template< typename T >
 std::ostream& operator<<( std::ostream& s, const CameraIntrinsics< T >& intrCam )
 {
@@ -188,5 +188,5 @@ std::ostream& operator<<( std::ostream& s, const CameraIntrinsics< T >& intrCam 
 
 } } // namespace Ubitrack::Math
 
-#endif //__CAMERA_INTRINSICS_H_INCLUDED__
+#endif //__UBITRACK_MATH_CAMERA_INTRINSICS_H_INCLUDED__
 

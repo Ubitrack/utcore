@@ -30,8 +30,8 @@
  */
 
 
-#ifndef __MATRIX_H_INCLUDED__
-#define __MATRIX_H_INCLUDED__
+#ifndef __UBITRACK_MATH_MATRIX_H_INCLUDED__
+#define __UBITRACK_MATH_MATRIX_H_INCLUDED__
 
 #include <utUtil/StaticAssert.h>
 
@@ -52,18 +52,31 @@
 
 namespace Ubitrack { namespace Math {
 
-	
-
-
-
 /**
  * @ingroup math
- * Wraps a boost::numeric::ublas::matrix for convenience.
- * Provides stream output, serialization and additional mathematical operations.
- * Note: we are storing the matrix column-major for compatibility with fortran/lapack. Sorry for any confusion this may cause.
- * @tparam M number of rows
- * @tparam N number of columns
- * @tparam T type (defaults to \c double)
+ * @brief A general \b Matrix data structure for mathematical purposes.
+ *
+ * This template is designed to provide a mathemtical matrix
+ * data-structure for the various mathematical functions within Ubitrack
+ * and store information in matrix format.
+ 
+ * Two template sepcializations for different types of programming are provided.
+ * One can either specify the size (=dimensions) of the \b Matrix at compile time
+ * as a second and third template arguement and therefore have a stack allocated
+ * Matrix for fast computations. Alternatively defining a size at compile time
+ * can be skipped, such that the \b Matrix of the given dimensions will be
+ * allocated dynamically on the heap.
+ *
+ * @note Several common mathematical functions for a Matrix are provided
+ * in \c Blas2.h, \c Blas3.h and \c MatrixOperations.h .
+ * @note Wraps a boost::numeric::ublas::matrix for convenience.
+ * @note Provides stream output and serialization as well as some additional mathematical operations.
+ * @attention We are storing the matrix column-major for compatibility with fortran/lapack. Please be aware of this.
+ * @attention see Matrix< T, 0, 0 > for the second specialization.
+ *
+ * @tparam T builtin type of matrix elements (e.g \c double or \c float )
+ * @tparam M number of matrix rows (defaults to zero for a heap allocated \b Matrix)
+ * @tparam N number of matrix columns (defaults to M for a symmetric \b Matrix)
  */
 template< typename T, std::size_t M = 0, std::size_t N = M > class Matrix
  	: public boost::numeric::ublas::matrix< T, boost::numeric::ublas::column_major, boost::numeric::ublas::bounded_array< T, M*N > >
@@ -243,13 +256,17 @@ template< typename T, std::size_t M = 0, std::size_t N = M > class Matrix
 
 };
 
-
 /**
  * @ingroup math
- * Specialization of Matrix-class for matrices of varying sizes.
- * The size of the matrix is determined at runtime.
- * Many functions are dropped since they are not neccessary yet( e.g. serialize ).
- * @tparam T type of elements, defaults to \c double
+ * @brief Specialization of \b Matrix for memory allocation during runtime.
+ *
+ * The size of the \b Matrix is determined at runtime, the heap is used
+ * for memory allocation in this case.
+ * Many functions are dropped since they are not necessary yet ( e.g. \c serialize ).
+ *
+ * @note Please see Matrix for more details on the stack allocated version.
+ *
+ * @tparam T builtin type of matrix elements (e.g \c double or \c float )
  */
 template< typename T >
 class Matrix< T, 0, 0 >
@@ -335,7 +352,7 @@ class Matrix< T, 0, 0 >
         }
 };
 
-/** stream output operator for a single Math::Matrix of a specific dimension */ 
+/** @internal stream output operator for a single Math::Matrix of a specific dimension */ 
 template<  typename T, std::size_t M, std::size_t N >
 std::ostream& operator<<( std::ostream& s, const Matrix< T, M, N >& m )
 {
@@ -348,7 +365,7 @@ std::ostream& operator<<( std::ostream& s, const Matrix< T, M, N >& m )
 	return s;
 }
 
-/** specialization for stream output operator for a single Math::Matrix of a (at compile time) unknown dimension */ 
+/** @internal specialization for stream output operator for a single Math::Matrix of a (at compile time) unknown dimension */ 
 template<  typename T >
 std::ostream& operator<<( std::ostream& s, const Matrix< T >& m )
 {
@@ -431,4 +448,4 @@ struct matrix_detail_traits< Ubitrack::Math::Matrix< T, sM, sN >, M >
 
 } } } } // namespace boost::numeric::bindings::traits
 
-#endif // __MATRIX_H_INCLUDED__
+#endif // __UBITRACK_MATH_MATRIX_H_INCLUDED__

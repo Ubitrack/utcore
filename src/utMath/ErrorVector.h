@@ -97,7 +97,7 @@ struct ErrorVector
 };
 
 
-/// stream output operator
+/// @internal stream output operator
 template< typename T, std::size_t N >
 std::ostream& operator<<( std::ostream& s, const ErrorVector< T, N >& v )
 {

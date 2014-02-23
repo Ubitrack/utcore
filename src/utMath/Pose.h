@@ -187,7 +187,7 @@ class UBITRACK_EXPORT Pose
 };
 
 
-/// stream output operator
+/// @internal stream output operator
 UBITRACK_EXPORT std::ostream& operator<<( std::ostream& s, const Pose& p );
 
 

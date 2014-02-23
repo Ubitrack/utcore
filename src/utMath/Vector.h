@@ -29,9 +29,8 @@
  * @author Daniel Pustka <pustka@in.tum.de>
  */
 
-
-#ifndef __VECTOR_H_INCLUDED__
-#define __VECTOR_H_INCLUDED__
+#ifndef __UBTRACK_MATH_VECTOR_H_INCLUDED__
+#define __UBTRACK_MATH_VECTOR_H_INCLUDED__
 
 #include <utUtil/StaticAssert.h>
 
@@ -50,15 +49,29 @@
 
 namespace Ubitrack { namespace Math {
 
-/// forward declaration of Vector class with default template parameter
-//template< std::size_t N, class T = double > class Vector;
-
 /**
  * @ingroup math
- * Wraps a boost::numeric::ublas::vector for convenience.
- * Provides stream output and serialization as well as additional mathematical operations.
- * @param N size of the vector
- * @param T type of elements, defaults to double
+ * @brief A general \b Vector data structure for mathematical purposes.
+ *
+ * This template is designed to provide a mathemtical vector
+ * data-structure for the various mathematical functions within Ubitrack
+ * and store vectorized information.
+ 
+ * Two template sepcializations for different types of programming are provided.
+ * One can either specify the size (=dimension) of the \b Vector at compile time
+ * as a second template arguement and therefore dafeine a stack allocated Vector
+ * for fast computations. Alternatively defining a size at compile time can be
+ * skipped, such that the \b Vector of the given dimension will be allocated 
+ * dynamically on the heap.
+ *
+ * @note Several common mathematical functions for a Vector are provided
+ * in \c Blas1.h, \c Blas2.h and \c VectorFunctions.h .
+ * @note Wraps a boost::numeric::ublas::vector for convenience.
+ * @note Provides stream output and serialization as well as some additional mathematical operations.
+ * @attention see Vector< T, 0 > for the second specialization.
+ *
+ * @tparam T builtin type of Vector elements (e.g \c double or \c float )
+ * @tparam N size of vector (defaults to zero for a heap allocated \b Vector)
  */
 template< typename T, std::size_t N = 0 > class Vector
 	: public boost::numeric::ublas::vector< T, boost::numeric::ublas::bounded_array< T, N > >
@@ -204,10 +217,15 @@ template< typename T, std::size_t N = 0 > class Vector
 
 /**
  * @ingroup math
- * Specialization of Vector-class for vectors of varying sizes.
- * The size of the vector is determined at runtime.
- * Many functions are dropped since they are not necessary yet ( e.g. serialize ).
- * @tparam T type of elements, defaults to double
+ * @brief Specialization of \b Vector for memory allocation during runtime.
+ *
+ * The size of the \b Vector is determined at runtime, the heap is used
+ * for memory allocation in this case.
+ * Many functions are dropped since they are not necessary yet ( e.g. \c serialize ).
+ *
+ * @note Please see Vector for more details on the stack allocated version.
+ *
+ * @tparam T builtin type of vector elements (e.g \c double or \c float )
  */
 template< typename T >
 class Vector< T, 0 >
@@ -259,7 +277,7 @@ class Vector< T, 0 >
         }
 };
 
-/** stream output operator for a single Math::Vector of a specific dimension */
+/** @internal stream output operator for a single Math::Vector of a specific dimension */
 template< typename T, std::size_t N >
 std::ostream& operator<<( std::ostream& s, const Vector< T, N >& v )
 {
@@ -271,7 +289,7 @@ std::ostream& operator<<( std::ostream& s, const Vector< T, N >& v )
 }
 
 
-/** specialization for stream output operator for a single Math::Vector of a (at compile time) unknown dimension */
+/** @internal specialization for stream output operator for a single Math::Vector of a (at compile time) unknown dimension */
 template< typename T >
 std::ostream& operator<<( std::ostream& s, const Vector< T >& v )
 {
@@ -283,7 +301,7 @@ std::ostream& operator<<( std::ostream& s, const Vector< T >& v )
 	return s;
 }
 
-/** stream output operator for any (stl-)container of Math::Vector */
+/** @internal stream output operator for any (stl-)container of Math::Vector */
 template< typename T, std::size_t N, template < typename , typename > class container >
 std::ostream& operator<<( std::ostream& s, const container< Math::Vector< T, N >, std::allocator< Math::Vector< T, N > > >& vec_cont )
 {
@@ -308,25 +326,6 @@ Vector < T, N > linearInterpolate ( const Vector< T, N >& x, const Vector< T, N 
 
 	return Vector< T, N >( w1*x + w2*y );
 }
-
-
-/**
- * computes the cross product of two 3-vectors
- * @param a first Vector
- * @param b second Vector
- * @return the cross product of a and b
- */
-template< class E1, class E2 >
-Vector< typename E1::value_type, 3 > cross_prod( 
-	const boost::numeric::ublas::vector_expression< E1 >& a, const boost::numeric::ublas::vector_expression< E2 >& b )
-{
-	Vector< typename E1::value_type, 3 > r;
-	r( 0 ) = a()( 1 ) * b()( 2 ) - a()( 2 ) * b()( 1 );
-	r( 1 ) = a()( 2 ) * b()( 0 ) - a()( 0 ) * b()( 2 );
-	r( 2 ) = a()( 0 ) * b()( 1 ) - a()( 1 ) * b()( 0 );
-	return r;
-}
-
 
 /** compares two vectors */
 template< typename T, std::size_t N >
@@ -370,4 +369,4 @@ struct vector_detail_traits< Ubitrack::Math::Vector< T, sN >, M >
 
 } } } } // namespace boost::numeric::bindings::traits
 
-#endif // __VECTOR_H_INCLUDED__
+#endif // __UBTRACK_MATH_VECTOR_H_INCLUDED__
