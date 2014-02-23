@@ -68,12 +68,12 @@ namespace Ubitrack { namespace Calibration {
  *
  * 
  * Example use case:\n
- * @code
- * std::vector< Vector3d > points3d; // <- should be filled with 3D object points
- * std::vector< Vector2d > points2d; // <- should be filled with projected 3D points 
- * Math::Pose pose; // <- will be filled with values
- * estimatePose6D_2D3D( points2d, pose, points3d, 50, 1e-06 );
- * @endcode
+ @code
+ std::vector< Vector3d > points3d; // <- should be filled with 3D object points
+ std::vector< Vector2d > points2d; // <- should be filled with projected 3D points 
+ Math::Pose pose; // <- will be filled with values
+ estimatePose6D_2D3D( points2d, pose, points3d, 50, 1e-06 );
+ @endcode
  *
  * @attention : There is a version of this function ovlerloaded with \c float instead of \c double parameters.
  *
