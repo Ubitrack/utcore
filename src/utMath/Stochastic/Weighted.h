@@ -30,8 +30,8 @@
  * @author Christian Waechter <christian.waechter@in.tum.de>
  */ 
 
-#ifndef __UBITRACK_MATH_WEIGHTED_H__
-#define __UBITRACK_MATH_WEIGHTED_H__
+#ifndef __UBITRACK_MATH_STOCHASTIC_WEIGHTED_H__
+#define __UBITRACK_MATH_STOCHASTIC_WEIGHTED_H__
  
 
 // std
@@ -104,16 +104,15 @@ struct Weighted
 		
 };
 
+/** @internal stream output operator for any weighted type */
+template< typename classType, typename weightType >
+std::ostream& operator<<( std::ostream& s, const Ubitrack::Math::Stochastic::Weighted< classType, weightType >& weighted )
+{
+	s << "weight=" << weighted.weight << " and type: \n";
+	s << static_cast< classType >( weighted );
+	return s;
+}
+
 } } } // namespace Ubitrack::Math::Stochastic
 
-#endif //__UBITRACK_MATH_WEIGHTED_H__
-
-
-/** stream output operator for any weighted type */
-// template< typename classType, typename weightType >
-// std::ostream& operator<<( std::ostream& s, const Ubitrack::Math::Stochastic::Weighted< classType, weightType >& weighted )
-// {
-	// s << "weight=" << weighted.weight << "\n";
-	// s << static_cast< classType >( weighted );
-	// return s;
-// }
+#endif //__UBITRACK_MATH_STOCHASTIC_WEIGHTED_H__
