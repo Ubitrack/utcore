@@ -57,7 +57,7 @@ struct Gaussian
 	T variance;
 	
 	/** the sum of squared diagonal entries of the covariance */
-	T squarredVariance;
+	T squaredVariance;
 };
 
 /// @internal a function that sets all values of the gaussian to zero
@@ -67,7 +67,7 @@ void reset( Gaussian< T, N > &gaussian )
 	// set all values of the gaussian type to zero
 	std::fill( gaussian.mean, gaussian.mean+N, static_cast< T >( 0 ) );
 	std::fill( gaussian.covariance, gaussian.covariance+(N*N), static_cast< T >( 0 ) );
-	gaussian.variance = gaussian.squarredVariance = 0;
+	gaussian.variance = gaussian.squaredVariance = 0;
 }
 
 
@@ -100,9 +100,9 @@ bool estimate_gaussian( const InputIterator1 itBegin, const InputIterator1 itEnd
 	
 	{//sum up the squared diagonal entries
 		for( std::size_t i( 0 ); i < N; ++i )	
-			gaussian.squarredVariance += ( gaussian.covariance[i*N+i]  );
+			gaussian.squaredVariance += ( gaussian.covariance[i*N+i]  );
 			
-		gaussian.variance = std::sqrt( gaussian.squarredVariance );
+		gaussian.variance = std::sqrt( gaussian.squaredVariance );
 	}
 	return true;
 };
@@ -144,9 +144,9 @@ bool estimate_gaussian( const InputIterator itBegin, const InputIterator itEnd, 
 	
 	{ //sum up the squared diagonal entries
 		for( std::size_t i( 0 ); i < N; ++i )	
-			gaussian.squarredVariance += ( gaussian.covariance[i*N+i] );
+			gaussian.squaredVariance += ( gaussian.covariance[i*N+i] );
 			
-		gaussian.variance = std::sqrt( gaussian.squarredVariance );
+		gaussian.variance = std::sqrt( gaussian.squaredVariance );
 	}
 	return true;
 }
@@ -213,9 +213,9 @@ bool estimate_gaussian_index( const InputIterator1 itBegin, const InputIterator1
 	{
 		//sum up the squared diagonal entries
 		for( std::size_t i( 0 ); i < N; ++i )	
-			gaussian.squarredVariance += ( gaussian.covariance[i*N+i] );
+			gaussian.squaredVariance += ( gaussian.covariance[i*N+i] );
 			
-		gaussian.variance = std::sqrt( gaussian.squarredVariance );
+		gaussian.variance = std::sqrt( gaussian.squaredVariance );
 	}
 	return true;
 }
@@ -226,7 +226,7 @@ bool estimate_gaussian_index( const InputIterator1 itBegin, const InputIterator1
 template< typename T, std::size_t N >
 std::ostream& operator<<( std::ostream& s, const Gaussian< T, N >& gauss )
 {
-	s << "Variance   : " << gauss.variance << "\nVariance^2 : " << gauss.squarredVariance << "\n";
+	s << "Variance   : " << gauss.variance << "\nVariance^2 : " << gauss.squaredVariance << "\n";
 	for( std::size_t i1( 0 ); i1<N; ++i1 )
 	{
 		s << std::setfill(' ')
