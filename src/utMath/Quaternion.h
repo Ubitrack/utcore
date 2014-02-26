@@ -43,7 +43,6 @@
 //          included AFTER all boost/archive headers
 #include <boost/serialization/access.hpp>
 #include <boost/math/quaternion.hpp>
-#include <boost/version.hpp>
 
 namespace Ubitrack { namespace Math {
 
@@ -60,11 +59,8 @@ template< typename T, std::size_t M, std::size_t N > class Matrix;
 class UBITRACK_EXPORT Quaternion
  	: public boost::math::quaternion<double>
 {
-
-// is defined in boost/math/quaternion. (but starting with which version - i have not yet checked ..)
-#if BOOST_VERSION < 105000
 	typedef double value_type;
-#endif
+	
 	friend class boost::serialization::access;
 
 	public:
