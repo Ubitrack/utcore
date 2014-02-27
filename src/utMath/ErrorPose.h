@@ -62,7 +62,6 @@ x' = q * e_r * x * e_r^* * q^* + t + e_t
 class UBITRACK_EXPORT ErrorPose
 	: public Pose
 {
-	typedef double value_type;
 
 	protected:
 
@@ -70,6 +69,8 @@ class UBITRACK_EXPORT ErrorPose
 	Matrix< double, 6, 6 > m_covariance;
 	
 	public:
+
+                typedef double value_type;
 
 		/** doesn't make much sense, but sometimes we need a default constructor */
 		ErrorPose()
