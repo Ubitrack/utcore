@@ -56,8 +56,6 @@ template< typename T, std::size_t M, std::size_t N > class Matrix;
 class UBITRACK_EXPORT Pose
 {
 
-	typedef double value_type;
-	
 	/** the rotational part of the pose, defined as a quaternion */
 	Quaternion m_rotation;
 	
@@ -68,6 +66,8 @@ class UBITRACK_EXPORT Pose
 	friend class ::boost::serialization::access;
 
 	public:		
+
+                typedef double value_type;
 
 		/** doesn't make much sense, but sometimes we need a default constructor */
 		Pose()
