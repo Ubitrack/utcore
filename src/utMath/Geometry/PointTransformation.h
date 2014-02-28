@@ -207,15 +207,15 @@ public:
  * - \b 3D : @f$ \hat{p}_{4x1} = M_{4x4} \cdot [p_{1} p_{2} p_{3} p_{4}]^T @f$
  * 
  * Example use case:\n
- * @code
- * Matrix< double, 3, 4 > trans; // <- should be filled with values
- * std::vector< Vector3d > points3d; // <- should be filled with values
- * transform_points( trans, points3d.begin(), points3d.end(), points3d.begin() );
- * // or
- * std::vector< Vector3d > points3dOut; // <- will be filled with values
- * points3dOut.reserve( n ); // <- storage allocation via reserve() and number of elements( =n )
- * transform_points( trans, points3d.begin(), points3d.end(), std::back_inserter( points3dOut ) ); 
- * @endcode
+ @code
+ Matrix< double, 3, 4 > trans; // <- should be filled with values
+ std::vector< Vector3d > points3d; // <- should be filled with values
+ transform_points( trans, points3d.begin(), points3d.end(), points3d.begin() );
+ // or
+ std::vector< Vector3d > points3dOut; // <- will be filled with values
+ points3dOut.reserve( n ); // <- storage allocation via reserve() and number of elements( =n )
+ transform_points( trans, points3d.begin(), points3d.end(), std::back_inserter( points3dOut ) ); 
+ @endcode
  * 
  * @tparam T built-in type of matrix and input/output vectors ( e.g. \c double or \c float )
  * @tparam M first dimension of matrix (rows)

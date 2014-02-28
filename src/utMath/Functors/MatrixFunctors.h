@@ -61,10 +61,6 @@ public:
 	template< typename T >
 	T operator() ( const Math::Matrix< T, 2, 2 >& matrix ) const
     {
-		const T A1_1 = matrix( 0, 0 );
-		const T A1_2 = matrix( 0, 1 );
-		const T A2_1 = matrix( 1, 0 );
-		const T A2_2 = matrix( 1, 1 );
 		return ( matrix( 0, 0 )*matrix( 1, 1 ) - matrix( 0, 1 )*matrix( 1, 0 ) );
     }
 	
@@ -78,14 +74,14 @@ public:
 	template< typename T >
 	T operator() ( const Math::Matrix< T, 3, 3 >& matrix ) const
     {
-		const T val1 = matrix( 0, 0 )*matrix( 1, 1 )*matrix( 1, 1 );
-		const T val2 = matrix( 0, 0 )*matrix( 1, 2 )*matrix( 1, 2 );
-		const T val3 = matrix( 1, 2 )*matrix( 1, 0 )*matrix( 1, 1 );
-		const T val4 = matrix( 1, 2 )*matrix( 1, 2 )*matrix( 2, 0 );
-		const T val5 = matrix( 0, 2 )*matrix( 1, 0 )*matrix( 1, 2 );
+		const T val1 = matrix( 0, 0 )*matrix( 1, 1 )*matrix( 2, 2 );
+		const T val2 = matrix( 0, 0 )*matrix( 1, 2 )*matrix( 2, 1 );
+		const T val3 = matrix( 0, 1 )*matrix( 1, 2 )*matrix( 2, 0 );
+		const T val4 = matrix( 0, 1 )*matrix( 1, 0 )*matrix( 2, 2 );
+		const T val5 = matrix( 0, 2 )*matrix( 1, 0 )*matrix( 2, 1 );
 		const T val6 = matrix( 0, 2 )*matrix( 1, 1 )*matrix( 2, 0 );
 		
-		return val1-val2-val3+val4+val5-val6;
+		return val1-val2+val3-val4+val5-val6;
     }
 	
 #ifdef HAVE_LAPACK

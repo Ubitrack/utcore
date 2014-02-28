@@ -30,15 +30,17 @@
  */
 
 
-#ifndef __POSE_H_INCLUDED__
-#define __POSE_H_INCLUDED__
+#ifndef __UBITRACK_MATH_POSE_H_INCLUDED__
+#define __UBITRACK_MATH_POSE_H_INCLUDED__
+
 
 #include <utCore.h>
-#include "cast_assign.h"
-#include <boost/numeric/ublas/vector_proxy.hpp>
-#include <boost/numeric/ublas/matrix_proxy.hpp>
 #include "Vector.h"
 #include "Quaternion.h"
+#include "Util/cast_assign.h"
+
+#include <boost/numeric/ublas/vector_proxy.hpp>
+#include <boost/numeric/ublas/matrix_proxy.hpp>
 
 
 namespace Ubitrack { namespace Math {
@@ -54,10 +56,18 @@ template< typename T, std::size_t M, std::size_t N > class Matrix;
 class UBITRACK_EXPORT Pose
 {
 
+	/** the rotational part of the pose, defined as a quaternion */
+	Quaternion m_rotation;
+	
+	/** the translational part of the pose, defined as a vector */
+	Vector< double, 3 >	m_translation;
+	
 	friend UBITRACK_EXPORT std::ostream& operator<<( std::ostream& s, const Pose& p );
 	friend class ::boost::serialization::access;
 
 	public:		
+
+                typedef double value_type;
 
 		/** doesn't make much sense, but sometimes we need a default constructor */
 		Pose()
@@ -119,7 +129,7 @@ class UBITRACK_EXPORT Pose
 			boost::numeric::ublas::vector_range< VType > rotSub( v, boost::numeric::ublas::range( 3, 7 ) );
 			m_rotation.toVector( rotSub );
 			boost::numeric::ublas::vector_range< VType > posSub( v, boost::numeric::ublas::range( 0, 3 ) );
-			vector_cast_assign( posSub, m_translation );
+			Math::Util::vector_cast_assign( posSub, m_translation );
 		}
 		
 		/**
@@ -174,14 +184,10 @@ class UBITRACK_EXPORT Pose
 			ar & m_rotation;
 			ar & m_translation;
 		}
-
-		Quaternion m_rotation;
-		Vector< double, 3 >	m_translation;
-
 };
 
 
-/// stream output operator
+/// @internal stream output operator
 UBITRACK_EXPORT std::ostream& operator<<( std::ostream& s, const Pose& p );
 
 
@@ -197,5 +203,5 @@ UBITRACK_EXPORT Pose linearInterpolate ( const Pose& x, const Pose& y, double t 
 
 } } // namespace Ubitrack::Math
 
-#endif // __POSE_H_INCLUDED__
+#endif // __UBITRACK_MATH_POSE_H_INCLUDED__
 

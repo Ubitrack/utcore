@@ -30,16 +30,19 @@
  */
 
 
-#ifndef __ErrorPose_h_INCLUDED__
-#define __ErrorPose_h_INCLUDED__
+#ifndef __UBITRACK_MATH_ERRORPOSE_H_INCLUDED__
+#define __UBITRACK_MATH_ERRORPOSE_H_INCLUDED__
 
 #include <utCore.h>
-#include "Pose.h"
-#include "Matrix.h"
+// #include "Pose.h"
+// #include "Matrix.h"
 #include "ErrorVector.h"
 
 namespace Ubitrack { namespace Math {
 
+//forward declaration to reduce header including
+class Pose;
+template< typename T, std::size_t M, std::size_t N > class Matrix;
 
 /**
  * @ingroup math
@@ -59,9 +62,15 @@ x' = q * e_r * x * e_r^* * q^* + t + e_t
 class UBITRACK_EXPORT ErrorPose
 	: public Pose
 {
-	friend class ::boost::serialization::access;
 
+	protected:
+
+	/** the 6-by-6 matrix that represents the covariance */
+	Matrix< double, 6, 6 > m_covariance;
+	
 	public:
+
+                typedef double value_type;
 
 		/** doesn't make much sense, but sometimes we need a default constructor */
 		ErrorPose()
@@ -116,6 +125,8 @@ class UBITRACK_EXPORT ErrorPose
 
 	protected:
 
+		friend class ::boost::serialization::access;
+		
 		/// serialize Pose object
 		template< class Archive > 
 		void serialize( Archive& ar, const unsigned int version )
@@ -123,27 +134,26 @@ class UBITRACK_EXPORT ErrorPose
 			Pose::serialize( ar, version );
 			ar & m_covariance;
 		}
-
-		Matrix< double, 6, 6 > m_covariance;
 };
 
 
 /**
- * multiplies two poses and propagates the error of both poses
+ * @internal multiplies two poses and propagates the error of both poses
  */
 UBITRACK_EXPORT ErrorPose operator*( const ErrorPose& a, const ErrorPose& b );
 
 /**
- * multiplies two poses and propagates the error of the first pose
+ * @internal multiplies two poses and propagates the error of the first pose
  */
 UBITRACK_EXPORT ErrorPose operator*( const ErrorPose& a, const Pose& b );
 
 /**
- * multiplies two poses and propagates the error of the second pose
+ * @internal multiplies two poses and propagates the error of the second pose
  */
 UBITRACK_EXPORT ErrorPose operator*( const Pose& a, const ErrorPose& b );
 
 /**
+ * @internal 
  * Propagates the error to a point of interest.
  * The function performs a pose-times-vector multiplication from a coordinate frame X to a coordinate frame Y.
  * @param a pose with error
@@ -170,10 +180,10 @@ UBITRACK_EXPORT ErrorVector< double, 3 > operator*( const ErrorPose& a, const Ma
  */
 UBITRACK_EXPORT ErrorPose linearInterpolate ( const ErrorPose& x, const ErrorPose& y, double t );
 
-/// stream output operator
+/// @internal stream output operator
 UBITRACK_EXPORT std::ostream& operator<<( std::ostream& s, const ErrorPose& p );
 
 } } // namespace Ubitrack::Math
 
-#endif
+#endif // __UBITRACK_MATH_ERRORPOSE_H_INCLUDED__
 

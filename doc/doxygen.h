@@ -189,6 +189,12 @@ namespace Ubitrack {
 		 
 		namespace Stochastic{}
 		
+		/**
+		 * Functors and type traits for mathematical types sopporting template programming
+		 */
+		 
+		namespace Util{}
+		
 	}
 
 	/**

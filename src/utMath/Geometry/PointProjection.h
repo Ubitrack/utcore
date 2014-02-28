@@ -70,6 +70,18 @@ public:
 		return vec_in;
 	}
 	
+	
+	/// @internal Specialization of \c bracket-operator for projection of \b 2D \b points
+	template< typename T >
+	Math::Vector< T, 2 > operator() ( const Math::Matrix< T, 3, 3 > &projMat, const Math::Vector< T, 2 > &vec ) const
+	{
+		const T e1 = projMat( 0, 0 ) * vec( 0 ) + projMat( 0, 1 ) * vec( 1 ) + projMat( 0, 3 );
+		const T e2 = projMat( 1, 0 ) * vec( 0 ) + projMat( 1, 1 ) * vec( 1 ) + projMat( 1, 3 );
+		const T e3 = projMat( 2, 0 ) * vec( 0 ) + projMat( 2, 1 ) * vec( 1 ) + projMat( 2, 3 );
+		return Math::Vector< T, 2 > ( e1/e3, e2/e3 );
+	}
+	
+	
 	/// @internal Specialization of \c bracket-operator for projection of \b 2D \b points
 	template< typename T >
 	Math::Vector< T, 2 > operator() ( const Math::Matrix< T, 3, 4 > &projMat, const Math::Vector< T, 2 > &vec ) const
@@ -121,15 +133,15 @@ public:
  * \n and finally projects the points via @f$ [\hat{p_{1}} \hat{p_{2}}]^T / \hat{p_{3}} @f$
  * 
  * Example use case:\n
- * @code
- * Matrix< double, 3, 4 > proj; // <- should be filled with values
- * std::vector< Vector3d > points3d; // <- should be filled with values
- * std::vector< Vector2d > points2d; // <- will be filled with values
- * project_points( proj, points3d.begin(), points3d.end(), points2d.begin() );
- * // or
- * poins2d.reserve( n ); // <- storage allocation via reserve() and number of elements( =n )
- * project_points( proj, points3d.begin(), points3d.end(), std::back_inserter( points2d ) );
- * @endcode
+ @code
+ Matrix< double, 3, 4 > proj; // <- should be filled with values
+ std::vector< Vector3d > points3d; // <- should be filled with values
+ std::vector< Vector2d > points2d; // <- will be filled with values
+ project_points( proj, points3d.begin(), points3d.end(), points2d.begin() );
+ // or
+ poins2d.reserve( n ); // <- storage allocation via reserve() and number of elements( =n )
+ project_points( proj, points3d.begin(), points3d.end(), std::back_inserter( points2d ) );
+ @endcode
  * 
  * @tparam T built-in type of matrix and input/output vectors ( e.g. \c double or \c float )
  * @tparam M first dimension of matrix (rows)

@@ -30,13 +30,14 @@
  * @author Christian Waechter <christian.waechter@in.tum.de>
  */ 
 
-#ifndef __UBITRACK_K_MEANS_H__
-#define __UBITRACK_K_MEANS_H__
+#ifndef __UBITRACK_MATH_STOCHASTIC_K_MEANS_H__
+#define __UBITRACK_MATH_STOCHASTIC_K_MEANS_H__
  
 
 // Ubitrack
 #include "../Vector.h"
 #include "../Blas1.h" // InnnerProduct
+#include "../VectorFunctions.h" // Distance
 #include "../Random/Scalar.h" // Randomness needed for kmeans++
 
 // some helper header/template stuff
@@ -53,40 +54,6 @@
 #include <functional>
 
 namespace {
-
-// helper struct, might be (re)moved later
-struct SquarredDistance
-{
-	template< template< typename, std::size_t > class VecType, typename T, std::size_t N >
-	T operator()( const VecType< T, N >& vec ) const
-	{
-		return Ubitrack::Math::InnerProduct()( vec );
-	}
-
-	template< template< typename, std::size_t > class VecType, typename T, std::size_t N >
-	T operator()( const VecType< T, N >& vec1, const VecType< T, N >& vec2 ) const
-	{
-		const VecType< T, N > vec = vec1 - vec2;
-		return this->operator()( vec );
-	}
-};
-
-// helper struct, might be (re)moved later
-struct Distance
-{
-	template< template< typename, std::size_t > class VecType, typename T, std::size_t N >
-	T operator()( const VecType< T, N >& vec ) const
-	{
-		return Ubitrack::Math::Norm_2()( vec );
-	}
-
-	template< template< typename, std::size_t > class VecType, typename T, std::size_t N >
-	T operator()( const VecType< T, N >& vec1, const VecType< T, N >& vec2 ) const
-	{
-		const VecType< T, N > vec = vec1 - vec2;
-		return this->operator()( vec );
-	}
-};
 
 // small internal template to support k-means: 
 // assigns the indices, according to the minimal distance between
@@ -250,7 +217,7 @@ void copy_probability( const InputIterator iBegin, const InputIterator iEnd, con
 	// calculate distances to first element
 	std::vector< value_type > distances;
 	distances.reserve( n );
-	std::transform( iBegin, iEnd, Util::identity< vector_type >( *itNewOut ).begin(), std::back_inserter( distances ), distanceFunc );
+	std::transform( iBegin, iEnd, Ubitrack::Util::identity< vector_type >( *itNewOut ).begin(), std::back_inserter( distances ), distanceFunc );
 
 	value_type dist_sum = std::accumulate( distances.begin(), distances.end(), static_cast< value_type >( 0 ) );
 
@@ -271,7 +238,7 @@ void copy_probability( const InputIterator iBegin, const InputIterator iEnd, con
 		// calculate the distances to the new value
 		std::vector< value_type > distances_temp;
 		distances_temp.reserve( n );
-		std::transform( iBegin, iEnd, Util::identity< vector_type >( *itNewOut ).begin(), std::back_inserter( distances_temp ), distanceFunc );
+		std::transform( iBegin, iEnd, Ubitrack::Util::identity< vector_type >( *itNewOut ).begin(), std::back_inserter( distances_temp ), distanceFunc );
 
 		// determine the minimal distance to one of earlier chosen points
 		std::transform( distances.begin(), distances.end(), distances_temp.begin(), distances.begin(), std::min< value_type > );
@@ -417,9 +384,9 @@ void k_means( const InputIterator iBeginValues, const InputIterator iEndValues, 
 	// copy_probability( iBeginValues, iEndValues, n_cluster, means.begin() ) );
 	// std::cout << "Means probability " << means << std::endl;
 	
-	copy_probability( iBeginValues, iEndValues, n_cluster, std::back_inserter( means ), Distance() );
+	copy_probability( iBeginValues, iEndValues, n_cluster, std::back_inserter( means ), Distance< vector_type >() );
 	
-	k_means( iBeginValues, iEndValues, means.begin(), means.end(), itIndices, SquarredDistance() );
+	k_means( iBeginValues, iEndValues, means.begin(), means.end(), itIndices, SquaredDistance< vector_type >() );
 	
 	// copy the resulting mean values to output iterator
 	std::copy( means.begin(), means.end(), itCentroids );
@@ -427,4 +394,4 @@ void k_means( const InputIterator iBeginValues, const InputIterator iEndValues, 
 
 } } } // namespace Ubitrack::Math::Stochastic
 
-#endif //__UBITRACK_K_MEANS_H__
+#endif //__UBITRACK_MATH_STOCHASTIC_K_MEANS_H__

@@ -1,14 +1,27 @@
 
 
-#ifndef __VECTOR_TRAITS_H_INCLUDED__
-#define __VECTOR_TRAITS_H_INCLUDED__
+#ifndef __UBITRACK_MATH_UTIL_VECTOR_TRAITS_H_INCLUDED__
+#define __UBITRACK_MATH_UTIL_VECTOR_TRAITS_H_INCLUDED__
+
 
 //#include <type_traits> //integral_constant <- commented to compile on standard gcc (without c++0x features)
 #include <cstddef> // std::size_t
-#include "Vector.h"
 
 namespace Ubitrack { namespace Math {
 
+//some forward declaration
+template< typename T, std::size_t N > class Vector;
+
+namespace Util {
+
+/**
+ * @internal Constant value struct
+ *
+ * This functor reassembles the integral constant struct,
+ * similar to the c++0x standard and supports the writing
+ * of compile time dependend code.
+ * see also http://en.cppreference.com/w/cpp/types/integral_constant
+ */
 template< class T, T v >
 struct constant_value
 {
@@ -18,32 +31,38 @@ struct constant_value
 	// operator T() { return v; } //<- automatic type conversion, not activated right now
 };
 
+/** @internal specialization for boolean true type */
 typedef constant_value< bool, true > true_type;
+
+/** @internal specialization for boolean false type */
 typedef constant_value< bool, false > false_type;
 
-
-
+/** @internal identifies if a Vectors' size is known at compile time */
 template< typename VType >
 struct has_fixed_storage
 	: public false_type{};
-	
+
+/** @internal specialization for unbounded Vectors */
 template< typename T >
 struct has_fixed_storage< Math::Vector< T, 0 > >
 	: public false_type{};
 
+/** @internal specialization for bounded Vectors */
 template< typename T, std::size_t N >
 struct has_fixed_storage< Math::Vector< T, N > >
 	: public true_type{};
 
+/** @internal identifies if a Vectors' size is unknown at compile time */
 template< typename VType >
 struct has_dynamic_storage
 	: public true_type{};
 
-	
+/** @internal specialization for unbounded Vectors */
 template< typename T >
 struct has_dynamic_storage< Math::Vector< T, 0 > >
 	: public true_type{};
 
+/** @internal specialization for bounded Vectors */
 template< typename T, std::size_t N >
 struct has_dynamic_storage< Math::Vector< T, N > >
 	: public false_type{};
@@ -53,6 +72,15 @@ struct fixed_storage_tag {};
 struct dynamic_storage_tag {};
 struct unknown_storage_tag {};
 
+
+/**
+ * @internal Vector_Traits
+ *
+ * This functor supports the writing of compile time dependend code
+ * by providing general type information of the underlaying
+ * Vector. Due to templating this functor can be overloaded for
+ * various types of vector by template specialization.
+ */
 template< typename VType >
 struct vector_traits
 {
@@ -62,8 +90,7 @@ struct vector_traits
 	typedef typename VType::value_type value_type;
 };
 
-
-
+/** @internal specialization for unbounded Vectors */
 template< typename T >
 struct vector_traits< Math::Vector< T, 0 > >
 {
@@ -80,7 +107,7 @@ struct vector_traits< Math::Vector< T, 0 > >
 	}
 };
 
-
+/** @internal specialization for bounded Vectors */
 template< typename T, std::size_t N >
 struct vector_traits< Math::Vector< T, N > >
 {
@@ -93,6 +120,6 @@ struct vector_traits< Math::Vector< T, N > >
 	static const size_type size = N;
 };
 
-}} // namespace Ubitrack::Math
+} } } // namespace Ubitrack::Math::Util
 
-#endif //__VECTOR_TRAITS_H_INCLUDED__
+#endif //__UBITRACK_MATH_UTIL_VECTOR_TRAITS_H_INCLUDED__

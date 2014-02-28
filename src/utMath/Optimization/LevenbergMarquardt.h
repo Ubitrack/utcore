@@ -76,7 +76,8 @@ enum LmSolverType { lmUseCholesky, lmUseQR, lmUseSVD };
 template< class P, class X, class Y, class TC, class NT, class WFT > 
 typename X::value_type weightedLevenbergMarquardt( P& problem, X& params, const Y& measurement, 
 	const TC& terminationCriteria, const NT& normalize = OptNoNormalize(), 
-	 const WFT& weightFunction = OptNoWeightFunction(), LmSolverType solver = lmUseCholesky )
+	 const WFT& weightFunction = OptNoWeightFunction(), LmSolverType solver = lmUseCholesky,
+	 const typename X::value_type fStepSize = 1.0, const typename X::value_type fStepFactor = 10.0 )
 {
 	namespace lapack = boost::numeric::bindings::lapack;
 	namespace blas = boost::numeric::bindings::blas;
@@ -118,7 +119,7 @@ typename X::value_type weightedLevenbergMarquardt( P& problem, X& params, const 
 	OPT_LOG_DEBUG( "Levenberg-Marquardt residual 0: " << fErrPrev );
 
 	// start optimization loop
-	T fLambda = T( 1 );
+	T fLambda = T( fStepSize );
 	int iteration = 0;
 	bool bTerminate = false;
 	while ( !bTerminate )
@@ -202,10 +203,10 @@ typename X::value_type weightedLevenbergMarquardt( P& problem, X& params, const 
 
 		// update parameters
 		if ( fErr >= fErrPrev )
-			fLambda *= T( 10 );
+			fLambda *= T( fStepFactor );
 		else
 		{
-			fLambda /= T( 10 );
+			fLambda /= T( fStepFactor );
 			params = newParams;
 
 			// swap measurementDiff
@@ -245,8 +246,8 @@ typename X::value_type weightedLevenbergMarquardt( P& problem, X& params, const 
 template< class P, class X, class Y, class TC, class NT > 
 typename X::value_type levenbergMarquardt( P& problem, X& params, const Y& measurement, 
 	const TC& terminationCriteria, const NT& normalize = OptNoNormalize(), 
-	LmSolverType solver = lmUseCholesky )
-{ return weightedLevenbergMarquardt( problem, params, measurement, terminationCriteria, normalize, OptNoWeightFunction(), solver ); }
+	LmSolverType solver = lmUseCholesky, const typename X::value_type stepSize = 1.0, const typename X::value_type stepFactor = 10.0  )
+{ return weightedLevenbergMarquardt( problem, params, measurement, terminationCriteria, normalize, OptNoWeightFunction(), solver, stepSize, stepFactor ); }
 
 }}} // namespace Ubitrack::Math::Optimization
 

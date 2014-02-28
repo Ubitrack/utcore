@@ -52,6 +52,14 @@ namespace Ubitrack { namespace Math {
 template< typename T, std::size_t N >
 struct ErrorVector
 {
+	typedef T value_type;
+	
+	/** vector contents */
+	Math::Vector< T, N > value;
+
+	/** covariance matrix of \c value */
+	Math::Matrix< T, N, N > covariance;
+	
 	/** default constructor */
 	ErrorVector()
 	{}
@@ -63,11 +71,6 @@ struct ErrorVector
 		, covariance( _covariance )
 	{}
 
-	/** vector contents */
-	Math::Vector< T, N > value;
-
-	/** covariance matrix of \c value */
-	Math::Matrix< T, N, N > covariance;
 
 	/** compute RMS value (in this case: square-root of trace of covariance matrix) */
 	T getRMS( void ) 
@@ -94,7 +97,7 @@ struct ErrorVector
 };
 
 
-/// stream output operator
+/// @internal stream output operator
 template< typename T, std::size_t N >
 std::ostream& operator<<( std::ostream& s, const ErrorVector< T, N >& v )
 {
