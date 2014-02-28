@@ -67,8 +67,11 @@ opts.Add( 'BOOST_SUFFIX', 'Suffix to add to boost library names', default_lib_su
 libName = "BOOST"
 boost_libs = lambda l: boost_libs_proto( l, opts[ 'BOOST_SUFFIX' ] )
 
-#[{additional compile settings}, {include files}, {language (C++)},{library to link against (optional)}, {source code (optional)}]
-compileSettings =  [{} , "boost/thread.hpp", "C++", boost_libs( "thread" ), "boost::mutex m; boost::mutex::scoped_lock l( m );"]
+if sys.platform == 'win32':
+	libs = boost_libs("thread")
+else:
+	libs = boost_libs("system")
+compileSettings =  [{} , libs, "boost/thread.hpp", "C++", "boost::mutex m; boost::mutex::scoped_lock l( m );"]
 libFinder = standardLibFinder(libName,compileSettings)
 
 
@@ -79,6 +82,8 @@ boost_options = configHelper.getLibraryOptions()
 # in windows boost libs are linked automatically
 if sys.platform == 'win32':
 	boost_options['LIBS'] = []
+else:
+	boost_options['LIBS'] += [ boost_libs("system") ]
 
 
 have_boost = configHelper.haveLib()

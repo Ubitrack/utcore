@@ -45,6 +45,8 @@ sources = globSourceFiles(  '*.cpp' )
 for dir in subdirs:	
 	headers += globSourceFiles( dir + '/*.h' )
 	sources += globSourceFiles( dir + '/*.cpp' )
+utcore_libs_lapack = [ 'lapack' ]
+utcore_libs_boost = boost_libs( [ 'system', 'filesystem', 'regex' ] )
 
 
 # c)		
@@ -53,6 +55,10 @@ utcore_options ['CPPPATH'] += [ getCurrentPath() ]
 
 env = masterEnv.Clone()
 env.AppendUnique( **utcore_options )
+# Add all libraries required by utCore
+env.AppendUnique( LIBS = utcore_libs_boost )
+env.AppendUnique( LIBS = utcore_libs_lapack )
+
 
 # d)
 if sys.platform == 'win32':	
