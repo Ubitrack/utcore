@@ -64,7 +64,8 @@ class UBITRACK_EXPORT Quaternion
 
 	public:
 
-                typedef double value_type;
+		typedef double value_type;
+		
 		/**
 		 * default constructor, sometimes needed
 		 */

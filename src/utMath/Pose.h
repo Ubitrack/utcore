@@ -67,7 +67,7 @@ class UBITRACK_EXPORT Pose
 
 	public:		
 
-                typedef double value_type;
+		typedef double value_type;
 
 		/** doesn't make much sense, but sometimes we need a default constructor */
 		Pose()
