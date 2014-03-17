@@ -139,7 +139,7 @@ public:
     {
 		Math::Matrix< T, 3, 3 > tmp( Math::Matrix< T, 3, 3 >::identity() - matrix );
 		Math::Vector< T, 3 > vec_tmp = ublas::prod( tmp, vec );
-		return Math::InnerProduct()( vec_tmp, vec_tmp );
+		return Math::inner_product( vec_tmp, vec_tmp );
 	}
 };
 
@@ -161,9 +161,9 @@ struct lineOfSightProjectionMatrix
 public:
     Math::Matrix< T, 3, 3 > operator() ( const Math::Vector< T, 3 > &vec1 ) const
     {
-		const T d = Math::InnerProduct()( vec1, vec1 );
+		const T d = Math::inner_product( vec1, vec1 );
 		const Math::Vector< T, 3 > vec2 = vec1 * ( 1./ d );
-		return Math::OuterProduct()( vec1, vec2 );
+		return Math::outer_product( vec1, vec2 );
     }
 };
 
