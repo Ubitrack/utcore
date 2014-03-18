@@ -8,10 +8,8 @@
  */
 
 #include "Correlation.h"
-#ifdef HAVE_LAPACK
 
-#include <utMath/Matrix.h>
-#include <utUtil/Exception.h>
+#ifdef HAVE_LAPACK
 
 namespace Ubitrack { namespace Calibration {
 
