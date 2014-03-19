@@ -32,7 +32,7 @@
 #include "AbsoluteOrientation.h"
 #ifdef HAVE_LAPACK
 
-#include <utMath/Blas2.h>
+#include <utMath/Blas2.h> // outer_product
 
 #include <numeric> // std::accumulate
 #include <iterator> // std::iterator_traits
@@ -64,8 +64,7 @@ bool calculateRotation_impl ( const ForwardIterator leftBegin, const ForwardIter
 	{
 		const vector_type vec1 = (*itBegin1) - leftCentroid;
 		const vector_type vec2 = (*itBegin2) - rightCentroid;
-		M += Math::OuterProduct() ( vec2, vec1 );
-
+		M += Math::outer_product( vec2, vec1 );
 	}
 
 	// calculate the matrix N as linear combinations of elements of M
@@ -119,8 +118,9 @@ typename std::iterator_traits< ForwardIterator >::value_type::value_type calcula
 	typedef typename vector_type::value_type value_type;
 	
 	const std::size_t n = std::distance( leftBegin, leftEnd );
-	assert( n > 3 );
-	assert( n == std::distance( rightBegin, rightEnd ) );
+	assert( n > 3u );
+	const std::size_t n2 = std::distance( rightBegin, rightEnd );
+	assert( n == n2 );
 	
 	//Compute the centroids of both coordinate systems
 	const vector_type leftCentroid = std::accumulate( leftBegin, leftEnd, vector_type::zeros() ) / n;
@@ -167,8 +167,9 @@ bool calculateAbsoluteOrientation_Impl ( const ForwardIterator itBegin1, const F
 	typedef typename vector_type::value_type value_type;
 
 	const std::size_t n = std::distance( itBegin1, itEnd1 );
-	assert( n > 3 ); // <- 3D3D needs at least three pairwise distinct values
-	assert( n == std::distance( itBegin2, itEnd2 ) ); // <- should contain equal amount of values
+	assert( n > 3u ); // <- 3D3D needs at least three pairwise distinct values
+	const std::size_t n2 = std::distance( itBegin2, itEnd2 );
+	assert( n == n2 ); // <- should contain equal amount of values
 
 	const vector_type leftCentroid = std::accumulate( itBegin1, itEnd1, vector_type::zeros() ) / n;
 	const vector_type rightCentroid = std::accumulate( itBegin2, itEnd2, vector_type::zeros() ) / n;

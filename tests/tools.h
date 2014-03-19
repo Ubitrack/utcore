@@ -67,12 +67,30 @@ typename MA::value_type matrixDiff( const MA& ma, const MB& mb )
 }
 
 template< class VA, class VB > 
-typename VA::value_type vectorDiff( const VA& va, const VB& vb )
+bool vectorEqual( const VA& lhs, const VB& rhs )
+{
+	for ( std::size_t i = 0; i < lhs.size(); i++ )
+		if( lhs[ i ] !=  rhs[ i ] )
+			return false;
+
+	return true;
+}
+
+template< class VA, class VB > 
+typename VA::value_type vectorDiffSum( const VA& lhs, const VB& rhs )
 {
 	typedef typename VA::value_type return_type;
 	return_type d = 0.0;
-	for ( std::size_t i = 0; i < va.size(); i++ )
-		d += fabs( va( i ) - vb( i ) );
+	for ( std::size_t i = 0; i < lhs.size(); i++ )
+		d += fabs( lhs( i ) - rhs( i ) );
+	return d;
+}
+
+template< class VA, class VB > 
+typename VA::value_type vectorDiff( const VA& va, const VB& vb )
+{
+	typedef typename VA::value_type return_type;
+	const return_type d = vectorDiffSum( va, vb );
 	return d / boost::numeric::ublas::norm_2( va );
 }
 

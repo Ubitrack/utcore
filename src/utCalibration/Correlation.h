@@ -11,13 +11,8 @@
 
 #ifdef HAVE_LAPACK
 
-#include <utCore.h>
-#include <utMath/Pose.h>
-#include <utMath/Vector.h>
-#include <utMath/Scalar.h>
-#include <vector>
-
-#include <utUtil/Exception.h>
+#include <utCore.h> // UBITRACK_EXPORT
+#include <vector> // std::vector
 
 namespace Ubitrack { namespace Calibration {
 
