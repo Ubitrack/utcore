@@ -8,6 +8,7 @@
  */
 
 #include "Correlation.h"
+#include <math.h>
 
 #ifdef HAVE_LAPACK
 
@@ -17,7 +18,7 @@ double computeCorrelationDirect ( const std::vector< double >& left,
 								  const std::vector< double >& right)
 {
 	double res = 0.0;
-	size_t len = left.size() < right.size() ? left.size() : right.size();
+	std::size_t len = left.size() < right.size() ? left.size() : right.size();
 
 	double var1 = 0.0;
 	double var2 = 0.0;
