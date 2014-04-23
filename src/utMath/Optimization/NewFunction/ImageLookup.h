@@ -122,6 +122,6 @@ struct ImageLookup
 	const Vision::Image& image;
 };
 
-} } } // namespace Ubitrack::Calibration::Function
+} } } // namespace Ubitrack::Algorithm::Function
 
 #endif

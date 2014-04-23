@@ -62,7 +62,7 @@ namespace Ubitrack { namespace Math { namespace Stochastic {
  *     will be updated by the measurement.
  * @param stateCov reference to state vector covariance matrix.
  * @param measurementFunction function object of the measurement function. Must be modeled after 
- *   the \c Ubitrack::Calibration::Function::Prototype
+ *   the \c Ubitrack::Algorithm::Function::Prototype
  * @param measurement reference to measurement vector
  * @param measurementCov reference to measurement covariance
  * @param iBegin index of first element of state vector used as input to the measurement function (usually 0).

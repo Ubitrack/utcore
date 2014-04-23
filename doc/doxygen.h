@@ -135,16 +135,10 @@ int main( int argc, char* argv[] )
 namespace Ubitrack {
 
 	/**
-	 * Common algorithms to estimate results of fundamental tracking problems 
+	 * Common algorithms to estimate results of fundamental calibration, registration and tracking problems 
 	 */
 	 
 	namespace Algorithm {}
-
-	/**
-	 * Calibration algorithms
-	 */
-
-	namespace Calibration {}
 
 	/**
 	 * Mathematical data-structures and functions

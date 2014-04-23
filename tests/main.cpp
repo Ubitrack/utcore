@@ -5,7 +5,7 @@
 #include "MathUtil/MathUtilTest.h"
 #include "Geometry/GeometryTest.h"
 #include "Stochastic/StochasticTest.h"
-#include "Calibration/CalibTest.h"
+#include "Algorithm/CalibTest.h"
 
 using boost::unit_test::test_suite;
 
@@ -23,7 +23,7 @@ test_suite* init_unit_test_suite( int, char* [] )
 	allTests->add( new MathUtilTest );
 	allTests->add( new GeometryTest );
 	allTests->add( new StochasticTest );
-	allTests->add( new CalibrationTest );
+	allTests->add( new AlgorithmTest );
 	
 	return allTests;
 }

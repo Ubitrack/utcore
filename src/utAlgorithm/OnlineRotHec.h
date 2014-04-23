@@ -23,37 +23,52 @@
 
 
 /**
- * @ingroup math
+ * @ingroup calibration
  * @file
- * Defines a function that computes the norm of a vector
+ * Online rotation-only hand-eye-calibration
  *
  * @author Daniel Pustka <daniel.pustka@in.tum.de>
  */
  
-#include <utMath/Vector.h>
+#ifndef __UBITRACK_CALIBRATION_ONLINEROTHEC_H_INCLUDED__
+#define __UBITRACK_CALIBRATION_ONLINEROTHEC_H_INCLUDED__
 
-namespace Ubitrack { namespace Math { namespace Optimization { namespace Function {
+
+#ifdef HAVE_LAPACK
+
+#include <utMath/ErrorVector.h>
+#include <utMath/Quaternion.h>
+#include <utCore.h>
+
+namespace Ubitrack { namespace Algorithm {
 
 /**
- * A function that computes the norm of a vector
+ * A variant of the Tsai-Lenz algorithm to compute hand-eye calibration online (rotation only).
+ *
+ * Given many pairs of quaternions a and b, describing relative orientations between frames, 
+ * the class computes a quaternion x, s.t. ax = xb
+ *
+ * TODO: add error estimates to inputs and outputs!
  */
-template< unsigned M >
-struct VectorNorm
-	: public MultiVariateFunction< VectorNorm< M >, 1 >
+class UBITRACK_EXPORT OnlineRotHec
 {
-	template< class DestinationVector, class Param1 >
-	void evaluate( DestinationVector& result, const Param1& p1 ) const
-	{
-		result( 0 ) = boost::numeric::ublas::norm_2( p1 );
-	}
-		
-	template< class LeftHand, class DestinationMatrix, class Param1 >
-	void multiplyJacobian1( const LeftHand& l, DestinationMatrix& j, const Param1& p1 ) const
-	{
-		typename Param1::value_type f = l( 0, 0 ) / boost::numeric::ublas::norm_2( p1 );
-		for ( unsigned i = 0; i < M; i++ )
-			j( 0, i ) = f * p1( i );
-	}
+public:
+	/** constructor */
+	OnlineRotHec();
+	
+	/**
+	 * a and b are the relative motion between two frames
+	 */
+	void addMeasurement( const Math::Quaternion& a, const Math::Quaternion& b );
+
+	/** returns the currently estimated transformation x */
+	Math::Quaternion computeResult() const;
+
+protected:
+	Math::ErrorVector< double, 3 > m_state;
 };
 
-} } } // namespace Ubitrack::Algorithm::Normalize
+} } // namespace Ubitrack::Algorithm
+
+#endif // HAVE_LAPACK
+#endif

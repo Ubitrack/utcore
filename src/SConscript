@@ -39,7 +39,7 @@ if not( have_boost and have_tinyxml and have_log4cpp):
 	Return ('have_utcore')
 	
 # b)
-subdirs = [  'utMath', 'utMeasurement', 'utCalibration', 'utTracking', 'utUtil' ]
+subdirs = [  'utMath', 'utMeasurement', 'utAlgorithm', 'utTracking', 'utUtil' ]
 headers = globSourceFiles(  '*.h' )
 sources = globSourceFiles(  '*.cpp' )
 for dir in subdirs:	
