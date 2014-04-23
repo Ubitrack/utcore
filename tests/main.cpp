@@ -5,7 +5,7 @@
 #include "MathUtil/MathUtilTest.h"
 #include "Geometry/GeometryTest.h"
 #include "Stochastic/StochasticTest.h"
-#include "Algorithm/CalibTest.h"
+#include "Algorithm/AlgorithmTest.h"
 
 using boost::unit_test::test_suite;
 
