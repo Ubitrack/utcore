@@ -29,8 +29,8 @@
  * @author Christian Waechter <christian.waechter@in.tum.de>
  */ 
 
-#ifndef __UBITRACK_HANDEYE_DATA_SELECTION_H_INCLUDED__
-#define __UBITRACK_HANDEYE_DATA_SELECTION_H_INCLUDED__
+#ifndef __UBITRACK_ALGORITHM_HANDEYE_DATA_SELECTION_H_INCLUDED__
+#define __UBITRACK_ALGORITHM_HANDEYE_DATA_SELECTION_H_INCLUDED__
 
 
 #include <utCore.h>
@@ -366,7 +366,7 @@ OutputIterator adjacent_difference ( InputIterator first, InputIterator last, Ou
 }} //namesapace Ubitrack::Math;
 
 
-namespace Ubitrack { namespace Algorithm {
+namespace Ubitrack { namespace Algorithm { namespace HandEye {
 
 
 template< bool use_all_pairs, bool direction, typename InputIterator, typename OutputIterator >
@@ -447,6 +447,6 @@ UBITRACK_EXPORT void select_6DPoses( const std::vector< Math::Pose >& eyes, cons
 UBITRACK_EXPORT void generate_relative_6DPoses( const std::vector< Math::Pose >& poses
 	, std::vector< Math::Vector< double, 8 > >& relativePoses, bool direction_flag );
 
-}} // namespace Ubitrack::Algorithm
+}}} // namespace Ubitrack::Algorithm::HandEye
 
-#endif //__UBITRACK_HANDEYE_DATA_SELECTION_H_INCLUDED__
+#endif //__UBITRACK_ALGORITHM_HANDEYE_DATA_SELECTION_H_INCLUDED__

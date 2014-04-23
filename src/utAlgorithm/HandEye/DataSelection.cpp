@@ -33,13 +33,13 @@
  */
 
 
-#include "HandEyeDataSelection.h"
+#include "DataSelection.h"
 #include <utMath/Stochastic/k_means.h> // codebook generation
 
 #include <algorithm> //std::transform
 
 
-namespace Ubitrack { namespace Algorithm {
+namespace Ubitrack { namespace Algorithm { namespace HandEye {
 
 namespace {
 
@@ -164,4 +164,4 @@ UBITRACK_EXPORT void generate_relative_6DPoses( const std::vector< Math::Pose >&
 
 
 
-}} // namespace Ubitrack::Algorithm
+}}} // namespace Ubitrack::Algorithm::HandEye

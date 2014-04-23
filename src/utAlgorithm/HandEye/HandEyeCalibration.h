@@ -29,9 +29,8 @@
  * @author Daniel Muhra <muhra@in.tum.de>
  */ 
 
-#ifndef __UBITRACK_CALIBRATION_HANDEYE_CALIBRATION_H_INCLUDED__
-#define __UBITRACK_CALIBRATION_HANDEYE_CALIBRATION_H_INCLUDED__
-
+#ifndef __UBITRACK_ALGORITHM_HANDEYE_CALIBRATION_H_INCLUDED__
+#define __UBITRACK_ALGORITHM_HANDEYE_CALIBRATION_H_INCLUDED__
 
 
 #ifdef HAVE_LAPACK
@@ -41,12 +40,12 @@
 #include <utMath/Pose.h>
 #include <vector>
 
-namespace Ubitrack { namespace Algorithm {
+namespace Ubitrack { namespace Algorithm { namespace HandEye {
 
 /**
  * @ingroup tracking_algorithms
  * Computes a Pose using a Hand-Eye-Calibration.
- * This Implementation uses the algorithm described by Tsai - Lenz.
+ * This Implementation uses the algorithm described by Tsai-Lenz.
  * You can use either a series of double or float matrices.
  * Using of pose instead of matrices is also possible.
  * Eye and hand vectors must contain the same number of objects
@@ -62,8 +61,8 @@ UBITRACK_EXPORT Math::Pose performHandEyeCalibration ( const std::vector< Math::
 UBITRACK_EXPORT Math::Pose performHandEyeCalibration ( const std::vector< Math::Pose >& hand,  const std::vector< Math::Pose >& eye, bool bUseAllPairs = true );
 
 
-}} // namespace Ubitrack::Algorithm
+}}} // namespace Ubitrack::Algorithm::HandEye
 
 #endif // HAVE_LAPACK
 
-#endif
+#endif // __UBITRACK_ALGORITHM_HANDEYE_CALIBRATION_H_INCLUDED__

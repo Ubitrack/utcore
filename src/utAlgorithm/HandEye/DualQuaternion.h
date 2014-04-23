@@ -29,8 +29,8 @@
  * @author Christian Waechter <christian.waechter@in.tum.de>
  */ 
 
-#ifndef __UBITRACK_DUAL_QUATERNION_HANDEYE_CALIBRATION_H_INCLUDED__
-#define __UBITRACK_DUAL_QUATERNION_HANDEYE_CALIBRATION_H_INCLUDED__
+#ifndef __UBITRACK_ALGORITHM_HANDEYE_DUAL_QUATERNION_CALIBRATION_H_INCLUDED__
+#define __UBITRACK_ALGORITHM_HANDEYE_DUAL_QUATERNION_CALIBRATION_H_INCLUDED__
 
 
 #ifdef HAVE_LAPACK
@@ -40,7 +40,7 @@
 
 #include <vector>
 
-namespace Ubitrack { namespace Algorithm {
+namespace Ubitrack { namespace Algorithm { namespace HandEye {
 
 /**
  * @ingroup calibration tracking_algorithms
@@ -99,8 +99,8 @@ namespace Ubitrack { namespace Algorithm {
 UBITRACK_EXPORT bool estimatePose6D_6D6D(  const std::vector< Math::Pose >& eyes, Math::Pose& pose,
 	const std::vector< Math::Pose >& hands );
 
-}} // namespace Ubitrack::Algorithm
+}}} // namespace Ubitrack::Algorithm::HandEye
 
 #endif // HAVE_LAPACK
 
-#endif //__UBITRACK_DUAL_QUATERNION_HANDEYE_CALIBRATION_H_INCLUDED__
+#endif //__UBITRACK_ALGORITHM_HANDEYE_DUAL_QUATERNION_CALIBRATION_H_INCLUDED__

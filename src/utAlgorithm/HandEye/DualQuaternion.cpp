@@ -30,9 +30,8 @@
  */
 
 
-#include "HandEyeCalibrationDual.h"
-#include "HandEyeDataSelection.h"
-
+#include "DualQuaternion.h"
+#include "DataSelection.h"
 
 #include <utMath/Matrix.h>
 #include <utMath/Blas1.h> // inner_product
@@ -65,7 +64,7 @@ struct SolveQuadratic
 
 }} //namesapace Ubitrack::Math;
 
-namespace Ubitrack { namespace Algorithm {
+namespace Ubitrack { namespace Algorithm { namespace HandEye {
 
 namespace {
 
@@ -219,7 +218,7 @@ bool estimatePose6D_6D6D_impl( InputIterator itBeginEye, const InputIterator itE
 	
 } // anonymous-namespace
 
-UBITRACK_EXPORT bool estimatePose6D_6D6D( const std::vector< Math::Pose >& eyes, Math::Pose& pose,
+bool estimatePose6D_6D6D( const std::vector< Math::Pose >& eyes, Math::Pose& pose,
 	const std::vector< Math::Pose >& hands )
 {
 
@@ -252,8 +251,6 @@ UBITRACK_EXPORT bool estimatePose6D_6D6D( const std::vector< Math::Pose >& eyes,
 	
 }
 
-
-
-}} // namespace Ubitrack::Algorithm
+}}} // namespace Ubitrack::Algorithm::HandEye
 
 #endif // HAVE_LAPACK

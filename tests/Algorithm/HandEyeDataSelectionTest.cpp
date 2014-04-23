@@ -3,7 +3,7 @@
 #include <utMath/Vector.h>
 #include <utMath/Matrix.h>
 
-#include <utAlgorithm/HandEyeDataSelection.h>
+#include <utAlgorithm/HandEye/DataSelection.h>
 
 #include <utMath/Random/Scalar.h>
 #include <utMath/Random/Vector.h>
@@ -60,7 +60,7 @@ void TestDataSelection( const std::size_t n_runs, const T epsilon )
 		std::vector< Pose > selectedPosesRight;
 		// selectedPosesRight.reserve( selection );
 		
-		Ubitrack::Algorithm::select_6DPoses( leftFrame, rightFrame, selection, selectedPosesLeft, selectedPosesRight );
+		Ubitrack::Algorithm::HandEye::select_6DPoses( leftFrame, rightFrame, selection, selectedPosesLeft, selectedPosesRight );
 		// Ubitrack::Algorithm::select_6DPoses( leftFrame, rightFrame, selection, std::back_inserter( selectedPosesLeft ), std::back_inserter( selectedPosesRight ) );
 		
 		
@@ -76,7 +76,7 @@ void TestDataSelection( const std::size_t n_runs, const T epsilon )
 			// BOOST_CHECK_MESSAGE( rotDiff < epsilon, "\nEstimated rotation from " << n << " poses resulted in error " << rotDiff << " :\n" << q << " (expected)\n" << estimatedPose.rotation() << " (estimated)\n" );
 			// BOOST_CHECK_MESSAGE( posDiff < epsilon, "\nEstimated position from " << n << " poses resulted in error " << posDiff << " :\n" << t << " (expected)\n" << estimatedPose.translation() << " (estimated)\n" );
 		// }
-		// BOOST_WARN_MESSAGE( b_done, "Algorithm did not succesfully estimate a result from " << n << " poses." );
+		// BOOST_WARN_MESSAGE( b_done, "Algorithm did not successfully estimate a result from " << n << " poses." );
 	}
 	BOOST_CHECK( 0 == 0 );
 }

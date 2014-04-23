@@ -3,7 +3,7 @@
 #include <utMath/Vector.h>
 #include <utMath/Matrix.h>
 #include <utMath/MatrixOperations.h>
-#include <utAlgorithm/HandEyeCalibration.h>
+#include <utAlgorithm/HandEye/HandEyeCalibration.h>
 
 #include <utMath/Random/Scalar.h>
 #include <utMath/Random/Vector.h>
@@ -59,7 +59,7 @@ void testHandEyeMatrixRandom( const std::size_t n_runs, const T epsilon )
 		}
 
 		// do some estimation now
-		const Pose estimatedPose = Ubitrack::Algorithm::performHandEyeCalibration ( leftFrame, rightFrame, true );
+		const Pose estimatedPose = Ubitrack::Algorithm::HandEye::performHandEyeCalibration ( leftFrame, rightFrame, true );
 		
 		// calculate some errors
 		const T rotDiff = quaternionDiff( estimatedPose.rotation(), q );
@@ -70,7 +70,7 @@ void testHandEyeMatrixRandom( const std::size_t n_runs, const T epsilon )
 			BOOST_CHECK_MESSAGE( rotDiff < epsilon, "\nEstimated rotation from " << n << " poses resulted in error " << rotDiff << " :\n" << q << " (expected)\n" << estimatedPose.rotation() << " (estimated)\n" );
 			BOOST_CHECK_MESSAGE( posDiff < epsilon, "\nEstimated position from " << n << " poses resulted in error " << posDiff << " :\n" << t << " (expected)\n" << estimatedPose.translation() << " (estimated)\n" );
 		}
-		// BOOST_WARN_MESSAGE( b_done, "Algorithm did not succesfully estimate a result with " << n 
+		// BOOST_WARN_MESSAGE( b_done, "Algorithm did not successfully estimate a result with " << n 
 			// << " points.\nRemaining difference in rotation " << rotDiff << ", difference in translation " << posDiff << "." );
 	}
 }
@@ -108,7 +108,7 @@ void testHandEyePoseRandom( const std::size_t n_runs, const T epsilon )
 		}
 
 		// do some estimation now
-		const Pose estimatedPose = Ubitrack::Algorithm::performHandEyeCalibration ( leftFrame, rightFrame, true );
+		const Pose estimatedPose = Ubitrack::Algorithm::HandEye::performHandEyeCalibration ( leftFrame, rightFrame, true );
 		
 		// calculate some errors
 		const T rotDiff = quaternionDiff( estimatedPose.rotation(), q );
@@ -119,7 +119,7 @@ void testHandEyePoseRandom( const std::size_t n_runs, const T epsilon )
 			BOOST_CHECK_MESSAGE( rotDiff < epsilon, "\nEstimated rotation from " << n << " poses resulted in error " << rotDiff << " :\n" << q << " (expected)\n" << estimatedPose.rotation() << " (estimated)\n" );
 			BOOST_CHECK_MESSAGE( posDiff < epsilon, "\nEstimated position from " << n << " poses resulted in error " << posDiff << " :\n" << t << " (expected)\n" << estimatedPose.translation() << " (estimated)\n" );
 		}
-		// BOOST_WARN_MESSAGE( b_done, "Algorithm did not succesfully estimate a result with " << n 
+		// BOOST_WARN_MESSAGE( b_done, "Algorithm did not successfully estimate a result with " << n 
 			// << " points.\nRemaining difference in rotation " << rotDiff << ", difference in translation " << posDiff << "." );
 	}
 }

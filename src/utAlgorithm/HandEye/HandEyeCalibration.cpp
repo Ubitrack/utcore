@@ -47,7 +47,7 @@
 namespace ublas = boost::numeric::ublas;
 namespace lapack = boost::numeric::bindings::lapack;
 
-namespace Ubitrack { namespace Algorithm {
+namespace Ubitrack { namespace Algorithm { namespace HandEye {
 
 
 //helper class, which is used to mainly store 2 vectors.
@@ -515,7 +515,7 @@ Math::Pose performHandEyeCalibration ( const std::vector< Math::Pose >& hand,  c
 	return Math::Pose(Math::Quaternion( rcg ), tcg);
 }
 
-}}
+}}} // namespace Ubitrack::Algorithm::HandEye
 
 #endif // HAVE_LAPACK
 

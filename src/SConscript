@@ -45,6 +45,8 @@ sources = globSourceFiles(  '*.cpp' )
 for dir in subdirs:	
 	headers += globSourceFiles( dir + '/*.h' )
 	sources += globSourceFiles( dir + '/*.cpp' )
+	headers += globSourceFiles( dir + '/*/*.h' )
+	sources += globSourceFiles( dir + '/*/*.cpp' )
 
 
 # c)		
