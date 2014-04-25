@@ -30,37 +30,187 @@
  */
 
 
-#ifndef __Ubitrack_Math_Ransac_h_INCLUDED__
-#define __Ubitrack_Math_Ransac_h_INCLUDED__
+#ifndef __UBITRACK_MATH_OPTIMIZATION_RANSAC_INCLUDED__
+#define __UBITRACK_MATH_OPTIMIZATION_RANSAC_INCLUDED__
 
 #include <utCore.h>
+#include "Optimization.h"
+
+
 #include <vector>
 #include <stdlib.h>
+#include <iterator> // std::iterator_traits
 #include <stdexcept>
-#include "Optimization.h"
+
 
 namespace Ubitrack { namespace Math { namespace Optimization {
 
 /**
+ * Parameter structure for the RANSAC algorithmic framework
+ *
+ * This struct holds all parameters to set the appropriate parameters
+ * of the ransac algorithmic framework.
+ */
+template< typename T >
+struct RansacParameter
+{
+public:
+	/** type of all the unsigned integer values within this class */
+	typedef std::size_t size_type;
+	
+	/** the floating point type used for numerical error expressions */
+	typedef T value_type;
+
+	const value_type threshold;
+	size_type setSize;
+	const size_type nMinInlier;
+	const size_type nMinRuns;
+	const size_type nMaxRuns;
+	
+	RansacParameter( const T fThreshold, const std::size_t n, const std::size_t minInlier, const std::size_t minRuns, const std::size_t maxRuns )
+		: threshold ( fThreshold )
+		, setSize ( n )
+		, nMinInlier ( minInlier )
+		, nMinRuns ( minRuns )
+		, nMaxRuns ( maxRuns )
+		{};
+};
+
+/**
+ * RANSAC algorithm (for one-parameter problems)
+ *
+ * @tparam InputIterator describes the type of container iterator that points to the values
+ * @tparam ResultType the result type of the solution formulation
+ * @tparam T describes the numeric type used for error calculation (usually \c float or \c double )
+ * @tparam RansacFunctor the type of the struct/class that should include \c Estimator and \c Evaluator functor object to estimate the solution and validate it
+ * @param iBegin an \c iterator point to the first element of a container including the values
+ * @param iEnd an \c iterator point to the final element of a container including the values
+ * @param result returns the best estimated result for the given problem and parameter set
+ * @param model an instance of the struct/class that includes the Estimator and Evaluator FunctorObjects that describe the solution of a problem and it's validation
+ * @param params an instance of the object containing the algorithms parametrization
+ * @return 0 (failure) or number of inlier on success
+*/
+template< class InputIterator, class ResultType, typename T, class RansacFunctor >
+std::size_t ransac( const InputIterator iBegin, const InputIterator iEnd
+	, ResultType& result
+	, const RansacFunctor& model
+	, const RansacParameter< T >& params )
+{
+	typedef typename std::iterator_traits< InputIterator >::value_type value_type;
+	typedef typename value_type::value_type numeric_type;
+	
+	typedef std::vector< value_type > list_type;
+	
+	// estimate number of parameter list
+	const std::size_t nValues = std::distance( iBegin, iEnd );
+	assert( params.nMinInlier <= nValues );
+	
+	OPT_LOG_DEBUG( "RANSAC with " << nValues << " values , " << params.nMinInlier << " inlier required" );
+	
+	// set of inlier
+	std::vector< bool > bInliers( nValues );
+
+	// best so far
+	std::size_t nBestInliers = 0;
+	std::vector< bool > bBestInliers( nValues );
+	
+	std::size_t iRun ;
+	for( iRun = 0; iRun < params.nMaxRuns; iRun++ )
+	{
+		OPT_LOG_TRACE( "RANSAC iteration " << iRun + 1 );
+		
+		// generate random set
+		list_type list;
+		list.reserve( params.setSize );
+		
+		for ( std::size_t i = params.setSize; i; i-- )
+		{
+			std::size_t iSelected = rand() % nValues;
+			list.push_back( *(iBegin+iSelected) );
+		}
+		
+		// compute hypothesis
+		ResultType hypothesis;
+		if( ! typename RansacFunctor::Estimator()( hypothesis, list ) )
+		{
+			OPT_LOG_TRACE( "fast forward, no estimation possible" );
+			continue;
+		}
+		// count inlier
+		std::size_t nInlier = 0;
+		T fInlierDist = 0;
+		InputIterator it ( iBegin );
+		for ( std::size_t i = 0; i < nValues && int( nValues - i ) >= int( params.nMinInlier - nInlier ); i++, ++it )
+		{
+			const T d = typename RansacFunctor::Evaluator()( hypothesis, *it );
+			if ( ( bInliers[ i ] = ( d < params.threshold ) ) == true )
+			{
+				nInlier++;
+				fInlierDist += d;
+			}
+		}
+		if( !nInlier )
+		{
+			OPT_LOG_TRACE( "fast forward, no inlier found" );
+			continue;
+		}	
+		OPT_LOG_TRACE( nInlier << " inlier, avg dist=" << fInlierDist / nInlier );
+
+		// save inlier set if we reached the required number or are better than a previous run
+		if ( nInlier >= params.nMinInlier && nInlier > nBestInliers )
+		{
+			nBestInliers = nInlier;
+			bBestInliers = bInliers;
+		}
+
+		// stop after nMinRun iterations if the required number of inlier was found
+		if ( nBestInliers >= params.nMinInlier && iRun + 1 >= params.nMinRuns )
+			break;
+
+	}
+
+	if ( nBestInliers >= params.nMinInlier )
+	{
+		// compute final result
+		list_type list;
+		list.reserve( nBestInliers );
+		InputIterator it ( iBegin );
+		for ( std::size_t i = 0; i < nValues; i++, ++it )
+			if ( bBestInliers[ i ] )
+			{
+				list.push_back( *it );
+			}
+			
+		typename RansacFunctor::Estimator()( result, list );
+		OPT_LOG_DEBUG( iRun + 1 << " iterations, " << nBestInliers << " inlier" );
+		return nBestInliers;
+	}
+	
+	OPT_LOG_DEBUG( "RANSAC: Not enough inlier found" );
+	return 0;
+}
+
+
+/**
  * RANSAC algorithm (for two-parameter problems)
  * @param result
- * @return 0 (failure) or number of inliers on success
+ * @return 0 (failure) or number of inlier on success
  */
 template< class Result, class Param1, class Param2, class Estimator, class Evaluator >
-unsigned ransac( Result& result, const std::vector< Param1 >& paramList1, const std::vector< Param2 >& paramList2,
-	double fThreshold, unsigned nSetSize, unsigned nMinInliers, unsigned nMinRuns, unsigned nMaxRuns, 
+std::size_t ransac( Result& result, const std::vector< Param1 >& paramList1, const std::vector< Param2 >& paramList2,
+	double fThreshold, std::size_t nSetSize, std::size_t nMinInlier, std::size_t nMinRuns, std::size_t nMaxRuns, 
 	const Estimator& estimator, const Evaluator& evaluator, std::vector< bool >* pInliers = 0 )
 {
-	OPT_LOG_DEBUG( "RANSAC with " << paramList1.size() << " parameters, " << nMinInliers << " inliers required" );
+	OPT_LOG_DEBUG( "RANSAC with " << paramList1.size() << " parameters, " << nMinInlier << " inlier required" );
 	
-	// set of inliers
+	// set of inlier
 	std::vector< bool > bInliers( paramList1.size() );
 
 	// best so far
-	unsigned nBestInliers = 0;
+	std::size_t nBestInliers = 0;
 	std::vector< bool > bBestInliers( paramList1.size() );
 	
-	unsigned iRun ;
+	std::size_t iRun ;
 	for ( iRun = 0; iRun < nMaxRuns; iRun++ )
 	{
 		OPT_LOG_TRACE( "RANSAC iteration " << iRun + 1 );
@@ -74,9 +224,9 @@ unsigned ransac( Result& result, const std::vector< Param1 >& paramList1, const 
 			list1.reserve( nSetSize );
 			list2.reserve( nSetSize );
 			
-			for ( unsigned i = nSetSize; i; i-- )
+			for ( std::size_t i = nSetSize; i; i-- )
 			{
-				unsigned iSelected = rand() % paramList1.size();
+				std::size_t iSelected = rand() % paramList1.size();
 				list1.push_back( paramList1[ iSelected ] );
 				list2.push_back( paramList2[ iSelected ] );
 				// TODO: check for double selections...
@@ -86,30 +236,30 @@ unsigned ransac( Result& result, const std::vector< Param1 >& paramList1, const 
 			Result hypothesis;
 			estimator( hypothesis, list1, list2 );
 			
-			// count inliers
-			unsigned nInliers = 0;
+			// count inlier
+			std::size_t nInlier = 0;
 			double fInlierDist = 0;
-			for ( unsigned i = 0; i < paramList1.size() && int( paramList1.size() - i ) >= int( nMinInliers - nInliers ); i++ )
+			for ( std::size_t i = 0; i < paramList1.size() && int( paramList1.size() - i ) >= int( nMinInlier - nInlier ); i++ )
 			{
 				double d = evaluator( hypothesis, paramList1[ i ], paramList2[ i ] );
 				if ( ( bInliers[ i ] = ( d < fThreshold ) ) == true )
 				{
-					nInliers++;
+					nInlier++;
 					fInlierDist += d;
 				}
 			}
 			
-			OPT_LOG_TRACE( nInliers << " inliers, avg dist=" << fInlierDist / nInliers );
+			OPT_LOG_TRACE( nInlier << " inlier, avg dist=" << fInlierDist / nInlier );
 
 			// save inlier set if we reached the required number or are better than a previous run
-			if ( nInliers >= nMinInliers && nInliers > nBestInliers )
+			if ( nInlier >= nMinInlier && nInlier > nBestInliers )
 			{
-				nBestInliers = nInliers;
+				nBestInliers = nInlier;
 				bBestInliers = bInliers;
 			}
 
-			// stop after nMinRun interations if the required number of inliers was found
-			if ( nBestInliers >= nMinInliers && iRun + 1 >= nMinRuns )
+			// stop after nMinRun iterations if the required number of inlier was found
+			if ( nBestInliers >= nMinInlier && iRun + 1 >= nMinRuns )
 				break;
 		}
 #ifdef OPTIMIZATION_LOGGING
@@ -121,14 +271,14 @@ unsigned ransac( Result& result, const std::vector< Param1 >& paramList1, const 
 #endif
 	}
 
-	if ( nBestInliers >= nMinInliers )
+	if ( nBestInliers >= nMinInlier )
 	{
 		// compute final result
 		std::vector< Param1 > list1;
 		std::vector< Param2 > list2;
 		list1.reserve( nBestInliers );
 		list2.reserve( nBestInliers );
-		for ( unsigned i = 0; i < paramList1.size(); i++ )
+		for ( std::size_t i = 0; i < paramList1.size(); i++ )
 			if ( bBestInliers[ i ] )
 			{
 				list1.push_back( paramList1[ i ] );
@@ -138,15 +288,15 @@ unsigned ransac( Result& result, const std::vector< Param1 >& paramList1, const 
 		estimator( result, list1, list2 );
 		if ( pInliers )
 			*pInliers = bBestInliers;
-		OPT_LOG_DEBUG( iRun + 1 << " iterations, " << nBestInliers << " inliers" );
+		OPT_LOG_DEBUG( iRun + 1 << " iterations, " << nBestInliers << " inlier" );
 
 		return nBestInliers;
 	}
 	
-	OPT_LOG_DEBUG( "RANSAC: Not enough inliers found" );
+	OPT_LOG_DEBUG( "RANSAC: Not enough inlier found" );
 	return 0;
 }
 
 }}} // namespace Ubitrack::Math::Optimization
 
-#endif
+#endif // __UBITRACK_MATH_OPTIMIZATION_RANSAC_INCLUDED__
