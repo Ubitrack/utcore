@@ -24,14 +24,19 @@
 /**
  * @ingroup tracking_algorithms
  * @file
- * Implements functions for tip/hotspot calibration.
+ * Implements functions for tooltip/hotspot calibration.
  *
  * @author Daniel Pustka <daniel.pustka@in.tum.de>
+ * @author Christian Waechter <christian.waechter@in.tum.de> (modified)
  */ 
 
+// Ubitrack
 #include "TipCalibration.h"
-
 #include <utMath/Matrix.h>
+#include <utMath/Blas1.h>
+
+// std
+#include <numeric>
 
 #ifdef HAVE_LAPACK
 #include <boost/numeric/bindings/traits/ublas_matrix.hpp>
@@ -42,22 +47,31 @@
 // shortcuts to namespaces
 namespace ublas = boost::numeric::ublas;
 namespace lapack = boost::numeric::bindings::lapack;
+# endif // HAVE_LAPACK
 
-namespace Ubitrack { namespace Algorithm {
+namespace Ubitrack { namespace Algorithm { namespace ToolTip {
 
-
-/// general implementation of tipcalibration algorithm
+#ifndef HAVE_LAPACK // write an empty body
 template< typename T >
-void tipCalibrationImpl( const std::vector< Math::Pose >& poses, 
-	Math::Vector< T, 3 >& pm, Math::Vector< T, 3 >& pw )
+bool estimatePosition3D_6DImpl( Math::Vector< T, 3 >& 
+	, const std::vector< Math::Pose >& 
+	, Math::Vector< T, 3 >& )
+	{ return false; }
+#else // HAVE_LAPACK
+/// @internal general implementation of tooltip calibration algorithm
+template< typename T >
+bool estimatePosition3D_6DImpl( Math::Vector< T, 3 >& pw
+	, const std::vector< Math::Pose >& poses
+	, Math::Vector< T, 3 >& pm )
 {
 	const std::size_t nPoses = ( poses.size() );
-	typename Math::Matrix< T, 0, 0 >::base_type a( 3 * nPoses, 6 );
+	typename Math::Matrix< T >::base_type a( 3 * nPoses, 6 );
 	typename Math::Vector< T >::base_type v( 3 * nPoses );
+	
 	for ( std::size_t i( 0 ); i < nPoses; i++ )
 	{
 		// set a
-		ublas::matrix_range< typename Math::Matrix< T, 0, 0 >::base_type > r( 
+		ublas::matrix_range< typename Math::Matrix< T >::base_type > r( 
 			a, ublas::range( i * 3, (i+1) * 3 ), ublas::range( 0, 3 ) );
 		poses[ i ].rotation().toMatrix( r );
 		ublas::subrange( a, i * 3, (i+1) * 3, 3, 6 ) = - Math::Matrix< T, 3, 3 >::identity();
@@ -67,20 +81,38 @@ void tipCalibrationImpl( const std::vector< Math::Pose >& poses,
 	}
 
 	// solve
-	lapack::gels( 'N', a, v );
-
+	if( 0 != lapack::gels( 'N', a, v ) )
+		return false;
+		
 	// save result
 	pm = ublas::subrange( v, 0, 3 );
 	pw = ublas::subrange( v, 3, 6 );
+	
+	return true;
 }
+#endif // HAVAE_LAPACK
 
-/// Specialization of tipCalibration for type \c double
+/// @internal old function signature that performs the calibration
 void tipCalibration( const std::vector< Math::Pose >& poses, 
 	Math::Vector< double, 3 >& pm, Math::Vector< double, 3 >& pw )
 {
-	tipCalibrationImpl< double >( poses, pm, pw );
+	estimatePosition3D_6DImpl< double >( pw, poses, pm );
 }
 
-} } // namespace Ubitrack::Algorithm
+/// @internal specialization of tooltip calibration for type \c float
+bool estimatePosition3D_6D( Math::Vector< float, 3 >& pw
+	, const std::vector< Math::Pose >& poses 
+	, Math::Vector< float, 3 >& pm )
+{
+	return estimatePosition3D_6DImpl< float >( pw, poses, pm );
+}
 
-#endif // HAVE_LAPACK
+/// @internal specialization of tooltip calibration for type \c double
+bool estimatePosition3D_6D( Math::Vector< double, 3 >& pw
+	, const std::vector< Math::Pose >& poses 
+	, Math::Vector< double, 3 >& pm )
+{
+	return estimatePosition3D_6DImpl< double >( pw, poses, pm );
+}
+
+}}} // namespace Ubitrack::Algorithm::ToolTip

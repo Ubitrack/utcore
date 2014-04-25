@@ -2,6 +2,8 @@
 
 // declare external tests here, to save us some trivial header files
 void TestTipCalibration();
+void TestRobustTipCalibration();
+void TestOptimizedTipCalibration();
 void Test2D3DPoseEstimation();
 void Test3DPointReconstruction();
 void TestAbsoluteOrientation();
@@ -19,6 +21,8 @@ AlgorithmTest::AlgorithmTest()
 	: boost::unit_test::test_suite( "AlgorithmTests" )
 {
 	add( BOOST_TEST_CASE( &TestTipCalibration ) );
+	add( BOOST_TEST_CASE( &TestRobustTipCalibration ) );
+	add( BOOST_TEST_CASE( &TestOptimizedTipCalibration ) );
 	add( BOOST_TEST_CASE( &Test2D3DPoseEstimation ) );
 	add( BOOST_TEST_CASE( &Test3DPointReconstruction ) );
 	add( BOOST_TEST_CASE( &TestAbsoluteOrientation ) );
