@@ -15,6 +15,8 @@ sources = []
 for dir in subdirs:
 	headers += globSourceFiles( dir + '/*.h' )
 	sources += globSourceFiles( dir + '/*.cpp' )
+	headers += globSourceFiles( dir + '/*/*.h' )
+	sources += globSourceFiles( dir + '/*/*.cpp' )
 
 # add the main file
 sources += [ 'main.cpp', 'boost_unit_test_framework.cpp' ]
