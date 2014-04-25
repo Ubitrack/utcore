@@ -25,8 +25,8 @@
  * @ingroup tracking_algorithms
  * @file
  * Implementation of data selection methods for the various 
- * hand eye calibration approaches. Contanis also lots of
- * functions for common data manpulation in the calibration
+ * hand eye calibration approaches. Contains also lots of
+ * functions for common data manipulation in the calibration
  * procedures.
  *
  * @author Christian Waechter <christian.waechter@in.tum.de>

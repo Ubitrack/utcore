@@ -89,12 +89,12 @@ namespace Ubitrack { namespace Algorithm { namespace HandEye {
  @endcode
  *
  * @attention : Other versions might occur in future, this algorithm is still under development.
- * @note : Also have a look at \b select_6DPoses and \b generate_relative_6DPoses wihich might be of interest in future versions
+ * @note : Also have a look at \b select_6DPoses and \b generate_relative_6DPoses which might be of interest in future versions
  *
  * @param eyes \b 6D \b poses in the \b 1st coordinate system.
  * @param pose the pose, if a solution can be found.
  * @param hands corresponding \b 6D \b poses in the \b 2nd coordinate system.
- * @return a flag that signs if the algorithm has succesfully determined a solution.
+ * @return a flag that signs if the algorithm has successfully determined a solution.
  */
 UBITRACK_EXPORT bool estimatePose6D_6D6D(  const std::vector< Math::Pose >& eyes, Math::Pose& pose,
 	const std::vector< Math::Pose >& hands );
