@@ -3,7 +3,7 @@
 #include <utMath/Vector.h>
 #include <utMath/Matrix.h>
 #include <utAlgorithm/ToolTip/Ransac.h>
-#include <utAlgorithm/ToolTip/ErrorEstimation.h>
+#include <utAlgorithm/ToolTip/TipCalibration.h>
 
 #include <utMath/Random/Scalar.h>
 #include <utMath/Random/Vector.h>
@@ -15,14 +15,6 @@
 
 
 using namespace Ubitrack::Math;
-
-#ifndef HAVE_LAPACK
-template< typename >
-void testRobustTipCalibrationRandom()
-{
-	// TipCalibration does not work without lapack
-}
-#else // HAVE_LAPACK
 
 template< typename T >
 void testRobustTipCalibrationRandom( const std::size_t n_runs, const T epsilon )
@@ -77,20 +69,19 @@ void testRobustTipCalibrationRandom( const std::size_t n_runs, const T epsilon )
 		
 		
 		// set reasonable? ransac parameters
-		const T threshold( 0.02 );
-		const std::size_t size( 5 );
-		const std::size_t mInlier( 3 );
-		const std::size_t nMinRuns( 3 );
-		const std::size_t nMaxRuns( 15 );
-		
-		const Ubitrack::Math::Optimization::RansacParameter< T > params( threshold, size, mInlier, nMinRuns, nMaxRuns );
+		const T threshold( 0.05 ); // <- this works quite well here, since there are some big outlier, might be differnet in other scenarios
+		const std::size_t minSetSize( 3 ); // <- the algorihms needs at least 3 poses to estimate a result (minimum consensus set)
+		const T percentOutlier( 0.2 ); // <- should be a reasonable number, mayber dervided empirically
+		const T sucessProbability( 0.99 ); // <- usually you want to have this parameter quite high (~95 or higher)
+		const Ubitrack::Math::Optimization::RansacParameter< T > params( threshold, minSetSize, n, percentOutlier, sucessProbability );
+		//BOOST_MESSAGE( "Starting with at least " << params.nMaxIterations << " iterations for " << params.nMinInlier << " expected inlier of " << n << " poses."  );
 		
 		// do some robust estimation now
 		Vector< T, 3 > pTool2Tip;
 		Vector< T, 3 > pWolrd2Tip;
 		if( !Ubitrack::Algorithm::ToolTip::estimatePosition3D_6D( pWolrd2Tip, noisyPoses, pTool2Tip, params ) )
 		{
-			BOOST_CHECK_MESSAGE( false, "robust tooltip calibration did not converge successfully." );
+			BOOST_MESSAGE( "robust tooltip calibration from " << n << " poses did not converge successfully with " << outlier << " outlier within " << params.nMaxIterations << " iterations." );
 			continue;
 		}
 		
@@ -99,7 +90,7 @@ void testRobustTipCalibrationRandom( const std::size_t n_runs, const T epsilon )
 		Vector< T, 3 > pWolrd2Tip2;
 		if( !Ubitrack::Algorithm::ToolTip::estimatePosition3D_6D( pWolrd2Tip2, noisyPoses, pTool2Tip2 ) )
 		{
-			BOOST_CHECK_MESSAGE( false, "tooltip calibration did not converge successfully." );
+			BOOST_MESSAGE( "tooltip calibration did not converge successfully." );
 			continue;
 		}
 		
@@ -116,4 +107,3 @@ void TestRobustTipCalibration()
 	testRobustTipCalibrationRandom< double >( 1000, 1e-6 );
 }
 
-#endif // HAVE_LAPACK

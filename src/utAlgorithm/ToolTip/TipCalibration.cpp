@@ -24,7 +24,8 @@
 /**
  * @ingroup tracking_algorithms
  * @file
- * Implements functions for tooltip/hotspot calibration.
+ * Implements all function calls for tooltip/hotspot calibration to generate
+ * an object file providinig all available methods for standard datatypes.
  *
  * @author Daniel Pustka <daniel.pustka@in.tum.de>
  * @author Christian Waechter <christian.waechter@in.tum.de> (modified)
@@ -32,71 +33,19 @@
 
 // Ubitrack
 #include "TipCalibration.h"
-#include <utMath/Matrix.h>
-#include <utMath/Blas1.h>
+#include "ErrorEstimation.h"
+#include "LeastSquare.h"
+#include "Optimization.h"
+#include "Ransac.h"
 
-// std
-#include <numeric>
-
-#ifdef HAVE_LAPACK
-#include <boost/numeric/bindings/traits/ublas_matrix.hpp>
-#include <boost/numeric/bindings/traits/ublas_vector2.hpp>
-#include <boost/numeric/bindings/lapack/gels.hpp>
-#include <boost/numeric/ublas/matrix_proxy.hpp>
-
-// shortcuts to namespaces
-namespace ublas = boost::numeric::ublas;
-namespace lapack = boost::numeric::bindings::lapack;
-# endif // HAVE_LAPACK
 
 namespace Ubitrack { namespace Algorithm { namespace ToolTip {
-
-#ifndef HAVE_LAPACK // write an empty body
-template< typename T >
-bool estimatePosition3D_6DImpl( Math::Vector< T, 3 >& 
-	, const std::vector< Math::Pose >& 
-	, Math::Vector< T, 3 >& )
-	{ return false; }
-#else // HAVE_LAPACK
-/// @internal general implementation of tooltip calibration algorithm
-template< typename T >
-bool estimatePosition3D_6DImpl( Math::Vector< T, 3 >& pw
-	, const std::vector< Math::Pose >& poses
-	, Math::Vector< T, 3 >& pm )
-{
-	const std::size_t nPoses = ( poses.size() );
-	typename Math::Matrix< T >::base_type a( 3 * nPoses, 6 );
-	typename Math::Vector< T >::base_type v( 3 * nPoses );
-	
-	for ( std::size_t i( 0 ); i < nPoses; i++ )
-	{
-		// set a
-		ublas::matrix_range< typename Math::Matrix< T >::base_type > r( 
-			a, ublas::range( i * 3, (i+1) * 3 ), ublas::range( 0, 3 ) );
-		poses[ i ].rotation().toMatrix( r );
-		ublas::subrange( a, i * 3, (i+1) * 3, 3, 6 ) = - Math::Matrix< T, 3, 3 >::identity();
-
-		// set v
-		ublas::subrange( v, i * 3, (i+1) * 3 ) = -poses[ i ].translation();
-	}
-
-	// solve
-	if( 0 != lapack::gels( 'N', a, v ) )
-		return false;
-		
-	// save result
-	pm = ublas::subrange( v, 0, 3 );
-	pw = ublas::subrange( v, 3, 6 );
-	
-	return true;
-}
-#endif // HAVAE_LAPACK
 
 /// @internal old function signature that performs the calibration
 void tipCalibration( const std::vector< Math::Pose >& poses, 
 	Math::Vector< double, 3 >& pm, Math::Vector< double, 3 >& pw )
 {
-	estimatePosition3D_6DImpl< double >( pw, poses, pm );
+	estimatePosition3D_6D< double >( pw, poses.begin(), poses.end(), pm );
 }
 
 /// @internal specialization of tooltip calibration for type \c float
@@ -104,7 +53,7 @@ bool estimatePosition3D_6D( Math::Vector< float, 3 >& pw
 	, const std::vector< Math::Pose >& poses 
 	, Math::Vector< float, 3 >& pm )
 {
-	return estimatePosition3D_6DImpl< float >( pw, poses, pm );
+	return estimatePosition3D_6D< float >( pw, poses.begin(), poses.end(), pm );
 }
 
 /// @internal specialization of tooltip calibration for type \c double
@@ -112,7 +61,60 @@ bool estimatePosition3D_6D( Math::Vector< double, 3 >& pw
 	, const std::vector< Math::Pose >& poses 
 	, Math::Vector< double, 3 >& pm )
 {
-	return estimatePosition3D_6DImpl< double >( pw, poses, pm );
+	return estimatePosition3D_6D< double >( pw, poses.begin(), poses.end(), pm );
+}
+
+/// @internal specialization of tooltip error estimation for type \c float
+std::pair< float, float > estimatePosition3DError_6D( const Math::Vector3f& pw
+	, const std::vector< Math::Pose >& poses 
+	, const Math::Vector3f& pm )
+{
+	return estimatePosition3DError_6D( pw, poses.begin(), poses.end(), pm );
+}
+
+/// @internal specialization of tooltip error estimation for type \c double
+std::pair< double, double > estimatePosition3DError_6D( const Math::Vector3d& pw
+	, const std::vector< Math::Pose >& poses 
+	, const Math::Vector3d& pm )
+{
+	return estimatePosition3DError_6D( pw, poses.begin(), poses.end(), pm );
+}
+
+/// @internal specialization of non-linearly optimized tooltip calibration for type \c float
+bool estimatePosition3D_6D( Math::Vector3f& pw
+	, const std::vector< Math::Pose >& poses 
+	, Math::Vector3f& pm
+	, const Math::Optimization::OptTerminate& criteria )
+{
+	return estimatePosition3D_6D( pw, poses.begin(), poses.end(), pm, criteria );
+}
+
+/// @internal specialization of non-linearly optimized tooltip calibration for type \c double
+bool estimatePosition3D_6D( Math::Vector3d& pw
+	, const std::vector< Math::Pose >& poses 
+	, Math::Vector3d& pm
+	, const Math::Optimization::OptTerminate& criteria )
+{
+	return estimatePosition3D_6D( pw, poses.begin(), poses.end(), pm, criteria );
+}
+
+
+/// @internal specialization of tooltip ransac calibration for type \c float
+bool estimatePosition3D_6D( Math::Vector3f& pw
+	, const std::vector< Math::Pose >& poses 
+	, Math::Vector3f& pm
+	, const Math::Optimization::RansacParameter< float >& params )
+{
+	return estimatePosition3D_6D( pw, poses.begin(), poses.end(), pm, params );
+}
+	
+/// @internal specialization of tooltip ransac calibration for type \c double
+bool estimatePosition3D_6D( Math::Vector3d& pw
+	, const std::vector< Math::Pose >& poses 
+	, Math::Vector3d& pm
+	, const Math::Optimization::RansacParameter< double >& params )
+{
+	return estimatePosition3D_6D( pw, poses.begin(), poses.end(), pm, params );
 }
 
 }}} // namespace Ubitrack::Algorithm::ToolTip

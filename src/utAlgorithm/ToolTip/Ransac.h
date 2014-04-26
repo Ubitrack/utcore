@@ -32,7 +32,9 @@
 #ifndef __UBITRACK_ALGROITHM_TOOLTIP_RANSAC_H_INCLUDED__
 #define __UBITRACK_ALGROITHM_TOOLTIP_RANSAC_H_INCLUDED__
 
-#include "TipCalibration.h" // includes std::vector/Pose/Vector
+
+#include "LeastSquare.h" // includes std::vector/Pose
+#include <utCore.h>
 #include <utMath/Blas1.h>
 #include <utMath/Optimization/Ransac.h>
 
@@ -52,16 +54,18 @@ public:
 	typedef Math::Vector< T, 6 > result_type;
 	
 	/**
-	 * @internal computes euclidean distance of transformed point to original point
+	 * @internal computes a to the tooltip calibration from given parameters
 	 */
 	struct Estimator
 	{
 		public:
-		bool operator()( Math::Vector< T, 6 >& resultVector, const std::vector< Math::Pose >& poses ) const
+		
+		template< typename InputIterator >
+		bool operator()( Math::Vector< T, 6 >& resultVector, const InputIterator iBegin, const InputIterator iEnd ) const
 		{
 			Math::Vector< T, 3 > pw;
 			Math::Vector< T, 3 > pm;
-			if ( !estimatePosition3D_6D( pw, poses, pm ) )
+			if ( !estimatePosition3D_6D( pw, iBegin, iEnd, pm ) )
 				return false;
 				
 			resultVector[ 0 ] = pw[ 0 ];
@@ -73,6 +77,7 @@ public:
 			return true;
 		}
 	};
+	
 	/**
 	 * @internal computes euclidean distance of transformed point to original point
 	 */
@@ -90,20 +95,32 @@ public:
 	};
 };
 
-bool estimatePosition3D_6D( Math::Vector< double, 3 >& pw
-	, const std::vector< Math::Pose >& poses 
-	, Math::Vector< double, 3 >& pm
-	, const Math::Optimization::RansacParameter< double >& params )
-	{
-		Math::Vector< double, 6 > resultVector;
-		const std::size_t inlier = Math::Optimization::ransac( poses.begin(), poses.end(), resultVector, ToolTip::Ransac< double >(), params  );
-		
-		pw = Math::Vector< double, 3 > ( resultVector[ 0 ], resultVector[ 1 ], resultVector[ 2 ] );
-		pm = Math::Vector< double, 3 > ( resultVector[ 3 ], resultVector[ 4 ], resultVector[ 5 ] );
-		
-		return ( inlier > 0 );
-	}
+template< typename T, typename InputIterator >
+bool estimatePosition3D_6D( Math::Vector< T, 3 >& pw
+	, const InputIterator iBegin
+	, const InputIterator iEnd
+	, Math::Vector< T, 3 >& pm
+	, const Math::Optimization::RansacParameter< T >& params )
+{
+	Math::Vector< T, 6 > resultVector;
+	const std::size_t inlier = Math::Optimization::ransac( iBegin, iEnd, resultVector, ToolTip::Ransac< T >(), params  );
+	
+	pw = Math::Vector< T, 3 > ( resultVector[ 0 ], resultVector[ 1 ], resultVector[ 2 ] );
+	pm = Math::Vector< T, 3 > ( resultVector[ 3 ], resultVector[ 4 ], resultVector[ 5 ] );
+	
+	return ( inlier > 0 );
+}
 
+UBITRACK_EXPORT bool estimatePosition3D_6D( Math::Vector3f& pw
+	, const std::vector< Math::Pose >& poses 
+	, Math::Vector3f& pm
+	, const Math::Optimization::RansacParameter< float >& params );
+	
+
+UBITRACK_EXPORT bool estimatePosition3D_6D( Math::Vector3d& pw
+	, const std::vector< Math::Pose >& poses 
+	, Math::Vector3d& pm
+	, const Math::Optimization::RansacParameter< double >& params );	
 
 }}} // namespace Ubitrack::Algorithm::ToolTip
 

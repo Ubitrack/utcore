@@ -35,33 +35,80 @@
 // Ubitrack
 #include <utCore.h>
 #include <utMath/Pose.h>
-#include <utMath/Vector.h> //includes std::vector
+#include <utMath/Vector.h>
+#include <utMath/Blas1.h>
 
 // std
 #include <utility> // std::pair
+#include <numeric> // std::accumulate
+#include <algorithm> // std::transform
 
 namespace Ubitrack { namespace Algorithm { namespace ToolTip {
 
-/**
- * @ingroup tracking_algorithms
- * Computes the gaussian error of a tip/hotspot calibration.
- *
- * The routine calculates the mean error as
- * @f$ \frac{\sum_i=0^n=N | p_w - R_i p_m + t_i |_2}{n} @f$ 
- *
- * @param pw the constant point(tooltip/hotspot) in world coordinates
- * @param poses the container of poses describing the orbit around the (tooltip/hotspot)
- * @param pm the constant point(tooltip/hotspot) in body coordinates
- * @return returns a pair of values including the mean value and the standard deviation of the error
- */
-UBITRACK_EXPORT std::pair< float, float > estimatePosition3DError_6D( const Math::Vector3f& pw
-	, const std::vector< Math::Pose >& poses 
-	, const Math::Vector3f& pm );
 
-UBITRACK_EXPORT std::pair< double, double > estimatePosition3DError_6D( const Math::Vector3d& pw
-	, const std::vector< Math::Pose >& poses 
-	, const Math::Vector3d& pm );
+///  @internal functor object to calculate the resulting error
+template< typename T >
+struct ErrorFunction
+{
+protected:
+	Math::Vector< T, 3 > tip;
+	Math::Vector< T, 3 > offset;
+	
+public:
+	ErrorFunction( const Math::Vector< T, 3 > & pw, const Math::Vector< T, 3 > & pm )
+		: tip( pw )
+		, offset( pm )
+		{}
+		
+	T operator()( const Math::Pose& pose )
+	{
+		const Math::Vector< T, 3 > vec = tip - ( pose * offset );
+		return Ubitrack::Math::norm_2( vec );
+	}
+	
+	T operator()( const T sum, const Math::Pose& pose )
+	{
+		return sum + operator()( pose );
+	}
+};
 
+/// @internal function to calculate the normal error of the tool tip calibration
+template< typename T, typename InputIterator >
+std::pair< T, T > estimatePosition3DError_6D( const Math::Vector< T, 3 >& pw
+	, const InputIterator iBegin
+	, const InputIterator iEnd
+	, const Math::Vector< T, 3 >& pm )
+{
+	{	// old version
+		// T err( 0 );
+		// //err = std::accumulate( poses.begin(), poses.end(), err, ErrorFunction< T >( pw, pm ) );
+		// err /= n;
+	}
+
+	// calculate distance errors in advance and reuse them later
+	const std::size_t n ( std::distance(  iBegin, iEnd ) );
+	std::vector< T > distance_error;
+	distance_error.reserve( n );
+	std::transform( iBegin, iEnd, std::back_inserter( distance_error ), ErrorFunction< T >( pw, pm ) );
+	
+
+	T err( 0 );
+	{	// mean error
+		err = std::accumulate( distance_error.begin(), distance_error.end(), err );
+		err /= n;
+	}
+
+	
+	T stdDev( 0 );
+	{	// standard deviation
+		for( typename std::vector< T >::const_iterator it ( distance_error.begin() ); it != distance_error.end(); ++it )
+			stdDev += pow( *it - err, 2 );
+		
+		stdDev /= (n-1);
+		stdDev = std::sqrt( stdDev );
+	}
+	return std::make_pair( err, stdDev ) ;
+}
 	
 }}} // namespace Ubitrack::Algorithm::ToolTip
 

@@ -32,7 +32,8 @@
 #ifndef __UBITRACK_ALGROITHM_TOOLTIP_OPTIMIZATION_H_INCLUDED__
 #define __UBITRACK_ALGROITHM_TOOLTIP_OPTIMIZATION_H_INCLUDED__
 
-#include "TipCalibration.h" // includes std::vector/Pose/Vector
+#include "LeastSquare.h" // includes std::vector/Pose/Vector
+#include <utCore.h>
 #include <utMath/Blas1.h>
 #include <utMath/Optimization/Optimization.h>
 #include <utMath/Optimization/LevenbergMarquardt.h>
@@ -189,49 +190,60 @@ public:
 };
 
 
-
-bool estimatePosition3D_6D( Math::Vector< double, 3 >& pw
-	, const std::vector< Math::Pose >& poses 
-	, Math::Vector< double, 3 >& pm
+template< typename T, typename InputIterator >
+bool estimatePosition3D_6D( Math::Vector< T, 3 >& pw
+	, const InputIterator iBegin 
+	, const InputIterator iEnd
+	, Math::Vector< T, 3 >& pm
 	, const Math::Optimization::OptTerminate& criteria )
-	{
+{
+
+	const std::size_t n = std::distance( iBegin, iEnd );
+	assert( n > 2 );
 	
-		const std::size_t n ( poses.size() );
-		
-		// 1) estimate a first initial guess
-		if( !estimatePosition3D_6D( pw, poses, pm ) )
-			return false;
-		
-		// 2) set some initial values to be optimized non-linearly
-		Math::Vector< double, 6 > paramVector;
-		paramVector( 0 ) = pw[ 0 ];
-		paramVector( 1 ) = pw[ 1 ];
-		paramVector( 2 ) = pw[ 2 ];
-		paramVector( 3 ) = pm[ 0 ];
-		paramVector( 4 ) = pm[ 1 ];
-		paramVector( 5 ) = pm[ 2 ];
+	// 1) estimate a first initial guess
+	if( !estimatePosition3D_6D( pw, iBegin, iEnd, pm ) )
+		return false;
+	
+	// 2) set some initial values to be optimized non-linearly
+	Math::Vector< T, 6 > paramVector;
+	paramVector( 0 ) = pw[ 0 ];
+	paramVector( 1 ) = pw[ 1 ];
+	paramVector( 2 ) = pw[ 2 ];
+	paramVector( 3 ) = pm[ 0 ];
+	paramVector( 4 ) = pm[ 1 ];
+	paramVector( 5 ) = pm[ 2 ];
 
-		
-		// 3) prepare the expectation values of the minimization function
-		Math::Vector< double > measurement = Math::Vector< double >::zeros( n );
-		
-		// 4) set the evaluation function
-		ToolTip::MultiplePoseSinglePointTransformation< std::vector< Math::Pose >::const_iterator > func( poses.begin(), poses.end() );
-		
-		// 5) perform optimization
-		double residual = Ubitrack::Math::Optimization::levenbergMarquardt( func, paramVector, measurement, criteria, Math::Optimization::OptNoNormalize() );	
-		// std::cout << "Residual Error " << residual << std::endl;
-		pw[ 0 ] = paramVector[ 0 ];
-		pw[ 1 ] = paramVector[ 1 ] ;
-		pw[ 2 ] = paramVector[ 2 ] ;
-		pm[ 0 ] = paramVector[ 3 ] ;
-		pm[ 1 ] = paramVector[ 4 ] ;
-		pm[ 2 ] = paramVector[ 5 ] ;
-		
-		return true;
-	}
+	
+	// 3) prepare the expectation values of the minimization function
+	Math::Vector< T > measurement = Math::Vector< T >::zeros( n );
+	
+	// 4) set the evaluation function
+	ToolTip::MultiplePoseSinglePointTransformation< InputIterator > func( iBegin, iEnd );
+	
+	// 5) perform optimization
+	T residual = Ubitrack::Math::Optimization::levenbergMarquardt( func, paramVector, measurement, criteria, Math::Optimization::OptNoNormalize() );	
+	// std::cout << "Residual Error " << residual << std::endl;
+	pw[ 0 ] = paramVector[ 0 ];
+	pw[ 1 ] = paramVector[ 1 ] ;
+	pw[ 2 ] = paramVector[ 2 ] ;
+	pm[ 0 ] = paramVector[ 3 ] ;
+	pm[ 1 ] = paramVector[ 4 ] ;
+	pm[ 2 ] = paramVector[ 5 ] ;
+	
+	return true;
+}
 
+UBITRACK_EXPORT bool estimatePosition3D_6D( Math::Vector3f& pw
+	, const std::vector< Math::Pose >& poses 
+	, Math::Vector3f& pm
+	, const Math::Optimization::OptTerminate& criteria );
 
+UBITRACK_EXPORT bool estimatePosition3D_6D( Math::Vector3d& pw
+	, const std::vector< Math::Pose >& poses 
+	, Math::Vector3d& pm
+	, const Math::Optimization::OptTerminate& criteria );
+	
 }}} // namespace Ubitrack::Algorithm::ToolTip
 
 #endif // __UBITRACK_ALGROITHM_TOOLTIP_OPTIMIZATION_H_INCLUDED__

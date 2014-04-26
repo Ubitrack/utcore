@@ -24,28 +24,35 @@
 /**
  * @ingroup tracking_algorithms
  * @file
- * Functions for tooltip/hotspot calibration.
+ * Implements a least-square solution for tooltip/hotspot calibration.
  *
  * @author Daniel Pustka <daniel.pustka@in.tum.de>
  * @author Christian Waechter <christian.waechter@in.tum.de> (modified)
  */ 
 
-#ifndef __UBITRACK_ALGROITHM_TOOLTIP_CALIBRATION_H_INCLUDED__
-#define __UBITRACK_ALGROITHM_TOOLTIP_CALIBRATION_H_INCLUDED__
-
+ 
+#ifndef __UBITRACK_ALGROITHM_TOOLTIP_LEASTSQUARES_H_INCLUDED__
+#define __UBITRACK_ALGROITHM_TOOLTIP_LEASTSQUARES_H_INCLUDED__
+ 
 // Ubitrack
-#include <utCore.h>
 #include <utMath/Pose.h>
-#include <utMath/Vector.h> //incldues std::vector
+#include <utMath/Matrix.h>
+#include <utMath/Blas1.h>
 
-// std
-#include <utility> // std::pair
+#ifdef HAVE_LAPACK
+
+#include <boost/numeric/ublas/matrix_proxy.hpp>
+#include <boost/numeric/bindings/traits/ublas_matrix.hpp>
+#include <boost/numeric/bindings/traits/ublas_vector2.hpp>
+#include <boost/numeric/bindings/lapack/gels.hpp>
+
+# endif // HAVE_LAPACK
 
 namespace Ubitrack { namespace Algorithm { namespace ToolTip {
 
 /**
  * @ingroup tracking_algorithms
- * Computes the tooltip/hotspot calibration.
+ * Computes the tooltip/hotspot calibration in a least-square fashion.
  *
  * The routine solves the following equation system using a least-square solution
  * , given a list of body @f$ i @f$ poses (R_i, t_i):
@@ -69,43 +76,57 @@ namespace Ubitrack { namespace Algorithm { namespace ToolTip {
  *
  *
  * @param pm returns the constant point in body coordinates
- * @param poses the list of poses that
+ * @param iBgein iterator pointing to a first pose from a container of pose elements
+ * @param iEnd iterator pointing to the end of a container of pose elements
  * @param pw returns the constant point in world coordinates
  */	
-UBITRACK_EXPORT bool estimatePosition3D_6D( Math::Vector3f& pw
-	, const std::vector< Math::Pose >& poses 
-	, Math::Vector3f& pm );
-	
-UBITRACK_EXPORT bool estimatePosition3D_6D( Math::Vector3d& pw
-	, const std::vector< Math::Pose >& poses 
-	, Math::Vector3d& pm );
-	
-/**
- * @ingroup tracking_algorithms
- * Computes the gaussian error of a tip/hotspot calibration.
- *
- * The routine calculates the mean error as
- * @f$ \frac{\sum_i=0^n=N | p_w - R_i p_m + t_i |_2}{n} @f$ 
- *
- * @param pw the constant point(tooltip/hotspot) in world coordinates
- * @param poses the container of poses describing the orbit around the (tooltip/hotspot)
- * @param pm the constant point(tooltip/hotspot) in body coordinates
- * @return returns a pair of values including the mean value and the standard deviation of the error
- */
-UBITRACK_EXPORT std::pair< float, float > estimatePosition3DError_6D( const Math::Vector3f& pw
-	, const std::vector< Math::Pose >& poses 
-	, const Math::Vector3f& pm );
+template< typename T, typename InputIterator >
+bool estimatePosition3D_6D( Math::Vector< T, 3 >& pw
+	, const InputIterator iBegin
+	, const InputIterator iEnd
+	, Math::Vector< T, 3 >& pm )
+{
 
-UBITRACK_EXPORT std::pair< double, double > estimatePosition3DError_6D( const Math::Vector3d& pw
-	, const std::vector< Math::Pose >& poses 
-	, const Math::Vector3d& pm );
+#ifndef HAVE_LAPACK
+	return false;
+#else
 
-
-/// old version of function call, please use instead: \c bool estimatePosition3D_6D( Math::Vector3f& pw, const std::vector< Math::Pose >& poses , Math::Vector3f& pm );
-UBITRACK_EXPORT void tipCalibration( const std::vector< Math::Pose >& poses, 
-	Math::Vector3d& pm, Math::Vector3d& pw );
+	// shortcuts to namespaces
+	namespace ublas = boost::numeric::ublas;
+	namespace lapack = boost::numeric::bindings::lapack;
 	
+	const std::size_t nPoses = std::distance( iBegin, iEnd );
+	assert( nPoses > 2 );
+	
+	typename Math::Matrix< T >::base_type a( 3 * nPoses, 6 );
+	typename Math::Vector< T >::base_type v( 3 * nPoses );
+	
+	std::size_t i = 0;
+	for ( InputIterator it( iBegin ); it < iEnd; ++it, ++i )
+	{
+		// set a
+		ublas::matrix_range< typename Math::Matrix< T >::base_type > r( 
+			a, ublas::range( i * 3, (i+1) * 3 ), ublas::range( 0, 3 ) );
+		it->rotation().toMatrix( r );
+		ublas::subrange( a, i * 3, (i+1) * 3, 3, 6 ) = - Math::Matrix< T, 3, 3 >::identity();
+
+		// set v
+		ublas::subrange( v, i * 3, (i+1) * 3 ) = -(it->translation());
+	}
+
+	// solve
+	if( 0 != lapack::gels( 'N', a, v ) )
+		return false;
+		
+	// save result
+	pm = ublas::subrange( v, 0, 3 );
+	pw = ublas::subrange( v, 3, 6 );
+	
+	return true;
+#endif // HAVE_LAPACK
+
+}
+
 }}} // namespace Ubitrack::Algorithm::ToolTip
 
-
-#endif //__UBITRACK_ALGROITHM_TOOLTIP_CALIBRATION_H_INCLUDED__
+#endif //__UBITRACK_ALGROITHM_TOOLTIP_LEASTSQUARES_H_INCLUDED__
