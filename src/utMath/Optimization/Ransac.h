@@ -27,6 +27,7 @@
  * @file
  * Ransac algorithm
  * @author Daniel Pustka <pustka@in.tum.de>
+ * @author Christian Waechter <christian.waechter@in.tum.de> (modified)
  */
 
 
@@ -35,7 +36,6 @@
 
 #include <utCore.h>
 #include "Optimization.h"
-
 
 #include <vector>
 #include <stdlib.h>
@@ -46,10 +46,10 @@
 namespace Ubitrack { namespace Math { namespace Optimization {
 
 /**
- * Parameter structure for the RANSAC algorithmic framework
+ * Parameter structure for the RANSAC algorithm framework
  *
  * This struct holds all parameters to set the appropriate parameters
- * of the ransac algorithmic framework.
+ * of the ransac algorithm framework.
  */
 template< typename T >
 struct RansacParameter
@@ -62,17 +62,31 @@ public:
 	typedef T value_type;
 
 	const value_type threshold;
-	size_type setSize;
+	const size_type setSize;
 	const size_type nMinInlier;
-	const size_type nMinRuns;
-	const size_type nMaxRuns;
+	const size_type nMaxIterations;
 	
-	RansacParameter( const T fThreshold, const std::size_t n, const std::size_t minInlier, const std::size_t minRuns, const std::size_t maxRuns )
+	RansacParameter( const T fThreshold, const std::size_t n, const std::size_t minInlier, const std::size_t maxRuns )
 		: threshold ( fThreshold )
 		, setSize ( n )
 		, nMinInlier ( minInlier )
-		, nMinRuns ( minRuns )
-		, nMaxRuns ( maxRuns )
+		, nMaxIterations ( maxRuns )
+		{};
+	
+	/**
+	 * Constructor accepting intuitive parameters
+	 *
+	 *  @param fThreshold threhold to decide wether an value is accepeted tu support the hypothesis or not
+	 *  @param nMinSet amount of values needed to estimate a solution by the given problem
+	 *  @param n amount of values provided to estimate a solution for the given problem
+	 *  @param percentOutlier signs the percentage of expected outlier ( ranges from 0 to 1 )
+	 *  @param percentSucess probability that signs how intensive should be found a solution (affects number of iterations)
+	 */
+	RansacParameter( const T fThreshold, const std::size_t nMinSet, const std::size_t n, const T percentOutlier, const T percentSucess = 0.99 )
+		: threshold ( fThreshold )
+		, setSize ( nMinSet )
+		, nMinInlier ( (1.-percentOutlier) * n  )
+		, nMaxIterations ( 1+std::log( 1-percentSucess) / ( std::log( 1-std::pow( 1-percentOutlier, static_cast< int >( nMinSet ) ) ) ) )
 		{};
 };
 
@@ -107,17 +121,21 @@ std::size_t ransac( const InputIterator iBegin, const InputIterator iEnd
 	
 	OPT_LOG_DEBUG( "RANSAC with " << nValues << " values , " << params.nMinInlier << " inlier required" );
 	
-	// set of inlier
-	std::vector< bool > bInliers( nValues );
+	// set of pointer to inlier
+	std::vector< InputIterator > iInliers;
+	iInliers.reserve( nValues );
 
-	// best so far
+	// amount of best inlier so far
 	std::size_t nBestInliers = 0;
-	std::vector< bool > bBestInliers( nValues );
+	
+	std::vector< InputIterator > iBestInliers;
+	iBestInliers.reserve( nValues );
 	
 	std::size_t iRun ;
-	for( iRun = 0; iRun < params.nMaxRuns; iRun++ )
+	for( iRun = 0; iRun < params.nMaxIterations; iRun++ )
 	{
 		OPT_LOG_TRACE( "RANSAC iteration " << iRun + 1 );
+		
 		
 		// generate random set
 		list_type list;
@@ -131,7 +149,7 @@ std::size_t ransac( const InputIterator iBegin, const InputIterator iEnd
 		
 		// compute hypothesis
 		ResultType hypothesis;
-		if( ! typename RansacFunctor::Estimator()( hypothesis, list ) )
+		if( ! typename RansacFunctor::Estimator()( hypothesis, list.begin(), list.end() ) )
 		{
 			OPT_LOG_TRACE( "fast forward, no estimation possible" );
 			continue;
@@ -139,12 +157,15 @@ std::size_t ransac( const InputIterator iBegin, const InputIterator iEnd
 		// count inlier
 		std::size_t nInlier = 0;
 		T fInlierDist = 0;
+		iInliers.clear();
+		
 		InputIterator it ( iBegin );
 		for ( std::size_t i = 0; i < nValues && int( nValues - i ) >= int( params.nMinInlier - nInlier ); i++, ++it )
 		{
 			const T d = typename RansacFunctor::Evaluator()( hypothesis, *it );
-			if ( ( bInliers[ i ] = ( d < params.threshold ) ) == true )
+			if( d < params.threshold )
 			{
+				iInliers.push_back( it );
 				nInlier++;
 				fInlierDist += d;
 			}
@@ -160,13 +181,12 @@ std::size_t ransac( const InputIterator iBegin, const InputIterator iEnd
 		if ( nInlier >= params.nMinInlier && nInlier > nBestInliers )
 		{
 			nBestInliers = nInlier;
-			bBestInliers = bInliers;
+			iBestInliers = iInliers;
 		}
 
 		// stop after nMinRun iterations if the required number of inlier was found
-		if ( nBestInliers >= params.nMinInlier && iRun + 1 >= params.nMinRuns )
+		if ( nBestInliers >= params.nMinInlier )
 			break;
-
 	}
 
 	if ( nBestInliers >= params.nMinInlier )
@@ -174,15 +194,14 @@ std::size_t ransac( const InputIterator iBegin, const InputIterator iEnd
 		// compute final result
 		list_type list;
 		list.reserve( nBestInliers );
-		InputIterator it ( iBegin );
-		for ( std::size_t i = 0; i < nValues; i++, ++it )
-			if ( bBestInliers[ i ] )
-			{
-				list.push_back( *it );
-			}
-			
-		typename RansacFunctor::Estimator()( result, list );
-		OPT_LOG_DEBUG( iRun + 1 << " iterations, " << nBestInliers << " inlier" );
+		
+		typename std::vector< InputIterator >::const_iterator it = iBestInliers.begin();
+		typename std::vector< InputIterator >::const_iterator itEnd = iBestInliers.end();
+		for ( ; it < itEnd; ++it )
+			list.push_back( *(*it) );
+
+		typename RansacFunctor::Estimator()( result, list.begin(), list.end() );
+		OPT_LOG_DEBUG( "Estimated " << nBestInliers << " inlier after " << iRun + 1 << " iterations."  );
 		return nBestInliers;
 	}
 	
