@@ -8,7 +8,7 @@
 #include <utMath/Random/Scalar.h>
 #include <utMath/Random/Vector.h>
 #include <utMath/Random/Rotation.h>
-#include "../tools.h"
+#include "../../tools.h"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
@@ -71,7 +71,7 @@ void testAbsoluteOrientationRandom( const std::size_t n_runs, const T epsilon )
 	
 	for ( std::size_t iRun = 0; iRun < n_runs; iRun++ )
 	{
-		const std::size_t n( Random::distribute_uniform< std::size_t >( 4, 30 ) );
+		const std::size_t n( Random::distribute_uniform< std::size_t >( 3, 30 ) );
 
 		std::vector< Vector< T, 3 > > rightFrame;
 		rightFrame.reserve( n );

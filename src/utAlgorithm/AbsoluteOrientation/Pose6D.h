@@ -63,7 +63,7 @@ bool estimatePose6D_3D3D ( const InputIterator itBegin1, const InputIterator itE
 
 	{
 		const std::size_t n = std::distance( itBegin1, itEnd1 );
-		assert( n > 3u ); // <- 3D3D needs at least three pairwise distinct values
+		assert( n > 2u ); // <- 3D3D needs at least three pairwise distinct values
 		const std::size_t n2 = std::distance( itBegin2, itEnd2 );
 		assert( n == n2 ); // <- should contain equal amount of values
 	}
@@ -87,9 +87,6 @@ bool estimatePose6D_3D3D ( const InputIterator itBegin1, const InputIterator itE
 	typedef typename std::iterator_traits< InputIterator >::value_type vector_type; 
 
 	const std::size_t n = std::distance( itBegin1, itEnd1 );
-	assert( n > 3u ); // <- 3D3D needs at least three pairwise distinct values
-	const std::size_t n2 = std::distance( itBegin2, itEnd2 );
-	assert( n == n2 ); // <- should contain equal amount of values
 
 	const vector_type leftCentroid = std::accumulate( itBegin1, itEnd1, vector_type::zeros() ) / n;
 	const vector_type rightCentroid = std::accumulate( itBegin2, itEnd2, vector_type::zeros() ) / n;

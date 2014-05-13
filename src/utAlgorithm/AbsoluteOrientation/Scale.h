@@ -81,7 +81,8 @@ typename std::iterator_traits< InputIterator >::value_type::value_type estimateS
 		const value_type normSquared = (rr_ref[0]*rr_ref[0])+(rr_ref[1]*rr_ref[1])+(rr_ref[2]*rr_ref[2]);						
 		sNumerator += normSquared ;
 	}	
-	return std::sqrt( sNumerator / sDenominator );
+	// return std::sqrt( sNumerator / sDenominator );
+	return std::sqrt( sDenominator / sNumerator );
 }
 
 template < typename InputIterator >
@@ -95,9 +96,6 @@ typename std::iterator_traits< InputIterator >::value_type::value_type estimateS
 	typedef typename vector_type::value_type value_type;
 	
 	const std::size_t n = std::distance( iBeginLeft, iEndLeft );
-	assert( n > 3u );
-	const std::size_t n2 = std::distance( iBeginRight, iEndRight );
-	assert( n == n2 );
 	
 	//Compute the centroids of both coordinate systems
 	const vector_type leftCentroid = std::accumulate( iBeginLeft, iEndLeft, vector_type::zeros() ) / n;

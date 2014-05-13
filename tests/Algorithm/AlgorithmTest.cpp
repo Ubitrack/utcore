@@ -1,12 +1,17 @@
 #include "AlgorithmTest.h"
 
 // declare external tests here, to save us some trivial header files
+// new tests
 void TestTipCalibration();
 void TestRobustTipCalibration();
 void TestOptimizedTipCalibration();
+void TestAbsOrientScale();
+void TestAbsOrientRotation3D();
+void TestAbsoluteOrientation();
+
+// old tests..
 void Test2D3DPoseEstimation();
 void Test3DPointReconstruction();
-void TestAbsoluteOrientation();
 void TestBundleAdjustment();
 void TestDecomposeProjection();
 void TestFundamentalMatrix();
@@ -23,9 +28,13 @@ AlgorithmTest::AlgorithmTest()
 	add( BOOST_TEST_CASE( &TestTipCalibration ) );
 	add( BOOST_TEST_CASE( &TestRobustTipCalibration ) );
 	add( BOOST_TEST_CASE( &TestOptimizedTipCalibration ) );
+	add( BOOST_TEST_CASE( &TestAbsOrientScale ) );
+	add( BOOST_TEST_CASE( &TestAbsOrientRotation3D ) );
+	add( BOOST_TEST_CASE( &TestAbsoluteOrientation ) );
+	
+	// old tests...
 	add( BOOST_TEST_CASE( &Test2D3DPoseEstimation ) );
 	add( BOOST_TEST_CASE( &Test3DPointReconstruction ) );
-	add( BOOST_TEST_CASE( &TestAbsoluteOrientation ) );
 	add( BOOST_TEST_CASE( &TestBundleAdjustment ) );
 	add( BOOST_TEST_CASE( &TestDecomposeProjection ) );
 	add( BOOST_TEST_CASE( &TestFundamentalMatrix ) );
