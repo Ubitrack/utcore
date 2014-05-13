@@ -41,7 +41,7 @@
 #include <boost/numeric/bindings/lapack/syev.hpp>
 namespace lapack = boost::numeric::bindings::lapack;
 
-namespace Ubitrack { namespace Algorithm {
+namespace Ubitrack { namespace Algorithm { namespace AbsoluteOrientation {
 
 namespace { // anonymous
 
@@ -268,6 +268,6 @@ bool estimateRotation_3D3D( const std::vector< Math::Vector3f >& points3dA
 	return calculateRotation_impl ( points3dA.begin(), points3dA.end(), quat, points3dB.begin(), points3dB.end(), leftCentroid, rightCentroid );
 }
 
-} } // namespace Ubitrack::Algorithm
+} } } // namespace Ubitrack::Algorithm::AbsoluteOrientation
 
 #endif // HAVE_LAPACK

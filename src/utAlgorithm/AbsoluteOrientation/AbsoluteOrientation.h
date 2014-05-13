@@ -43,7 +43,7 @@
 
 #include <vector>
 
-namespace Ubitrack { namespace Algorithm {
+namespace Ubitrack { namespace Algorithm { namespace AbsoluteOrientation {
 
 /**
  * @ingroup tracking_algorithms
@@ -239,7 +239,7 @@ public:
     // return rms;
 // }
 
-} } // namespace Ubitrack::Algorithm
+} } } // namespace Ubitrack::Algorithm::AbsoluteOrientation
 
 #endif // HAVE_LAPACK
 

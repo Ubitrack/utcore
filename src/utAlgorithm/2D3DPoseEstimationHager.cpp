@@ -30,7 +30,7 @@
  */
 
 #include "2D3DPoseEstimationHager.h"
-#include "AbsoluteOrientation.h" // -> orientation estimation
+#include "AbsoluteOrientation/AbsoluteOrientation.h" // -> orientation estimation
 #include <utMath/Blas1.h> // inner_product
 #include <utMath/Blas2.h> // outer_product
 #include <utMath/MatrixOperations.h> // matrix_inverse
@@ -214,7 +214,7 @@ bool estimatePose2D3D_impl( const std::vector< Math::Vector< T, 2 > >& p2D_in, M
 		
 		// Object Points are already shifted at the beginning and never being changed
 		Math::Matrix< T, 3, 3 > R;
-		if( !estimateRotation_3D3D( p2Dh, R,  p3D ) )
+		if( !AbsoluteOrientation::estimateRotation_3D3D( p2Dh, R,  p3D ) )
 			break;
 
 		// compute new approximation of T

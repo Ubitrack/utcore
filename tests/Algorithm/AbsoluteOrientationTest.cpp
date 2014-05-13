@@ -3,7 +3,7 @@
 #include <utMath/Vector.h>
 #include <utMath/Matrix.h>
 #include <utMath/Geometry/PointTransformation.h>
-#include <utAlgorithm/AbsoluteOrientation.h>
+#include <utAlgorithm/AbsoluteOrientation/AbsoluteOrientation.h>
 
 #include <utMath/Random/Scalar.h>
 #include <utMath/Random/Vector.h>
@@ -88,7 +88,7 @@ void testAbsoluteOrientationRandom( const std::size_t n_runs, const T epsilon )
 
 		// do some estimation now
 		Pose estimatedPose;
-		const bool b_done = Ubitrack::Algorithm::estimatePose6D_3D3D( leftFrame, estimatedPose, rightFrame );
+		const bool b_done = Ubitrack::Algorithm::AbsoluteOrientation::estimatePose6D_3D3D( leftFrame, estimatedPose, rightFrame );
 		
 		// calculate some errors
 		const T rotDiff = quaternionDiff( estimatedPose.rotation(), q );
@@ -99,7 +99,7 @@ void testAbsoluteOrientationRandom( const std::size_t n_runs, const T epsilon )
 			BOOST_CHECK_MESSAGE( rotDiff < epsilon, "\nCompare rotation    result (expected vs. estimated) using " << n << " points:\n" << q << " " << estimatedPose.rotation() );
 			BOOST_CHECK_MESSAGE( posDiff < epsilon, "\nCompare translation result (expected vs. estimated) using " << n << " points:\n" << t << " " << estimatedPose.translation() );
 		}
-		BOOST_WARN_MESSAGE( b_done, "Algorithm did not succesfully estimate a result with " << n 
+		BOOST_WARN_MESSAGE( b_done, "Algorithm did not successfully estimate a result with " << n 
 			<< " points.\nRemaining difference in rotation " << rotDiff << ", difference in translation " << posDiff << "." );
 	}
 	
