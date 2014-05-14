@@ -34,6 +34,7 @@
 #include "Scale.h"
 #include "Rotation3D.h"
 #include "Pose6D.h"
+#include "Ransac.h"
 
 namespace Ubitrack { namespace Algorithm { namespace AbsoluteOrientation {
 
@@ -73,10 +74,26 @@ bool estimatePose6D_3D3D( const std::vector< Math::Vector3f >& points3dA
 	return estimatePose6D_3D3D( points3dA.begin(), points3dA.end(), pose, points3dB.begin(), points3dB.end() );
 }
 
+bool estimatePose6D_3D3D( const std::vector< Math::Vector3f >& pointsA
+	, Math::Pose& pose
+	, const std::vector< Math::Vector3f >& pointsB
+	, const Math::Optimization::RansacParameter< float >& params )
+{
+	return estimatePose6D_3D3D( pointsA.begin(), pointsA.end(), pose, pointsB.begin(), pointsB.end(), params );
+}
+	
+
+bool estimatePose6D_3D3D( const std::vector< Math::Vector3d >& pointsA
+	, Math::Pose& pose
+	, const std::vector< Math::Vector3d >& pointsB
+	, const Math::Optimization::RansacParameter< double >& params )
+{
+	return estimatePose6D_3D3D( pointsA.begin(), pointsA.end(), pose, pointsB.begin(), pointsB.end(), params );
+}
+
 bool estimateRotation_3D3D( const std::vector< Math::Vector3d >& points3dA
 	, Math::Matrix3x3d& mat , const std::vector< Math::Vector3d >& points3dB )
 {
-	
 	return estimateRotation_3D3D ( points3dA.begin(), points3dA.end(), mat, points3dB.begin(), points3dB.end() );
 }
 
