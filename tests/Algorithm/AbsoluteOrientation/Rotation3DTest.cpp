@@ -16,14 +16,6 @@
 
 using namespace Ubitrack::Math;
 
-#ifndef HAVE_LAPACK
-void TestAbsOrientRotation3D()
-{
-	// Absolute Orientation does not work without lapack
-}
-#else // HAVE_LAPACK
-
-
 template< typename T >
 void testRotation3DRandom( const std::size_t n_runs, const T epsilon )
 {
@@ -63,6 +55,15 @@ void testRotation3DRandom( const std::size_t n_runs, const T epsilon )
 	}
 	
 }
+
+#ifndef HAVE_LAPACK
+
+void TestAbsOrientRotation3D()
+{
+	// Absolute Orientation does not work without lapack
+}
+
+#else // HAVE_LAPACK
 
 void TestAbsOrientRotation3D()
 {

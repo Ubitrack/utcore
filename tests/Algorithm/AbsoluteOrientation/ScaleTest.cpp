@@ -16,14 +16,6 @@
 
 using namespace Ubitrack::Math;
 
-#ifndef HAVE_LAPACK
-void TestAbsOrientScale()
-{
-	// Absolute Orientation does not work without lapack
-}
-#else // HAVE_LAPACK
-
-
 template< typename T >
 void testScaleRandom( const std::size_t n_runs, const T epsilon )
 {
@@ -66,12 +58,20 @@ void testScaleRandom( const std::size_t n_runs, const T epsilon )
 	}
 	
 }
+#ifndef HAVE_LAPACK
+
+void TestAbsOrientScale()
+{
+	// Absolute Orientation does not work without lapack
+}
+
+#else // HAVE_LAPACK
 
 void TestAbsOrientScale()
 {
 	// do some iterations of random tests
-	testScaleRandom< float >( 10, 1e-2f );
-	// testScaleRandom< double >( 10, 1e-6 );
+	testScaleRandom< float >( 10000, 1e-2f );
+	testScaleRandom< double >( 10000, 1e-6 );
 }
 
 #endif // HAVE_LAPACK

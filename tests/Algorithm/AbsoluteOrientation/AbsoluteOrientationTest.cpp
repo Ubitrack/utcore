@@ -16,12 +16,6 @@
 
 using namespace Ubitrack::Math;
 
-#ifndef HAVE_LAPACK
-void TestAbsoluteOrientation()
-{
-	// Absolute Orientation does not work without lapack
-}
-#else // HAVE_LAPACK
 
 void fillDemoVectorsDeterministic( Vector< double, 3 >* left, Vector< double, 3 >* right, Quaternion q, Vector< double, 3 > t )
 {
@@ -104,6 +98,12 @@ void testAbsoluteOrientationRandom( const std::size_t n_runs, const T epsilon )
 	}
 	
 }
+#ifndef HAVE_LAPACK
+void TestAbsoluteOrientation()
+{
+	// Absolute Orientation does not work without lapack
+}
+#else // HAVE_LAPACK
 
 void TestAbsoluteOrientation()
 {
