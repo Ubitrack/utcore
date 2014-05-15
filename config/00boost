@@ -71,7 +71,9 @@ if sys.platform == 'win32':
 	libs = boost_libs("thread")
 else:
 	libs = boost_libs("system")
-compileSettings =  [{} , libs, "boost/thread.hpp", "C++", "boost::mutex m; boost::mutex::scoped_lock l( m );"]
+#[{additional compile settings}, {include files}, {language (C++)},{library to link against (optional)}, {source code (optional)}]
+#compileSettings =  [{} , "boost/thread.hpp", "C++", libs, "boost::mutex m; boost::mutex::scoped_lock l( m );"]
+compileSettings =  [{} , "boost/thread.hpp", "C++"]
 libFinder = standardLibFinder(libName,compileSettings)
 
 
