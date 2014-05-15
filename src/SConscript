@@ -39,13 +39,14 @@ if not( have_boost and have_tinyxml and have_log4cpp):
 	Return ('have_utcore')
 	
 # b)
-subdirs = [  'utMath', 'utMeasurement', 'utCalibration', 'utTracking', 'utUtil' ]
+subdirs = [  'utMath', 'utMeasurement', 'utAlgorithm', 'utTracking', 'utUtil' ]
 headers = globSourceFiles(  '*.h' )
 sources = globSourceFiles(  '*.cpp' )
 for dir in subdirs:	
 	headers += globSourceFiles( dir + '/*.h' )
 	sources += globSourceFiles( dir + '/*.cpp' )
-utcore_libs_boost = boost_libs( [ 'system', 'filesystem', 'regex' ] )
+	headers += globSourceFiles( dir + '/*/*.h' )
+	sources += globSourceFiles( dir + '/*/*.cpp' )
 
 
 # c)		
@@ -54,9 +55,6 @@ utcore_options ['CPPPATH'] += [ getCurrentPath() ]
 
 env = masterEnv.Clone()
 env.AppendUnique( **utcore_options )
-# Add all libraries required by utCore
-env.AppendUnique( LIBS = utcore_libs_boost )
-
 
 # d)
 if sys.platform == 'win32':	
@@ -67,13 +65,6 @@ if sys.platform == 'win32':
 # compile all source files into single library
 # {buildenvironment, source files, name of the library, build target}
 libs = setupLibraryBuild(env, sources, 'utCore', 'core')
-
-headers = globSourceFiles(  '*.h' )
-setupIncludeInstall(env, headers, '', 'includes')
-for dir in subdirs:	
-	headers = globSourceFiles( dir + '/*.h' )
-	setupIncludeInstall(env, headers, dir, 'includes')
-
 
 # f)
 utcore_all_options = utcore_options.copy()
