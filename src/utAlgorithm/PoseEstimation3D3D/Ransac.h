@@ -38,7 +38,7 @@
 #include <utMath/Blas1.h>
 #include <utMath/Optimization/Ransac.h>
 
-namespace Ubitrack { namespace Algorithm { namespace AbsoluteOrientation {
+namespace Ubitrack { namespace Algorithm { namespace PoseEstimation3D3D {
 
 /**
  * @internal function object that provides estimation and evaluation
@@ -88,7 +88,7 @@ bool estimatePose6D_3D3D ( const InputIterator itBegin1, const InputIterator itE
 		, const InputIterator itBegin2, const InputIterator itEnd2
 		, const Math::Optimization::RansacParameter< T >& params )
 {
-	const std::size_t inlier = Math::Optimization::ransac( itBegin1, itEnd1, itBegin2, itEnd2, pose, AbsoluteOrientation::Ransac< T >(), params  );
+	const std::size_t inlier = Math::Optimization::ransac( itBegin1, itEnd1, itBegin2, itEnd2, pose, PoseEstimation3D3D::Ransac< T >(), params  );
 	return ( inlier > 0 );
 }
 
@@ -103,6 +103,6 @@ UBITRACK_EXPORT bool estimatePose6D_3D3D( const std::vector< Math::Vector3d >& p
 	, const std::vector< Math::Vector3d >& pointsB
 	, const Math::Optimization::RansacParameter< double >& params );
 
-}}} // namespace Ubitrack::Algorithm::AbsoluteOrientation
+}}} // namespace Ubitrack::Algorithm::PoseEstimation3D3D
 
 #endif //__UBITRACK_ALGROITHM_ABSOLUTE_ORIENTATION_RANSAC_H_INCLUDED__

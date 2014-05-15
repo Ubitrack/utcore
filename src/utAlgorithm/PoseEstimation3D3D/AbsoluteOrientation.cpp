@@ -36,7 +36,7 @@
 #include "Pose6D.h"
 #include "Ransac.h"
 
-namespace Ubitrack { namespace Algorithm { namespace AbsoluteOrientation {
+namespace Ubitrack { namespace Algorithm { namespace PoseEstimation3D3D {
 
 ///  @internal old function call
 Math::Pose calculateAbsoluteOrientation ( const std::vector< Math::Vector3d >& left,
@@ -115,5 +115,5 @@ bool estimateRotation_3D3D( const std::vector< Math::Vector3f >& points3dA
 	return estimateRotation_3D3D ( points3dA.begin(), points3dA.end(), quat, points3dB.begin(), points3dB.end() );
 }
 
-} } } // namespace Ubitrack::Algorithm::AbsoluteOrientation
+} } } // namespace Ubitrack::Algorithm::PoseEstimation3D3D
 

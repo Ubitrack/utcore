@@ -3,7 +3,7 @@
 #include <utMath/Vector.h>
 #include <utMath/Matrix.h>
 #include <utMath/Geometry/PointTransformation.h>
-#include <utAlgorithm/AbsoluteOrientation/AbsoluteOrientation.h>
+#include <utAlgorithm/PoseEstimation3D3D/AbsoluteOrientation.h>
 
 #include <utMath/Random/Scalar.h>
 #include <utMath/Random/Vector.h>
@@ -41,7 +41,7 @@ void testRotation3DRandom( const std::size_t n_runs, const T epsilon )
 
 		// do some estimation now
 		Ubitrack::Math::Quaternion estimatedQuat;
-		const bool b_done = Ubitrack::Algorithm::AbsoluteOrientation::estimateRotation_3D3D( leftFrame, estimatedQuat, rightFrame );
+		const bool b_done = Ubitrack::Algorithm::PoseEstimation3D3D::estimateRotation_3D3D( leftFrame, estimatedQuat, rightFrame );
 		
 		// calculate some errors
 		const T rotDiff = quaternionDiff( estimatedQuat, q );

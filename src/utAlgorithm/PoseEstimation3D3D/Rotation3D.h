@@ -43,7 +43,7 @@
 #include <boost/numeric/bindings/lapack/syev.hpp>
 #endif
 
-namespace Ubitrack { namespace Algorithm { namespace AbsoluteOrientation {
+namespace Ubitrack { namespace Algorithm { namespace PoseEstimation3D3D {
 
 
 /** @internal function estimating the rotation using Horn's approach*/
@@ -131,6 +131,6 @@ bool estimateRotation_3D3D( const InputIterator iBeginA, const InputIterator iEn
 	return estimateRotation_3D3D ( iBeginA, iEndA, result, iBeginB, iEndB, leftCentroid, rightCentroid );
 }
 
-} } } // namespace Ubitrack::Algorithm::AbsoluteOrientation
+} } } // namespace Ubitrack::Algorithm::PoseEstimation3D3D
 
 #endif // __UBITRACK_ALGORITHM_ABSOLUTE_ORIENTATION_ROTATION_3D_INCLUDED__

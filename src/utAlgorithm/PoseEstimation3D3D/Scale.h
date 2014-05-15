@@ -37,7 +37,7 @@
 #include <numeric> // std::accumulate
 #include <iterator> // std::iterator_traits
 
-namespace Ubitrack { namespace Algorithm { namespace AbsoluteOrientation {
+namespace Ubitrack { namespace Algorithm { namespace PoseEstimation3D3D {
 
 
 /** @internal
@@ -105,6 +105,6 @@ typename std::iterator_traits< InputIterator >::value_type::value_type estimateS
 	return estimateScale_3D3D( iBeginLeft, iEndLeft, iBeginRight, iEndRight, leftCentroid, rightCentroid );
 }
 
-} } } // namespace Ubitrack::Algorithm::AbsoluteOrientation
+} } } // namespace Ubitrack::Algorithm::PoseEstimation3D3D
 
 #endif // __UBITRACK_ALGORITHM_ABSOLUTE_ORIENTATION_SCALE_INCLUDED__

@@ -38,7 +38,7 @@
 #include <utMath/Pose.h>
 // #inlcude <utMath/Utils/PoseCast.h> <- will come in future..
 
-namespace Ubitrack { namespace Algorithm { namespace AbsoluteOrientation {
+namespace Ubitrack { namespace Algorithm { namespace PoseEstimation3D3D {
 
 /**
  * @internal
@@ -94,6 +94,6 @@ bool estimatePose6D_3D3D ( const InputIterator itBegin1, const InputIterator itE
 	return estimatePose6D_3D3D( itBegin1, itEnd1, pose, itBegin2, itEnd2, leftCentroid, rightCentroid );
 }
 
-} } } // namespace Ubitrack::Algorithm::AbsoluteOrientation
+} } } // namespace Ubitrack::Algorithm::PoseEstimation3D3D
 
 #endif // __UBITRACK_ALGORITHM_ABSOLUTE_ORIENTATION_POSE_6D_INCLUDED__

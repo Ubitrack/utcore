@@ -3,7 +3,7 @@
 #include <utMath/Vector.h>
 #include <utMath/Matrix.h>
 #include <utMath/Geometry/PointTransformation.h>
-#include <utAlgorithm/AbsoluteOrientation/AbsoluteOrientation.h>
+#include <utAlgorithm/PoseEstimation3D3D/AbsoluteOrientation.h>
 
 #include <utMath/Random/Scalar.h>
 #include <utMath/Random/Vector.h>
@@ -49,7 +49,7 @@ void testScaleRandom( const std::size_t n_runs, const T epsilon )
 		Geometry::transform_points( scaleMat, leftFrame.begin(), leftFrame.end(), leftFrame.begin() );
 
 		// do some estimation now
-		const T scale_e = Ubitrack::Algorithm::AbsoluteOrientation::estimateScale_3D3D( leftFrame, rightFrame );
+		const T scale_e = Ubitrack::Algorithm::PoseEstimation3D3D::estimateScale_3D3D( leftFrame, rightFrame );
 		
 		const T scale_diff( fabs(scale_e - scale) );
 		// calculate some error

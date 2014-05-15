@@ -3,7 +3,7 @@
 #include <utMath/Vector.h>
 #include <utMath/Matrix.h>
 #include <utMath/Geometry/PointTransformation.h>
-#include <utAlgorithm/AbsoluteOrientation/Ransac.h>
+#include <utAlgorithm/PoseEstimation3D3D/Ransac.h>
 
 #include <utMath/Random/Scalar.h>
 #include <utMath/Random/Vector.h>
@@ -78,7 +78,7 @@ void testRansacAbsoluteOrientationRandom( const std::size_t n_runs, const T epsi
 		
 		// do some robust estimation now
 		Pose estimatedPose;
-		const bool b_done = Ubitrack::Algorithm::AbsoluteOrientation::estimatePose6D_3D3D( leftFrame, estimatedPose, rightFrame, params );
+		const bool b_done = Ubitrack::Algorithm::PoseEstimation3D3D::estimatePose6D_3D3D( leftFrame, estimatedPose, rightFrame, params );
 		
 		// calculate some errors
 		const T rotDiff = quaternionDiff( estimatedPose.rotation(), q );
