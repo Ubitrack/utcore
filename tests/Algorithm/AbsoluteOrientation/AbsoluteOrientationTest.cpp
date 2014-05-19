@@ -4,6 +4,7 @@
 #include <utMath/Matrix.h>
 #include <utMath/Geometry/PointTransformation.h>
 #include <utAlgorithm/PoseEstimation3D3D/AbsoluteOrientation.h>
+#include <utAlgorithm/PoseEstimation3D3D/CovarianceEstimation.h>
 
 #include <utMath/Random/Scalar.h>
 #include <utMath/Random/Vector.h>
@@ -62,14 +63,16 @@ void testAbsoluteOrientationRandom( const std::size_t n_runs, const T epsilon )
 {
 	typename Random::Quaternion< T >::Uniform randQuat;
 	typename Random::Vector< T, 3 >::Uniform randVector( -100, 100 );
+	typename Random::Vector< T, 3 >::Uniform randPositionNoise( -0.01, 0.01 ); // uniform noise for translation
+	// typename Random::Vector< T, 3 >::Normal randPositionNoise( 0, 0.01 ); // gaussian noise for translation
 	
 	for ( std::size_t iRun = 0; iRun < n_runs; iRun++ )
 	{
-		const std::size_t n( Random::distribute_uniform< std::size_t >( 3, 30 ) );
+		const std::size_t n_p3d( Random::distribute_uniform< std::size_t >( 3, 30 ) );
 
 		std::vector< Vector< T, 3 > > rightFrame;
-		rightFrame.reserve( n );
-		std::generate_n ( std::back_inserter( rightFrame ), n,  randVector );
+		rightFrame.reserve( n_p3d );
+		std::generate_n ( std::back_inserter( rightFrame ), n_p3d,  randVector );
 		
 		
 		Quaternion q = randQuat();
@@ -77,9 +80,24 @@ void testAbsoluteOrientationRandom( const std::size_t n_runs, const T epsilon )
 		Matrix< T, 3, 4 > trafo( q, t );
 		
 		std::vector< Vector< T, 3 > > leftFrame;
-		leftFrame.reserve( n );
+		leftFrame.reserve( n_p3d );
 		Geometry::transform_points( trafo, rightFrame.begin(), rightFrame.end(), std::back_inserter( leftFrame ) );
 
+		// {	// add noise to the points (only if you like to)
+			// // add some noise to left side points
+			// std::vector< Vector< T, 3 > > points_3D_noisy_left;
+			// points_3D_noisy_left.reserve( n_p3d );
+			// std::generate_n ( std::back_inserter( points_3D_noisy_left ), n_p3d,  randPositionNoise );
+			// std::transform( leftFrame.begin(), leftFrame.end(), points_3D_noisy_left.begin(), leftFrame.begin(), std::plus< Vector< T, 3 > >() );
+			
+			// // add some noise to right side points
+			// std::vector< Vector< T, 3 > > points_3D_noisy_right;
+			// points_3D_noisy_right.reserve( n_p3d );
+			// std::generate_n ( std::back_inserter( points_3D_noisy_right ), n_p3d,  randPositionNoise );
+			// std::transform( rightFrame.begin(), rightFrame.end(), points_3D_noisy_right.begin(), rightFrame.begin(), std::plus< Vector< T, 3 > >() );
+		// }
+		
+		
 		// do some estimation now
 		Pose estimatedPose;
 		const bool b_done = Ubitrack::Algorithm::PoseEstimation3D3D::estimatePose6D_3D3D( leftFrame, estimatedPose, rightFrame );
@@ -90,11 +108,16 @@ void testAbsoluteOrientationRandom( const std::size_t n_runs, const T epsilon )
 		if( b_done )
 		{
 			// check if pose is better than before (only for valid results)
-			BOOST_CHECK_MESSAGE( rotDiff < epsilon, "\nCompare rotation    result (expected vs. estimated) using " << n << " points:\n" << q << " " << estimatedPose.rotation() );
-			BOOST_CHECK_MESSAGE( posDiff < epsilon, "\nCompare translation result (expected vs. estimated) using " << n << " points:\n" << t << " " << estimatedPose.translation() );
+			BOOST_CHECK_MESSAGE( rotDiff < epsilon, "\nCompare rotation    result (expected vs. estimated) using " << n_p3d << " points:\n" << q << " " << estimatedPose.rotation() );
+			BOOST_CHECK_MESSAGE( posDiff < epsilon, "\nCompare translation result (expected vs. estimated) using " << n_p3d << " points:\n" << t << " " << estimatedPose.translation() );
 		}
-		BOOST_WARN_MESSAGE( b_done, "Algorithm did not successfully estimate a result with " << n 
+		BOOST_WARN_MESSAGE( b_done, "Algorithm did not successfully estimate a result with " << n_p3d 
 			<< " points.\nRemaining difference in rotation " << rotDiff << ", difference in translation " << posDiff << "." );
+			
+			
+			
+		Ubitrack::Math::Matrix< T, 6, 6 > cov;
+		const bool res = Ubitrack::Algorithm::PoseEstimation3D3D::estimateCovariance_3D3D( leftFrame.begin(), leftFrame.end(), estimatedPose, rightFrame.begin(), rightFrame.end(), cov );
 	}
 	
 }
