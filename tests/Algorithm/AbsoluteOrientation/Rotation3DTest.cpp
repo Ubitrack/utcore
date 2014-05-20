@@ -24,7 +24,7 @@ void testRotation3DRandom( const std::size_t n_runs, const T epsilon )
 	
 	for ( std::size_t iRun = 0; iRun < n_runs; iRun++ )
 	{
-		const std::size_t n( Random::distribute_uniform< std::size_t >( 3, 30 ) );
+		const std::size_t n = 3 + (iRun % 28);//( Random::distribute_uniform< std::size_t >( 3, 30 ) );
 
 		std::vector< Vector< T, 3 > > rightFrame;
 		rightFrame.reserve( n );
@@ -48,7 +48,7 @@ void testRotation3DRandom( const std::size_t n_runs, const T epsilon )
 		if( b_done )
 		{
 			// check if pose is better than before (only for valid results)
-			BOOST_CHECK_MESSAGE( rotDiff < epsilon, "\nCompare rotation result (expected vs. estimated) using " << n << " points:\n" << q << " " << estimatedQuat );
+			BOOST_CHECK_MESSAGE( rotDiff < epsilon, "\nCompare rotation result using " << n << " points:\n" << q << " (expected)\n" << estimatedQuat << " (estimated)\n." );
 		}
 		BOOST_WARN_MESSAGE( b_done, "Algorithm did not successfully estimate a result with " << n 
 			<< " points.\nRemaining difference in rotation " << rotDiff << "." );

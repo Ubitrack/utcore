@@ -67,7 +67,7 @@ void testOptimizedAbsoluteOrientationRandom( const std::size_t n_runs, const T e
 		const T rotDiff1 = quaternionDiff( perurbedPose.rotation(), q );
 		const T posDiff1 = vectorDiff( perurbedPose.translation(), t );
 		
-		// set reasonable? optimization parametes
+		// set reasonable? optimization parameters
 		const Ubitrack::Math::Optimization::OptTerminate termCrit( 50, 1e-8 );	
 		
 		Pose optimizedPose = perurbedPose;
