@@ -4,7 +4,7 @@
 #include <utMath/Matrix.h>
 #include <utMath/Geometry/PointTransformation.h>
 #include <utAlgorithm/PoseEstimation3D3D/AbsoluteOrientation.h>
-#include <utAlgorithm/PoseEstimation3D3D/CovarianceEstimation.h>
+
 
 #include <utMath/Random/Scalar.h>
 #include <utMath/Random/Vector.h>
@@ -62,13 +62,13 @@ template< typename T >
 void testAbsoluteOrientationRandom( const std::size_t n_runs, const T epsilon )
 {
 	typename Random::Quaternion< T >::Uniform randQuat;
-	typename Random::Vector< T, 3 >::Uniform randVector( -100, 100 );
-	typename Random::Vector< T, 3 >::Uniform randPositionNoise( -0.01, 0.01 ); // uniform noise for translation
-	// typename Random::Vector< T, 3 >::Normal randPositionNoise( 0, 0.01 ); // gaussian noise for translation
+	typename Random::Vector< T, 3 >::Uniform randVector( -10, 10 );
+	// typename Random::Vector< T, 3 >::Uniform randPositionNoise( -0.01, 0.01 ); // uniform noise for translation
+	typename Random::Vector< T, 3 >::Normal randPositionNoise( 0, 0.005 ); // gaussian noise for translation
 	
 	for ( std::size_t iRun = 0; iRun < n_runs; iRun++ )
 	{
-		const std::size_t n_p3d( Random::distribute_uniform< std::size_t >( 3, 30 ) );
+		const std::size_t n_p3d = 3 + ( iRun % 28);//( Random::distribute_uniform< std::size_t >( 3, 30 ) );
 
 		std::vector< Vector< T, 3 > > rightFrame;
 		rightFrame.reserve( n_p3d );
@@ -83,41 +83,30 @@ void testAbsoluteOrientationRandom( const std::size_t n_runs, const T epsilon )
 		leftFrame.reserve( n_p3d );
 		Geometry::transform_points( trafo, rightFrame.begin(), rightFrame.end(), std::back_inserter( leftFrame ) );
 
-		// {	// add noise to the points (only if you like to)
-			// // add some noise to left side points
-			// std::vector< Vector< T, 3 > > points_3D_noisy_left;
-			// points_3D_noisy_left.reserve( n_p3d );
-			// std::generate_n ( std::back_inserter( points_3D_noisy_left ), n_p3d,  randPositionNoise );
-			// std::transform( leftFrame.begin(), leftFrame.end(), points_3D_noisy_left.begin(), leftFrame.begin(), std::plus< Vector< T, 3 > >() );
-			
-			// // add some noise to right side points
-			// std::vector< Vector< T, 3 > > points_3D_noisy_right;
-			// points_3D_noisy_right.reserve( n_p3d );
-			// std::generate_n ( std::back_inserter( points_3D_noisy_right ), n_p3d,  randPositionNoise );
-			// std::transform( rightFrame.begin(), rightFrame.end(), points_3D_noisy_right.begin(), rightFrame.begin(), std::plus< Vector< T, 3 > >() );
-		// }
-		
-		
 		// do some estimation now
 		Pose estimatedPose;
 		const bool b_done = Ubitrack::Algorithm::PoseEstimation3D3D::estimatePose6D_3D3D( leftFrame, estimatedPose, rightFrame );
+
+		BOOST_WARN_MESSAGE( b_done, "Algorithm did not successfully estimate a result with " << n_p3d << " points." );
 		
-		// calculate some errors
-		const T rotDiff = quaternionDiff( estimatedPose.rotation(), q );
-		const T posDiff = vectorDiff( estimatedPose.translation(), t );
-		if( b_done )
-		{
+		
+		if( !b_done )
+			continue;
+	
+		{	// calculate some errors on resulting transformation
+			const T rotDiff = quaternionDiff( estimatedPose.rotation(), q );
+			const T posDiff = vectorDiff( estimatedPose.translation(), t );
+			
 			// check if pose is better than before (only for valid results)
-			BOOST_CHECK_MESSAGE( rotDiff < epsilon, "\nCompare rotation    result (expected vs. estimated) using " << n_p3d << " points:\n" << q << " " << estimatedPose.rotation() );
-			BOOST_CHECK_MESSAGE( posDiff < epsilon, "\nCompare translation result (expected vs. estimated) using " << n_p3d << " points:\n" << t << " " << estimatedPose.translation() );
+			BOOST_CHECK_MESSAGE( posDiff < epsilon, "\nCompare translation estimation using " << n_p3d << " points, error=" << posDiff  << ":\n" << t << " (expected)\n" << estimatedPose.translation() << " (estimated)\n");
+			BOOST_CHECK_MESSAGE( rotDiff < epsilon, "\nCompare rotation estimation using " << n_p3d << " points, error=" << rotDiff  << ":\n" << q << " (expected)\n" << estimatedPose.rotation() << " (estimated)\n" );
 		}
-		BOOST_WARN_MESSAGE( b_done, "Algorithm did not successfully estimate a result with " << n_p3d 
-			<< " points.\nRemaining difference in rotation " << rotDiff << ", difference in translation " << posDiff << "." );
-			
-			
-			
-		Ubitrack::Math::Matrix< T, 6, 6 > cov;
-		const bool res = Ubitrack::Algorithm::PoseEstimation3D3D::estimateCovariance_3D3D( leftFrame.begin(), leftFrame.end(), estimatedPose, rightFrame.begin(), rightFrame.end(), cov );
+		
+		{	// calculate an residual error from input data
+			// const T err = Ubitrack::Algorithm::PoseEstimation3D3D::estimatePose6DResidual< T >( leftFrame.begin(), leftFrame.end(), estimatedPose, rightFrame.begin(), rightFrame.end() );
+			// std::cout << "Residual Error is " << err.first << " stdDev: " << err.second << std::endl;
+			// BOOST_CHECK_MESSAGE( err.first < epsilon, "\nResidual error using " << n_p3d << " points is too high :\n" << epsilon << " (expected)\n" << err.first << " (estimated)\n");
+		}
 	}
 	
 }
