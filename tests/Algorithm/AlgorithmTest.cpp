@@ -10,6 +10,7 @@ void TestAbsOrientRotation3D();
 void TestAbsoluteOrientation();
 void TestRobustAbsoluteOrientation();
 void TestOptimizedAbsoluteOrientation();
+void TestCovarianceAbsoluteOrientation();
 
 // old tests..
 void Test2D3DPoseEstimation();
@@ -35,7 +36,7 @@ AlgorithmTest::AlgorithmTest()
 	add( BOOST_TEST_CASE( &TestAbsoluteOrientation ) );
 	add( BOOST_TEST_CASE( &TestRobustAbsoluteOrientation ) );
 	add( BOOST_TEST_CASE( &TestOptimizedAbsoluteOrientation ) );
-	
+	add( BOOST_TEST_CASE( &TestCovarianceAbsoluteOrientation ) );
 	
 	// old tests...
 	add( BOOST_TEST_CASE( &Test2D3DPoseEstimation ) );
