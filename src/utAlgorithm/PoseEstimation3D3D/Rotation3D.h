@@ -35,12 +35,18 @@
 
 #include <utMath/Util/RotationCast.h>
 #include <utMath/Blas2.h> // outer_product
+#include <utMath/MatrixOperations.h> // determinant
 
 #include <numeric> // std::accumulate
 #include <iterator> // std::iterator_traits
 
 #ifdef HAVE_LAPACK
+// eigenvalue (quaternion) solution
 #include <boost/numeric/bindings/lapack/syev.hpp>
+// svd solution
+#include <boost/numeric/bindings/lapack/gesvd.hpp>
+
+
 #endif
 
 namespace Ubitrack { namespace Algorithm { namespace PoseEstimation3D3D {
@@ -76,7 +82,31 @@ bool estimateRotation_3D3D ( const InputIterator iBeginLeft, const InputIterator
 		const vector_type vec2 = (*itBegin2) - rightCentroid;
 		M += Math::outer_product( vec2, vec1 );
 	}
+	
+	// commented this solution since it is not less robust than the other, quaternion based, solution
+	// {	// SVD solution from Arun: Least-Squares Fitting of two 3d point sets
+	
+		// Math::Vector< value_type, 3 > s;
+		// Math::Matrix< value_type, 3, 3 > u ;
+		// Math::Matrix< value_type, 3, 3 > vt;
+		
+		// int i = boost::numeric::bindings::lapack::gesvd( 'A', 'A', M, s, u, vt );
+		// if ( i != 0 )
+			// return false;
+			
+		// const Math::Matrix< value_type, 3, 3 > rot = boost::numeric::ublas::prod( boost::numeric::ublas::trans( vt ), boost::numeric::ublas::trans( u ) );
+		
+		// // I observed the SVD has problems with solutions using 3 correspondences only
+		// // other solutions always produces nice results
+		// const value_type det = Math::determinant( rot );
+		
+		// if( std::fabs( 1 - det ) > static_cast< value_type > ( 0.001 ) ) // needs some tolerance, since valid solutions can vary around 1.. 
+			// return false;
 
+		// rotation = Math::Util::RotationCast< ResultType >( )( rot );
+		// return true;
+	// }
+	
 	// calculate the matrix N as linear combinations of elements of M
 	// upper right suffices, since N is symmetric
 	Math::Matrix< value_type, 4, 4 > N;
