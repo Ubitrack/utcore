@@ -78,6 +78,13 @@ struct Dehomogenization
 	template< class VT2, class MT > 
 	void jacobian( const VT2& input, MT& J ) const
 	{
+		/*
+		%% short matlab symbolic expression example code to 
+		%% illustrate derive the jacobian of a 3-vector dehomogenization:
+		syms x, y, z
+		f = [x/z; y/z; 1]
+		j = jacobian( f(1:2), [x, y, z] )
+		*/
 		// TODO: check for division by zero
 		typename MT::value_type tz = 1 / input( N-1 );
 		boost::numeric::ublas::subrange( J, 0, N-1, 0, N-1 ) = 
