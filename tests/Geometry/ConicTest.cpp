@@ -105,8 +105,8 @@ void testBasicConicFunctors( const std::size_t n )
 	
 	
 	{	// covariance estimation of point conic
-		std::vector< Ubitrack::Math::Vector< T, 2 > >::const_iterator it = conic_ull.begin();
-		std::vector< Ubitrack::Math::Vector< T, 6 > >::const_iterator itC = conics.begin();
+		typename std::vector< Ubitrack::Math::Vector< T, 2 > >::const_iterator it = conic_ull.begin();
+		typename std::vector< Ubitrack::Math::Vector< T, 6 > >::const_iterator itC = conics.begin();
 		
 		for( ; it != conic_ull.end(); ++it, ++itC )
 		{
