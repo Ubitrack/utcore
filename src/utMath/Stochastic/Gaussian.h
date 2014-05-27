@@ -140,7 +140,7 @@ bool estimate_gaussian( const InputIterator itBegin, const InputIterator itEnd, 
 			gaussian.covariance[ i ] /= n;
 	}
 	
-	std::cout <<"Finished With Variance" << std::endl;
+	std::cout <<"Finsished With Variance" << std::endl;
 	
 	{ //sum up the squared diagonal entries
 		for( std::size_t i( 0 ); i < N; ++i )	
