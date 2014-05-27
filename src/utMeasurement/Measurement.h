@@ -43,13 +43,15 @@
 #include <utMath/Scalar.h>
 #include <utMath/RotationVelocity.h>
 #include <utMath/CameraIntrinsics.h>
-#include <boost/shared_ptr.hpp>
 
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/vector.hpp>
-
+// std
 #include <vector>
 #include <iostream>
+
+// Boost
+#include <boost/shared_ptr.hpp>
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/vector.hpp>
 
 namespace Ubitrack { namespace Measurement {
 
@@ -125,12 +127,23 @@ template< typename Type >
 class Measurement
 	: public boost::shared_ptr< Type >
 {
-	friend std::ostream& operator<< <> ( std::ostream& s, const Measurement< Type >& m );
-	friend class ::boost::serialization::access;
-
 	public:
-		/** remembers the content type for templated functions and classes */
+		/// short-cut that defines the contentype of the underlying data-structure
 		typedef Type value_type;
+		
+		/// short-cut to built-in type of time measurement, most likely \c unsigned \c long \c long \c int
+		typedef Timestamp timestamp_type;
+		
+		
+	protected:
+
+		/// timestamp associated with the measurement
+		timestamp_type m_timestamp;
+
+        /// static const timestamp that defines an invalid timestamp
+        static const timestamp_type INVALID = 0;
+	
+	public:
 
 		/**
 		 * Default Constructor
@@ -141,13 +154,13 @@ class Measurement
 		{ }
 
 		/** Construct from timestamp. The payload is empty. */
-		explicit Measurement( Timestamp t )
+		explicit Measurement( const timestamp_type t )
 			: m_timestamp( t )
 		{ }
 
 		/** Construct from payload \c shared_ptr, with timestamp of 0. */
 		explicit Measurement( boost::shared_ptr< Type > p )
-			: boost::shared_ptr< Type>( p )
+			: boost::shared_ptr< Type >( p )
 			, m_timestamp( 0 )
 		{ }
 		
@@ -158,13 +171,13 @@ class Measurement
 		{ }
 
 		/** Construct from timestamp and payload \c shared_ptr. */
-		Measurement( Timestamp t, boost::shared_ptr< Type > p )
+		Measurement( const timestamp_type t, boost::shared_ptr< Type > p )
 			: boost::shared_ptr< Type>( p )
 			, m_timestamp( t )
 		{ }
 
 		/** Construct from timestamp and payload reference (content will be copied). */
-		Measurement( Timestamp t, const Type& m )
+		Measurement( const timestamp_type t, const Type& m )
 			: boost::shared_ptr< Type>( new Type( m ) )
 			, m_timestamp( t )
 		{ }
@@ -172,7 +185,7 @@ class Measurement
 		/**
 		 * set the internal timestamp
 		 */
-		void time( Timestamp t )
+		void time( const timestamp_type t )
 		{ m_timestamp = t; }
 
 		/**
@@ -185,10 +198,11 @@ class Measurement
 		 * returns a measurement that does NOT hold a reference to this object
 		 */
 		Measurement clone() const
-		{ if ( this->get() != 0 )
-            return Measurement( m_timestamp, *(this->get()) ); 
-        else
-            return Measurement( m_timestamp );
+		{
+			if ( this->get() != 0 )
+				return Measurement( m_timestamp, *(this->get()) ); 
+			else
+				return Measurement( m_timestamp );
         }
 
         /**
@@ -202,7 +216,8 @@ class Measurement
         /**
          * Sets the current measurement as invalid
          */
-        void invalidate( void ) {
+        void invalidate( void )
+		{
             m_timestamp = INVALID;
         }
 
@@ -212,7 +227,12 @@ class Measurement
         }
 
 	protected:
-
+	
+		// make ostream operator as friend
+		friend std::ostream& operator<< <> ( std::ostream& s, const Measurement< Type >& m );
+		
+		// make  boost-serialization friend for data serialization
+		friend class ::boost::serialization::access;
 		/**
 		 * (un-)serialization helper function
 		 */
@@ -222,11 +242,6 @@ class Measurement
 			ar & m_timestamp;
 			ar & ( *(this->get()) );
 		}
-
-		Timestamp m_timestamp;
-
-        // Define 0 as invalid measurement
-        static const Timestamp INVALID = 0;
 };
 
 
