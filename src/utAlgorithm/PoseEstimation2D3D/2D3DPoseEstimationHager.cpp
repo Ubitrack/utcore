@@ -30,7 +30,7 @@
  */
 
 #include "2D3DPoseEstimationHager.h"
-#include "PoseEstimation3D3D/AbsoluteOrientation.h" // -> orientation estimation
+#include "../PoseEstimation3D3D/AbsoluteOrientation.h" // -> orientation estimation
 #include <utMath/Blas1.h> // inner_product
 #include <utMath/Blas2.h> // outer_product
 #include <utMath/MatrixOperations.h> // matrix_inverse
@@ -53,7 +53,7 @@ static log4cpp::Category& optLogger( log4cpp::Category::getInstance( "Ubitrack.C
 // shortcuts to namespaces
 namespace ublas = boost::numeric::ublas;
 
-namespace Ubitrack { namespace Algorithm {
+namespace Ubitrack { namespace Algorithm { namespace PoseEstimation2D3D {
 
 #ifdef HAVE_LAPACK
 
@@ -272,4 +272,4 @@ bool estimatePose6D_2D3D( const std::vector< Math::Vector2f >& p2D, Math::Pose& 
 
 #endif // HAVE_LAPACK
 
-} } // namespace Ubitrack::Algorithm
+} } } // namespace Ubitrack::Algorithm::PoseEstimation2D3D

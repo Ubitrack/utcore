@@ -45,7 +45,7 @@ static log4cpp::Category& logger( log4cpp::Category::getInstance( "Ubitrack.Cali
 
 
 #include <utMath/Optimization/LevenbergMarquardt.h>
-#include <utAlgorithm/2D3DPoseEstimation.h>
+#include "PoseEstimation2D3D/2D3DPoseEstimation.h"
 #include <utUtil/Exception.h>
 
 
@@ -130,8 +130,8 @@ std::pair < Math::ErrorPose , double >
 		// Compute initial pose
 		if (!hasInitialPoseProvided) {
 			OPT_LOG_DEBUG(  "Compute initial pose with "<<p2dLocal.at(maxObsIndex).size() << " observations for camera " << maxObsIndex );
-			initialPose = camPoses.at( maxObsIndex ) * Algorithm::computePose( p2dLocal.at( maxObsIndex) , p3dLocalFiltered.at( maxObsIndex) ,
-				camMatrices.at( maxObsIndex ), PLANAR_HOMOGRAPHY ); // there are no scoped enums in C++98 (only in C++0x onwards)
+			initialPose = camPoses.at( maxObsIndex ) * Algorithm::PoseEstimation2D3D::computePose( p2dLocal.at( maxObsIndex) , p3dLocalFiltered.at( maxObsIndex) ,
+				camMatrices.at( maxObsIndex ), PoseEstimation2D3D::PLANAR_HOMOGRAPHY ); // there are no scoped enums in C++98 (only in C++0x onwards)
 			OPT_LOG_DEBUG(  "Initial pose "<<initialPose );
 		}
 

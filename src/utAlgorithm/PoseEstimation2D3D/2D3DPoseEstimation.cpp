@@ -24,23 +24,26 @@
 /**
  * @ingroup tracking_algorithms
  * @file
- * Implementats functions for 2D-3D pose estimation.
+ * Implements functions for 2D-3D pose estimation.
  *
  * @author Daniel Pustka <daniel.pustka@in.tum.de>
  */
 
  
 #include "2D3DPoseEstimation.h"
-#include "Function/MultiplePointProjection.h"
-#include "Function/MultiplePointProjectionError.h"
-#include "Function/MultipleCameraProjectionError.h"
-#include "Function/ProjectivePoseNormalize.h"
+#include "../Function/MultiplePointProjection.h"
+#include "../Function/MultiplePointProjectionError.h"
+#include "../Function/MultipleCameraProjectionError.h"
+#include "../Function/ProjectivePoseNormalize.h"
 
-#include <utMath/MatrixOperations.h>
+#include "../Homography.h"
+#include "../Projection.h"
+
+
 #include <utMath/VectorFunctions.h>
+#include <utMath/MatrixOperations.h>
 #include <utMath/Stochastic/BackwardPropagation.h>
-#include <utAlgorithm/Homography.h>
-#include <utAlgorithm/Projection.h>
+
 
 #include <math.h>
 #include <iostream>
@@ -64,7 +67,7 @@
 namespace ublas = boost::numeric::ublas;
 using namespace Ubitrack::Math;
 
-namespace Ubitrack { namespace Algorithm {
+namespace Ubitrack { namespace Algorithm { namespace PoseEstimation2D3D {
 
 /** \internal */
 template< typename T >
@@ -405,7 +408,7 @@ Math::ErrorPose computePose(
 			OPT_LOG_TRACE( "Homography: " << H );
 
 			// compute initial pose from homography
-			pose = Algorithm::poseFromHomography( H, invK );
+			pose = Algorithm::PoseEstimation2D3D::poseFromHomography( H, invK );
 			OPT_LOG_TRACE( "Pose from homography: " << pose );
 		}
 		else
@@ -462,7 +465,7 @@ Math::ErrorPose computePose(
 				H =  Algorithm::homographyDLT( p3dAs2d, p2d );
 
 			// compute initial pose from homography
-			pose = Algorithm::poseFromHomography( H, invK ) * Math::Pose( Math::Quaternion( P ), t );
+			pose = Algorithm::PoseEstimation2D3D::poseFromHomography( H, invK ) * Math::Pose( Math::Quaternion( P ), t );
 			
 			OPT_LOG_TRACE( "Pose from homography (rotated): " << pose );
 			Math::Matrix< double, 3, 3 > rotMat;
@@ -475,7 +478,7 @@ Math::ErrorPose computePose(
 	Math::Matrix< double, 6, 6 > covMatrix;
 	if ( optimize )
 	{
-		residual = Algorithm::optimizePose( pose, p2d, p3d, cam );
+		residual = Algorithm::PoseEstimation2D3D::optimizePose( pose, p2d, p3d, cam );
 		OPT_LOG_DEBUG( "Refined pose: " << pose << ", residual of 2D image measurements: " << residual);
 	}
 	else
@@ -484,7 +487,7 @@ Math::ErrorPose computePose(
 		OPT_LOG_DEBUG( "NOT refined pose: " << pose << ", residual of 2D image measurements: " << residual);	
 	}
 	
-	covMatrix = Algorithm::singleCameraPoseError( pose, p3d, cam, residual );	
+	covMatrix = Algorithm::PoseEstimation2D3D::singleCameraPoseError( pose, p3d, cam, residual );	
 	residual = sqrt( residual / ( n_points * 2) );
 	
 	return Math::ErrorPose( pose, covMatrix );
@@ -494,4 +497,4 @@ Math::ErrorPose computePose(
 
 #endif // HAVE_LAPACK
 
-} } // namespace Ubitrack::Algorithm
+} } } // namespace Ubitrack::Algorithm::PoseEstimation2D3D
