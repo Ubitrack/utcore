@@ -6,7 +6,7 @@
 #include <utAlgorithm/Homography.h>
 #include <utMath/Functors/MatrixFunctors.h>
 #include <utMath/Geometry/PointProjection.h>
-#include <utAlgorithm/2D3DPoseEstimation.h> // for PoseFromHomography
+#include <utAlgorithm/PoseEstimation2D3D/2D3DPoseEstimation.h> // for PoseFromHomography
 
 #include "../tools.h"
 
@@ -150,7 +150,7 @@ void TestPoseFromHomography( const std::size_t n_runs, const T epsilon )
 		Matrix< T, 3, 3 > H = Ubitrack::Algorithm::homographyDLT(  ptsFloor, ptsCamera );
 		Matrix< T, 3, 3 > invK( Functors::matrix_inverse()( cam ) );
 		
-		Pose floor2Cam2 = Ubitrack::Algorithm::poseFromHomography( H, invK );
+		Pose floor2Cam2 = Ubitrack::Algorithm::PoseEstimation2D3D::poseFromHomography( H, invK );
 
 		Matrix< T, 3, 4 > floor2CamMat1( floor2Cam1 );
 		Matrix< T, 3, 4 > floor2CamMat2( floor2Cam2 );
