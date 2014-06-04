@@ -45,7 +45,7 @@ static log4cpp::Category& logger( log4cpp::Category::getInstance( "Ubitrack.Cali
 
 
 #include <utMath/Optimization/LevenbergMarquardt.h>
-#include "PoseEstimation2D3D/2D3DPoseEstimation.h"
+#include "PoseEstimation2D3D/PlanarPoseEstimation.h"
 #include <utUtil/Exception.h>
 
 

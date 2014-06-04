@@ -29,7 +29,7 @@
  * @author Christian Waechter <christian.waechter@in.tum.de>
  */
 
-#include "2D3DPoseEstimationHager.h"
+#include "NonPlanarPoseEstimation.h"
 #include "../PoseEstimation3D3D/AbsoluteOrientation.h" // -> orientation estimation
 #include <utMath/Blas1.h> // inner_product
 #include <utMath/Blas2.h> // outer_product

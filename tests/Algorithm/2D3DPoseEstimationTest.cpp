@@ -4,8 +4,8 @@
 #include <utMath/Vector.h>
 #include <utMath/Matrix.h>
 #include <utMath/Geometry/PointProjection.h>
-#include <utAlgorithm/PoseEstimation2D3D/2D3DPoseEstimation.h>
-#include <utAlgorithm/PoseEstimation2D3D/2D3DPoseEstimationHager.h>
+#include <utAlgorithm/PoseEstimation2D3D/PlanarPoseEstimation.h>
+#include <utAlgorithm/PoseEstimation2D3D/NonPlanarPoseEstimation.h>
 
 #include <utMath/Random/Scalar.h>
 #include <utMath/Random/Vector.h>

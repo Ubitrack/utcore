@@ -6,7 +6,7 @@
 #include <utAlgorithm/Homography.h>
 #include <utMath/Functors/MatrixFunctors.h>
 #include <utMath/Geometry/PointProjection.h>
-#include <utAlgorithm/PoseEstimation2D3D/2D3DPoseEstimation.h> // for PoseFromHomography
+#include <utAlgorithm/PoseEstimation2D3D/PlanarPoseEstimation.h> // for PoseFromHomography
 
 #include "../tools.h"
 

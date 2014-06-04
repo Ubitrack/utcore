@@ -30,7 +30,7 @@
  */
 
  
-#include "2D3DPoseEstimation.h"
+#include "PlanarPoseEstimation.h"
 #include "../Function/MultiplePointProjection.h"
 #include "../Function/MultiplePointProjectionError.h"
 #include "../Function/MultipleCameraProjectionError.h"
@@ -391,27 +391,44 @@ Math::ErrorPose computePose(
 
 	if ( !bInitialized ) 
 	{
-		if ( p3d[ 0 ]( 2 ) == 0 && p3d[ 1 ]( 2 ) == 0 && p3d[ 2 ]( 2 ) == 0 && p3d[ 3 ]( 2 ) == 0 )
+	
+		// 1st possibility:
+		// first points start with same z-value (coplanar). Take all 
+		// points in a row that have the same dimension and calculate
+		// a first homography of these points if there are more than four.
+		// this assumption works in cases of markers (4 points) and planar 
+		// calibration grid structures with much more than 4 points.
+		std::vector< Math::Vector< double, 2 > > p3dAs2d;
+		p3dAs2d.reserve( n_points );
+		double last_dim = p3d[ 0 ]( 2 );
+			
+		for ( std::size_t i( 0 ); i < n_points; ++i )
 		{
-			// markers already have z=0
-			std::vector< Math::Vector< double, 2 > > p3dAs2d;
-			for ( std::size_t i( 0 ); i < 4; i++ )
+			if( p3d[ i ]( 2 ) == last_dim )
 				p3dAs2d.push_back( Math::Vector< double, 2 >( p3d[ i ]( 0 ), p3d[ i ]( 1 ) ) );
-
-			// compute homography
-			Math::Matrix< double, 3, 3 > H;
-			if ( n_points > 4 )
-				// copy first four elements to new vector
-				H =  Algorithm::homographyDLT( p3dAs2d, std::vector< Math::Vector< double, 2 > >( p2d.begin(), p2d.begin() + 4 ) );
 			else
-				H =  Algorithm::homographyDLT( p3dAs2d, p2d );
+				break;
+		}
+		const std::size_t n3D = p3dAs2d.size();
+			
+		if( n3D > 3 )
+		{
+			// copy corresponding elements to a temporary vector
+			// and compute the homography
+			Math::Matrix< double, 3, 3 > H =  Algorithm::homographyDLT( p3dAs2d, std::vector< Math::Vector< double, 2 > >( p2d.begin(), p2d.begin() + n3D ) );
+			
 			OPT_LOG_TRACE( "Homography: " << H );
 
 			// compute initial pose from homography
 			pose = Algorithm::PoseEstimation2D3D::poseFromHomography( H, invK );
-			OPT_LOG_TRACE( "Pose from homography: " << pose );
+			
+			OPT_LOG_TRACE( "Pose from homography: " << pose )
 		}
 		else
+		// 2nd possibility:
+		// first points lye within a rotated plane which is not parallel
+		// to the xy-plane. Use the first four values to calculate 
+		// an initial homography and a corresponding pose.
 		{
 			// compute a rotation matrix that will bring the points into a plane with equal z
 			Math::Vector< double, 3 > vX( p3d[ 1 ] - p3d[ 0 ] );
@@ -423,11 +440,11 @@ Math::ErrorPose computePose(
 			vZ /= f;
 
 			// Check whether first three points are colinear
-			double colinearity = inner_prod( vX, vZ ) > 0.8;
-			OPT_LOG_TRACE( "Checking colinearity constraint (should be lower than 0.8): " << colinearity );
-			if ( colinearity ) {
-				OPT_LOG_TRACE( "Points are colinear" );
-				UBITRACK_THROW( "Pose estimation requires four coplanar points in general position but three of them are colinear" );
+			double collinearity = inner_prod( vX, vZ ) > 0.8;
+			OPT_LOG_TRACE( "Checking collinearity constraint (should be lower than 0.8): " << collinearity );
+			if ( collinearity ) {
+				OPT_LOG_TRACE( "Points are collinear" );
+				UBITRACK_THROW( "Pose estimation requires four coplanar points in general position but three of them are collinear" );
 			}
 
 			vZ = Math::cross_product( vX, vZ );
@@ -444,7 +461,7 @@ Math::ErrorPose computePose(
 
 			OPT_LOG_TRACE( "Computed alignment, now checking coplanarity constraint..." );
 
-			std::vector< Math::Vector< double, 2 > > p3dAs2d;
+			p3dAs2d.clear();
 			for ( std::size_t i( 0 ); i < 4; i++ )
 			{
 				Math::Vector< double, 3 > p3dtrans = ublas::prod( P, p3d[ i ] ) + t;
@@ -488,12 +505,10 @@ Math::ErrorPose computePose(
 	}
 	
 	covMatrix = Algorithm::PoseEstimation2D3D::singleCameraPoseError( pose, p3d, cam, residual );	
-	residual = sqrt( residual / ( n_points * 2) );
+	residual = sqrt( residual / ( n_points * 2 ) );
 	
 	return Math::ErrorPose( pose, covMatrix );
 }
-
-
 
 #endif // HAVE_LAPACK
 
