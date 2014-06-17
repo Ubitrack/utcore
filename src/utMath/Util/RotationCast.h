@@ -55,7 +55,7 @@ namespace Util {
  * rotation representations and cast to is own representation.
  *
  * The conversions are mainly inspired from Martin Baker's
- * webside: http://www.euclideanspace.com/maths/geometry/rotations/conversions/ 
+ * website: http://www.euclideanspace.com/maths/geometry/rotations/conversions/ 
  *
  * @tparam rotation_type names the desired rotation representation.
  */
@@ -148,7 +148,7 @@ struct RotationCast< Math::Vector< T, 4 > >
 {
 	typedef Math::Vector< T, 4 > return_type;
 	
-		// function to catch so far non existing rotation casts
+	// function to catch so far non existing rotation casts
 	template< typename rotation_in >
 	return_type operator()( const rotation_in & rotation )const
 	{
@@ -157,7 +157,7 @@ struct RotationCast< Math::Vector< T, 4 > >
 	}
 
 	// if input type equals output type: no change at all
-	return_type operator()( const return_type & other )const
+	return_type operator()( const return_type & other ) const
 	{
 		return other;
 	}
@@ -195,7 +195,7 @@ struct RotationCast< Math::Vector< T, 4 > >
 		// const Math::Quaternion quat = RotationCast< Math::Quaternion >()( matrix );
 		// return RotationCast< return_type >()( quat );
 		
-		/// @todo put in more checks, this transformation is not really realiable at the moment
+		/// @todo put in more checks, this transformation is not really reliable at the moment
 		const T angle = std::acos( ( matrix( 0, 0 ) + matrix( 1, 1 ) + matrix( 2, 2 ) - 1 ) / 2 );
 		if ( angle != angle || angle < 1e-10 )
 			return return_type( 0, 0, 0, 0 );
