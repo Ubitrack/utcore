@@ -67,16 +67,29 @@ class UBITRACK_EXPORT Pose
 
 	public:		
 
+		/** the underlying built-in datatype of the pose specifying the precision (e.g. \c float or \c double ) */
 		typedef double value_type;
+		
+		/** the type of the rotational part of the pose, that represents the orientation of the pose (e.g. \c quaternion or \c 3-by-3 \c matrix ) */
+		typedef Math::Quaternion rotation_type;
+		
+		/** the type of the translational part of the pose (usually a \c 3-vector) */
+		typedef Math::Vector< value_type, 3 > translation_type;
 
-		/** doesn't make much sense, but sometimes we need a default constructor */
+		/** 
+		 * Default constructor
+		 *
+		 * Initializes to identity pose as default value
+		 */
 		Pose()
 			: m_rotation( )
 			, m_translation ( Vector < double, 3 > ( 0, 0, 0 ) )
 		{}
 
 		/**
-		 * construct a pose from quaternion and translation
+		 * Assembling Constructor 
+		 *
+		 * Assembles a pose from a given rotation and translation
 		 * @param q a rotation
 		 * @param t a translation
 		 */
@@ -86,8 +99,10 @@ class UBITRACK_EXPORT Pose
 		{}
 		
 		/**
-		 * construct a pose from a 4x4 matrix
-		 * @param m a 4x4 matrix
+		 * Matrix Constructor
+		 *
+		 * Constructs a pose from a 4-by-4 transformation matrix
+		 * @param m a 4-by-4 matrix
 		 */
 		Pose( const Math::Matrix< double, 0, 0 >& mat );
 		
