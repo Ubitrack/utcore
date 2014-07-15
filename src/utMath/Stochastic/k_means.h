@@ -208,7 +208,7 @@ void copy_probability( const InputIterator iBegin, const InputIterator iEnd, con
 	typedef typename std::size_t size_type;
 
 	const std::size_t n = std::distance( iBegin, iEnd );
-	std::size_t index = Math::Random::distribute_uniform< std::size_t >( 0, n );
+	std::size_t index = Math::Random::distribute_uniform< std::size_t >( 0, n-1 );
 	
 	// assign first selected element
 	InputIterator itNewOut = (iBegin+index);
