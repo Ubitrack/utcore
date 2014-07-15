@@ -154,7 +154,7 @@ bool estimatePose6DCovariance( const InputIterator iBeginA, const InputIterator 
 
 	Math::Stochastic::backwardPropagationIdentity( covariance, err, trafoFunc, params );
 
-	return false;
+	return true;
 }
 	
 }}} // namespace Ubitrack::Algorithm::PoseEstimation3D3D
