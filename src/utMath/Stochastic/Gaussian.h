@@ -57,17 +57,17 @@ struct Gaussian
 	T variance;
 	
 	/** the sum of squared diagonal entries of the covariance */
-	T squaredVariance;
+	T standardDeviation;
 };
 
-/// @internal a function that sets all values of the gaussian to zero
+/// @internal a function that sets all values of the Gaussian to zero
 template< typename T, std::size_t N >
 void reset( Gaussian< T, N > &gaussian )
 {
-	// set all values of the gaussian type to zero
+	// set all values of the Gaussian type to zero
 	std::fill( gaussian.mean, gaussian.mean+N, static_cast< T >( 0 ) );
 	std::fill( gaussian.covariance, gaussian.covariance+(N*N), static_cast< T >( 0 ) );
-	gaussian.variance = gaussian.squaredVariance = 0;
+	gaussian.standardDeviation = gaussian.variance = 0;
 }
 
 
@@ -75,7 +75,7 @@ void reset( Gaussian< T, N > &gaussian )
 template< typename T, std::size_t N, typename InputIterator1, typename InputIterator2 >
 bool estimate_gaussian( const InputIterator1 itBegin, const InputIterator1 itEnd, const InputIterator2 itWeights, Gaussian< T, N > &gaussian )
 {
-	// zero out the gaussian
+	// zero out the Gaussian
 	reset( gaussian );
 	
 	std::size_t n( 0 );
@@ -100,9 +100,9 @@ bool estimate_gaussian( const InputIterator1 itBegin, const InputIterator1 itEnd
 	
 	{//sum up the squared diagonal entries
 		for( std::size_t i( 0 ); i < N; ++i )	
-			gaussian.squaredVariance += ( gaussian.covariance[i*N+i]  );
+			gaussian.variance += ( gaussian.covariance[i*N+i]  );
 			
-		gaussian.variance = std::sqrt( gaussian.squaredVariance );
+		gaussian.standardDeviation = std::sqrt( gaussian.variance );
 	}
 	return true;
 };
@@ -140,13 +140,13 @@ bool estimate_gaussian( const InputIterator itBegin, const InputIterator itEnd, 
 			gaussian.covariance[ i ] /= n;
 	}
 	
-	std::cout <<"Finsished With Variance" << std::endl;
+	std::cout <<"Finished With Variance" << std::endl;
 	
 	{ //sum up the squared diagonal entries
 		for( std::size_t i( 0 ); i < N; ++i )	
-			gaussian.squaredVariance += ( gaussian.covariance[i*N+i] );
+			gaussian.variance += ( gaussian.covariance[i*N+i] );
 			
-		gaussian.variance = std::sqrt( gaussian.squaredVariance );
+		gaussian.standardDeviation = std::sqrt( gaussian.variance );
 	}
 	return true;
 }
@@ -213,9 +213,9 @@ bool estimate_gaussian_index( const InputIterator1 itBegin, const InputIterator1
 	{
 		//sum up the squared diagonal entries
 		for( std::size_t i( 0 ); i < N; ++i )	
-			gaussian.squaredVariance += ( gaussian.covariance[i*N+i] );
+			gaussian.variance += ( gaussian.covariance[i*N+i] );
 			
-		gaussian.variance = std::sqrt( gaussian.squaredVariance );
+		gaussian.standardDeviation = std::sqrt( gaussian.variance );
 	}
 	return true;
 }
@@ -226,13 +226,13 @@ bool estimate_gaussian_index( const InputIterator1 itBegin, const InputIterator1
 template< typename T, std::size_t N >
 std::ostream& operator<<( std::ostream& s, const Gaussian< T, N >& gauss )
 {
-	s << "Variance   : " << gauss.variance << "\nVariance^2 : " << gauss.squaredVariance << "\n";
+	s << "Standard deviation   : " << gauss.standardDeviation << "\nVariance             : " << gauss.variance << "\n";
 	for( std::size_t i1( 0 ); i1<N; ++i1 )
 	{
 		s << std::setfill(' ')
 		<< std::setw(10)
 		<< std::fixed
-		<< std::setprecision(2)
+		<< std::setprecision( 3 )
 		<< gauss.mean[ i1 ] << " [ ";
 		for( std::size_t i2( 0 ); i2<N; ++i2 )
 			s << std::setw( 10 )
