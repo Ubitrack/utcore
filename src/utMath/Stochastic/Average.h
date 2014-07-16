@@ -32,289 +32,289 @@
  */
 
 // Ubitrack
-#include <utMath/Pose.h>
-#include <utMath/ErrorPose.h>
-#include <utMath/Vector.h>
-#include <utMath/ErrorVector.h>
-#include <utUtil/Exception.h>
+#include "../Scalar.h"
+#include "../Pose.h"
+#include "../ErrorPose.h"
+#include "../Vector.h"
+#include "../ErrorVector.h"
 
-// Boost
-#include <boost/math/constants/constants.hpp>
+#include "../Blas2.h" // outer_product
+#include "../Util/TypeToVector.h" // castToVector
 
 namespace Ubitrack { namespace Math { namespace Stochastic {
 
-template< class EventType, class ResultType >
-class Average
+/**
+ * @brief Data structure to support online averaging of measurements.
+ *
+ * This struct can be used to calculate the mean value of any known relevant measurement type
+ * There are several specializations of this struct for special purposes like
+ * calculating a covariance as well or providing a mean for built-in types.
+ * 
+ * The struct can be applied to sequence container in the simplest way using \c std::for_each .
+ * Using \c std::for_each the Average can be applied on various measurement types in various kinds
+ * of sequence containers (e.g. \c std::vector, \c std::list or \c std::set, etc ).
+ *
+ * The following calculations are supported at the moment:
+ * - \b Scalar< T > -> \b Scalar< T >
+ * - \b Quaternion -> \b Quaternion
+ * - \b Vector< T, N > -> \b Vector< T, N >
+ * - \b Vector< T, N > -> \b ErrorVector< T, N >
+ * - \b Pose -> \b Pose
+ * - \b Pose -> \b ErrorPose
+ * - built-in (e.g. \c double ) -> built-in (e.g. \c float )
+ *
+ * Example use case illustrating the struct :\n
+ @code
+ #include <algorithm> // std::for_each
+ 
+ std::vector< Vector3d > points3d; // <- should be filled with values
+ Average< Vector3d > Averager;
+ Averager = std::for_each( points3d.begin(), points3d.end(), Averager );
+ Averager.getAverage();
+ 
+ // or
+ Average< ErrorVector< double, 3 > > AveragerCovariance;
+ AveragerCovariance = std::for_each( points3d.begin(), points3d.end(), AveragerCovariance );
+ AveragerCovariance.getAverage();
+ 
+ @endcode
+ * 
+ */
+template< typename ResultType, std::size_t N = Util::TypeToVector< ResultType >::size >
+struct Average
 {
-
-protected:
-	Math::Vector< double > meanv;
-	Math::Matrix< double > outProd;
-
+	/** defines the type that should be used as output type for the measurement. */
+	typedef ResultType value_type;
+	
+	/** defines the precision of the underlying built-in type (e.g. \c double or \c float )*/
+	typedef typename Util::TypeToVector< value_type >::precision_type precision_type;
+	
+	/** defines the vector type used to summarize all values*/
+	typedef typename Math::Vector< precision_type, N > mean_type;
+	
+	/** Keeps the count of the amount of elements already pushed into the Average */
 	std::size_t m_counter;
+	
+	/** The vector containing the sums of all received measurement so far. */
+	mean_type m_mean;
+	
+	/** Standard constructor */
+	Average()
+		: m_counter( 0 )
+		, m_mean ( mean_type::zeros() )
+	{}
+	
+	/** unary bracket operator accepting measurements that are added to the mean value. */
+	void operator() ( const value_type& value )
+	{
+		++m_counter;
+		mean_type tmp;
+		Util::castToVector( value, tmp );
+		m_mean += tmp;
+	}
+	
+	/** function that calculates the mean value and returns it.*/
+	value_type getAverage() const
+	{
+		return m_mean / m_counter;
+	}
+};
 
-	ResultType incrementalEstimate( EventType& perturbed );
+/// @internal specialization for built-in types and/or Math::Scalar
+template< typename ResultType >
+struct Average< ResultType, 1 >
+{
+	typedef ResultType value_type;
+	typedef typename Util::TypeToVector< value_type >::precision_type precision_type;
+	typedef precision_type mean_type;
+	
+	std::size_t m_counter;
+	mean_type m_mean;
+	
+	Average()
+		: m_counter( 0 )
+		, m_mean ( 0 )
+	{}
+	
+	template< typename T >
+	void operator() ( const T& value )
+	{
+		++m_counter;
+		m_mean += static_cast< value_type > ( value );
+	}
+	
+	value_type getAverage() const
+	{
+		return static_cast< value_type > ( m_mean / m_counter );
+	}
+};
+
+/// overloaded unary bracket operator for Quaternion measurements, that brings all rotation measurements in the same hemisphere
+template<>
+void Average< Math::Quaternion >::operator() ( const value_type& value )
+{
+	++m_counter;
+	mean_type tmp;
+	Util::castToVector( value, tmp );
+	m_mean += (( value.w() >= 0 ) ? tmp : tmp * (-1) );
+};
+
+/// overloaded getAverage function for Quaternion measurements, when new struct is available this should not be necessary anymore.
+template<>
+Math::Quaternion Average< Math::Quaternion >::getAverage() const
+{
+	const mean_type mean = m_mean / m_counter;
+	return Quaternion( mean[ 0 ], mean[ 1 ], mean[ 2 ], mean[ 3 ] ).normalize();
+};
+
+/// overloaded unary bracket operator for pose measurements, that brings all rotation measurements in the same hemisphere
+template<>
+void Average< Math::Pose >::operator() ( const value_type& value )
+{
+	++m_counter;
+	mean_type tmp;
+	Util::castToVector( value, tmp );
+	// The order is tx, ty, tz, qx, qy, qz, qw.
+	// check now for real part (==qw) being positive and correct if necessary:
+	if( tmp[ 6 ] < 0 )
+	{
+		tmp[ 3 ] *= (-1);
+		tmp[ 4 ] *= (-1);
+		tmp[ 5 ] *= (-1);
+		tmp[ 6 ] *= (-1);
+	}
+	m_mean += tmp;
+};
+
+/// overloaded getAverage function for Pose measurements, when new struct is available this should not be necessary anymore as well.
+template<>
+Math::Pose Average< Math::Pose >::getAverage() const
+{
+	
+	const mean_type mean = m_mean / m_counter;
+	Math::Pose pose = Math::Pose::fromVector( mean );
+	return pose;
+};
+
+/// @internal specialization of average struct for an ErrorVector measurement as mean+covariance.
+template< typename T, std::size_t N >
+struct Average< Math::ErrorVector< T, N >, N >
+	: public Average< Math::Vector< T, N > >
+{
+private:
+	typedef Average< Math::Vector< T, N > > super;
 	
 public:
-
-	/** Default constructor */
-	Average( ) {}
-
-	typedef typename std::vector< EventType > EventList;
+	typedef Math::ErrorVector< T, N > value_type;
+	typedef Math::Matrix< T, N, N > varianz_type;
 	
-	ResultType mean( const EventList &eList )
+	varianz_type m_covariance;
+	
+	Average()
+		: super()
+		, m_covariance ( varianz_type::zeros() )
+	{}
+	
+	void operator() ( const typename super::value_type& value )
 	{
-		ResultType tmp;
-		size_t size = eList.size();
-		
-		for( size_t i = 0; i < size; i++ )
-			tmp = tmp + ( eList[ i ] / size );
-		return tmp;
+		super::operator( )( value );
+		m_covariance += Math::outer_product( value, value );
+	}
+
+	value_type getAverage() const
+	{
+		const typename super::value_type mean = super::getAverage();
+		const varianz_type covarianz = ( m_covariance / super::m_counter );
+		return value_type( mean, covarianz - Math::outer_product( mean, mean ) );
 	};
 };
 
+/// @internal specialization of average struct for an ErrorPose measurement as mean+covariance.
 template<>
-Math::Vector< double, 3 > Average< Math::Vector< double, 3 >, Math::Vector< double, 3 > >::mean( const std::vector< Math::Vector< double, 3 > > &eList )
+struct Average< Math::ErrorPose >
+	: public Average< Math::Pose >
 {
-	size_t size = eList.size();
-	Math::Vector< double, 3 > m_mean ( 0.0, 0.0, 0.0 );
-
-	for ( size_t i = 0; i < size; i++ )
-	{
-		m_mean += eList[i];
-	}
- 	return m_mean / static_cast< double >( size );
-}
-
-template<>
-Math::ErrorVector< double, 3 > Average< Math::Vector< double, 3 >, Math::ErrorVector< double, 3 > >::mean( const std::vector< Math::Vector< double, 3 > > &eList )
-{
-	size_t size = eList.size();
-	Math::Vector< double, 3 > m_mean( Math::Vector< double, 3 >::zeros() );
-	Math::Matrix< double, 3, 3 > m_outProd ( Math::Matrix< double, 3, 3 >::zeros() );
-
-	for (size_t i = 0; i < size; i++)
-	{
-		m_mean = m_mean + ( eList[i] / size);
-		m_outProd = m_outProd + boost::numeric::ublas::outer_prod( eList[i], eList[i] );
-	}
+private:
+	typedef Average< Math::Pose > super;
 	
-	Math::ErrorVector< double, 3 > ev ( m_mean, m_outProd / ( static_cast< double > ( size ) ) - boost::numeric::ublas::outer_prod ( m_mean, m_mean ) );
-
- 	return ev;
-}
-
-template<>
-Math::Quaternion Average< Math::Quaternion, Math::Quaternion >::mean( const std::vector< Math::Quaternion > &eList )
-{
-	size_t size = eList.size();
-	Math::Quaternion q_mean ( 0.0, 0.0, 0.0, 0.0 );
-
-	Math::Vector< double, 3 > axisAngle( 0.0, 0.0, 0.0 );
+public:
+	typedef Math::ErrorPose value_type;
+	typedef value_type::value_type precision_type;
+	static const Util::TypeToVector< super::value_type >::size_type size = Util::TypeToVector< super::value_type >::size;
+	typedef Math::Matrix< precision_type, size, size > varianz_type;
 	
-	// angle = 2 * acos( q(:,4) );
-// s = sqrt( 1 - q(:,4) .* q(:,4) );% assuming quaternion normalised then w is less than 1, so term always positive.
-
-// aa = [ angle, q(:,1:3) ];
-// if( s > eps ) % test to avoid divide by zero, s is always positive due to sqrt
-
-    // aa(:, 2) = aa(:, 2) ./ s;
-    // aa(:, 3) = aa(:, 3) ./ s;
-    // aa(:, 4) = aa(:, 4) ./ s;
-// end
-	int num( 0 );
+	varianz_type m_covariance;
 	
-	for( size_t i = 0; i < size; i++ )
+	Average()
+		: super()
+		, m_covariance ( varianz_type::zeros() )
+	{}
+	
+	void operator() ( const super::value_type& value )
 	{
-		Math::Quaternion q_t = eList[i];
+		Math::Vector< precision_type, 7 > tmp;
+		Util::castToVector( value, tmp );
 		
-		if( q_t.w() < 0.0 )
-			q_t *= -1.0;
-			
-		double angle = 2.0 * std::acos( q_t.w() );
-		double scale = std::sqrt( 1.0 - q_t.w() * q_t.w() );
-		if( scale > 0.000001 )
+		// The order is tx, ty, tz, qx, qy, qz, qw.
+		// check now for real part (==qw) being positive and correct if necessary:
+		if( tmp[ 6 ] < 0 )
 		{
-			Math::Vector< double, 3 > axis( q_t.x(), q_t.y(), q_t.z() );
-			axis /= scale;
-			axis *= angle;
-			axisAngle += axis;
-			++num;
+			tmp[ 3 ] *= (-1);
+			tmp[ 4 ] *= (-1);
+			tmp[ 5 ] *= (-1);
+			tmp[ 6 ] *= (-1);
 		}
-		
-		// q_mean += q_t;
+		++m_counter;
+		m_mean += tmp;
+		m_covariance += Math::outer_product( tmp, tmp );
 	}
-	if( num > 0 )
-		axisAngle /= num;
-		
-	double norm = boost::numeric::ublas::norm_2( axisAngle );
-	double s = std::sin( norm / 2.0 );
-	axisAngle *= ( s / norm ) ;
-	Math::Quaternion q_final( axisAngle( 0 ), axisAngle( 1 ), axisAngle( 2 ), std::cos( norm/ 2.0 ) );
-	// q_mean /= size;
-	// q_mean.normalize();
-	
-	return q_final;
-}
 
-template<>
-Math::Pose Average< Math::Pose, Math::Pose >::mean( const std::vector< Math::Pose > &eList )
-{
-	size_t size = eList.size();
-	Math::Vector< double, 3 > p_mean ( 0.0, 0.0, 0.0 );
-	Math::Quaternion q_mean ( 0.0, 0.0, 0.0, 0.0 );
-
-	for( size_t i = 0; i < size; i++ )
+	value_type getAverage() const
 	{
-		Math::Quaternion q_t = eList[i].rotation();
-		if( q_t.w() < 0.0 )
-			q_t *= -1.0;
-			
-		q_mean += q_t;
-		p_mean += eList[i].translation();
-	}
-	p_mean /= (double)size;
-	q_mean /= (double)size;
-	q_mean.normalize();
 	
-	return Math::Pose( q_mean, p_mean );
-}
-
-
-Math::ErrorPose incEstimate(  Math::Pose poseNew,  Math::Vector< double >& meanv,  Math::Matrix< double, 0, 0 >& outProd, int m_counter)
-{
-	boost::numeric::ublas::vector_range< Math::Vector< double >::base_type > posMean( meanv, boost::numeric::ublas::range( 0, 3 ) );
-	boost::numeric::ublas::vector_range< Math::Vector< double >::base_type > rotMean( meanv, boost::numeric::ublas::range( 3, 7 ) );
-
-	//LOG4CPP_TRACE ( logger, "Update pose event: " << poseNew );
-
-	// The order is tx, ty, tz, qx, qy, qz, qw.
-	Math::Vector< double > poseNewVec( 7 );
-	poseNew.toVector( poseNewVec );
-	boost::numeric::ublas::vector_range< Math::Vector< double >::base_type > posNew( poseNewVec, boost::numeric::ublas::range( 0, 3 ) );
-	boost::numeric::ublas::vector_range< Math::Vector< double >::base_type > rotNew( poseNewVec, boost::numeric::ublas::range( 3, 7 ) );
-
-	// Take care of quaternion ambiguity
- 	if ( boost::numeric::ublas::inner_prod( rotNew, rotMean ) < 0 )
- 		rotNew *= -1;
-
-	// Update running mean value
-	meanv = ( ( ((double)m_counter - 1) / (double)m_counter ) * meanv ) + ( ( 1 / (double)m_counter ) * poseNewVec );
-
-	// Running outer product of pose random variable (not yet normalized by number of measurements)
-	outProd = outProd + boost::numeric::ublas::outer_prod( poseNewVec, poseNewVec );
-
-	/*
-	 * Use inverted mean value to transform the additive 7x7
-	 * covariance to the 6x6 multiplicative format The conversion is
-	 * conducted according to the following formulas:
-	 * 
-	 * q_m = q_0 * ( q_id + q_e )
-	 * 
-	 * where q_id is the identity quaternion and q_e is a quaternion
-	 * with expectation ((0,0,0),0) and a covariance covering only the
-	 * imaginary part. Together ( q_id + q_e ) represent a small
-	 * quaternion ((e_rx, e_ry, e_rz), 1). If mean and covariance of
-	 * the quaternion are estimated according to the usual formulas,
-	 * however, one gets the following instead:
-	 * 
-	 * q_m = q_0 + q'_e
-	 * 
-	 * Together with the first formula, this yields
-	 * 
-	 * q_0 * ( q_id + q_e ) = q_0 + q'_e
-	 * ( q_id + q_e )       = ~q_0 * q_0 + ~q_0 * q'_e
-	 * q_e                  = q_id + ~q_0 * q'_e - q_id
-	 * q_e                  = ~q_0 * q'_e
-	 *
-	 * Thus, one has to rotate the distribution by ~q_0. The variance
-	 * of the real part can then be discarded, it should be ~0.
-	 */
-
-	Math::Vector< double, 7 > invMean;
-	(~(Math::Pose::fromVector( meanv ) ) ).toVector( invMean );
-	Math::ErrorVector< double, 7 > ev ( invMean, outProd / ( (double)m_counter ) - boost::numeric::ublas::outer_prod ( meanv, meanv ) );
-	Math::ErrorPose invEp = Math::ErrorPose::fromAdditiveErrorVector( ev );
-	
-	// We created the error pose from the inverted mean value above, to obtain the transformed 6x6 covariance
-	// Now, we recreate the error pose with the computed mean value.
-	Math::ErrorPose ep( Math::Pose::fromVector( meanv ), invEp.covariance() );
-
-	//LOG4CPP_TRACE( logger, "Running (empirical) mean / covariance: " << std::endl << ep );
-
-	// For debug purposes, compute positional and angular error...
-	Math::Matrix< double, 6, 6 > covar = ep.covariance();
-	double posRms = sqrt ( covar (0,0) + covar (1,1) + covar (2,2) );
-	//LOG4CPP_INFO( logger, "RMS positional error [mm]: " << posRms );
-	Math::Vector< double > axis (3);
-	axis (0) = sqrt ( covar (3,3) );
-	axis (1) = sqrt ( covar (4,4) );
-	axis (2) = sqrt ( covar (5,5) );
-	double norm = norm_2 (axis);
-	double phi = asin ( norm ) * 2;
-	phi = phi * 180 / boost::math::constants::pi<double>();
-	//LOG4CPP_INFO( logger, "Standard deviation of rotational error [deg]: " << phi );
-	
-	return ep;
-}
-
-
-template<>
-Math::ErrorPose Average< Math::Pose, Math::ErrorPose >::mean( const std::vector< Math::Pose > &eList )
-{
-	size_t size = eList.size();
-	
-	meanv = Math::Vector< double, 7 >::zeros();
-	outProd = Math::Matrix< double, 7, 7 >::zeros();
-
-	m_counter = 1;
-	Math::ErrorPose estimate;
-	for( size_t i = 0; i < size; i++ ) {
+		/*
+		 * Use inverted mean value to transform the additive 7x7
+		 * covariance to the 6x6 multiplicative format The conversion is
+		 * conducted according to the following formulas:
+		 * 
+		 * q_m = q_0 * ( q_id + q_e )
+		 * 
+		 * where q_id is the identity quaternion and q_e is a quaternion
+		 * with expectation ((0,0,0),0) and a covariance covering only the
+		 * imaginary part. Together ( q_id + q_e ) represent a small
+		 * quaternion ((e_rx, e_ry, e_rz), 1). If mean and covariance of
+		 * the quaternion are estimated according to the usual formulas,
+		 * however, one gets the following instead:
+		 * 
+		 * q_m = q_0 + q'_e
+		 * 
+		 * Together with the first formula, this yields
+		 * 
+		 * q_0 * ( q_id + q_e ) = q_0 + q'_e
+		 * ( q_id + q_e )       = ~q_0 * q_0 + ~q_0 * q'_e
+		 * q_e                  = q_id + ~q_0 * q'_e - q_id
+		 * q_e                  = ~q_0 * q'_e
+		 *
+		 * Thus, one has to rotate the distribution by ~q_0. The variance
+		 * of the real part can then be discarded, it should be ~0.
+		 */
+		const super::value_type meanPose = super::getAverage();
 		
-		estimate = incEstimate ( (eList.at(i)), meanv, outProd, m_counter );
-		m_counter++;
-	}
-	return estimate;
-	/*
-	Math::Vector< double, 3 > p_mean ( 0.0, 0.0, 0.0 );
-	Math::Quaternion q_mean ( 0.0, 0.0, 0.0, 0.0 );
-	
-	Math::Vector< double > m_mean = Math::Vector< double, 7 >::zeros();
-	Math::Matrix< double, 7, 7 > m_outProd = Math::Matrix< double, 7, 7 >::zeros();
-	
-	for( unsigned i = 0; i < size; i++ )
-	{
-		Math::Quaternion q_t = eList[i].rotation();
-		if( q_t.w() < 0.0 )
-			q_t *= -1.0;
-			
-		q_mean += q_t;
-		p_mean += eList[i].translation();
-		Math::Pose pose( q_mean, p_mean );
+		super::mean_type meanVec;
+		Util::castToVector( meanPose, meanVec );
 		
-		Math::Vector< double > poseTmpVec( 7 );
-		pose.toVector( poseTmpVec );
-		m_outProd = m_outProd + boost::numeric::ublas::outer_prod( poseTmpVec, poseTmpVec );
-	}
+		super::mean_type invMeanVec;
+		Util::castToVector( (~meanPose), invMeanVec );
+		
+		
+		const varianz_type covarianz = ( m_covariance / m_counter );
+		Math::ErrorVector< precision_type, 7 > ev( invMeanVec, covarianz - Math::outer_product( meanVec, meanVec ) );
+		const Math::ErrorPose invEp = Math::ErrorPose::fromAdditiveErrorVector( ev );
+		// We created the error pose from the inverted mean value above, to obtain the transformed 6x6 covariance
+		// Now, we recreate the error pose with the computed mean value.	
+		return value_type( meanPose, invEp.covariance() );
+	};
 	
-	p_mean /= size;
-	q_mean /= size;
-	q_mean.normalize();
-	
-	Math::Pose pose_mean( q_mean, p_mean );
-	
-	pose_mean.toVector( m_mean );
-
-	Math::Vector< double, 7 > invMean;
-	(~(Math::Pose::fromVector( m_mean ) ) ).toVector( invMean );
-	Math::ErrorVector< double, 7 > ev ( invMean, m_outProd / ( static_cast< double > ( size ) ) - boost::numeric::ublas::outer_prod ( m_mean, m_mean ) );
-	Math::ErrorPose invEp = Math::ErrorPose::fromAdditiveErrorVector( ev );
-	
-	Math::ErrorPose ep( Math::Pose::fromVector( m_mean ), invEp.covariance() );
-	*/
-	//return ep;
-}
-
+};
 
 } } } // namespace Ubitrack::Math::Stochastic
-
