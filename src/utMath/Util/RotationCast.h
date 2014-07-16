@@ -115,10 +115,11 @@ struct RotationCast< Math::Quaternion >
 	{
 		const T angle = axisAngle[ 3 ];
 		const T halfAngle = angle / 2;
+		const T sinHalfAngle = std::sin( halfAngle );
 		
-		const T qx = axisAngle[ 0 ] * std::sin( halfAngle );
-		const T qy = axisAngle[ 1 ] * std::sin( halfAngle );
-		const T qz = axisAngle[ 2 ] * std::sin( halfAngle );
+		const T qx = axisAngle[ 0 ] * sinHalfAngle;
+		const T qy = axisAngle[ 1 ] * sinHalfAngle;
+		const T qz = axisAngle[ 2 ] * sinHalfAngle;
 		const T qw = std::cos( halfAngle );
 		return return_type( qx, qy, qz, qw );
 	}
