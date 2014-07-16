@@ -23,22 +23,22 @@ struct unknown_matrix_storage_tag {};
 /** @internal specialization for unbounded Matrices */
 template< typename T >
 struct has_fixed_storage< Math::Matrix< T, 0, 0 > >
-	: public false_type{};
+	: public Ubitrack::Util::false_type{};
 
 /** @internal specialization for bounded Matrices */
 template< typename T, std::size_t M, std::size_t N >
 struct has_fixed_storage< Math::Matrix< T, M, N > >
-	: public true_type{};
+	: public Ubitrack::Util::true_type{};
 
 /** @internal specialization for unbounded Matrices */
 template< typename T >
 struct has_dynamic_storage< Math::Matrix< T, 0, 0 > >
-	: public true_type{};
+	: public Ubitrack::Util::true_type{};
 
 /** @internal specialization for bounded Matrices */
 template< typename T, std::size_t M, std::size_t N >
 struct has_dynamic_storage< Math::Matrix< T, M, N > >
-	: public false_type{};
+	: public Ubitrack::Util::false_type{};
 
 
 

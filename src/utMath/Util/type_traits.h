@@ -5,7 +5,7 @@
 
 //#include <type_traits> //integral_constant <- commented to compile on standard gcc (without c++0x features)
 
-namespace Ubitrack { namespace Math { namespace Util {
+namespace Ubitrack { namespace Util {
 
 /**
  * @internal Constant value struct
@@ -31,15 +31,35 @@ typedef constant_value< bool, true > true_type;
 typedef constant_value< bool, false > false_type;
 
 
+/**
+ * type trait to determine whether two types are the same or not
+ *
+ * helps supporting compile error detection using static asserts
+ */
+template< typename typeA, typename typeB >
+struct is_same
+	: false_type
+{};
+
+/// @internal specialization of previous template
+template < typename typeA >
+struct is_same< typeA, typeA >
+	: true_type
+{};
+
+}} //namespace Ubitrack::Util
+
+namespace Ubitrack { namespace Math { namespace Util {
+
 /** @internal identifies if a types' size is known at compile time */
 template< typename type >
 struct has_fixed_storage
-	: public false_type{};
+	: public Ubitrack::Util::false_type{};
 	
 /** @internal identifies if a types' size is unknown at compile time */
 template< typename type >
 struct has_dynamic_storage
-	: public true_type{};
+	: public Ubitrack::Util::true_type{};
 	
 	
 struct fixed_storage_tag {};
