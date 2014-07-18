@@ -192,8 +192,8 @@ Math::Pose Average< Math::Pose >::getAverage() const
 {
 	
 	const mean_type mean = m_mean / m_counter;
-	Math::Pose pose = Math::Pose::fromVector( mean );
-	return pose;
+	const Math::Pose pose = Math::Pose::fromVector( mean );
+	return Math::Pose( Math::Quaternion( pose.rotation() ).normalize(), pose.translation() );
 };
 
 /// @internal specialization of average struct for an ErrorVector measurement as mean+covariance.
