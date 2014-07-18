@@ -87,7 +87,7 @@ public:
 		: threshold ( fThreshold )
 		, setSize ( nMinSet )
 		, nMinInlier ( (1.-percentOutlier) * n  )
-		, nMaxIterations ( 1+std::log( 1-percentSucess) / ( std::log( 1-std::pow( 1-percentOutlier, static_cast< int >( nMinSet ) ) ) ) )
+		, nMaxIterations ( static_cast< size_type >( 1+std::log( 1-percentSucess) / ( std::log( 1-std::pow( 1-percentOutlier, static_cast< int >( nMinSet ) ) ) ) ) )
 		{};
 };
 
