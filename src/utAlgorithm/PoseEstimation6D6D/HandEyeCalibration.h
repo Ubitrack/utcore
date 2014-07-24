@@ -50,7 +50,7 @@ namespace Ubitrack { namespace Algorithm { namespace PoseEstimation6D6D {
 template< typename T >
 struct HandEyeCalibration
 {
-	typedef typename T precision_type;
+	typedef T precision_type;
 	typedef typename Math::Vector< precision_type, 8 > relative_pose_type;
 	
 	typedef typename std::vector< relative_pose_type > RelPoseListType;
@@ -74,9 +74,12 @@ struct HandEyeCalibration
 	template< typename ResultPoseType, typename PoseTypeIn, template< typename Type, typename = std::allocator< Type > > class container_type >
 	bool estimatePose6D( const container_type< PoseTypeIn >& posesEye, ResultPoseType& resultPose, const container_type< PoseTypeIn >& posesHand )
 	{
-		if( relPosesEye.size() < 3 )
+		if( posesEye.size() < 3 )
 			return false;
-			
+		
+		if( posesEye.size() != posesHand.size() )
+			return false;
+		
 		updateRelativePoses( posesEye, posesHand );
 		resetBestMatch();
 		return Algorithm::PoseEstimation6D6D::estimatePose6D_6D6D( relativePosesBestMatchB, resultPose, relativePosesBestMatchA );
