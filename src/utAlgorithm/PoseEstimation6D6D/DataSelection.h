@@ -39,6 +39,7 @@
 #include <utMath/Util/RotationCast.h>
 #include <utMath/Geometry/container_traits.h>
 #include <utMath/Stochastic/identity_iterator.h>
+#include <utMath/Stochastic/k_means.h> // copy_probability, k_means
 
 #include <vector>
 
@@ -394,6 +395,137 @@ OutputIterator adjacent_difference ( InputIterator first, InputIterator last, Ou
 
 namespace Ubitrack { namespace Algorithm { namespace PoseEstimation6D6D {
 
+/**
+ * @brief this structure supports the process of selecting best matches of relative pose measurements for a hand eye calibration.
+ *
+ */
+template< typename T >	
+// struct UBITRACK_EXPORT DataSelection
+struct DataSelection
+{
+	/// type of the underlying precision (e.g. \c double or \c float )
+	typedef T precision_type;
+	
+	/// at the moment the selection process works only with axis angle
+	typedef Math::Vector< precision_type, 6 > pose_type;
+	
+	/// sequence container type used for storing the prepared relative pose measurements
+	typedef std::vector< pose_type > RelPoseListType;
+	
+	/// type of index sequence that 
+	typedef std::vector< std::size_t > IndexListType;
+	
+	
+	RelPoseListType comparisonPoseList;
+	
+	RelPoseListType clusterPoseList;
+	
+	IndexListType indexList;
+
+	/// this function alings all orientation of pose measurements in the upper hemisphere
+	template< typename PoseType >
+	pose_type operator( )( const PoseType& pose_in ) const
+	{
+		const pose_type pose = Math::pose_cast< pose_type >()( pose_in );
+		return Math::hemisphere_alignment< pose_type, true >()( pose );
+	}
+	
+	template< typename PoseType, template< typename Type, typename = std::allocator< Type > > class container_type >
+	inline void resetComparisonPoses( const std::size_t n, const container_type< PoseType >& relPosesIn )
+	{
+		// const std::size_t n = std::distance( relPosesIn.begin(), relPosesIn.end() );
+		updateComparisonPoses( relPosesIn.begin(), relPosesIn.end() , comparisonPoseList );
+		
+		// update the cluster of best matches of relative pose measurements
+		clusterPoseList.clear();
+		clusterPoseList.reserve( n );
+		resetCluster( n, comparisonPoseList.begin(), comparisonPoseList.end(), std::back_inserter( clusterPoseList ) );
+		// update indices of relative poses that are nearest to the cluster centers
+		resetIndices( comparisonPoseList.begin(), comparisonPoseList.end(), clusterPoseList.begin(), clusterPoseList.end() );
+	}
+	
+	/// function returns the best matches of a relative pose measurements depending on indices
+	template< typename PoseType, template< typename Type, typename = std::allocator< Type > > class container_type, typename OutputIterator >
+	void getSelection( const container_type< PoseType >& relPosesIn, OutputIterator itSelectedPoseOut )
+	{
+		std::vector< size_t >::const_iterator itIndex = indexList.begin();
+		const std::vector< size_t >::const_iterator itIndexEnd = indexList.end();
+		
+		for( ; itIndex != itIndexEnd; ++itIndex)
+		{
+			typename container_type< PoseType >::const_iterator it = relPosesIn.begin();
+			std::advance( it, *itIndex );
+			*itSelectedPoseOut++ = *it;
+		}
+	}
+	
+protected:
+
+	template< typename InputIterator >
+	inline void updateComparisonPoses( const InputIterator itBegin, const InputIterator itEnd , RelPoseListType& relPoseList ) const
+	{
+		const std::size_t nIn = std::distance ( itBegin, itEnd );
+		const std::size_t nIs = std::distance ( relPoseList.begin(), relPoseList.end() );
+		assert( nIn <= nIs );
+		
+		InputIterator it = itBegin;
+		std::advance( it, nIs );
+		std::transform( it, itEnd, std::back_inserter( relPoseList ), DataSelection< T >() );
+	}
+	
+	template< typename PoseType, template< typename Type, typename = std::allocator< Type > > class container_type >
+	inline void updateComparisonPoses( const container_type< PoseType >& relPosesIn )
+	{
+		updateComparisonPoses( relPosesIn.begin(), relPosesIn.end() , comparisonPoseList );
+	}
+	
+
+	template< typename InputIterator, typename OutputIterator >
+	inline void resetCluster( const std::size_t n_cluster, const InputIterator itBeginValues, const InputIterator itEndValues, OutputIterator itOut )
+	{
+		const std::size_t newCluster = Math::Stochastic::copy_probability( itBeginValues, itEndValues, n_cluster, itOut, Math::RotationDistance< pose_type >() );
+	}
+	
+	/// function that determines the indices of the relative pose measurements depending on a cluster indicating best matches and a sequence of special aligned poses.
+	template< typename InputIterator1, typename InputIterator2 >
+	void resetIndices( const InputIterator1 itBeginValues, const InputIterator1 itEndValues, const InputIterator2 itBeginCluster, const InputIterator2 itEndCluster )
+	{
+		const std::size_t n_values = std::distance( itBeginValues, itEndValues );
+		const std::size_t n_cluster = std::distance( itBeginCluster, itEndCluster );
+		
+		// get the list of indices signing the membership of a single pose to a corresponding mean
+		IndexListType indices;
+		indices.reserve( n_values );
+		Math::Stochastic::k_means( itBeginValues, itEndValues, itBeginCluster, itEndCluster, std::back_inserter( indices ), Math::RotationDistance< pose_type >() );
+		
+		// set the list of indices to selected poses
+		indexList.assign( n_cluster, 0 ); // indexList.reserve( n_cluster );
+		std::vector< precision_type > min_distance( n_cluster, 10000 ); // <- value should be greater than maximal expected distance (==pi)
+		
+		InputIterator1 itPose = itBeginValues;
+		IndexListType::const_iterator itIndex = indices.begin();
+		const IndexListType::const_iterator itIndexEnd = indices.end();
+		
+		for( std::size_t i = 0; itIndex != itIndexEnd; ++itIndex, *itPose , ++i )
+		{
+			// choose codebook entry to lookup corresponding pose measurement
+			InputIterator2 itCodebook = itBeginCluster;	
+			std::advance( itCodebook, *itIndex );
+			
+			const precision_type d = Math::RotationDistance< pose_type >()( *itCodebook, *itPose );
+			
+			typename std::vector< precision_type >::iterator itDist = min_distance.begin();
+			std::advance( itDist, *itIndex );
+			if( d < *itDist )
+			{
+				*itDist = d;
+				IndexListType::iterator it = indexList.begin();
+				std::advance( it, *itIndex );
+				*it = i;
+			}
+		}
+	}
+};
 
 template< bool use_all_pairs, bool direction, typename InputIterator, typename OutputIterator >
 void generate_relative_pose6D_impl( const InputIterator itBegin, const InputIterator itEnd, OutputIterator itOut )
