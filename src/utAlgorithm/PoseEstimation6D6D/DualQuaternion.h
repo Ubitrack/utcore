@@ -99,7 +99,11 @@ namespace Ubitrack { namespace Algorithm { namespace PoseEstimation6D6D {
 UBITRACK_EXPORT bool estimatePose6D_6D6D(  const std::vector< Math::Pose >& eyes, Math::Pose& pose,
 	const std::vector< Math::Pose >& hands );
 
-}}} // namespace Ubitrack::Algorithm::HandEye
+/// @internal overloaded function performing a hand-eye calibration that takes dual quaternions (as 8-vector) assuming them to be relative poses.
+UBITRACK_EXPORT bool estimatePose6D_6D6D( const std::vector< Math::Vector< double, 8 > >& eyes, Math::Pose& pose,
+	const std::vector< Math::Vector< double, 8 > >& hands );
+	
+}}} // namespace Ubitrack::Algorithm::PoseEstimation6D6D
 
 #endif // HAVE_LAPACK
 

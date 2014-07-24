@@ -251,6 +251,13 @@ bool estimatePose6D_6D6D( const std::vector< Math::Pose >& eyes, Math::Pose& pos
 	
 }
 
-}}} // namespace Ubitrack::Algorithm::HandEye
+/// @internal overloaded function that takes dual quaternions (as 8-vector) assuming them to be relative poses.
+bool estimatePose6D_6D6D( const std::vector< Math::Vector< double, 8 > >& eyes, Math::Pose& pose,
+	const std::vector< Math::Vector< double, 8 > >& hands )
+{
+	return estimatePose6D_6D6D_impl( eyes.begin(), eyes.end(), pose, hands.begin(), hands.end() );
+}
+
+}}} // namespace Ubitrack::Algorithm::PoseEstimation6D6D
 
 #endif // HAVE_LAPACK

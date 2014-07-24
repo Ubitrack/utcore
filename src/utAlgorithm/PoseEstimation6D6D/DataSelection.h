@@ -71,7 +71,7 @@ struct RotationDistance< Math::Vector< T, 6 > >
  * one representation needs to be transferred into another representation.
  * Of course the information is not changed, despite numerical errors, and
  * this functor can be integrated into templated functions to limit 
- * the rewriting of algrotihm code.
+ * the rewriting of algorithm code.
  *
  * @tparam pose_type defines the type of the pose to cast to.
  */
@@ -109,6 +109,17 @@ struct pose_cast< Math::Pose  >
 		const Math::Vector< double, 3 > translation( pose[ 3 ], pose[ 4 ], pose[ 5 ] );
 
 		return Math::Pose( quatRot, translation );
+	}
+	
+	template< typename T >
+	result_type operator()( const Math::Vector< T, 8 > &dualQuat ) const
+	{
+		const Math::Quaternion quatRot( dualQuat[ 1 ], dualQuat[ 2 ], dualQuat[ 3 ], dualQuat[ 0 ] );
+		const Math::Quaternion qprime( dualQuat[ 5 ], dualQuat[ 6 ], dualQuat[ 7 ], dualQuat[ 4 ] );
+		const Math::Quaternion q_conj( -dualQuat[ 1 ], -dualQuat[ 2 ], -dualQuat[ 3 ], dualQuat[ 0 ] );
+		const Math::Quaternion t_final = qprime*q_conj;
+
+		return Math::Pose( quatRot, Math::Vector< double, 3 >( 2*t_final.x(), 2*t_final.y(), 2*t_final.z() ) );
 	}
 };
 
@@ -180,6 +191,21 @@ struct pose_cast< Math::Vector< T, 6 >  >
 		result[ 5 ] = pose.translation()[ 2 ];
 		return result;
 	}
+	
+	template< typename Type >
+	result_type operator()( const Math::Vector< Type, 8 >& dualQuat ) const
+	{
+		const Math::Pose pose = pose_cast< Math::Pose >()( dualQuat );
+		const Math::Vector< T, 3 > rotAxis = Math::Util::RotationCast< Math::Vector< T, 3 > >()( pose.rotation() );
+		Math::Vector< T, 6 > result;
+		result[ 0 ] = rotAxis[ 0 ];
+		result[ 1 ] = rotAxis[ 1 ];
+		result[ 2 ] = rotAxis[ 2 ];
+		result[ 3 ] = pose.translation()[ 0 ];
+		result[ 4 ] = pose.translation()[ 1 ];
+		result[ 5 ] = pose.translation()[ 2 ];
+		return result;
+	}
 };
 
 /**
@@ -212,14 +238,14 @@ struct pose_cast< Math::Vector< T, 8 > >
 		Math::Vector< T, 8 > dualQuat;
 		
 		// first, the easy part: :)
-		// quaternion goes into quaterion part (q) 
+		// quaternion goes into quaternion part (q) 
 		dualQuat( 0 ) = qw;
 		dualQuat( 1 ) = qx;
 		dualQuat( 2 ) = qy;
 		dualQuat( 3 ) = qz;
 				
 		// second, the tricky part:
-		// translation t goes into quaterion dual part (q' == aka q prime )
+		// translation t goes into quaternion dual part (q' == aka q prime )
 		// how does it work?
 		// you take translation t and make a quaternion q_t out of it,
 		// assuming zero for the real part an (t/2) as the imaginary parts.
@@ -246,7 +272,7 @@ struct pose_cast< Math::Vector< T, 8 > >
  * @internal functor that transforms rotations that
  * are of arbitrary alignment into the same hemisphere.
  *
- * The functor accecpts any type of pose or rotation data.
+ * The functor accepts any type of pose or rotation data.
  * naja, it should accept, actually it does not. :)
  */
 template< typename pose_type, bool positive >
@@ -399,11 +425,11 @@ void generate_relative_pose6D_impl( const InputIterator itBegin, const InputIter
  
  * This algorithm selects \b relative \b pose correspondences from given
  * \b 6D \b relative \b pose correspondences.
- * The quality of an Hand-Eye calibration depdends on the input data.
+ * The quality of an Hand-Eye calibration depends on the input data.
  * Several publications describes the effects of the input data onto the 
  * resulting final pose. As an example relative poses with a small angle
- * should be rejected for the calibration procedure as it leds to numerical
- * instabil or singular results.
+ * should be rejected for the calibration procedure as it leads to numerical
+ * instability or singular results.
  * The method implemented here was introduced from Schmidt & Niermann 2008
  * and uses a clustering method for automatic pose selection ( @cite schmidt2008data ).
  * Actually the method for clustering could be exchanged with other methods later.
@@ -435,7 +461,7 @@ void generate_relative_pose6D_impl( const InputIterator itBegin, const InputIter
  *
  * @param eyes \b relative \b 6D \b poses in the \b 1st coordinate system.
  * @param hands corresponding \b relative \b 6D \b poses in the \b 2nd coordinate system.
- * @param select amount of reltive poses to select
+ * @param select amount of relative poses to select
  * @param eyesOut contains n ( n=select) \b relative \b 6D \b poses from the from the input data
  * @param handsOut contains n ( n=select) corresponding \b relative \b 6D \b poses from the input data
  */
@@ -447,6 +473,6 @@ UBITRACK_EXPORT void select_6DPoses( const std::vector< Math::Pose >& eyes, cons
 UBITRACK_EXPORT void generate_relative_6DPoses( const std::vector< Math::Pose >& poses
 	, std::vector< Math::Vector< double, 8 > >& relativePoses, bool direction_flag );
 
-}}} // namespace Ubitrack::Algorithm::HandEye
+}}} // namespace Ubitrack::Algorithm::PoseEstimation6D6D
 
 #endif //__UBITRACK_ALGORITHM_HANDEYE_DATA_SELECTION_H_INCLUDED__
