@@ -2,13 +2,12 @@
 #include <utMath/Pose.h>
 #include <utMath/Vector.h>
 #include <utMath/Matrix.h>
-#include <utMath/MatrixOperations.h>
-#include <utAlgorithm/PoseEstimation6D6D/HandEyeCalibration.h>
+#include <utAlgorithm/PoseEstimation6D6D/DualQuaternion.h>
 
 #include <utMath/Random/Scalar.h>
 #include <utMath/Random/Vector.h>
 #include <utMath/Random/Rotation.h>
-#include "../tools.h"
+#include "../../tools.h"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
@@ -24,7 +23,7 @@ void TestHandEye()
 #else // HAVE_LAPACK
 
 template< typename T >
-void testHandEyeMatrixRandom( const std::size_t n_runs, const T epsilon )
+void testDualHandEyeMatrixRandom( const std::size_t n_runs, const T epsilon )
 {
 	typename Random::Quaternion< T >::Uniform randQuat;
 	typename Random::Vector< T, 3 >::Uniform randVector( -100, 100 );
@@ -53,13 +52,11 @@ void testHandEyeMatrixRandom( const std::size_t n_runs, const T epsilon )
 		leftFrame.reserve( n );
 		for( std::size_t i = 0; i<n; ++i )
 		{
-			// invert the Matrix
-			const Matrix< T, 4, 4 > mTmp = boost::numeric::ublas::prod( mat, rightFrame[ i ] );
-			leftFrame.push_back( invert_matrix( mTmp ) );
+			leftFrame.push_back( boost::numeric::ublas::prod( mat, rightFrame[ i ] ) );
 		}
 
 		// do some estimation now
-		const Pose estimatedPose = Ubitrack::Algorithm::PoseEstimation6D6D::performHandEyeCalibration ( leftFrame, rightFrame, true );
+		const Pose estimatedPose;// = Ubitrack::Algorithm::PoseEstimation6D6D::performHandEyeCalibration ( leftFrame, rightFrame, true );
 		
 		// calculate some errors
 		const T rotDiff = quaternionDiff( estimatedPose.rotation(), q );
@@ -68,7 +65,7 @@ void testHandEyeMatrixRandom( const std::size_t n_runs, const T epsilon )
 		{
 			// check if pose is better than before (only for valid results)
 			BOOST_CHECK_MESSAGE( rotDiff < epsilon, "\nEstimated rotation from " << n << " poses resulted in error " << rotDiff << " :\n" << q << " (expected)\n" << estimatedPose.rotation() << " (estimated)\n" );
-			BOOST_CHECK_MESSAGE( posDiff < epsilon, "\nEstimated position from " << n << " poses resulted in error " << posDiff << " :\n" << t << " (expected)\n" << estimatedPose.translation() << " (estimated)\n" );
+			BOOST_CHECK_MESSAGE( posDiff < epsilon, "\nEstimated position from " << n << " poses resulted in error " << posDiff << " :\n" << t << " (expected)\n" << estimatedPose.translation() << " (estimated\n" );
 		}
 		// BOOST_WARN_MESSAGE( b_done, "Algorithm did not successfully estimate a result with " << n 
 			// << " points.\nRemaining difference in rotation " << rotDiff << ", difference in translation " << posDiff << "." );
@@ -76,7 +73,7 @@ void testHandEyeMatrixRandom( const std::size_t n_runs, const T epsilon )
 }
 
 template< typename T >
-void testHandEyePoseRandom( const std::size_t n_runs, const T epsilon )
+void testDualHandEyePoseRandom( const std::size_t n_runs, const T epsilon )
 {
 	typename Random::Quaternion< T >::Uniform randQuat;
 	typename Random::Vector< T, 3 >::Uniform randVector( -10., 10. );
@@ -108,27 +105,28 @@ void testHandEyePoseRandom( const std::size_t n_runs, const T epsilon )
 		}
 
 		// do some estimation now
-		const Pose estimatedPose = Ubitrack::Algorithm::PoseEstimation6D6D::performHandEyeCalibration ( leftFrame, rightFrame, true );
+		Pose estimatedPose;
+		bool b_done = Ubitrack::Algorithm::PoseEstimation6D6D::estimatePose6D_6D6D ( leftFrame, estimatedPose, rightFrame );
 		
-		// calculate some errors
-		const T rotDiff = quaternionDiff( estimatedPose.rotation(), q );
-		const T posDiff = vectorDiff( estimatedPose.translation(), t );
-		// if( b_done )
+		if( b_done )
 		{
+			// calculate some errors
+			const T rotDiff = quaternionDiff( estimatedPose.rotation(), q );
+			const T posDiff = vectorDiff( estimatedPose.translation(), t );
+			
 			// check if pose is better than before (only for valid results)
 			BOOST_CHECK_MESSAGE( rotDiff < epsilon, "\nEstimated rotation from " << n << " poses resulted in error " << rotDiff << " :\n" << q << " (expected)\n" << estimatedPose.rotation() << " (estimated)\n" );
 			BOOST_CHECK_MESSAGE( posDiff < epsilon, "\nEstimated position from " << n << " poses resulted in error " << posDiff << " :\n" << t << " (expected)\n" << estimatedPose.translation() << " (estimated)\n" );
 		}
-		// BOOST_WARN_MESSAGE( b_done, "Algorithm did not successfully estimate a result with " << n 
-			// << " points.\nRemaining difference in rotation " << rotDiff << ", difference in translation " << posDiff << "." );
+		BOOST_WARN_MESSAGE( b_done, "Algorithm did not successfully estimate a result from " << n << " poses." );
 	}
 }
 
-void TestHandEye()
+void TestDualHandEye()
 {
-	testHandEyeMatrixRandom< float >( 100, 1e-2f );
-	testHandEyeMatrixRandom< double >( 100, 1e-6 );
-	testHandEyePoseRandom< double >( 100, 1e-6 );
+	// testDualHandEyeMatrixRandom< float >( 10, 1e-2f );
+	// testDualHandEyeMatrixRandom< double >( 10, 1e-6 );
+	testDualHandEyePoseRandom< double >( 100, 1e-6 );
 }
 
 #endif // HAVE_LAPACK
