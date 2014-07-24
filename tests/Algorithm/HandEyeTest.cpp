@@ -3,7 +3,7 @@
 #include <utMath/Vector.h>
 #include <utMath/Matrix.h>
 #include <utMath/MatrixOperations.h>
-#include <utAlgorithm/HandEye/HandEyeCalibration.h>
+#include <utAlgorithm/PoseEstimation6D6D/HandEyeCalibration.h>
 
 #include <utMath/Random/Scalar.h>
 #include <utMath/Random/Vector.h>
@@ -59,7 +59,7 @@ void testHandEyeMatrixRandom( const std::size_t n_runs, const T epsilon )
 		}
 
 		// do some estimation now
-		const Pose estimatedPose = Ubitrack::Algorithm::HandEye::performHandEyeCalibration ( leftFrame, rightFrame, true );
+		const Pose estimatedPose = Ubitrack::Algorithm::PoseEstimation6D6D::performHandEyeCalibration ( leftFrame, rightFrame, true );
 		
 		// calculate some errors
 		const T rotDiff = quaternionDiff( estimatedPose.rotation(), q );
@@ -108,7 +108,7 @@ void testHandEyePoseRandom( const std::size_t n_runs, const T epsilon )
 		}
 
 		// do some estimation now
-		const Pose estimatedPose = Ubitrack::Algorithm::HandEye::performHandEyeCalibration ( leftFrame, rightFrame, true );
+		const Pose estimatedPose = Ubitrack::Algorithm::PoseEstimation6D6D::performHandEyeCalibration ( leftFrame, rightFrame, true );
 		
 		// calculate some errors
 		const T rotDiff = quaternionDiff( estimatedPose.rotation(), q );

@@ -3,7 +3,7 @@
 #include <utMath/Vector.h>
 #include <utMath/Matrix.h>
 
-#include <utAlgorithm/HandEye/DataSelection.h>
+#include <utAlgorithm/PoseEstimation6D6D/DataSelection.h>
 
 #include <utMath/Random/Scalar.h>
 #include <utMath/Random/Vector.h>
@@ -60,7 +60,7 @@ void TestDataSelection( const std::size_t n_runs, const T epsilon )
 		std::vector< Pose > selectedPosesRight;
 		// selectedPosesRight.reserve( selection );
 		
-		Ubitrack::Algorithm::HandEye::select_6DPoses( leftFrame, rightFrame, selection, selectedPosesLeft, selectedPosesRight );
+		Ubitrack::Algorithm::PoseEstimation6D6D::select_6DPoses( leftFrame, rightFrame, selection, selectedPosesLeft, selectedPosesRight );
 		// Ubitrack::Algorithm::select_6DPoses( leftFrame, rightFrame, selection, std::back_inserter( selectedPosesLeft ), std::back_inserter( selectedPosesRight ) );
 		
 		

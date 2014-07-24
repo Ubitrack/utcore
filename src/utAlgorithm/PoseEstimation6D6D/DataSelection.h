@@ -366,7 +366,7 @@ OutputIterator adjacent_difference ( InputIterator first, InputIterator last, Ou
 }} //namesapace Ubitrack::Math;
 
 
-namespace Ubitrack { namespace Algorithm { namespace HandEye {
+namespace Ubitrack { namespace Algorithm { namespace PoseEstimation6D6D {
 
 
 template< bool use_all_pairs, bool direction, typename InputIterator, typename OutputIterator >

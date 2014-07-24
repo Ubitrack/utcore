@@ -64,7 +64,7 @@ struct SolveQuadratic
 
 }} //namesapace Ubitrack::Math;
 
-namespace Ubitrack { namespace Algorithm { namespace HandEye {
+namespace Ubitrack { namespace Algorithm { namespace PoseEstimation6D6D {
 
 namespace {
 

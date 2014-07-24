@@ -40,7 +40,7 @@
 
 #include <vector>
 
-namespace Ubitrack { namespace Algorithm { namespace HandEye {
+namespace Ubitrack { namespace Algorithm { namespace PoseEstimation6D6D {
 
 /**
  * @ingroup calibration tracking_algorithms
