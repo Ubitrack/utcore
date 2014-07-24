@@ -13,6 +13,7 @@
 // std
 #include <assert.h> //assert
 #include <iterator> //std::iterator_traits
+#include <cmath>
 
 namespace Ubitrack { namespace Math { namespace Stochastic {
 
@@ -75,7 +76,7 @@ typename std::iterator_traits< InputIterator >::value_type correlation( const In
 		var2 += diff2 * diff2;
 	}
 
-	const precision_type denom = sqrt( var1*var2 );
+	const precision_type denom = std::sqrt( var1*var2 );
 
 	return res/denom;
 }
