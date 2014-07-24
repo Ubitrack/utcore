@@ -30,7 +30,7 @@
  */
 
 
-#include "HandEyeCalibration.h"
+#include "TsaiLenz.h"
 
 #ifdef HAVE_LAPACK
 

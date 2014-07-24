@@ -21,7 +21,7 @@ void TestFundamentalMatrix();
 void TestHomography();
 void TestProjectionDLT();
 void TestCorrelation();
-void TestHandEye();
+void TestTsaiLenzHandEye();
 void TestDualHandEye();
 void TestHandEyeDataSelection();
 
@@ -46,7 +46,7 @@ AlgorithmTest::AlgorithmTest()
 	add( BOOST_TEST_CASE( &TestFundamentalMatrix ) );
 	add( BOOST_TEST_CASE( &TestHomography ) );
 	add( BOOST_TEST_CASE( &TestProjectionDLT ) );
-	add( BOOST_TEST_CASE( &TestHandEye ) );
+	add( BOOST_TEST_CASE( &TestTsaiLenzHandEye ) );
 	add( BOOST_TEST_CASE( &TestDualHandEye ) );
 	add( BOOST_TEST_CASE( &TestHandEyeDataSelection ) );
 	add( BOOST_TEST_CASE( &TestCorrelation ) );

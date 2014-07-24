@@ -3,7 +3,7 @@
 #include <utMath/Vector.h>
 #include <utMath/Matrix.h>
 #include <utMath/MatrixOperations.h>
-#include <utAlgorithm/PoseEstimation6D6D/HandEyeCalibration.h>
+#include <utAlgorithm/PoseEstimation6D6D/TsaiLenz.h>
 
 #include <utMath/Random/Scalar.h>
 #include <utMath/Random/Vector.h>
@@ -124,7 +124,7 @@ void testHandEyePoseRandom( const std::size_t n_runs, const T epsilon )
 	}
 }
 
-void TestHandEye()
+void TestTsaiLenzHandEye()
 {
 	testHandEyeMatrixRandom< float >( 100, 1e-2f );
 	testHandEyeMatrixRandom< double >( 100, 1e-6 );
