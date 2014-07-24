@@ -515,7 +515,7 @@ Math::Pose performHandEyeCalibration ( const std::vector< Math::Pose >& hand,  c
 	return Math::Pose(Math::Quaternion( rcg ), tcg);
 }
 
-}}} // namespace Ubitrack::Algorithm::HandEye
+}}} // namespace Ubitrack::Algorithm::PoseEstimation6D6D
 
 #endif // HAVE_LAPACK
 
