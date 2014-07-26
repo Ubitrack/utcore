@@ -135,8 +135,8 @@ void Test2D3DPoseEstimationGeneral( const std::size_t n_runs, const T epsilon )
 		if( b_done )
 		{
 			// check if pose is better than before (only for valid results)
-			BOOST_CHECK_MESSAGE( rotDiff < epsilon, "\nCompare rotation    result (expected vs. estimated) after " << max_iterations << " iterations using " << n << " points:\n" << Pose( proj ).rotation() << " " << estimatedPose.rotation() );
-			BOOST_CHECK_MESSAGE( posDiff < epsilon, "\nCompare translation result (expected vs. estimated) after " << max_iterations << " iterations using " << n << " points:\n" << Pose( proj ).translation() << " " << estimatedPose.translation() );
+			BOOST_CHECK_MESSAGE( rotDiff < epsilon, "\nCompare result after " << max_iterations << " iterations using " << n << " points (rotation type:" << typeid( T ).name() << "):\n" << Pose( proj ).rotation() << " (expected )\n" << estimatedPose.rotation()<< " (estimated)\n" );
+			BOOST_CHECK_MESSAGE( posDiff < epsilon, "\nCompare result after " << max_iterations << " iterations using " << n << " points (translation type:" << typeid( T ).name() << "):\n" << Pose( proj ).translation() << " (expected )\n" << estimatedPose.translation()<< " (estimated)\n" );
 		}
 		BOOST_WARN_MESSAGE( b_done, "Algorithm did not converge after " << max_iterations << " iterations with " << n 
 			<< " points.\nRemaining difference in rotation " << rotDiff << ", difference in translation " << posDiff << "." );
