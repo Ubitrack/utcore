@@ -49,7 +49,7 @@ elif sys.platform.startswith( 'linux' ):
 # compile all source files into single library
 # {buildenvironment, source files, name of the library, build target}
 libs = setupStaticLibraryBuild(env, sources, 'tinyxml', 'core')
-setupIncludeInstall(env, headers, 'tinyxml', 'includes')
+setupIncludeInstall(env, headers, '.', 'includes')
 
 # f)
 tinyxml_options[ 'LIBS' ] = []
