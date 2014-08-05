@@ -39,7 +39,7 @@
 #include <algorithm> //std::transform
 
 
-namespace Ubitrack { namespace Algorithm { namespace HandEye {
+namespace Ubitrack { namespace Algorithm { namespace PoseEstimation6D6D {
 
 namespace {
 
@@ -164,4 +164,4 @@ UBITRACK_EXPORT void generate_relative_6DPoses( const std::vector< Math::Pose >&
 
 
 
-}}} // namespace Ubitrack::Algorithm::HandEye
+}}} // namespace Ubitrack::Algorithm::PoseEstimation6D6D

@@ -177,12 +177,11 @@ std::ostream& operator<<( std::ostream& s, const CameraIntrinsics< T >& intrCam 
 {
 	s << "Matrix:\n";
 	s << intrCam.matrix;
-	s << "Resolution: " << intrCam.dimension[ 0 ] << "x" << intrCam.dimension[ 1 ] << "\n";
-	s << "Distortion radial: ";
-	for( std::size_t i( 0 ); i<intrCam.radial_size-1; ++i )
-		s << intrCam.radial_params[ 0 ] << ", ";
-	s << intrCam.radial_params[ intrCam.radial_size-1 ] << "\n";
-	s << "Distortion tangential: " << intrCam.tangential_params[ 0 ] << ", " << intrCam.tangential_params[ 1 ] <<" \n";
+	s << "Resolution: " << intrCam.dimension[ 0 ] << "x" << intrCam.dimension[ 1 ] << " (width x height)\n";
+	s << "Distortion     radial : ";
+	for( std::size_t i( 0 ); i<intrCam.radial_size; ++i )
+		s << ( i == 0 ? "": ", " ) << intrCam.radial_params[ i ];
+	s << " (" << intrCam.radial_size << " params)\nDistortion tangential : " << intrCam.tangential_params[ 0 ] << ", " << intrCam.tangential_params[ 1 ] << " (2 params)\n";
 	return s;
 }
 

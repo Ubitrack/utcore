@@ -26,6 +26,7 @@
 #include "ErrorVector.h"
 #include "Stochastic/CovarianceTransform.h"
 
+#include <boost/math/constants/constants.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 #include <boost/numeric/ublas/vector_proxy.hpp>
 
@@ -638,9 +639,18 @@ ErrorPose linearInterpolate( const ErrorPose& x, const ErrorPose& y, double t )
 		a * x.covariance() + b * y.covariance() );
 }
 
-std::ostream& operator<<( std::ostream& s, const ErrorPose& p )
+std::ostream& operator<<( std::ostream& s, const ErrorPose& ep )
 {
-	s << p.translation() << " " << p.rotation() << std::endl << p.covariance();
+	s << ep.translation() << " " << ep.rotation() << "\n" << ep.covariance();
+	{	// remove this block, if too much info annoys you ;)
+		const Math::Matrix< double, 6, 6 >& covar = ep.covariance();
+		const double stdDevPos = std::sqrt ( covar ( 0, 0 ) + covar ( 1, 1 ) + covar ( 2, 2 ) );
+		const double norm = std::sqrt ( covar ( 3, 3 ) + covar ( 4, 4 ) + covar ( 5, 5 ) );
+		const double phiRad = std::asin ( norm ) * 2;
+		const double phiDeg = phiRad * ( 180 / boost::math::constants::pi< double >() );
+		s << "\nStd dev position: " << stdDevPos << " [m], Std dev orientation: " << phiRad << "/" << phiDeg << " [rad/deg]\n";
+	}
+	
 	return s;
 }
 

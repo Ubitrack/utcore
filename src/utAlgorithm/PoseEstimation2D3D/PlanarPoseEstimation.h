@@ -29,8 +29,8 @@
  * @author Daniel Pustka <daniel.pustka@in.tum.de>
  */
 
-#ifndef __UBITRACK_CALIBRATION_2D3DPOSEESTIMATION_H_INCLUDED__
-#define __UBITRACK_CALIBRATION_2D3DPOSEESTIMATION_H_INCLUDED__
+#ifndef __UBITRACK_ALGORITHM_PLANAR_2D3D_POSE_ESTIMATION_H_INCLUDED__
+#define __UBITRACK_ALGORITHM_PLANAR_2D3D_POSE_ESTIMATION_H_INCLUDED__
 
 
 
@@ -40,8 +40,7 @@
 #include <utMath/ErrorPose.h>
 
 
-namespace Ubitrack { namespace Algorithm {
-
+namespace Ubitrack { namespace Algorithm { namespace PoseEstimation2D3D {
 /**
  * @ingroup tracking_algorithms
  * Computes a pose given a homography.
@@ -170,6 +169,6 @@ UBITRACK_EXPORT Math::ErrorPose computePose(
 	
 #endif // HAVE_LAPACK
 	
-} } // namespace Ubitrack::Algorithm
+} } } // namespace Ubitrack::Algorithm::PoseEstimation2D3D
 
-#endif
+#endif // __UBITRACK_ALGORITHM_PLANAR_2D3D_POSE_ESTIMATION_H_INCLUDED__

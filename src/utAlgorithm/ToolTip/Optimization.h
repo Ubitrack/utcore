@@ -79,7 +79,7 @@ public:
 
 	/**
 	 * @param result 6-vector to store the result in
-	 * @param input containing the tooltip parameters (tooltip in worldand tooltip offset)
+	 * @param input containing the tooltip parameters (tooltip in world and tooltip offset)
 	 */
 	template< class VT1, class VT2 > 
 	void evaluate( VT1& result, const VT2& input ) const
@@ -180,9 +180,9 @@ public:
 			J( i, 0 ) = t17*t42*t43;
 			J( i, 1 ) = t18*t42*t44;
 			J( i, 2 ) = t23*t42*t45;
-			J( i, 3 ) = t42*(t6*t17*t43*2.0-t18*t26*t44*2.0+t23*t35*t45*2.0)*(1.0/2.0);
-			J( i, 4 ) = t42*(t9*t17*t43*2.0+t18*t24*t44*2.0-t23*t37*t45*2.0)*(1.0/2.0);
-			J( i, 5 ) = t42*(t13*t17*t43*-2.0+t18*t28*t44*2.0+t23*t33*t45*2.0)*(1.0/2.0);
+			J( i, 3 ) = t42*(t6*t17*t43*2-t18*t26*t44*2+t23*t35*t45*2)*(1.0/2.0);
+			J( i, 4 ) = t42*(t9*t17*t43*2+t18*t24*t44*2-t23*t37*t45*2)*(1.0/2.0);
+			J( i, 5 ) = t42*(t13*t17*t43*-2+t18*t28*t44*2+t23*t33*t45*2)*(1.0/2.0);
 		}
 		// std::cout << "input  :\n" << input << "\n";
 		// std::cout << "J      :\n" << J.size1() << " x " << J.size2() << std::endl;

@@ -39,6 +39,7 @@
 #include <utMath/Util/RotationCast.h>
 #include <utMath/Geometry/container_traits.h>
 #include <utMath/Stochastic/identity_iterator.h>
+#include <utMath/Stochastic/k_means.h> // copy_probability, k_means
 
 #include <vector>
 
@@ -71,7 +72,7 @@ struct RotationDistance< Math::Vector< T, 6 > >
  * one representation needs to be transferred into another representation.
  * Of course the information is not changed, despite numerical errors, and
  * this functor can be integrated into templated functions to limit 
- * the rewriting of algrotihm code.
+ * the rewriting of algorithm code.
  *
  * @tparam pose_type defines the type of the pose to cast to.
  */
@@ -109,6 +110,17 @@ struct pose_cast< Math::Pose  >
 		const Math::Vector< double, 3 > translation( pose[ 3 ], pose[ 4 ], pose[ 5 ] );
 
 		return Math::Pose( quatRot, translation );
+	}
+	
+	template< typename T >
+	result_type operator()( const Math::Vector< T, 8 > &dualQuat ) const
+	{
+		const Math::Quaternion quatRot( dualQuat[ 1 ], dualQuat[ 2 ], dualQuat[ 3 ], dualQuat[ 0 ] );
+		const Math::Quaternion qprime( dualQuat[ 5 ], dualQuat[ 6 ], dualQuat[ 7 ], dualQuat[ 4 ] );
+		const Math::Quaternion q_conj( -dualQuat[ 1 ], -dualQuat[ 2 ], -dualQuat[ 3 ], dualQuat[ 0 ] );
+		const Math::Quaternion t_final = qprime*q_conj;
+
+		return Math::Pose( quatRot, Math::Vector< double, 3 >( 2*t_final.x(), 2*t_final.y(), 2*t_final.z() ) );
 	}
 };
 
@@ -180,6 +192,21 @@ struct pose_cast< Math::Vector< T, 6 >  >
 		result[ 5 ] = pose.translation()[ 2 ];
 		return result;
 	}
+	
+	template< typename Type >
+	result_type operator()( const Math::Vector< Type, 8 >& dualQuat ) const
+	{
+		const Math::Pose pose = pose_cast< Math::Pose >()( dualQuat );
+		const Math::Vector< T, 3 > rotAxis = Math::Util::RotationCast< Math::Vector< T, 3 > >()( pose.rotation() );
+		Math::Vector< T, 6 > result;
+		result[ 0 ] = rotAxis[ 0 ];
+		result[ 1 ] = rotAxis[ 1 ];
+		result[ 2 ] = rotAxis[ 2 ];
+		result[ 3 ] = pose.translation()[ 0 ];
+		result[ 4 ] = pose.translation()[ 1 ];
+		result[ 5 ] = pose.translation()[ 2 ];
+		return result;
+	}
 };
 
 /**
@@ -212,14 +239,14 @@ struct pose_cast< Math::Vector< T, 8 > >
 		Math::Vector< T, 8 > dualQuat;
 		
 		// first, the easy part: :)
-		// quaternion goes into quaterion part (q) 
+		// quaternion goes into quaternion part (q) 
 		dualQuat( 0 ) = qw;
 		dualQuat( 1 ) = qx;
 		dualQuat( 2 ) = qy;
 		dualQuat( 3 ) = qz;
 				
 		// second, the tricky part:
-		// translation t goes into quaterion dual part (q' == aka q prime )
+		// translation t goes into quaternion dual part (q' == aka q prime )
 		// how does it work?
 		// you take translation t and make a quaternion q_t out of it,
 		// assuming zero for the real part an (t/2) as the imaginary parts.
@@ -246,7 +273,7 @@ struct pose_cast< Math::Vector< T, 8 > >
  * @internal functor that transforms rotations that
  * are of arbitrary alignment into the same hemisphere.
  *
- * The functor accecpts any type of pose or rotation data.
+ * The functor accepts any type of pose or rotation data.
  * naja, it should accept, actually it does not. :)
  */
 template< typename pose_type, bool positive >
@@ -366,8 +393,139 @@ OutputIterator adjacent_difference ( InputIterator first, InputIterator last, Ou
 }} //namesapace Ubitrack::Math;
 
 
-namespace Ubitrack { namespace Algorithm { namespace HandEye {
+namespace Ubitrack { namespace Algorithm { namespace PoseEstimation6D6D {
 
+/**
+ * @brief this structure supports the process of selecting best matches of relative pose measurements for a hand eye calibration.
+ *
+ */
+template< typename T >	
+// struct UBITRACK_EXPORT DataSelection
+struct DataSelection
+{
+	/// type of the underlying precision (e.g. \c double or \c float )
+	typedef T precision_type;
+	
+	/// at the moment the selection process works only with axis angle
+	typedef Math::Vector< precision_type, 6 > pose_type;
+	
+	/// sequence container type used for storing the prepared relative pose measurements
+	typedef std::vector< pose_type > RelPoseListType;
+	
+	/// type of index sequence that 
+	typedef std::vector< std::size_t > IndexListType;
+	
+	
+	RelPoseListType comparisonPoseList;
+	
+	RelPoseListType clusterPoseList;
+	
+	IndexListType indexList;
+
+	/// this function alings all orientation of pose measurements in the upper hemisphere
+	template< typename PoseType >
+	pose_type operator( )( const PoseType& pose_in ) const
+	{
+		const pose_type pose = Math::pose_cast< pose_type >()( pose_in );
+		return Math::hemisphere_alignment< pose_type, true >()( pose );
+	}
+	
+	template< typename PoseType, template< typename Type, typename = std::allocator< Type > > class container_type >
+	inline void resetComparisonPoses( const std::size_t n, const container_type< PoseType >& relPosesIn )
+	{
+		// const std::size_t n = std::distance( relPosesIn.begin(), relPosesIn.end() );
+		updateComparisonPoses( relPosesIn.begin(), relPosesIn.end() , comparisonPoseList );
+		
+		// update the cluster of best matches of relative pose measurements
+		clusterPoseList.clear();
+		clusterPoseList.reserve( n );
+		resetCluster( n, comparisonPoseList.begin(), comparisonPoseList.end(), std::back_inserter( clusterPoseList ) );
+		// update indices of relative poses that are nearest to the cluster centers
+		resetIndices( comparisonPoseList.begin(), comparisonPoseList.end(), clusterPoseList.begin(), clusterPoseList.end() );
+	}
+	
+	/// function returns the best matches of a relative pose measurements depending on indices
+	template< typename PoseType, template< typename Type, typename = std::allocator< Type > > class container_type, typename OutputIterator >
+	void getSelection( const container_type< PoseType >& relPosesIn, OutputIterator itSelectedPoseOut )
+	{
+		std::vector< size_t >::const_iterator itIndex = indexList.begin();
+		const std::vector< size_t >::const_iterator itIndexEnd = indexList.end();
+		
+		for( ; itIndex != itIndexEnd; ++itIndex)
+		{
+			typename container_type< PoseType >::const_iterator it = relPosesIn.begin();
+			std::advance( it, *itIndex );
+			*itSelectedPoseOut++ = *it;
+		}
+	}
+	
+protected:
+
+	template< typename InputIterator >
+	inline void updateComparisonPoses( const InputIterator itBegin, const InputIterator itEnd , RelPoseListType& relPoseList ) const
+	{
+		const std::size_t nIn = std::distance ( itBegin, itEnd );
+		const std::size_t nIs = std::distance ( relPoseList.begin(), relPoseList.end() );
+		assert( nIn <= nIs );
+		
+		InputIterator it = itBegin;
+		std::advance( it, nIs );
+		std::transform( it, itEnd, std::back_inserter( relPoseList ), DataSelection< T >() );
+	}
+	
+	template< typename PoseType, template< typename Type, typename = std::allocator< Type > > class container_type >
+	inline void updateComparisonPoses( const container_type< PoseType >& relPosesIn )
+	{
+		updateComparisonPoses( relPosesIn.begin(), relPosesIn.end() , comparisonPoseList );
+	}
+	
+
+	template< typename InputIterator, typename OutputIterator >
+	inline void resetCluster( const std::size_t n_cluster, const InputIterator itBeginValues, const InputIterator itEndValues, OutputIterator itOut )
+	{
+		const std::size_t newCluster = Math::Stochastic::copy_probability( itBeginValues, itEndValues, n_cluster, itOut, Math::RotationDistance< pose_type >() );
+	}
+	
+	/// function that determines the indices of the relative pose measurements depending on a cluster indicating best matches and a sequence of special aligned poses.
+	template< typename InputIterator1, typename InputIterator2 >
+	void resetIndices( const InputIterator1 itBeginValues, const InputIterator1 itEndValues, const InputIterator2 itBeginCluster, const InputIterator2 itEndCluster )
+	{
+		const std::size_t n_values = std::distance( itBeginValues, itEndValues );
+		const std::size_t n_cluster = std::distance( itBeginCluster, itEndCluster );
+		
+		// get the list of indices signing the membership of a single pose to a corresponding mean
+		IndexListType indices;
+		indices.reserve( n_values );
+		Math::Stochastic::k_means( itBeginValues, itEndValues, itBeginCluster, itEndCluster, std::back_inserter( indices ), Math::RotationDistance< pose_type >() );
+		
+		// set the list of indices to selected poses
+		indexList.assign( n_cluster, 0 ); // indexList.reserve( n_cluster );
+		std::vector< precision_type > min_distance( n_cluster, 10000 ); // <- value should be greater than maximal expected distance (==pi)
+		
+		InputIterator1 itPose = itBeginValues;
+		IndexListType::const_iterator itIndex = indices.begin();
+		const IndexListType::const_iterator itIndexEnd = indices.end();
+		
+		for( std::size_t i = 0; itIndex != itIndexEnd; ++itIndex, *itPose , ++i )
+		{
+			// choose codebook entry to lookup corresponding pose measurement
+			InputIterator2 itCodebook = itBeginCluster;	
+			std::advance( itCodebook, *itIndex );
+			
+			const precision_type d = Math::RotationDistance< pose_type >()( *itCodebook, *itPose );
+			
+			typename std::vector< precision_type >::iterator itDist = min_distance.begin();
+			std::advance( itDist, *itIndex );
+			if( d < *itDist )
+			{
+				*itDist = d;
+				IndexListType::iterator it = indexList.begin();
+				std::advance( it, *itIndex );
+				*it = i;
+			}
+		}
+	}
+};
 
 template< bool use_all_pairs, bool direction, typename InputIterator, typename OutputIterator >
 void generate_relative_pose6D_impl( const InputIterator itBegin, const InputIterator itEnd, OutputIterator itOut )
@@ -399,11 +557,11 @@ void generate_relative_pose6D_impl( const InputIterator itBegin, const InputIter
  
  * This algorithm selects \b relative \b pose correspondences from given
  * \b 6D \b relative \b pose correspondences.
- * The quality of an Hand-Eye calibration depdends on the input data.
+ * The quality of an Hand-Eye calibration depends on the input data.
  * Several publications describes the effects of the input data onto the 
  * resulting final pose. As an example relative poses with a small angle
- * should be rejected for the calibration procedure as it leds to numerical
- * instabil or singular results.
+ * should be rejected for the calibration procedure as it leads to numerical
+ * instability or singular results.
  * The method implemented here was introduced from Schmidt & Niermann 2008
  * and uses a clustering method for automatic pose selection ( @cite schmidt2008data ).
  * Actually the method for clustering could be exchanged with other methods later.
@@ -435,7 +593,7 @@ void generate_relative_pose6D_impl( const InputIterator itBegin, const InputIter
  *
  * @param eyes \b relative \b 6D \b poses in the \b 1st coordinate system.
  * @param hands corresponding \b relative \b 6D \b poses in the \b 2nd coordinate system.
- * @param select amount of reltive poses to select
+ * @param select amount of relative poses to select
  * @param eyesOut contains n ( n=select) \b relative \b 6D \b poses from the from the input data
  * @param handsOut contains n ( n=select) corresponding \b relative \b 6D \b poses from the input data
  */
@@ -447,6 +605,6 @@ UBITRACK_EXPORT void select_6DPoses( const std::vector< Math::Pose >& eyes, cons
 UBITRACK_EXPORT void generate_relative_6DPoses( const std::vector< Math::Pose >& poses
 	, std::vector< Math::Vector< double, 8 > >& relativePoses, bool direction_flag );
 
-}}} // namespace Ubitrack::Algorithm::HandEye
+}}} // namespace Ubitrack::Algorithm::PoseEstimation6D6D
 
 #endif //__UBITRACK_ALGORITHM_HANDEYE_DATA_SELECTION_H_INCLUDED__

@@ -6,7 +6,10 @@
 #include <utMath/Random/Vector.h>
 #include <utMath/Random/Rotation.h>
 #include <utMath/Geometry/Conic.h>
+#include <utMath/Geometry/ConicCovariance.h>
+
 #include <utMath/Geometry/QuadricFunctors.h>
+
 
 #include <algorithm> //std::transform
 #include <functional> //std::bind1st
@@ -99,7 +102,40 @@ void testBasicConicFunctors( const std::size_t n )
 	std::vector< Ubitrack::Math::Vector< T, 2 > > conic_lrl;
 	conic_lrl.reserve( n );
 	std::transform( conics.begin(), conics.end(), std::back_inserter( conic_lrl ), Geometry::ConicLeftRightLimit< T >() );
-
+	
+	
+	{	// covariance estimation of point conic
+		typename std::vector< Ubitrack::Math::Vector< T, 2 > >::const_iterator it = conic_ull.begin();
+		typename std::vector< Ubitrack::Math::Vector< T, 6 > >::const_iterator itC = conics.begin();
+		
+		for( ; it != conic_ull.end(); ++it, ++itC )
+		{
+			const T dist = std::fabs( (*it)[ 0 ] - (*it)[ 1 ]);
+			int start = std::ceil( (*it)[ 0 ] );
+			int end = std::floor( (*it)[ 1 ] );
+			if( dist != dist || dist < 5 || !Geometry::IsConicEllipse< T >()( *itC ) ) // only apply to ellipses
+				continue;
+			
+			// std::cout << " Elements " << std::fabs( (*it)[ 0 ] - (*it)[ 1 ]) << std::endl;			
+			
+			std::vector< Ubitrack::Math::Vector< T, 2 > > pixels;
+			// pixels.reserve( );
+			
+			for( int y = start; y < end; ++y )
+			{
+				Ubitrack::Math::Vector< T, 2 > x12 = Geometry::ConicHorizontalIntersection< T >()( *itC, y );
+				// std::cout << "Vec y " << y << std::endl;
+				pixels.push_back( Ubitrack::Math::Vector< T, 2 >( x12[ 0 ], y ) );
+				pixels.push_back( Ubitrack::Math::Vector< T, 2 >( x12[ 1 ], y ) );
+			}
+			Ubitrack::Math::Matrix< T, 6, 6 > cov;
+			Ubitrack::Math::Geometry::estimateCovariance(  pixels.begin(), pixels.end(), *itC, cov );
+			// std::cout << "Conic      " << *itC << std::endl;
+			// std::cout << "Covariance " << cov << "\n";
+		}
+	}
+	
+	// some conic normalization
 	std::transform( conics.begin(), conics.end(), conics.begin(), Ubitrack::Math::Normalize< Ubitrack::Math::Vector< T, 6 > >() );
 	
 	// next steps are even more useless, just check if they compile

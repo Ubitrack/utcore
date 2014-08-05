@@ -4,8 +4,8 @@
 #include <utMath/Vector.h>
 #include <utMath/Matrix.h>
 #include <utMath/Geometry/PointProjection.h>
-#include <utAlgorithm/2D3DPoseEstimation.h>
-#include <utAlgorithm/2D3DPoseEstimationHager.h>
+#include <utAlgorithm/PoseEstimation2D3D/PlanarPoseEstimation.h>
+#include <utAlgorithm/PoseEstimation2D3D/NonPlanarPoseEstimation.h>
 
 #include <utMath/Random/Scalar.h>
 #include <utMath/Random/Vector.h>
@@ -76,7 +76,7 @@ void TestOptimizePose( const std::size_t n_runs, const T epsilon )
 			
 		Pose optimized( testPose );
 
-		Ubitrack::Algorithm::optimizePose( optimized, p2D, p3D, cam );
+		Ubitrack::Algorithm::PoseEstimation2D3D::optimizePose( optimized, p2D, p3D, cam );
 		
 		// check if pose is better than before
 		const T rotDiff = quaternionDiff( optimized.rotation(), rot );
@@ -126,7 +126,7 @@ void Test2D3DPoseEstimationGeneral( const std::size_t n_runs, const T epsilon )
 		Pose estimatedPose;
 		T max_error( 1e-06 );
 		std::size_t max_iterations( 100 );
-		const bool b_done = Ubitrack::Algorithm::estimatePose6D_2D3D( p2D, estimatedPose, p3D, max_iterations, max_error );
+		const bool b_done = Ubitrack::Algorithm::PoseEstimation2D3D::estimatePose6D_2D3D( p2D, estimatedPose, p3D, max_iterations, max_error );
 		iter_count += max_iterations;
 		
 		// estimate the differences

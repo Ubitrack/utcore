@@ -29,15 +29,15 @@
  * @author Christian Waechter <christian.waechter@in.tum.de>
  */
 
-#ifndef __UBITRACK_CALIBRATION_2D3DPOSEESTIMATION_HAGER_H_INCLUDED__
-#define __UBITRACK_CALIBRATION_2D3DPOSEESTIMATION_HAGER_H_INCLUDED__
+#ifndef __UBITRACK_ALGORITHM_NON_PLANAR_2D3D_POSE_ESTIMATION_H_INCLUDED__
+#define __UBITRACK_ALGORITHM_NON_PLANAR_2D3D_POSE_ESTIMATION_H_INCLUDED__
 
 #include <utCore.h>
 #include <utMath/Pose.h>
 
 #include <vector>
 
-namespace Ubitrack { namespace Algorithm {
+namespace Ubitrack { namespace Algorithm { namespace PoseEstimation2D3D {
 
 #ifdef HAVE_LAPACK
 
@@ -93,6 +93,6 @@ UBITRACK_EXPORT bool estimatePose6D_2D3D( const std::vector< Math::Vector2f >& p
 
 #endif // HAVE_LAPACK
 	
-} } // namespace Ubitrack::Algorithm
+} } } // namespace Ubitrack::Algorithm::PoseEstimation2D3D
 
-#endif
+#endif //__UBITRACK_ALGORITHM_NON_PLANAR_2D3D_POSE_ESTIMATION_H_INCLUDED__

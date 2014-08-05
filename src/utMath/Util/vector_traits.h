@@ -22,22 +22,22 @@ struct unknown_vector_storage_tag {};
 /** @internal specialization for unbounded Vectors */
 template< typename T >
 struct has_fixed_storage< Math::Vector< T, 0 > >
-	: public false_type{};
+	: public Ubitrack::Util::false_type{};
 
 /** @internal specialization for bounded Vectors */
 template< typename T, std::size_t N >
 struct has_fixed_storage< Math::Vector< T, N > >
-	: public true_type{};
+	: public Ubitrack::Util::true_type{};
 
 /** @internal specialization for unbounded Vectors */
 template< typename T >
 struct has_dynamic_storage< Math::Vector< T, 0 > >
-	: public true_type{};
+	: public Ubitrack::Util::true_type{};
 
 /** @internal specialization for bounded Vectors */
 template< typename T, std::size_t N >
 struct has_dynamic_storage< Math::Vector< T, N > >
-	: public false_type{};
+	: public Ubitrack::Util::false_type{};
 
 /**
  * @internal Vector_Traits

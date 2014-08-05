@@ -40,6 +40,7 @@
 #include <vector>
 #include <stdlib.h>
 #include <iterator> // std::iterator_traits
+#include <algorithm> // std::generate_n
 #include <stdexcept>
 
 
@@ -86,8 +87,26 @@ public:
 		: threshold ( fThreshold )
 		, setSize ( nMinSet )
 		, nMinInlier ( (1.-percentOutlier) * n  )
-		, nMaxIterations ( 1+std::log( 1-percentSucess) / ( std::log( 1-std::pow( 1-percentOutlier, static_cast< int >( nMinSet ) ) ) ) )
+		, nMaxIterations ( static_cast< size_type >( 1+std::log( 1-percentSucess) / ( std::log( 1-std::pow( 1-percentOutlier, static_cast< int >( nMinSet ) ) ) ) ) )
 		{};
+};
+
+
+/// @internal index generator helper struct
+struct IndexGenerator
+{
+protected:
+	std::size_t index;
+	
+public:
+	IndexGenerator()
+		: index( 0 )
+	{}
+	
+	std::size_t operator()()
+	{
+		return index++;
+	}
 };
 
 /**
@@ -121,6 +140,11 @@ std::size_t ransac( const InputIterator iBegin, const InputIterator iEnd
 	
 	OPT_LOG_DEBUG( "RANSAC with " << nValues << " values , " << params.nMinInlier << " inlier required" );
 	
+	// includes every indices once, needed to shuffle for random order
+	std::vector< std::size_t > iShuffle;
+	iShuffle.reserve( nValues );
+	std::generate_n( std::back_inserter( iShuffle ), nValues, IndexGenerator() );
+	
 	// set of pointer to inlier
 	std::vector< InputIterator > iInliers;
 	iInliers.reserve( nValues );
@@ -141,10 +165,17 @@ std::size_t ransac( const InputIterator iBegin, const InputIterator iEnd
 		list_type list;
 		list.reserve( params.setSize );
 		
-		for ( std::size_t i = params.setSize; i; i-- )
+		// shuffle the indices little bit
+		std::random_shuffle( iShuffle.begin(), iShuffle.end() );
+		std::vector< std::size_t >::iterator itSelected = iShuffle.begin();
+		std::vector< std::size_t >::iterator itEnd = iShuffle.begin();
+		std::advance( itEnd, params.setSize );
+		
+		for ( ; itSelected < itEnd; ++itSelected )
 		{
-			std::size_t iSelected = rand() % nValues;
-			list.push_back( *(iBegin+iSelected) );
+			InputIterator it ( iBegin );
+			std::advance( it, (*itSelected) );
+			list.push_back( *it );
 		}
 		
 		// compute hypothesis
@@ -181,7 +212,7 @@ std::size_t ransac( const InputIterator iBegin, const InputIterator iEnd
 		if ( nInlier >= params.nMinInlier && nInlier > nBestInliers )
 		{
 			nBestInliers = nInlier;
-			iBestInliers = iInliers;
+			iBestInliers.swap( iInliers );
 		}
 
 		// stop after nMinRun iterations if the required number of inlier was found
@@ -209,6 +240,159 @@ std::size_t ransac( const InputIterator iBegin, const InputIterator iEnd
 	return 0;
 }
 
+
+/**
+ * RANSAC algorithm (for two-parameter problems)
+ *
+ * @tparam InputIterator1 describes the type of container iterator that points to the first type of values
+ * @tparam InputIterator2 describes the type of container iterator that points to the second type of values
+ * @tparam ResultType the result type of the solution formulation
+ * @tparam T describes the numeric type used for error calculation (usually \c float or \c double )
+ * @tparam RansacFunctor the type of the struct/class that should include \c Estimator and \c Evaluator functor object to estimate the solution and validate it
+ * @param iBegin1 an \c iterator that points to the first element of a container including the first problem values
+ * @param iEnd1 an \c iterator that points to the final element of a container including the first problem values
+ * @param iBegin2 an \c iterator that points to the first element of a container including the second problem values
+ * @param iEnd2 an \c iterator that points to the final element of a container including the second problem values
+ * @param result returns the best estimated result for the given problem and parameter set
+ * @param model an instance of the struct/class that includes the Estimator and Evaluator FunctorObjects that describe the solution of a problem and it's validation
+ * @param params an instance of the object containing the algorithms parametrization
+ * @return 0 (failure) or number of inlier on success
+*/
+template< typename InputIterator1, typename InputIterator2, class ResultType, typename T, class RansacFunctor >
+std::size_t ransac( const InputIterator1 iBegin1, const InputIterator1 iEnd1
+		, const InputIterator2 iBegin2, const InputIterator2 iEnd2
+		, ResultType& result
+		, const RansacFunctor& model
+		, const RansacParameter< T >& params )
+{
+	typedef typename std::iterator_traits< InputIterator1 >::value_type value_type;
+	typedef typename value_type::value_type numeric_type;
+	
+	typedef std::vector< value_type > list_type;
+	
+	// estimate number of parameter list
+	const std::size_t nValues = std::distance( iBegin1, iEnd1 );
+	assert( params.nMinInlier <= nValues );
+	
+	OPT_LOG_DEBUG( "RANSAC with " << nValues << " values , " << params.nMinInlier << " inlier required" );
+	
+	// includes every indices once, needed to shuffle for random order
+	std::vector< std::size_t > iShuffle;
+	iShuffle.reserve( nValues );
+	std::generate_n( std::back_inserter( iShuffle ), nValues, IndexGenerator() );
+	
+	// indices to inlier
+	std::vector< std::size_t > iInliers;
+	iInliers.reserve( nValues );
+
+	// amount of best inlier so far
+	std::size_t nBestInliers = 0;
+	
+	// indices to best set of inlier
+	std::vector< std::size_t > iBestInliers;
+	iBestInliers.reserve( nValues );
+	
+	std::size_t iRun ;
+	for( iRun = 0; iRun < params.nMaxIterations; iRun++ )
+	{
+		OPT_LOG_TRACE( "RANSAC iteration " << iRun + 1 );
+		
+		
+		// generate random set
+		list_type list1;
+		list_type list2;
+		list1.reserve( params.setSize );
+		list2.reserve( params.setSize );
+		
+		std::random_shuffle( iShuffle.begin(), iShuffle.end() );
+		std::vector< std::size_t >::iterator itSelected = iShuffle.begin();
+		std::vector< std::size_t >::iterator itEnd = iShuffle.begin();
+		std::advance( itEnd, params.setSize );
+		
+		for ( ; itSelected < itEnd; ++itSelected )
+		{
+			InputIterator1 it1 ( iBegin1 );
+			InputIterator2 it2 ( iBegin2 );
+			std::advance( it1, (*itSelected) );
+			std::advance( it2, (*itSelected) );
+			list1.push_back( *it1 );
+			list2.push_back( *it2 );
+		}
+		
+		// compute hypothesis
+		ResultType hypothesis;
+		if( ! typename RansacFunctor::Estimator()( hypothesis, list1.begin(), list1.end(), list2.begin(), list2.end() ) )
+		{
+			OPT_LOG_TRACE( "fast forward, no estimation possible" );
+			continue;
+		}
+		// count inlier
+		std::size_t nInlier = 0;
+		T fInlierDist = 0;
+		iInliers.clear();
+		
+		InputIterator1 it1 ( iBegin1 );
+		InputIterator2 it2 ( iBegin2 );
+		for ( std::size_t i = 0; i < nValues && int( nValues - i ) >= int( params.nMinInlier - nInlier ); i++, ++it1, ++it2 )
+		{
+			const T d = typename RansacFunctor::Evaluator()( hypothesis, *it1, *it2 );
+			if( d < params.threshold )
+			{
+				const std::size_t index = std::distance( iBegin1, it1 );
+				iInliers.push_back( index );
+				nInlier++;
+				fInlierDist += d;
+			}
+		}
+		if( !nInlier )
+		{
+			OPT_LOG_TRACE( "fast forward, no inlier found" );
+			continue;
+		}	
+		OPT_LOG_TRACE( nInlier << " inlier, avg dist=" << fInlierDist / nInlier );
+
+		// save inlier set if we reached the required number or are better than a previous run
+		if ( nInlier >= params.nMinInlier && nInlier > nBestInliers )
+		{
+			nBestInliers = nInlier;
+			iBestInliers.swap( iInliers );
+		}
+
+		// stop after nMinRun iterations if the required number of inlier was found
+		if ( nBestInliers >= params.nMinInlier )
+			break;
+	}
+
+	if ( nBestInliers >= params.nMinInlier )
+	{
+		// compute final result
+		list_type list1;
+		list_type list2;
+		list1.reserve( nBestInliers );
+		list2.reserve( nBestInliers );
+		
+		// iterator to the indices...
+		typename std::vector< std::size_t >::const_iterator iti = iBestInliers.begin();
+		const typename std::vector< std::size_t >::const_iterator itiEnd = iBestInliers.end();
+		for ( ; iti < itiEnd; ++iti )
+		{
+			InputIterator1 it1 ( iBegin1 );
+			InputIterator2 it2 ( iBegin2 );
+			std::advance( it1, (*iti) );
+			std::advance( it2, (*iti) );
+			list1.push_back( *it1 );
+			list2.push_back( *it2 );
+		}
+			
+
+		typename RansacFunctor::Estimator()( result, list1.begin(), list1.end(), list2.begin(), list2.end() );
+		OPT_LOG_DEBUG( "Estimated " << nBestInliers << " inlier after " << iRun + 1 << " iterations."  );
+		return nBestInliers;
+	}
+	
+	OPT_LOG_DEBUG( "RANSAC: Not enough inlier found" );
+	return 0;
+}
 
 /**
  * RANSAC algorithm (for two-parameter problems)

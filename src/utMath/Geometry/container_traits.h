@@ -39,23 +39,7 @@
 
 #include <iterator> // iterator_traits
 
-namespace Ubitrack { namespace Util { 
-
-
-// might be moved later to another location, meant only for internal use
-template< typename typeA, typename typeB >
-struct is_same
-{
-	static const bool value = false;
-};
-
-// specialization of previous template
-template < typename typeA >
-struct is_same< typeA, typeA >
-{
-	static const bool value = true;
-};
-
+namespace Ubitrack { namespace Util {
 
 // Since output iterators (e.g. std::back_insert_itertator via std::back_inserter)
 // can be used as well a simple value_type is not enough

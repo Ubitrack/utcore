@@ -25,7 +25,7 @@
  * @ingroup tracking_algorithms
  * @file
  * Implements all function calls for tooltip/hotspot calibration to generate
- * an object file providinig all available methods for standard datatypes.
+ * an object file providing all available methods for standard datatypes.
  *
  * @author Daniel Pustka <daniel.pustka@in.tum.de>
  * @author Christian Waechter <christian.waechter@in.tum.de> (modified)

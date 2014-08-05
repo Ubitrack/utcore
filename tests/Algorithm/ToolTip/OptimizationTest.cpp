@@ -16,13 +16,6 @@
 
 using namespace Ubitrack::Math;
 
-#ifndef HAVE_LAPACK
-template< typename >
-void testOptimizedTipCalibrationRandom()
-{
-	// TipCalibration does not work without lapack
-}
-#else // HAVE_LAPACK
 
 template< typename T >
 void testOptimizedTipCalibrationRandom( const std::size_t n_runs, const T epsilon )
@@ -104,9 +97,18 @@ void testOptimizedTipCalibrationRandom( const std::size_t n_runs, const T epsilo
 	}
 }
 
+#ifdef HAVE_LAPACK
+
 void TestOptimizedTipCalibration()
 {
 	testOptimizedTipCalibrationRandom< double >( 1000, 1e-6 );
+}
+
+#else // HAVE_LAPACK
+
+void TestOptimizedTipCalibration()
+{
+	// TipCalibration does not work without lapack
 }
 
 #endif // HAVE_LAPACK

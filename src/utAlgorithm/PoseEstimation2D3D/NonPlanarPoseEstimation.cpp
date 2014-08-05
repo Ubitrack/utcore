@@ -29,8 +29,8 @@
  * @author Christian Waechter <christian.waechter@in.tum.de>
  */
 
-#include "2D3DPoseEstimationHager.h"
-#include "AbsoluteOrientation.h" // -> orientation estimation
+#include "NonPlanarPoseEstimation.h"
+#include "../PoseEstimation3D3D/AbsoluteOrientation.h" // -> orientation estimation
 #include <utMath/Blas1.h> // inner_product
 #include <utMath/Blas2.h> // outer_product
 #include <utMath/MatrixOperations.h> // matrix_inverse
@@ -53,7 +53,7 @@ static log4cpp::Category& optLogger( log4cpp::Category::getInstance( "Ubitrack.C
 // shortcuts to namespaces
 namespace ublas = boost::numeric::ublas;
 
-namespace Ubitrack { namespace Algorithm {
+namespace Ubitrack { namespace Algorithm { namespace PoseEstimation2D3D {
 
 #ifdef HAVE_LAPACK
 
@@ -214,7 +214,7 @@ bool estimatePose2D3D_impl( const std::vector< Math::Vector< T, 2 > >& p2D_in, M
 		
 		// Object Points are already shifted at the beginning and never being changed
 		Math::Matrix< T, 3, 3 > R;
-		if( !estimateRotation_3D3D( p2Dh, R,  p3D ) )
+		if( !PoseEstimation3D3D::estimateRotation_3D3D( p2Dh, R,  p3D ) )
 			break;
 
 		// compute new approximation of T
@@ -272,4 +272,4 @@ bool estimatePose6D_2D3D( const std::vector< Math::Vector2f >& p2D, Math::Pose& 
 
 #endif // HAVE_LAPACK
 
-} } // namespace Ubitrack::Algorithm
+} } } // namespace Ubitrack::Algorithm::PoseEstimation2D3D

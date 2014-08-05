@@ -96,7 +96,7 @@ struct assign_indices
 		InputIterator iter = iBegin;
 		value_type d = distanceFunc( vec, (*iter++) );
 		
-		for( std::size_t k_now( 1 ) ; iter<iEnd; ++iter, ++k_now )
+		for( std::size_t k_now( 1 ) ; iter != iEnd; ++iter, ++k_now )
 		{
 			const value_type d_new = distanceFunc( vec, (*iter) );
 			if( d_new < d )
@@ -199,16 +199,17 @@ void copy_greedy( const InputIterator iBegin, const InputIterator iEnd, const st
  * @param iEnd \c iterator pointing behind the last element in the input container/storage class of the elements ( usually \c end() )
  * @param n_cluster a value that signs how many elements should be selected and put to the output iterator
  * @param itSelected output \c iterator pointing to first element in container/storage class for storing the selected elements ( usually \c begin() or \c std::back_inserter(container) )
+ * @return number of detected intial values, can be different (lower) than desired amount of clusters.
  */ 
 template< typename InputIterator, typename OutputIterator, typename BinaryOperator >
-void copy_probability( const InputIterator iBegin, const InputIterator iEnd, const std::size_t n_cluster, OutputIterator itSelected, BinaryOperator distanceFunc )
+std::size_t copy_probability( const InputIterator iBegin, const InputIterator iEnd, const std::size_t n_cluster, OutputIterator itSelected, BinaryOperator distanceFunc )
 {
 	typedef typename std::iterator_traits< InputIterator >::value_type vector_type;
 	typedef typename vector_type::value_type value_type;
 	typedef typename std::size_t size_type;
 
 	const std::size_t n = std::distance( iBegin, iEnd );
-	std::size_t index = Math::Random::distribute_uniform< std::size_t >( 0, n );
+	std::size_t index = Math::Random::distribute_uniform< std::size_t >( 0, n-1 );
 	
 	// assign first selected element
 	InputIterator itNewOut = (iBegin+index);
@@ -223,9 +224,12 @@ void copy_probability( const InputIterator iBegin, const InputIterator iEnd, con
 
 	for( size_type k( 1 ); k < n_cluster; ++k, ++itSelected )
 	{
+		if( dist_sum<= 0 )
+			return k;
+
 		value_type max_range = Math::Random::distribute_uniform< value_type >( 0, dist_sum );
 
-		for( index = 0; index < n-1; ++index )
+		for( index = 0; index < (n-1); ++index )
 			if ( max_range <= distances[ index ] )
 				break;
 			else
@@ -242,10 +246,10 @@ void copy_probability( const InputIterator iBegin, const InputIterator iEnd, con
 
 		// determine the minimal distance to one of earlier chosen points
 		std::transform( distances.begin(), distances.end(), distances_temp.begin(), distances.begin(), std::min< value_type > );
-		
 		// calculate newest maximal distance (should be smaller than before)
 		dist_sum = std::accumulate( distances.begin(), distances.end(), static_cast< value_type >( 0 ) );
 	}
+	return n_cluster;
 };
 
 
@@ -290,7 +294,7 @@ typename std::iterator_traits< OutputIterator >::value_type::value_type k_means(
 
 	//assign indices for the first time
 	indices_container_type indices;
-	indices.reserve( n_cluster );
+	indices.reserve( n );
 	std::transform( iBegin, iEnd, std::back_inserter( indices ), assign_indices< mean_type_iterator, BinaryOperator >( itMeanBegin, itMeanEnd, distanceFunc ) );
 	
 	
@@ -301,13 +305,13 @@ typename std::iterator_traits< OutputIterator >::value_type::value_type k_means(
 		// set some "fresh" (empty) mean values 
 		mean_container_type means_temp;
 		means_temp.reserve( n_cluster );
-		means_temp.assign( n_cluster, vector_in_type::zeros() );
+		means_temp.assign( n_cluster, vector_out_type::zeros() );
 				
 		//accumulate the means from the clusters 
 		k_means_accumulate( iBegin, iEnd, indices.begin(), assign_to_mean< mean_type_iterator >( means_temp.begin() ) );
 		
 		// reset the amount of gathered values for the means, could be done nicer...
-		for( std::size_t k = 0; k<n_cluster; ++k )		
+		for( std::size_t k = 0; k<n_cluster; ++k )
 			means_temp[ k ] /= std::count ( indices.begin(), indices.end(), k );
 		
 		// calculate the summarized difference

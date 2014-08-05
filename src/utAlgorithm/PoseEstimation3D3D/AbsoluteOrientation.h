@@ -43,7 +43,7 @@
 
 #include <vector>
 
-namespace Ubitrack { namespace Algorithm {
+namespace Ubitrack { namespace Algorithm { namespace PoseEstimation3D3D {
 
 /**
  * @ingroup tracking_algorithms
@@ -239,7 +239,7 @@ public:
     // return rms;
 // }
 
-} } // namespace Ubitrack::Algorithm
+} } } // namespace Ubitrack::Algorithm::PoseEstimation3D3D
 
 #endif // HAVE_LAPACK
 

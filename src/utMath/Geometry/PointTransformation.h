@@ -38,7 +38,9 @@
 #include <utMath/Vector.h> //includes static assert
 #include <utMath/Matrix.h>
 
+
 #include "container_traits.h"
+#include "../Util/type_traits.h"
 #include "../Stochastic/identity_iterator.h"
 
 #include <algorithm> //std::transform

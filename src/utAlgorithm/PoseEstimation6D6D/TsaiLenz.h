@@ -40,7 +40,7 @@
 #include <utMath/Pose.h>
 #include <vector>
 
-namespace Ubitrack { namespace Algorithm { namespace HandEye {
+namespace Ubitrack { namespace Algorithm { namespace PoseEstimation6D6D {
 
 /**
  * @ingroup tracking_algorithms
@@ -61,7 +61,7 @@ UBITRACK_EXPORT Math::Pose performHandEyeCalibration ( const std::vector< Math::
 UBITRACK_EXPORT Math::Pose performHandEyeCalibration ( const std::vector< Math::Pose >& hand,  const std::vector< Math::Pose >& eye, bool bUseAllPairs = true );
 
 
-}}} // namespace Ubitrack::Algorithm::HandEye
+}}} // namespace Ubitrack::Algorithm::PoseEstimation6D6D
 
 #endif // HAVE_LAPACK
 
