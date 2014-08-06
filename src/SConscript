@@ -66,6 +66,8 @@ if sys.platform == 'win32':
 # {buildenvironment, source files, name of the library, build target}
 libs = setupLibraryBuild(env, sources, 'utCore', 'core')
 
+setupIncludeInstallAll(env, '.')
+
 # f)
 utcore_all_options = utcore_options.copy()
 utcore_options[ 'LIBS' ] = []

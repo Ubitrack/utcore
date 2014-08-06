@@ -56,6 +56,9 @@ if sys.platform == 'win32':
 # {buildenvironment, source files, name of the library, build target}
 libs = setupLibraryBuild(env, sources, 'log4cpp', 'core')
 
+setupIncludeInstallAll(env, 'include/log4cpp' , '.h' , '..')
+setupIncludeInstallAll(env, 'include/log4cpp', '.hh', '..')
+
 # f)
 log4cpp_options[ 'LIBS' ] = []
 log4cpp_options[ 'LIBPATH' ] = []
