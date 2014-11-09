@@ -9,9 +9,6 @@
 
 #include "Correlation.h"
 #include <utMath/Stochastic/Correlation.h>
-#include <math.h>
-
-
 
 namespace Ubitrack { namespace Algorithm {
 

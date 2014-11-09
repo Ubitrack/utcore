@@ -6,12 +6,13 @@
  * @author Manuel Huber <huberma@in.tum.de>
  */
 
-#ifndef __UBITRACK_CALIBRATION_CORRELATION_H_INCLUDED__
-#define __UBITRACK_CALIBRATION_CORRELATION_H_INCLUDED__
+#ifndef __UBITRACK_ALGORITHM_CORRELATION_H_INCLUDED__
+#define __UBITRACK_ALGORITHM_CORRELATION_H_INCLUDED__
 
-#ifdef HAVE_LAPACK
 
 #include <utCore.h> // UBITRACK_EXPORT
+
+// std
 #include <vector> // std::vector
 
 namespace Ubitrack { namespace Algorithm {
@@ -20,9 +21,6 @@ namespace Ubitrack { namespace Algorithm {
 UBITRACK_EXPORT double computeCorrelation ( const std::vector< double >& left,
 											const std::vector< double >& right);
 
+}}; // namespace Ubitrack::Algorithm
 
-}};
-
-#endif // HAVE_LAPACK
-
-#endif
+#endif // __UBITRACK_ALGORITHM_CORRELATION_H_INCLUDED__
