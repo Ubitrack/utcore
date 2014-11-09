@@ -60,13 +60,13 @@ namespace Ubitrack { namespace Math {
 /**
  * @internal
  * @ingroup math
- * Functor class template to calculate a outer product. Needs partial spevialization
+ * Functor class template to calculate a outer product. Needs partial specialization
  * to define action on certain input types.
  */
 template< typename LeftType, typename RightType, typename ReturnType > struct OuterProduct;
 
  
-/// @internal Partial sepcialization for a matrix-vector product
+/// @internal Partial specialization for a matrix-vector product
 template< typename VT, typename std::size_t N1, std::size_t N2 >
 struct OuterProduct< Math::Vector< VT, N1 >, Math::Vector< VT, N2 >, Math::Matrix< VT, N1, N2 > >
 {
@@ -80,10 +80,10 @@ public:
 		static const typename Math::Util::vector_traits< VectorType1 >::size_type size1 = Math::Util::vector_traits< VectorType1 >::size;
 		static const typename Math::Util::vector_traits< VectorType2 >::size_type size2 = Math::Util::vector_traits< VectorType2 >::size;
 
-		// attention: our matrix is column major but the constructor for
+		// /*outdated start*/ attention: our matrix is column major but the constructor for
 		// accepting an array expects row-major representation -> :(
-		// therefore I chose row-major variant to fill in values
-		// changed again since new version uses raw array to fill in values...
+		// therefore I chose row-major variant to fill in values /*outdated end*/
+		// new: changed again since new version uses raw array to fill in values...
 		// outer_product_impl< size2, size2, size1 >() ( vec2, vec1, ptr );
 		
 		
@@ -184,11 +184,12 @@ protected:
  * Functor template class to calculate a product of matrix of vector. Needs
  * partial specialization to define some action for certain types.
  */
+#ifndef __UBITRACK_MATH_BLAS_LEVEL_3_H__
 template< typename LeftType, typename RightType, typename ReturnType > struct Product;
+#endif
 
-
-/// @internal Partial sepcialization for a matrix-vector product
-template< typename MT, typename std::size_t MC, std::size_t MR, typename VT, std::size_t VR >
+/// @internal Partial specialization for a matrix-vector product
+template< typename MT, std::size_t MR, std::size_t MC, typename VT, std::size_t VR >
 struct Product< Math::Matrix< MT, MR, MC >, Math::Vector< VT, VR >, Math::Vector< VT, MR > >
 {
 public:
@@ -386,6 +387,8 @@ inline void outer_product( const InputIterator1 iBegin1, const InputIterator1 iE
 	std::transform( iBegin1, iEnd1, iBegin2, iOut, OuterProduct< input_type1, input_type2, output_type > () );
 }
 
+// include guard needed since same function is within BLAS3 header
+#ifndef __UBITRACK_MATH_BLAS_LEVEL_3_H__
 template< typename Type1, typename Type2, typename ReturnType >
 inline void product( const Type1& lhs, const Type2& rhs, ReturnType &result )
 {
@@ -402,6 +405,7 @@ inline void product( const InputIterator1 iBegin1, const InputIterator1 iEnd1, c
 
 	std::transform( iBegin1, iEnd1, iBegin2, iOut, Product< input_type1, input_type2, output_type > () );
 }
+#endif
 
 } } // namespace Ubitrack::Math
 
