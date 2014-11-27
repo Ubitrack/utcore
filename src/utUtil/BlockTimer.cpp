@@ -66,13 +66,13 @@ void BlockTimer::initializeEnd()
 
 std::ostream& operator<<( std::ostream& s, const BlockTimer& t )
 {		
-	double totalRunTime = getHighPerformanceCounter() - t.getStartTime();
+	double totalRunTime = (getHighPerformanceCounter() - t.getStartTime()) / (getHighPerformanceFrequency()) *1000;
 	return s << std::setw( 30 ) << t.getName()
 		<< " runs: " << std::setw( 6 ) << t.getRuns()
 		<< ", total: " << std::setw( 7 ) << t.getTotalTime() << "ms"
 		<< ", avg: " << std::setw( 7 ) << t.getAvgTime() << "ms"
 		<< ", totalRuntime: " << std::setw( 7 ) << totalRunTime << "ms"
-		<< ", call per second: " << std::setw( 7 ) << totalRunTime/1000.0 /  t.getRuns();
+		<< ", call per second: " << std::setw( 7 ) <<  t.getRuns() / (totalRunTime/1000.0);
 		
 }
 

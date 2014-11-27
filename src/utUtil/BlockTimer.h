@@ -128,7 +128,7 @@ public:
 		, m_bInitialized( false )
 		, m_nRuns( 0 )
 		, m_nTicks( 0 )
-		, m_startTime( 0 )
+		, m_startTime( getHighPerformanceCounter() )
 	{}
 
 	/** destructor, prints result if a stream was given to the constructor */
