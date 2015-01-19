@@ -245,7 +245,13 @@ std::size_t copy_probability( const InputIterator iBegin, const InputIterator iE
 		std::transform( iBegin, iEnd, Ubitrack::Util::identity< vector_type >( *itNewOut ).begin(), std::back_inserter( distances_temp ), distanceFunc );
 
 		// determine the minimal distance to one of earlier chosen points
-		std::transform( distances.begin(), distances.end(), distances_temp.begin(), distances.begin(), std::min< value_type > );
+		std::transform( distances.begin(), distances.end(), distances_temp.begin(), distances.begin(),
+				#ifdef COMPILER_USE_CXX11
+				(const value_type& (*)(const value_type&, const value_type&))std::min< value_type >
+				#else
+				std::min< value_type >
+				#endif
+		);
 		// calculate newest maximal distance (should be smaller than before)
 		dist_sum = std::accumulate( distances.begin(), distances.end(), static_cast< value_type >( 0 ) );
 	}
