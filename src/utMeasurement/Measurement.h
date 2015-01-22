@@ -72,6 +72,7 @@ typedef Measurement< Math::Matrix< double, 4, 4 >   > Matrix4x4;
 typedef Measurement< Math::Scalar< int >    > Button;
 typedef Measurement< Math::Pose             > Pose;
 typedef Measurement< Math::ErrorPose        > ErrorPose;
+typedef Measurement< Math::ErrorVector< double, 2 > > ErrorPosition2;
 typedef Measurement< Math::ErrorVector< double, 3 > > ErrorPosition;
 typedef Measurement< Math::RotationVelocity > RotationVelocity;
 typedef Measurement< Math::CameraIntrinsics< double > > CameraIntrinsics;
