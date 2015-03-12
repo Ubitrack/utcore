@@ -131,6 +131,15 @@ public:
 	SimpleStringIArchive& operator&( T& v )
 	{ boost::serialization::serialize( *this, v, 0 ); return *this; }
 
+	
+
+	/**
+	* ignore binary data
+	* bad as a string anyway
+	*/
+	void save_binary(const void*, size_t) {};
+	void load_binary(void*, size_t) {};
+
 
 	// required for boost::serialization
     typedef boost::mpl::bool_<true> is_loading;
