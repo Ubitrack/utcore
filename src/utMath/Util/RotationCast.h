@@ -100,10 +100,10 @@ struct RotationCast< Math::Quaternion >
 		const T m00div4 = matrix( 0, 0 ) / 4;
 		const T m11div4 = matrix( 1, 1 ) / 4;
 		const T m22div4 = matrix( 2, 2 ) / 4;
-		const T qw = std::sqrt( std::max( 0., ( 0.25 + m00div4 + m11div4 + m22div4 ) ) ) ; 
-		const T qxt = std::sqrt( std::max( 0., ( 0.25 + m00div4 - m11div4 - m22div4 ) ) ) ; 
-		const T qyt = std::sqrt( std::max( 0., ( 0.25 - m00div4 + m11div4 - m22div4 ) ) ) ; 
-		const T qzt = std::sqrt( std::max( 0., ( 0.25 - m00div4 - m11div4 + m22div4 ) ) ) ; 
+		const T qw = static_cast< T > ( std::sqrt( std::max( 0., ( 0.25 + m00div4 + m11div4 + m22div4 ) ) ) );
+		const T qxt = static_cast< T > ( std::sqrt( std::max( 0., ( 0.25 + m00div4 - m11div4 - m22div4 ) ) ) ); 
+		const T qyt = static_cast< T > ( std::sqrt( std::max( 0., ( 0.25 - m00div4 + m11div4 - m22div4 ) ) ) ); 
+		const T qzt = static_cast< T > ( std::sqrt( std::max( 0., ( 0.25 - m00div4 - m11div4 + m22div4 ) ) ) ); 
 		const T qx = ( matrix( 2, 1 ) - matrix( 1, 2 ) ) < 0 ? -qxt : qxt;
 		const T qy = ( matrix( 0, 2 ) - matrix( 2, 0 ) ) < 0 ? -qyt : qyt;
 		const T qz = ( matrix( 1, 0 ) - matrix( 0, 1 ) ) < 0 ? -qzt : qzt;
@@ -299,16 +299,16 @@ struct RotationCast< Matrix< T, M, N > >
 	
 	return_type operator()( const Math::Quaternion & other ) const
 	{
-		const T ww = other.w() * other.w();
-		const T xx = other.x() * other.x();
-		const T yy = other.y() * other.y();
-		const T zz = other.z() * other.z();
-		const T xy = other.x() * other.y();
-		const T yz = other.y() * other.z();
-		const T zx = other.z() * other.x();
-		const T wx = other.w() * other.x();
-		const T wy = other.w() * other.y();
-		const T wz = other.w() * other.z();
+		const T ww = static_cast< T > ( other.w() * other.w() );
+		const T xx = static_cast< T > ( other.x() * other.x() );
+		const T yy = static_cast< T > ( other.y() * other.y() );
+		const T zz = static_cast< T > ( other.z() * other.z() );
+		const T xy = static_cast< T > ( other.x() * other.y() );
+		const T yz = static_cast< T > ( other.y() * other.z() );
+		const T zx = static_cast< T > ( other.z() * other.x() );
+		const T wx = static_cast< T > ( other.w() * other.x() );
+		const T wy = static_cast< T > ( other.w() * other.y() );
+		const T wz = static_cast< T > ( other.w() * other.z() );
 		
 		return_type result;
 		// first matrix row
