@@ -90,7 +90,7 @@ public:
 			const Ubitrack::Math::Vector< VType, 3 > vec1( input[ 0 ], input[ 1 ], input[ 2 ] );
 			const Ubitrack::Math::Vector< VType, 3 > vec2( input[ 3 ], input[ 4 ], input[ 5 ] );
 			const Math::Vector< VType, 3 > vec = vec1 - ( (*it) * vec2 );
-			result[ i ] = Ubitrack::Math::norm_2( vec );
+			result[ i ] = static_cast< VT1::value_type > ( Ubitrack::Math::norm_2( vec ) );
 		}
 		// std::cout << "Result : \n" << result << std::endl;
 	}
@@ -177,12 +177,12 @@ public:
 			const VType t43 = (t14/fabs(t14));
 			const VType t44 = (t30/fabs(t30));
 			const VType t45 = (t39/fabs(t39));
-			J( i, 0 ) = t17*t42*t43;
-			J( i, 1 ) = t18*t42*t44;
-			J( i, 2 ) = t23*t42*t45;
-			J( i, 3 ) = t42*(t6*t17*t43*2-t18*t26*t44*2+t23*t35*t45*2)*(1.0/2.0);
-			J( i, 4 ) = t42*(t9*t17*t43*2+t18*t24*t44*2-t23*t37*t45*2)*(1.0/2.0);
-			J( i, 5 ) = t42*(t13*t17*t43*-2+t18*t28*t44*2+t23*t33*t45*2)*(1.0/2.0);
+			J( i, 0 ) = static_cast< MT::value_type >( t17*t42*t43 );
+			J( i, 1 ) = static_cast< MT::value_type >( t18*t42*t44 );
+			J( i, 2 ) = static_cast< MT::value_type >( t23*t42*t45 );
+			J( i, 3 ) = static_cast< MT::value_type >( t42*(t6*t17*t43*2-t18*t26*t44*2+t23*t35*t45*2)*(1.0/2.0) );
+			J( i, 4 ) = static_cast< MT::value_type >( t42*(t9*t17*t43*2+t18*t24*t44*2-t23*t37*t45*2)*(1.0/2.0) );
+			J( i, 5 ) = static_cast< MT::value_type >( t42*(t13*t17*t43*-2+t18*t28*t44*2+t23*t33*t45*2)*(1.0/2.0) );
 		}
 		// std::cout << "input  :\n" << input << "\n";
 		// std::cout << "J      :\n" << J.size1() << " x " << J.size2() << std::endl;
@@ -222,7 +222,7 @@ bool estimatePosition3D_6D( Math::Vector< T, 3 >& pw
 	ToolTip::MultiplePoseSinglePointTransformation< InputIterator > func( iBegin, iEnd );
 	
 	// 5) perform optimization
-	T residual = Ubitrack::Math::Optimization::levenbergMarquardt( func, paramVector, measurement, criteria, Math::Optimization::OptNoNormalize() );	
+	const T residual = Ubitrack::Math::Optimization::levenbergMarquardt( func, paramVector, measurement, criteria, Math::Optimization::OptNoNormalize() );	
 	// std::cout << "Residual Error " << residual << std::endl;
 	pw[ 0 ] = paramVector[ 0 ];
 	pw[ 1 ] = paramVector[ 1 ] ;
