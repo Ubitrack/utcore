@@ -86,7 +86,7 @@ public:
 	RansacParameter( const T fThreshold, const std::size_t nMinSet, const std::size_t n, const T percentOutlier, const T percentSucess = 0.99 )
 		: threshold ( fThreshold )
 		, setSize ( nMinSet )
-		, nMinInlier ( (1.-percentOutlier) * n  )
+		, nMinInlier ( static_cast< size_type >( (1.-percentOutlier) * n ) )
 		, nMaxIterations ( static_cast< size_type >( 1+std::log( 1-percentSucess) / ( std::log( 1-std::pow( 1-percentOutlier, static_cast< int >( nMinSet ) ) ) ) ) )
 		{};
 };
