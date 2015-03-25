@@ -123,8 +123,8 @@ public:
 		const VType t14 = -t11+t12+t13;
 		const VType t16 = qy*x*2;
 		J( 0, 0 ) = t7;
-		J( 0, 1 ) = t2+t3-qy*x*2.0;
-		J( 0, 2 ) = t11-qz*x*2.0-qw*y*2.0;
+		J( 0, 1 ) = t2+t3-qy*x*2;
+		J( 0, 2 ) = t11-qz*x*2-qw*y*2;
 		J( 0, 3 ) = t10;
 		J( 1, 0 ) = -t2-t3+t16;
 		J( 1, 1 ) = t7;
