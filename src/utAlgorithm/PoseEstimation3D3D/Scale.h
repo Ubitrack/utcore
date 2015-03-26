@@ -34,8 +34,10 @@
 #define __UBITRACK_ALGORITHM_ABSOLUTE_ORIENTATION_SCALE_INCLUDED__
 
 
-#include <numeric> // std::accumulate
-#include <iterator> // std::iterator_traits
+#include <cmath>	// std::sqrt
+#include <cassert>	// assert-macro
+#include <numeric>	// std::accumulate
+#include <iterator>	// std::iterator_traits
 
 namespace Ubitrack { namespace Algorithm { namespace PoseEstimation3D3D {
 
