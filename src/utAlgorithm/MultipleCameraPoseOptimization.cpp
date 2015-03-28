@@ -166,23 +166,19 @@ std::pair < Math::ErrorPose , double >
 		ublas::subrange( param, 0, 3 ) = initialPose.translation();
 		ublas::subrange( param, 3, 6 ) = initialPose.rotation().toLogarithm();
 
-		double res = Math::Optimization::levenbergMarquardt( f, param, measurements, Math::Optimization::OptTerminate( 10, 1e-6 ), Math::Optimization::OptNoNormalize() );
+		const double res = Math::Optimization::levenbergMarquardt( f, param, measurements, Math::Optimization::OptTerminate( 10, 1e-6 ), Math::Optimization::OptNoNormalize() );
 
         // Create an error pose with covariance matrix that has the residual on its diagonal entries
-		Math::ErrorPose finalPose( Math::Quaternion::fromLogarithm( ublas::subrange( param, 3, 6 ) ), ublas::subrange( param, 0, 3 ), Math::Matrix< double, 6, 6 >::identity( ) * res );
+		const Math::ErrorPose finalPose( Math::Quaternion::fromLogarithm( ublas::subrange( param, 3, 6 ) ), ublas::subrange( param, 0, 3 ), Math::Matrix< double, 6, 6 >::identity( ) * res );
 		OPT_LOG_DEBUG( "Estimated pose: " << finalPose << ", residual: " << res );
 
 		// Everything went fine -  set weight to 1.0 and return pose
-		#ifdef COMPILER_USE_CXX11
-		return std::make_pair(finalPose, res);
-		#else
-		return std::make_pair < Math::ErrorPose, double > (finalPose, res);
-		#endif
+		return std::make_pair( finalPose, res );
 
 	} else { // not enough observations
 
 		LOG4CPP_DEBUG( logger, "Not enough observations. Only "<<minObs<<" observations available for some camera ");
-		return std::make_pair < Math::ErrorPose, double > (Math::ErrorPose(), -1.0);
+		return std::make_pair( Math::ErrorPose(), -1.0  );
 	}
 }
 
