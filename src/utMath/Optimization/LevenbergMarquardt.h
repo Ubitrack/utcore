@@ -29,8 +29,8 @@
  * @author Daniel Pustka <daniel.pustka@in.tum.de>
  */ 
  
-#ifndef __UBITRACK_MATH_LEVENBERGMARQUARDT_INCLUDED__
-#define __UBITRACK_MATH_LEVENBERGMARQUARDT_INCLUDED__
+#ifndef __UBITRACK_MATH_OPTIMIZATION_LEVENBERGMARQUARDT_INCLUDED__
+#define __UBITRACK_MATH_OPTIMIZATION_LEVENBERGMARQUARDT_INCLUDED__
 
 #include "Optimization.h"
 
@@ -251,7 +251,6 @@ typename X::value_type levenbergMarquardt( P& problem, X& params, const Y& measu
 
 }}} // namespace Ubitrack::Math::Optimization
 
-#endif // HAVE_LAPACK
+#endif	// HAVE_LAPACK
 
-
-#endif
+#endif	// __UBITRACK_MATH_OPTIMIZATION_LEVENBERGMARQUARDT_INCLUDED__
