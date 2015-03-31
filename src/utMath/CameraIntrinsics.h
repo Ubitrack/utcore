@@ -40,8 +40,8 @@
 #include <boost/serialization/access.hpp>
 
 //Ubitrack
-#include <utMath/Matrix.h>
 #include <utMath/Vector.h>
+#include <utMath/Matrix.h>
 #include <utMath/Functors/MatrixFunctors.h>
 
 
@@ -50,8 +50,9 @@ namespace Ubitrack { namespace Math {
 /**
  * @ingroup math
  * Stores all intrinsics camera parameters to have one compact 
- * representation for easier handling within dataflow configurations.
- * @param T can be double of float
+ * representation for easier handling within dataflow configurations
+ * and algorithms.
+ * @param T can be \c double of \c float
  */
 
 template < typename T > 
@@ -65,12 +66,34 @@ struct CameraIntrinsics
 	
 	/** definition of the tangential distortion parameter type */
 	typedef Math::Vector< T, 2 > tangential_type;
+		
+	/// describes all various calibration types offered so far:
+	/// IMPLEMENTATION_RADIAL_TANGENTIAL[_SPECIALIZATION]
+	enum CalibType { UNKNOWN, OPENCV_2_2, OPENCV_3_2, OPENCV_6_2, OPENCV_4_0_FISHEYE };
+	
+	/// provides the number of elements for the radial distortion ( use with \c CalibType )
+	static const std::size_t radial( const int idx )
+	{
+		static const std::size_t a[] = { 0u, 2u, 3u, 6u, 4u };
+		return a[ idx ];
+	}
+	
+	/// provides the number of elements for the tangential distortion ( use with \c CalibType )
+	static const std::size_t tangential( const int idx )
+	{
+		static const std::size_t a[] = { 0u, 2u, 2u, 2u, 0u };
+		return a[ idx ];
+	} 
 	
 protected:
 	/** Functor for the matrix inverse */
 	const Math::Functors::matrix_inverse m_inverter;
 
-public:		
+public:	
+	// must match longest available identifier ( opencv_4_0_fisheye ) and terminal char (\0)
+	// char identifier [ 19 ];
+	CalibType calib_type;
+	
 	/**
 	 * cameras' image calibration dimensions
 	 * due to normalisation this should be 1, 1
@@ -80,7 +103,25 @@ public:
 	/** cameras' 3x3-intrinsic matrix (normalized) */
 	matrix_type matrix;
 	
-	/** inverse of cameras' 3x3-intrinsic matrix (normalized) */
+	/// maybe switch to this kind of structure
+	// struct Distortion
+	// {
+			
+		// std::size_t size_radial;
+		// Math::Vector< T, 6 > radial;
+		
+		// std::size_t size_tangetial;
+		// Math::Vector< T, 2 > tangential;
+		// Distortion( const Math::Vector< T, 6 >& rad, const Math::Vector< T, 2 > tan )
+			// : raidal( rad )
+			// , tangential( tan )
+			// {}
+	// };
+	
+	// Distortion distortion;
+	
+	
+	/** inverse of cameras' 3x3-intrinsic matrix (normalized), maybe drop this */
 	matrix_type matrix_inv;
 	
 	/** signs how many distortion parameters are actually used */
@@ -95,6 +136,7 @@ public:
 	/** Standard Constructor */
 	CameraIntrinsics(  )
 		: m_inverter()
+		, calib_type( UNKNOWN )
 		, dimension( Math::Vector< std::size_t, 2 >( 1, 1 ) )
 		, matrix( matrix_type::identity() )
 		, matrix_inv( matrix_type::identity() )
@@ -106,6 +148,7 @@ public:
 	/** Constructor to use with old OpenCV values (2 radial distortion parameters) */	
 	CameraIntrinsics( const Math::Matrix< T, 3, 3 > &intrinsicMatrix, const Math::Vector< T, 2 > &_radial, const Math::Vector< T, 2 > &_tangential )
 		: m_inverter()
+		, calib_type( OPENCV_2_2 )
 		, dimension( Math::Vector< std::size_t, 2 >( 1, 1 ) )
 		, matrix( intrinsicMatrix )
 		, matrix_inv( m_inverter( intrinsicMatrix ) )
@@ -116,10 +159,27 @@ public:
 			radial_params( 0 ) = _radial( 0 );
 			radial_params( 1 ) = _radial( 1 );
 		}
+		
+	/** Constructor to use with newer OpenCV values (3 radial distortion parameters) */	
+	CameraIntrinsics( const Math::Matrix< T, 3, 3 > &intrinsicMatrix, const Math::Vector< T, 3 > &_radial, const Math::Vector< T, 2 > &_tangential )
+		: m_inverter()
+		, calib_type( OPENCV_3_2 )
+		, dimension( Math::Vector< std::size_t, 2 >( 1, 1 ) )
+		, matrix( intrinsicMatrix )
+		, matrix_inv( m_inverter( intrinsicMatrix ) )
+		, radial_size( 2 )
+		, radial_params( radial_type::zeros() )
+		, tangential_params( _tangential )
+		{
+			radial_params( 0 ) = _radial( 0 );
+			radial_params( 1 ) = _radial( 1 );
+			radial_params( 2 ) = _radial( 2 );
+		}
 	
 	/** Constructor to use with newer OpenCV values (6 radial distortion parameters) */	
 	CameraIntrinsics( const Math::Matrix< T, 3, 3 > &intrinsicMatrix, const Math::Vector< T, 6 > &_radial, const Math::Vector< T, 2 > &_tangential )
 		: m_inverter()
+		, calib_type( OPENCV_6_2 )
 		, dimension( Math::Vector< std::size_t, 2 >( 1, 1 ) )
 		, matrix( intrinsicMatrix )
 		, matrix_inv( m_inverter( intrinsicMatrix ) )
@@ -129,18 +189,69 @@ public:
 		{
 		}
 		
+	/** Constructor to use with new OpenCV fish-eye values (4 distortion parameters, not tangential) */	
+	CameraIntrinsics( const Math::Matrix< T, 3, 3 > &intrinsicMatrix, const Math::Vector< T, 4 > &_radial )
+		: m_inverter()
+		, calib_type( OPENCV_4_0_FISHEYE )
+		, dimension( Math::Vector< std::size_t, 2 >( 1, 1 ) )
+		, matrix( intrinsicMatrix )
+		, matrix_inv( m_inverter( intrinsicMatrix ) )
+		, radial_size( 4 )
+		, tangential_params( tangential_type::zeros() )
+		{
+			radial_params( 0 ) = _radial( 0 );
+			radial_params( 1 ) = _radial( 1 );
+			radial_params( 2 ) = _radial( 2 );
+			radial_params( 3 ) = _radial( 3 );
+		}
+		
 		
 	CameraIntrinsics& operator= ( const CameraIntrinsics< T >& rhs )
 	{
 		///@todo maybe use a swap function
-		this->dimension = rhs.dimension;
-		this->matrix = rhs.matrix;
-		this->matrix_inv = rhs.matrix_inv;
-		this->radial_size = rhs.radial_size;
-		this->radial_params = rhs.radial_params;
-		this->tangential_params = rhs.tangential_params;
+		this->calib_type		= rhs.calib_type;
+		this->dimension			= rhs.dimension;
+		this->matrix			= rhs.matrix;
+		this->matrix_inv		= rhs.matrix_inv;
+		this->radial_size		= rhs.radial_size;
+		this->radial_params		= rhs.radial_params;
+		this->tangential_params	= rhs.tangential_params;
 		return *this;
 	}
+	
+	void reset()
+	{
+		matrix_inv = ( m_inverter( matrix ) );
+		
+		switch( radial_size )
+		{
+			case 2 : // old school calibration
+				calib_type = OPENCV_2_2;
+				break;
+			case 3 : // old school calibration
+				calib_type = OPENCV_3_2;
+				break;
+			case 4: // fish-eye parameters
+				calib_type = OPENCV_4_0_FISHEYE;
+				break;
+			case 6 : // wide-angle parameters
+				calib_type = OPENCV_6_2;
+				break;
+		}
+	}
+	
+	/// corrects the Ubitrack intrinsics matrix to the corresponding left-handed (e.g. \c OpenCV ) camera matrix
+	template< typename PrecisionType >	
+	inline void flipHandiness( Math::CameraIntrinsics< PrecisionType >& intrinsics )
+	{
+		// compensate for left-handed OpenCV coordinate frame
+		intrinsics.matrix ( 0, 2 ) *= -1;
+		intrinsics.matrix ( 1, 2 ) *= -1;
+		intrinsics.matrix ( 2, 2 ) *= -1;
+		
+		intrinsics.reset(); // recalculate the inverse
+	}
+	
 
 protected:
 	friend class ::boost::serialization::access;
@@ -168,6 +279,8 @@ protected:
 		
 		ar & tangential_params[ 0 ];
 		ar & tangential_params[ 1 ];
+		
+		reset();
 	}
 };
 
