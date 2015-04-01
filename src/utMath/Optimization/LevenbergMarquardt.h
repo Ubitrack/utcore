@@ -32,16 +32,15 @@
 #ifndef __UBITRACK_MATH_OPTIMIZATION_LEVENBERGMARQUARDT_INCLUDED__
 #define __UBITRACK_MATH_OPTIMIZATION_LEVENBERGMARQUARDT_INCLUDED__
 
-#include "Optimization.h"
+
 
 #ifdef HAVE_LAPACK
 
-#include <utMath/Matrix.h>
-#include <utMath/Vector.h>
+// Boost
+#include <boost/scoped_ptr.hpp>
+
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 #include <boost/numeric/ublas/vector_proxy.hpp>
-#include <utUtil/Exception.h>
-#include <boost/shared_ptr.hpp>
 
 #include <boost/numeric/bindings/blas/blas.hpp>
 #include <boost/numeric/bindings/lapack/posv.hpp>
@@ -49,6 +48,11 @@
 #include <boost/numeric/bindings/lapack/gelss.hpp> // TODO: gels with blocking svd + optimal workspace query
 #include <boost/numeric/bindings/traits/ublas_vector2.hpp>
 
+// Ubitrack
+#include "../Vector.h"
+#include "../Matrix.h"
+#include "Optimization.h"
+#include <utUtil/Exception.h>
 
 
 namespace Ubitrack { namespace Math { namespace Optimization {
@@ -83,18 +87,20 @@ typename X::value_type weightedLevenbergMarquardt( P& problem, X& params, const 
 	namespace blas = boost::numeric::bindings::blas;
 	namespace ublas = boost::numeric::ublas;
 	typedef typename X::value_type T;
-	typedef typename Math::Matrix< T, 0, 0 >::base_type MatType;
+	typedef typename Math::Matrix< T >::base_type MatType;
 	typedef typename Math::Vector< T >::base_type VecType;
 	
+	const std::size_t n_meas = measurement.size();
+	const std::size_t n_params = params.size();
 	// create some matrices and vectors
-	boost::shared_ptr< MatType > pJacobian( new MatType( measurement.size(), params.size() ) );
-	boost::shared_ptr< MatType > pJacobian2( new MatType( measurement.size(), params.size() ) );
-	MatType matJacobiSquare( params.size(), params.size() );
-	boost::shared_ptr< VecType > pMeasurementDiff( new VecType( measurement.size() ) );
-	boost::shared_ptr< VecType > pMeasurementDiff2( new VecType( measurement.size() ) );
-	VecType paramDiff( params.size() );
-	VecType estimatedMeasurement( measurement.size() );
-	VecType newParams( params.size() );
+	boost::scoped_ptr< MatType > pJacobian( new MatType( n_meas, n_params ) );
+	boost::scoped_ptr< MatType > pJacobian2( new MatType( n_meas, n_params ) );
+	MatType matJacobiSquare( n_params, n_params );
+	boost::scoped_ptr< VecType > pMeasurementDiff( new VecType( n_meas ) );
+	boost::scoped_ptr< VecType > pMeasurementDiff2( new VecType( n_meas ) );
+	VecType paramDiff( n_params );
+	VecType estimatedMeasurement( n_meas );
+	VecType newParams( n_params );
 
 	// compute initial error
 	problem.evaluateWithJacobian( estimatedMeasurement, params, *pJacobian );
@@ -104,11 +110,11 @@ typename X::value_type weightedLevenbergMarquardt( P& problem, X& params, const 
 	// multiply jacobian and difference with sqare root of weight matrix
 	if ( !weightFunction.noWeights() )
 	{
-		VecType weightVector( measurement.size() );
+		VecType weightVector( n_meas );
 		weightFunction.computeWeights( *pMeasurementDiff, weightVector );
-		for ( unsigned i = 0; i < measurement.size(); i++ )
+		for ( std::size_t i = 0; i < n_meas; i++ )
 		{
-			T w = sqrt( weightVector( i ) );
+			const T w = sqrt( weightVector( i ) );
 			(*pMeasurementDiff)( i ) *= w;
 			ublas::row( *pJacobian, i ) *= w;
 		}
@@ -120,11 +126,11 @@ typename X::value_type weightedLevenbergMarquardt( P& problem, X& params, const 
 
 	// start optimization loop
 	T fLambda = T( fStepSize );
-	int iteration = 0;
+	std::size_t iteration = 0;
 	bool bTerminate = false;
 	while ( !bTerminate )
 	{
-		iteration++;
+		++iteration;
 
 		// do one optimization step
 		if ( solver == lmUseCholesky )
@@ -135,7 +141,7 @@ typename X::value_type weightedLevenbergMarquardt( P& problem, X& params, const 
 		blas::gemm( 'T', 'N', T( 1 ), *pJacobian, *pMeasurementDiff, T( 0 ), paramDiff );
 		
 		// add lambda to diagonal
-		for ( unsigned i = 0; i < params.size(); i++ )
+		for ( std::size_t i = 0; i < n_params; i++ )
 			matJacobiSquare( i, i ) += fLambda;		
 		
 		// do least squares
@@ -157,7 +163,7 @@ typename X::value_type weightedLevenbergMarquardt( P& problem, X& params, const 
 
 		case lmUseSVD:
 			{
-				Math::Vector< T > sv( params.size() );
+				Math::Vector< T > sv( n_params );
 				int rank;
 				if ( lapack::gelss( matJacobiSquare, paramDiff, sv, T( -1 ), rank ) != 0 ) // result in paramDiff
 					UBITRACK_THROW( "lapack::gelss returned an error" );
@@ -179,21 +185,21 @@ typename X::value_type weightedLevenbergMarquardt( P& problem, X& params, const 
 		problem.evaluateWithJacobian( estimatedMeasurement, newParams, *pJacobian2 );
 		ublas::noalias( *pMeasurementDiff2 ) = measurement - estimatedMeasurement;
 
-		// multiply jacobian and difference with sqare root of weight matrix
+		// multiply jacobian and difference with square root of weight matrix
 		if ( !weightFunction.noWeights() )
 		{
-			VecType weightVector( measurement.size() );
+			VecType weightVector( n_meas );
 			weightFunction.computeWeights( *pMeasurementDiff2, weightVector );
-			for ( unsigned i = 0; i < measurement.size(); i++ )
+			for ( std::size_t  i = 0; i < n_meas; i++ )
 			{
-				T w = sqrt( weightVector( i ) );
+				const T w = sqrt( weightVector( i ) );
 				(*pMeasurementDiff2)( i ) *= w;
 				ublas::row( *pJacobian2, i ) *= w;
 			}
 			OPT_LOG_TRACE( "weights = " << weightVector );
 		}
 
-		T fErr = ublas::inner_prod( *pMeasurementDiff2, *pMeasurementDiff2 );
+		const T fErr = ublas::inner_prod( *pMeasurementDiff2, *pMeasurementDiff2 );
 
 		OPT_LOG_TRACE( "measurementDiff: " << *pMeasurementDiff2 );
 		OPT_LOG_DEBUG( "Levenberg-Marquardt residual " << iteration << ": " << fErr );
@@ -210,15 +216,11 @@ typename X::value_type weightedLevenbergMarquardt( P& problem, X& params, const 
 			params = newParams;
 
 			// swap measurementDiff
-			boost::shared_ptr< VecType > pMDTemp( pMeasurementDiff );
-			pMeasurementDiff = pMeasurementDiff2;
-			pMeasurementDiff2 = pMDTemp;
+			pMeasurementDiff.swap( pMeasurementDiff2 );
 
 			// swap jacobian
-			boost::shared_ptr< MatType > pJTemp( pJacobian );
-			pJacobian = pJacobian2;
-			pJacobian2 = pJTemp;
-
+			pJacobian.swap( pJacobian2 );
+			
 			fErrPrev = fErr;
 		}
 	}
