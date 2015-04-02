@@ -33,10 +33,6 @@
 #ifndef __UBITRACK_ALGORITHM_ABSOLUTE_ORIENTATION_ROTATION_3D_INCLUDED__
 #define __UBITRACK_ALGORITHM_ABSOLUTE_ORIENTATION_ROTATION_3D_INCLUDED__
 
-#include <utMath/Util/RotationCast.h>
-#include <utMath/Blas2.h> // outer_product
-#include <utMath/MatrixOperations.h> // determinant
-
 #include <numeric> // std::accumulate
 #include <iterator> // std::iterator_traits
 
@@ -45,9 +41,14 @@
 #include <boost/numeric/bindings/lapack/syev.hpp>
 // svd solution
 #include <boost/numeric/bindings/lapack/gesvd.hpp>
-
-
 #endif
+
+#include <utMath/Quaternion.h>
+#include <utMath/Util/RotationCast.h>
+#include <utMath/Blas2.h> // outer_product
+#include <utMath/MatrixOperations.h> // determinant
+
+
 
 namespace Ubitrack { namespace Algorithm { namespace PoseEstimation3D3D {
 

@@ -37,7 +37,10 @@
 #include <utMath/Pose.h>
 #include <utMath/Blas1.h>
 #include <utMath/Optimization/Optimization.h>
+
+#ifdef HAVE_LAPACK
 #include <utMath/Optimization/LevenbergMarquardt.h>
+#endif	// HAVE_LAPACK
 
 // Boost
 #include <boost/numeric/ublas/io.hpp>
@@ -240,13 +243,16 @@ public:
 };
 
 
+
 template< typename InputIterator >
 bool estimatePose6D_3D3D( const InputIterator iBeginA, const InputIterator iEndA
 	, Math::Pose& pose
 	, const InputIterator iBeginB, const InputIterator iEndB
 	, const Math::Optimization::OptTerminate& criteria )
 {
-
+#ifndef HAVE_LAPACK
+	return false;
+#else
 	typedef typename std::iterator_traits< InputIterator >::value_type vector_type;
 	typedef typename vector_type::value_type T;
 	
@@ -290,6 +296,7 @@ bool estimatePose6D_3D3D( const InputIterator iBeginA, const InputIterator iEndA
 		);
 	
 	return true;
+#endif	// HAVE_LAPACK
 }
 	
 
@@ -304,6 +311,8 @@ UBITRACK_EXPORT bool estimatePose6D_3D3D( const std::vector< Math::Vector3d >& p
 	, const std::vector< Math::Vector3d >& pointsB
 	, const Math::Optimization::OptTerminate& criteria );
 
+
+	
 }}} // namespace Ubitrack::Algorithm::PoseEstimation3D3D
 
 #endif //__UBITRACK_ALGROITHM_ABSOLUTE_ORIENTATION_OPTIMIZATION_H_INCLUDED__
