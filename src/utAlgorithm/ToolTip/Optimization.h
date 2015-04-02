@@ -33,15 +33,21 @@
 #define __UBITRACK_ALGROITHM_TOOLTIP_OPTIMIZATION_H_INCLUDED__
 
 #include "LeastSquare.h" // includes std::vector/Pose/Vector
-#include <utCore.h>
-#include <utMath/Blas1.h>
-#include <utMath/Optimization/Optimization.h>
-#include <utMath/Optimization/LevenbergMarquardt.h>
-
 
 // Boost
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/numeric/ublas/vector_proxy.hpp>
+
+// Ubitrack
+#include <utCore.h>
+#include <utMath/Blas1.h>
+#include <utMath/Optimization/Optimization.h>
+
+#ifdef HAVE_LAPACK
+#include <utMath/Optimization/LevenbergMarquardt.h>
+#endif
+
+
 
 namespace Ubitrack { namespace Algorithm { namespace ToolTip {
 
@@ -197,7 +203,9 @@ bool estimatePosition3D_6D( Math::Vector< T, 3 >& pw
 	, Math::Vector< T, 3 >& pm
 	, const Math::Optimization::OptTerminate& criteria )
 {
-
+#ifndef HAVE_LAPACK
+	return false;
+#else
 	const std::size_t n = std::distance( iBegin, iEnd );
 	assert( n > 2 );
 	
@@ -232,6 +240,7 @@ bool estimatePosition3D_6D( Math::Vector< T, 3 >& pw
 	pm[ 2 ] = paramVector[ 5 ] ;
 	
 	return true;
+#endif	// HAVE_LAPACK
 }
 
 UBITRACK_EXPORT bool estimatePosition3D_6D( Math::Vector3f& pw

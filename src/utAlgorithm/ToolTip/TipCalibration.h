@@ -33,13 +33,13 @@
 #ifndef __UBITRACK_ALGROITHM_TOOLTIP_CALIBRATION_H_INCLUDED__
 #define __UBITRACK_ALGROITHM_TOOLTIP_CALIBRATION_H_INCLUDED__
 
+// std
+#include <utility> // std::pair
+
 // Ubitrack
 #include <utCore.h>
 #include <utMath/Pose.h>
-#include <utMath/Vector.h> //incldues std::vector
-
-// std
-#include <utility> // std::pair
+#include <utMath/Vector.h> //includes std::vector
 
 namespace Ubitrack { namespace Algorithm { namespace ToolTip {
 
