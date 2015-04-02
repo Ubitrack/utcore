@@ -44,10 +44,6 @@
 
 namespace Ubitrack { namespace Util { 
 
-
-// helper structure to have an iterator to always the same element.
-// still needs some more functionality like subscript operator, etc.
-
 /**
  * @ingroup util
  * identity (iterator) template.
@@ -62,69 +58,120 @@ template< typename T >
 class identity
 	: public std::iterator< std::random_access_iterator_tag, T >
 {
-	typedef identity< T > self_type;
-	typedef self_type iterator; 
+	/// defining the base type of this iterator
+	typedef std::iterator< std::random_access_iterator_tag, T >	base_type;
+	
+	/// defining the own type
+	typedef identity< T >										self_type;
+	
+	/// defining the type of counter
+	typedef std::size_t											size_type;
 	
 protected:
-	const T& value;
-	std::size_t n;
+	/// value that should stay constant wihin the iterator whatever happens
+	const T&													value;
+	
+	/// variable that count whenever the iterator is incremented
+	size_t														counter;
 	
 public:
+	/** constructor accepting any element of the templated type */
     identity( const T& value_in )
         : std::iterator< std::random_access_iterator_tag, T >()
 		, value ( value_in )
-		, n( 0 ){ }
+		, counter( 0 )
+	{ }
 
+	/**
+	 * constructor accepting any element of the templated type and an unsigned integer type value.
+	 * The unsigned integer values signs the maximum iterations the container should allow.
+	 * this can support using the this iterator for the firs two arguments of standard
+	 * algorithms like \c std::transform .
+	 *
+	 * Example use case:\n
+	 @code
+	  Math::Matrix3x3 valueThatShouldNotChange;
+	  Util::identity< Math::Matrix3x3 > idIter( valueThatShouldNotChange, 4 ); // this will stop the algorithm after 4 iterations(increments)
+	  std::transform( idIter.begin(), idIter.end(), someOtherInputIterator, AgainSomeOtherOutputIterator, AnyValidFunctionPointer );
+	 @endcode
+	 *
+	 */
 	identity( const T& value_in, const std::size_t n_in )
         : std::iterator< std::random_access_iterator_tag, T >()
 		, value ( value_in )
-		, n( n_in ){ }
-	
-	iterator begin()
+		, counter( n_in )
+	{ }
+
+	/** assignment operator */
+	self_type& operator=( const self_type& other )
+	{
+		this->counter	= other.counter;
+		const_cast< T& > (this->value)	= ( other.value );
+		return *this;
+	}	
+
+	/** returning a new iterator pointing always to the contained object*/
+	self_type begin()
 	{
 		return self_type( value, 0 );
 	}
 	
-	iterator end()
+	/** returning a new iterator pointing always to the contained object */
+	self_type end()
 	{
-		return self_type( value, n );
+		return self_type( value, counter );
 	}
 	
-	const T& operator*()
+	/** dereference operator returning reference to the contained object */
+	const T& operator*() const
 	{
 		return value;
 	}
 	
-	const T* operator->()
+	/** pointer operator accessing to access functions of the included object*/
+	const T* operator->() const
 	{
 		return &value;
 	}
 	
+	/** increment operator for random access operations */
+	self_type& operator+( std::ptrdiff_t inc )
+	{
+		this->counter += inc;
+		return *this;
+	}
+	
+	/** increment operator, incrementing the internal counter */
 	self_type& operator++()
 	{
-		++n;
+		++counter;
 		return *this;
 	}
 	
+	/** decrement operator, decrementing the internal counter */
 	self_type& operator--()
 	{
-		--n;
+		--counter;
 		return *this;
 	}
 	
-	T& operator[] ( const std::size_t )
+	/** subscript operator, returning always the contained object no matter which values is requested*/
+	template< typename AnyType  >
+	T& operator[] ( const AnyType ) const
 	{
 		return value;
 	}
 	
+	/** inequality operator, used to check if iterator was incremented already enough */
 	bool operator!=( const self_type& rhs ) const
 	{
-		return ( n != rhs.n );
+		return ( counter != rhs.counter );
 	}
 	
+	/** equality operator, used to check if iterator was incremented already enough */
 	bool operator==( const self_type& rhs ) const
 	{
-		return ( n == rhs.n );
+		return ( counter == rhs.counter );
 	}
 };
 
