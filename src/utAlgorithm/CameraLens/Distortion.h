@@ -69,16 +69,20 @@ namespace internal {
 	inline void distort_impl( const VT1& radVec, const VT2& tanVec, const VT3& pointIn, VT4& result )
 	{
 		typedef typename VT1::value_type VType;
-		const VType r2 = pointIn( 0 ) * pointIn( 0 ) + pointIn( 1 ) * pointIn( 1 );
+		const VType x = pointIn( 0 );
+		const VType y = pointIn( 1 );
+		const VType xx = x*x;
+		const VType xy2 = x*y*2;
+		const VType yy = y*y;
+		const VType r2 = xx+yy;
 		const VType r4 = r2*r2;
 		const VType r6 = r4*r2;
 		const VType upper = ( 1 + radVec( 0 ) * r2 + radVec( 1 ) * r4 + radVec( 2 ) * r6 );
 		const VType lower = ( 1 + radVec( 3 ) * r2 + radVec( 4 ) * r4 + radVec( 5 ) * r6 );
+		const VType ratio = upper/lower;
 		
-		noalias( result ) = pointIn * ( upper  / lower );
-		
-		result( 0 ) +=  2 * tanVec ( 0 ) * pointIn( 0 ) * pointIn( 1 ) + tanVec( 1 ) * ( r2 + 2 * pointIn( 0 ) * pointIn( 0 ) );
-		result( 1 ) +=  2 * tanVec ( 1 ) * pointIn( 0 ) * pointIn( 1 ) + tanVec( 0 ) * ( r2 + 2 * pointIn( 1 ) * pointIn( 1 ) );
+		result( 0 ) = (x * ratio) +  tanVec ( 0 ) * xy2 + tanVec( 1 ) * ( r2 + xx * 2 );
+		result( 1 ) = (y * ratio) +  tanVec ( 1 ) * xy2 + tanVec( 0 ) * ( r2 + yy * 2 );
 	}
 
 

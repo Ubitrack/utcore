@@ -123,8 +123,8 @@ public:
 		// xx = x * (( 1 + k1 * r2 + k2 * r2*r2 + k3*r2*r2*r2) / ( 1+ k4 * r2 + k5 * r2*r2 + k6*r2*r2*r2) ) + ( 2 * p1 * x * y + p2 * ( r2 + 2 * x*x ) ) % for 6 params
 		// yy = y * (( 1 + k1 * r2 + k2 * r2*r2 + k3*r2*r2*r2) / ( 1+ k4 * r2 + k5 * r2*r2 + k6*r2*r2*r2) ) + ( 2 * p2 * x * y + p1 * ( r2 + 2 * y*y ) ) % for 6 params
 		// ccode( jacobian( [xx; yy], [x,y] ) )
-		// remark: the 3rd radial distortion parameter is integrated here, when it is null the term will have no effect
-		// the same for the other 3 (later) parameters
+		// remark: the 3rd radial distortion parameter is integrated here, when it is null the term will have no effect anyway
+		// the same for the other 3 (later) parameters ( but they need all to be set to zero)
 		
 		typedef typename MT::value_type VType;
 		const VType x = input( 0 );
