@@ -30,6 +30,21 @@
  */
 
 #include "NonPlanarPoseEstimation.h"
+
+// std
+#include <vector>
+#include <limits> // limit-max
+#include <numeric> // std::accumulate
+#include <algorithm> //std::transform
+
+// Boost
+#include <boost/numeric/ublas/matrix_proxy.hpp>
+
+// Lapack // -> not used at the moment, remove completely?
+// #ifdef HAVE_LAPACK
+// #include <boost/numeric/bindings/lapack/gesvd.hpp>
+// #endif
+
 #include "../PoseEstimation3D3D/AbsoluteOrientation.h" // -> orientation estimation
 #include <utMath/Blas1.h> // inner_product
 #include <utMath/Blas2.h> // outer_product
@@ -37,19 +52,13 @@
 #include <utMath/Geometry/PointProjection.h>
 #include <utMath/Geometry/PointTransformation.h>
 
-#include <vector>
-#include <limits> // limit-max
-#include <numeric> // std::accumulate
-#include <algorithm> //std::transform
 
-#include <boost/numeric/ublas/matrix_proxy.hpp>
+
 
 #include <log4cpp/Category.hh>
 static log4cpp::Category& optLogger( log4cpp::Category::getInstance( "Ubitrack.Calibration.2D3DPoseEstimation" ) );
 
-#ifdef HAVE_LAPACK
-#include <boost/numeric/bindings/lapack/gesvd.hpp>
-#endif
+
 // shortcuts to namespaces
 namespace ublas = boost::numeric::ublas;
 

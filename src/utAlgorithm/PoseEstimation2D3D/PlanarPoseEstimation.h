@@ -32,9 +32,10 @@
 #ifndef __UBITRACK_ALGORITHM_PLANAR_2D3D_POSE_ESTIMATION_H_INCLUDED__
 #define __UBITRACK_ALGORITHM_PLANAR_2D3D_POSE_ESTIMATION_H_INCLUDED__
 
+// std
+#include <vector>
 
-
-#include <utCore.h>
+#include <utCore.h>		// EXPORT_UBITRACK
 #include <utMath/Matrix.h>
 #include <utMath/Pose.h>
 #include <utMath/ErrorPose.h>

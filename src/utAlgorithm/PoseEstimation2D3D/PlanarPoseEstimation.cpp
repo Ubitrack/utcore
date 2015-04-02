@@ -31,6 +31,21 @@
 
  
 #include "PlanarPoseEstimation.h"
+
+// std
+#include <math.h>
+#include <iostream>
+
+// boost
+#include <boost/numeric/ublas/matrix_proxy.hpp>
+#include <boost/numeric/ublas/vector_proxy.hpp>
+
+
+#ifdef HAVE_LAPACK
+#include <boost/numeric/bindings/lapack/gesvd.hpp>
+#endif
+
+// Ubitrack
 #include "../Function/MultiplePointProjection.h"
 #include "../Function/MultiplePointProjectionError.h"
 #include "../Function/MultipleCameraProjectionError.h"
@@ -39,23 +54,9 @@
 #include "../Homography.h"
 #include "../Projection.h"
 
-
 #include <utMath/VectorFunctions.h>
 #include <utMath/MatrixOperations.h>
 #include <utMath/Stochastic/BackwardPropagation.h>
-
-
-#include <math.h>
-#include <iostream>
-
-
-#include <boost/numeric/ublas/matrix_proxy.hpp>
-#include <boost/numeric/ublas/vector_proxy.hpp>
-
-
-#ifdef HAVE_LAPACK
-#include <boost/numeric/bindings/lapack/gesvd.hpp>
-#endif
 
 //#define OPTIMIZATION_LOGGING
 // #include <log4cpp/Category.hh>
@@ -82,7 +83,7 @@ Math::Pose poseFromHomographyImpl( const Matrix< T, 3, 3 >& H, const Matrix< T, 
 	// all my tests seem to point to positive, therefore :
 	// make sure the z-coordinate is positive
 	if ( R( 2, 2 ) > 0 )
-		R *= -1.0;
+		R *= -1;
 
 	// compute length of the first two colums
 	const T fXLen = ublas::norm_2( ublas::column( R, 0 ) );

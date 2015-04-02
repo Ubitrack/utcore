@@ -32,14 +32,15 @@
 #ifndef __UBITRACK_ALGORITHM_NON_PLANAR_2D3D_POSE_ESTIMATION_H_INCLUDED__
 #define __UBITRACK_ALGORITHM_NON_PLANAR_2D3D_POSE_ESTIMATION_H_INCLUDED__
 
-#include <utCore.h>
-#include <utMath/Pose.h>
-
+// std
 #include <vector>
 
-namespace Ubitrack { namespace Algorithm { namespace PoseEstimation2D3D {
+// Ubitrack
+#include <utCore.h>		// EXPORT_UBITRACK
+#include <utMath/Pose.h>
 
-#ifdef HAVE_LAPACK
+
+namespace Ubitrack { namespace Algorithm { namespace PoseEstimation2D3D {
 
 /**
  * @ingroup calibration tracking_algorithms
@@ -83,7 +84,9 @@ namespace Ubitrack { namespace Algorithm { namespace PoseEstimation2D3D {
  * @param max_iter maximum number of allowed iterations
  * @param min_error the minimum change in error allowed to converge
  * @return flag that signs if the algorithm converged due to minimal error
- */
+ */ 
+#ifdef HAVE_LAPACK
+
 UBITRACK_EXPORT bool estimatePose6D_2D3D(  const std::vector< Math::Vector2d >& p2D, Math::Pose& pose,
 	const std::vector< Math::Vector3d >& p3D, std::size_t &max_iter, double &min_error );
 
