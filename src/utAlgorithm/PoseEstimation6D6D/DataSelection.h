@@ -543,9 +543,9 @@ void generate_relative_pose6D_impl( const InputIterator itBegin, const InputIter
 		InputIterator itPose = itBegin;
 		for( ;itPose != itEnd; )
 		{
-			Ubitrack::Util::identity< Math::Pose > id( *itPose );
-			std::advance( itPose, 1 );
-			std::transform( itPose , itEnd, id.begin(), itOut, Ubitrack::Math::relative_pose< desired_pose_type, direction >() );
+			Ubitrack::Util::identity< const Math::Pose > id( *itPose );
+			std::advance( itPose, 1u );
+			std::transform( itPose , itEnd, id.cbegin(), itOut, Ubitrack::Math::relative_pose< desired_pose_type, direction >() );
 		}
 	}
 }

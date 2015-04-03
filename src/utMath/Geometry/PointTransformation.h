@@ -249,7 +249,7 @@ inline void transform_points( const Math::Matrix< T, M, N > &transformation, con
 
 	// std::transform( iBegin, iEnd, iOut, std::bind1st( TransformPoint< T, M, N, vector_type_in >(), transformation ) );
 	const std::size_t n = std::distance( iBegin, iEnd );
-	Ubitrack::Util::identity< Math::Matrix< T, M, N > > id_container( transformation, n );
+	Ubitrack::Util::identity< const Math::Matrix< T, M, N > > id_container( transformation, n );
 	std::transform( id_container.begin(), id_container.end(), iBegin, iOut, TransformPoint() );
 }
 

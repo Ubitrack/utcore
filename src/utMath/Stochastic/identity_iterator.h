@@ -55,123 +55,192 @@ namespace Ubitrack { namespace Util {
  * @tparam T the type of the element the container should store.
  */ 
 template< typename T >
-class identity
-	: public std::iterator< std::random_access_iterator_tag, T >
+struct identity
 {
-	/// defining the base type of this iterator
-	typedef std::iterator< std::random_access_iterator_tag, T >	base_type;
-	
-	/// defining the own type
 	typedef identity< T >										self_type;
 	
-	/// defining the type of counter
-	typedef std::size_t											size_type;
+	T&															value;
 	
-protected:
-	/// value that should stay constant wihin the iterator whatever happens
-	const T&													value;
-	
-	/// variable that count whenever the iterator is incremented
 	size_t														counter;
 	
-public:
-	/** constructor accepting any element of the templated type */
-    identity( const T& value_in )
-        : std::iterator< std::random_access_iterator_tag, T >()
-		, value ( value_in )
+	identity( T& value_in )
+		: value ( value_in )
 		, counter( 0 )
-	{ }
-
-	/**
-	 * constructor accepting any element of the templated type and an unsigned integer type value.
-	 * The unsigned integer values signs the maximum iterations the container should allow.
-	 * this can support using the this iterator for the firs two arguments of standard
-	 * algorithms like \c std::transform .
-	 *
-	 * Example use case:\n
-	 @code
-	  Math::Matrix3x3 valueThatShouldNotChange;
-	  Util::identity< Math::Matrix3x3 > idIter( valueThatShouldNotChange, 4 ); // this will stop the algorithm after 4 iterations(increments)
-	  std::transform( idIter.begin(), idIter.end(), someOtherInputIterator, AgainSomeOtherOutputIterator, AnyValidFunctionPointer );
-	 @endcode
-	 *
-	 */
-	identity( const T& value_in, const std::size_t n_in )
-        : std::iterator< std::random_access_iterator_tag, T >()
-		, value ( value_in )
+	{}
+	
+	identity( T& value_in, const std::size_t n_in )
+		: value ( value_in )
 		, counter( n_in )
 	{ }
-
-	/** assignment operator */
-	self_type& operator=( const self_type& other )
+	
+	/** @todo change this to random access iterator or maybe reverse_iterator */
+	struct iterator
+		: public std::iterator< std::forward_iterator_tag, T >
 	{
-		this->counter	= other.counter;
-		const_cast< T& > (this->value)	= ( other.value );
-		return *this;
-	}	
+		/// defining the base type of this iterator
+		typedef std::iterator< std::forward_iterator_tag, T >		base_type;
+		
+		/// defining the own type
+		typedef iterator											self_type;
+		
+		/// defining the type of counter
+		typedef std::size_t											size_type;
+		
+	protected:
+		/// value that should stay constant within the iterator whatever happens
+		T&															value;
+		
+		/// variable that count whenever the iterator is incremented
+		size_t														counter;
+		
+	public:
+		/** constructor accepting any element of the templated type */
+		iterator( T& value_in )
+			: base_type()
+			, value ( value_in )
+			, counter( 0 )
+		{ }
 
+		/**
+		 * constructor accepting any element of the templated type and an unsigned integer type value.
+		 * The unsigned integer values signs the maximum iterations the container should allow.
+		 * this can support using the this iterator for the firs two arguments of standard
+		 * algorithms like \c std::transform .
+		 *
+		 * Example use case:\n
+		 @code
+		  Math::Matrix3x3 valueThatShouldNotChange;
+		  Util::identity< Math::Matrix3x3 > idIter( valueThatShouldNotChange, 4 ); // this will stop the algorithm after 4 iterations(increments)
+		  std::transform( idIter.begin(), idIter.end(), someOtherInputIterator, AgainSomeOtherOutputIterator, AnyValidFunctionPointer );
+		 @endcode
+		 *
+		 */
+		iterator( T& value_in, const std::size_t n_in )
+			: base_type()
+			, value ( value_in )
+			, counter( n_in )
+		{ }
+		
+		/** dereference operator returning reference to the contained object */
+		T& operator*()
+		{
+			return value;
+		}
+		
+		/** pointer operator accessing to access functions of the included object*/
+		T* operator->()
+		{
+			return &value;
+		}
+		
+		self_type& operator+( const self_type& other )
+		{
+			this->counter += other.counter;
+			return *this;
+		}
+		
+		self_type& operator-( const self_type& other )
+		{
+			this->counter -= other.counter;
+			return *this;
+		}
+		
+		/** increment operator for random access operations */
+		self_type& operator+( const std::ptrdiff_t inc )
+		{
+			this->counter += inc;
+			return *this;
+		}
+		
+		/** decrement operator for random access operations */
+		self_type& operator-( const std::ptrdiff_t dec )
+		{
+			this->counter -= dec;
+			return *this;
+		}
+		
+		self_type& operator+=( const std::ptrdiff_t inc )
+		{
+			this->counter += inc;
+			return *this;
+		}
+		
+		self_type& operator-=( const std::ptrdiff_t dec )
+		{
+			this->counter -= dec;
+			return *this;
+		}
+		
+		/** increment operator, incrementing the internal counter */
+		self_type& operator++()
+		{
+			++counter;
+			return *this;
+		}
+		
+		/** decrement operator, decrementing the internal counter */
+		self_type& operator--()
+		{
+			--counter;
+			return *this;
+		}
+		
+		/** subscript operator, returning always the contained object no matter which values is requested*/
+		template< typename AnyType  >
+		T& operator[] ( const AnyType ) const
+		{
+			return value;
+		}
+		
+		/** inequality operator, used to check if iterator was incremented already enough */
+		bool operator!=( const self_type& rhs ) const
+		{
+			return ( counter != rhs.counter );
+		}
+		
+		/** equality operator, used to check if iterator was incremented already enough */
+		bool operator==( const self_type& rhs ) const
+		{
+			return ( counter == rhs.counter );
+		}
+		
+		/** is lesser operator */
+		bool operator<( const self_type& rhs ) const
+		{
+			return ( counter < rhs.counter );
+		}
+		
+		/** is greater operator */
+		bool operator>( const self_type& rhs ) const
+		{
+			return ( counter > rhs.counter );
+		}
+	};
+	
+	typedef const iterator										const_iterator;
+	
 	/** returning a new iterator pointing always to the contained object*/
-	self_type begin()
+	iterator begin()
 	{
-		return self_type( value, 0 );
+		return iterator( value, 0 );
 	}
 	
 	/** returning a new iterator pointing always to the contained object */
-	self_type end()
+	iterator end()
 	{
-		return self_type( value, counter );
+		return iterator( value, counter );
 	}
 	
-	/** dereference operator returning reference to the contained object */
-	const T& operator*() const
+	/** returning a new iterator pointing always to the contained object*/
+	const_iterator cbegin() const
 	{
-		return value;
+		return const_iterator( value, 0 );
 	}
 	
-	/** pointer operator accessing to access functions of the included object*/
-	const T* operator->() const
+	/** returning a new iterator pointing always to the contained object */
+	const_iterator cend() const
 	{
-		return &value;
-	}
-	
-	/** increment operator for random access operations */
-	self_type& operator+( std::ptrdiff_t inc )
-	{
-		this->counter += inc;
-		return *this;
-	}
-	
-	/** increment operator, incrementing the internal counter */
-	self_type& operator++()
-	{
-		++counter;
-		return *this;
-	}
-	
-	/** decrement operator, decrementing the internal counter */
-	self_type& operator--()
-	{
-		--counter;
-		return *this;
-	}
-	
-	/** subscript operator, returning always the contained object no matter which values is requested*/
-	template< typename AnyType  >
-	T& operator[] ( const AnyType ) const
-	{
-		return value;
-	}
-	
-	/** inequality operator, used to check if iterator was incremented already enough */
-	bool operator!=( const self_type& rhs ) const
-	{
-		return ( counter != rhs.counter );
-	}
-	
-	/** equality operator, used to check if iterator was incremented already enough */
-	bool operator==( const self_type& rhs ) const
-	{
-		return ( counter == rhs.counter );
+		return const_iterator( value, counter );
 	}
 };
 

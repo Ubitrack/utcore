@@ -173,7 +173,7 @@ inline void project_points( const Math::Matrix< T, M, N > &projection, const For
 	UBITRACK_STATIC_ASSERT( ( Ubitrack::Util::is_same< vector_type_out, Math::Vector< T, 2 > >::value ), OUTPUT_VECTOR_NEEDS_TO_BE_DEFINED_WITH_2_DIMENSIONS );
 
 	const std::size_t n = std::distance( iBegin, iEnd );
-	Ubitrack::Util::identity< Math::Matrix< T, 3, 4 > > id_container( projection, n );
+	Ubitrack::Util::identity< const Math::Matrix< T, 3, 4 > > id_container( projection, n );
 	std::transform( id_container.begin(), id_container.end(), iBegin, iOut, ProjectPoint() );
 	// std::transform( iBegin, iEnd, iOut, std::bind1st( ProjectPoint< T, M, N, vector_type_in >(), projection ) );
 }
