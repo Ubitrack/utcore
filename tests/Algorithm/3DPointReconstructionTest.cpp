@@ -82,7 +82,7 @@ void TestMulitpleCameras( const std::size_t n_runs , const T epsilon )
 		// determine the amount of cameras to be used
 		const std::size_t n_cams( Math::Random::distribute_uniform< std::size_t >( 2, 10 ) );
 		
-		// intialize some cameras:
+		// initialize some cameras:
 		std::vector< Math::Matrix< T, 3, 4 > > matrices; // stores projection matrices
 		matrices.reserve( n_cams );
 		
@@ -99,7 +99,7 @@ void TestMulitpleCameras( const std::size_t n_runs , const T epsilon )
 		// generate some 2D observation of 3D random vector
 		std::vector< Math::Vector< T, 2 > > pts; //stores image points
 		pts.reserve( n_cams );
-		std::transform( matrices.begin(), matrices.end(), Util::identity< Math::Vector< T, 3 > >( randVec ).begin()
+		std::transform( matrices.begin(), matrices.end(), Util::identity< const Math::Vector< T, 3 > >( randVec ).begin()
 			, std::back_inserter( pts ), Math::Geometry::ProjectPoint() );
 
 		//estimate final result
