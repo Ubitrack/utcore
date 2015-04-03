@@ -103,15 +103,15 @@ void pose6D_selection_impl( const InputIterator itBeginEye, const InputIterator 
 		pose_type nearestPoseA;
 		pose_type nearestPoseB;
 		
-		std::vector< size_t >::iterator itIndex = indices.begin();
-		std::vector< size_t >::iterator itIndexEnd = indices.end();
+		std::vector< size_t >::const_iterator itIndex = indices.begin();
+		const std::vector< size_t >::const_iterator itIndexEnd = indices.end();
 		
-		typename std::vector< pose_type >::iterator itPoseA = dualA.begin();
-		typename std::vector< pose_type >::iterator itPoseB = dualB.begin();
+		typename std::vector< pose_type >::const_iterator itPoseA = dualA.begin();
+		typename std::vector< pose_type >::const_iterator itPoseB = dualB.begin();
 		
 		for( ; itIndex != itIndexEnd; ++itIndex, ++itPoseA, ++itPoseB )
 		{
-			if( *itIndexEnd == i )
+			if( i == (*itIndex ) )
 			{
 				const T d = Math::RotationDistance< pose_type >()( *itCodebook, *itPoseA );
 				if( d < max_dist )
