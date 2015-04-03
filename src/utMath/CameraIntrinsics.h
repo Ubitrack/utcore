@@ -257,7 +257,7 @@ public:
 		// angle ~= 2*arctan( d/(2*f)) -> rad -> degree: * (180/pi) 
 		static const T pi = std::acos( static_cast< T >( -1 ) ); //pi ~= acos(-1)
 		static const T factor = (360/pi);
-		const T squaredDiag  = ( dimension( 0 )*dimension( 0 )+dimension( 1 )*dimension( 1 ) );
+		const std::size_t squaredDiag  = ( dimension( 0 )*dimension( 0 )+dimension( 1 )*dimension( 1 ) );
 		const T squaredFocal = ( matrix( 0, 0 )*matrix( 0, 0 )+matrix( 1, 1 )*matrix( 1, 1 ) );
 		return factor * std::atan( std::sqrt( squaredDiag / (4*squaredFocal) ) );
 	}
