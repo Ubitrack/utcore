@@ -34,16 +34,19 @@
 
 #include "BundleAdjustment.h"
 
-#include <utMath/Vector.h>
-#include <utUtil/Exception.h>
-
-//#define OPTIMIZATION_LOGGING // use define before optimization functions
-#include <utMath/Optimization/LevenbergMarquardt.h>
-
 #include <memory> // std::allocator
 #include <numeric> //std::accumulate
 #include <iterator> // std::iterator_traits
 #include <functional> // std::mem_fun_ref
+
+#include <utMath/Vector.h>
+#include <utUtil/Exception.h>
+
+#ifdef HAVE_LAPACK
+//#define OPTIMIZATION_LOGGING // use define before optimization functions
+#include <utMath/Optimization/LevenbergMarquardt.h>
+#endif
+
 
 // get a logger
 #include <log4cpp/Category.hh>
@@ -285,7 +288,7 @@ void simpleBundleAdjustmentImpl (
 	
 	// will be done more nicely later, promise
 	ForwardIterator3 pts3D = i3DPtsBegin;
-	for ( std::size_t pointIndex = 0; pointIndex < n_pts3D; ++pointIndex, ++poseIter, ++pts3D )
+	for ( std::size_t pointIndex = 0; pointIndex < n_pts3D; ++pointIndex, ++pts3D )
 	{
 		const std::size_t index = (n_cams*7)+3*pointIndex;
 		
