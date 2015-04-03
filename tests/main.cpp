@@ -13,7 +13,9 @@ using boost::unit_test::test_suite;
 // run with --log_level=all to get some more output
 test_suite* init_unit_test_suite( int, char* [] )
 {
-	Ubitrack::Util::initLogging();
+#ifndef NDEBUG
+	// Ubitrack::Util::initLogging();
+#endif
 	
 	// create a test suite
 	test_suite* allTests = BOOST_TEST_SUITE( "utcore" );

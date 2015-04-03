@@ -7,6 +7,11 @@ env = masterEnv.Clone()
 env.AppendUnique( **mergeOptions( utcore_all_options ) )
 
 # automatically glob files from subdirectories
+if not have_lapack:
+	print "Lapack is missing -- not building test framework"
+	success = False
+	Return('success')
+	
 subdirs = [ 'Math', 'MathUtil', 'Geometry', 'Stochastic', 'Algorithm' ]
 
 headers = []
