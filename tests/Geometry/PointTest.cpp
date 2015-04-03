@@ -134,8 +134,8 @@ void testBasicPointProjection( const std::size_t n )
 	cam( 0, 0 ) = Random::distribute_uniform< T >( 500, 800 );
 	cam( 1, 1 ) = Random::distribute_uniform< T >( 500, 800 );
 	// take care of ubitracks camera interpretation -> last column negative entries
-	cam( 0, 2 ) = -screenResolution[ 0 ] * 0.5;
-	cam( 1, 2 ) = -screenResolution[ 1 ] * 0.5;
+	cam( 0, 2 ) = -screenResolution[ 0 ] / 2;
+	cam( 1, 2 ) = -screenResolution[ 1 ] / 2;
 	cam( 2, 2 ) = -1;
 	
 	// projection to 2D image plane
