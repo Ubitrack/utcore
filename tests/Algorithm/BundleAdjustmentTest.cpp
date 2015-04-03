@@ -69,8 +69,8 @@ void TestMarkerBundleAdjustment( const std::size_t n_runs, const T epsilon )
 		Matrix< T, 3, 3 > cam( Matrix< T, 3, 3 >::identity() );
 		cam( 0, 0 ) = Random::distribute_uniform< T >( 500, 800 );
 		cam( 1, 1 ) = Random::distribute_uniform< T >( 500, 800 );
-		cam( 0, 2 ) = screenResolution[ 0 ] * 0.5;
-		cam( 1, 2 ) = screenResolution[ 1 ] * 0.5;
+		cam( 0, 2 ) = screenResolution[ 0 ] / 2;
+		cam( 1, 2 ) = screenResolution[ 1 ] / 2;
 		cam( 2, 2 ) = 1;
 			
 		// typename Random::Vector< T, 2 >::Normal randPixelNoise( 0, 0.25 ); // gaussian noise for 2d Pixels -> usually very below 1 pixel
