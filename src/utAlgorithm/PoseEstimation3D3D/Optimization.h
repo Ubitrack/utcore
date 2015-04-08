@@ -129,9 +129,9 @@ public:
 	{
 		// expected order: tx, ty, tz, qx, qy, qz, qw.
 		
-		const VType tx = input[ 0 ];
-		const VType ty = input[ 1 ];
-		const VType tz = input[ 2 ];
+		// const VType tx = input[ 0 ];
+		// const VType ty = input[ 1 ];
+		// const VType tz = input[ 2 ];
 		const VType n = std::sqrt( input[ 3 ]*input[ 3 ]+ input[ 4 ]*input[ 4 ] + input[ 5 ]*input[ 5 ] +input[ 6 ]*input[ 6 ] );
 		const VType qx = input[ 3 ] / n;
 		const VType qy = input[ 4 ] / n;
