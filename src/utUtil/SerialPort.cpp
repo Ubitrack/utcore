@@ -38,6 +38,8 @@
 #include <string.h>
 #include <time.h>
 
+#include <utUtil/Exception.h>
+
 
 namespace Ubitrack { namespace Util {
 

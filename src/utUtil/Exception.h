@@ -31,10 +31,12 @@
 #ifndef __UBITRACK_UTIL_EXCEPTION_H_INCLUDED__
 #define __UBITRACK_UTIL_EXCEPTION_H_INCLUDED__
 
-#include <stdexcept>
+
+#include <iosfwd>
 #include <string>
-#include <iostream>
-#include <utCore.h>
+#include <stdexcept>
+
+#include <utCore.h>	// UBITRACK_EXPORT
 
 namespace Ubitrack { namespace Util {
 

@@ -22,14 +22,19 @@
 */
 
 #include "GlobFiles.h"
-#include <log4cpp/Category.hh>
+
+// Boost
 #include <boost/regex.hpp>
 
-#include <algorithm>
+// Ubitrack
+#include <utUtil/Exception.h>
+
+#include <log4cpp/Category.hh>
+static log4cpp::Category& logger( log4cpp::Category::getInstance( "Ubitrack.Util.GlobFiles" ) );
 
 namespace Ubitrack { namespace Util {
 
-static log4cpp::Category& logger( log4cpp::Category::getInstance( "Ubitrack.Util.GlobFiles" ) );
+
 
 void globFiles( const std::string& directory, const std::string & patternString, std::list< boost::filesystem::path >& files, bool globDirectories)
 {

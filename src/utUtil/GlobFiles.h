@@ -31,8 +31,9 @@
 #ifndef __UBITRACK_UTIL_GLOBFILES_H_INCLUDED__
 #define __UBITRACK_UTIL_GLOBFILES_H_INCLUDED__
 
-#include <string>
 #include <list>
+#include <string>
+
 
 // Needed until boost version 1.45 because otherwise the deprecated version 2 would be used 
 // (see also config/boost where version 2 is currently enforced)
@@ -40,8 +41,7 @@
 #define BOOST_FILESYSTEM_VERSION 3
 #include <boost/filesystem.hpp>
 
-#include <utUtil/Exception.h>
-#include <utCore.h>
+#include <utCore.h>	// UBITRACK_EXPORT
 
 namespace Ubitrack { namespace Util {
 

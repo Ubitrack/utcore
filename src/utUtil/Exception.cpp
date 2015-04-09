@@ -29,8 +29,11 @@
  */ 
  
 #include "Exception.h"
+
+// std
+#include <iostream>
+
 #include <log4cpp/Category.hh>
- 
 static log4cpp::Category& logger( log4cpp::Category::getInstance( "Ubitrack.Util.Exception" ) );
 
 namespace Ubitrack { namespace Util {

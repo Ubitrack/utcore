@@ -36,7 +36,6 @@
 
 #include <string>
 #include <utCore.h>
-#include <utUtil/Exception.h>
 
 #ifdef _WIN32
 
