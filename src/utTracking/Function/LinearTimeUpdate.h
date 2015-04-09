@@ -63,8 +63,8 @@ public:
 	 * @param input vector with (vectorSize * (1 + \c order)) elements containing the input vector and \c order derivatives
 	 * @param jacobian size-by-(size*(1+order)) matrix to put the jacobian into
 	 */
-	template< class VT1, class VT2, class MT > 
-	void evaluateWithJacobian( VT1& result, const VT2& input, MT& jacobian ) const
+	template< class VectorType1, class VectorType2, class MT > 
+	void evaluateWithJacobian( VectorType1& result, const VectorType2& input, MT& jacobian ) const
 	{
 		namespace ublas = boost::numeric::ublas;
 

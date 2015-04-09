@@ -28,17 +28,18 @@
  * @author Daniel Pustka <daniel.pustka@in.tum.de>
  */ 
 
-#ifndef __UBITRACK_ERROR_COVARIANCETRANSFORM_H_INCLUDED__
-#define __UBITRACK_ERROR_COVARIANCETRANSFORM_H_INCLUDED__
- 
+#ifndef __UBITRACK_MATH_STOCHASTIC_COVARIANCETRANSFORM_H_INCLUDED__
+#define __UBITRACK_MATH_STOCHASTIC_COVARIANCETRANSFORM_H_INCLUDED__
+
+
 #include <boost/numeric/ublas/vector_proxy.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 #include <boost/numeric/bindings/blas/blas3.hpp>
 #include <boost/numeric/bindings/traits/ublas_matrix.hpp>
 
-#include <utMath/Vector.h>
-#include <utMath/Matrix.h>
-#include <utMath/ErrorVector.h>
+#include "../Vector.h"
+#include "../Matrix.h"
+#include "../ErrorVector.h"
 
 namespace Ubitrack { namespace Math { namespace Stochastic {
 
@@ -49,14 +50,14 @@ namespace Ubitrack { namespace Math { namespace Stochastic {
  * The function to apply must be given as a function object of class F that overloads operator()
  * in the following way:
  * @verbatim
- * template< class VT1, class VT2, class MT > 
- *   void evaluateWithJacobian( VT1& result, const VT2& input, MT& jacobian ) const
+ * template< class VectorType1, class VectorType2, class MT > 
+ *   void evaluateWithJacobian( VectorType1& result, const VectorType2& input, MT& jacobian ) const
  * @endverbatim
  * The arguments have the following meaning:
  * - \c result: resulting vector (out)
  * - \c input: the value of the input vector (in)
  * - \c matrix object to store the jacobian in (out)
- * It can be assumed that \c VT1, \c VT2 and \c MT have the usual Boost uBlas matrix/vector semantics
+ * It can be assumed that \c VectorType1, \c VectorType2 and \c MT have the usual Boost uBlas matrix/vector semantics
  *
  * @param F function class as described above
  * @param M size of the resulting vector
@@ -67,18 +68,19 @@ namespace Ubitrack { namespace Math { namespace Stochastic {
  * @param inCov covariance of input vector
  * @return a new \c ErrorVector containing the transformed vector and covariance
  */
-template< class F, class VT1, class MT1, class VT2, class MT2 > 
-void transformWithCovariance( const F& f, VT1& resultVec, MT1& resultCov, const VT2& inVec, const MT2& inCov )
+template< class F, class VectorType1, class MT1, class VectorType2, class MT2 > 
+void transformWithCovariance( const F& f, VectorType1& resultVec, MT1& resultCov, const VectorType2& inVec, const MT2& inCov )
 {
 	namespace ublas = boost::numeric::ublas;
-	typedef typename VT1::value_type VType;
+	typedef typename VectorType1::value_type		VType;
+	typedef typename Math::Matrix< VType >	MatrixType;
 
 	// compute result and jacobian
-	Math::Matrix< VType, 0, 0 > jacobian( resultVec.size(), inVec.size() );
+	MatrixType jacobian( resultVec.size(), inVec.size() );
 	f.evaluateWithJacobian( resultVec, inVec, jacobian );
 	
 	// transform covariance
-	Math::Matrix< VType, 0, 0 > im( ublas::prod( jacobian, inCov ) );
+	MatrixType im( ublas::prod( jacobian, inCov ) );
 	noalias( resultCov ) = ublas::prod( im, ublas::trans( jacobian ) );
 }
 
@@ -117,19 +119,20 @@ void transformRangeInternalWithCovariance( const F& f, VT& value, MT& covariance
 	unsigned iOutBegin, unsigned iOutEnd, unsigned iInBegin, unsigned iInEnd )
 {
 	namespace ublas = boost::numeric::ublas;
-	typedef typename VT::value_type VType;
+	typedef typename VT::value_type			VType;
+	typedef typename Math::Matrix< VType >	MatrixType;
 	
 	const unsigned nOutSize = iOutEnd - iOutBegin;
 	const unsigned nInSize = iInEnd - iInBegin;
 	Math::Vector< VType > result( nOutSize );
 	
 	// compute result and jacobian
-	Math::Matrix< VType, 0, 0 > jacobian( nOutSize, nInSize );
+	MatrixType jacobian( nOutSize, nInSize );
 	f.evaluateWithJacobian( result, ublas::subrange( value, iInBegin, iInEnd ), jacobian );
 	ublas::subrange( value, iOutBegin, iOutEnd ) = result;
 	
 	// transform covariance in a block-matrix fashion
-	Math::Matrix< VType, 0, 0 > im( ublas::prod( jacobian, ublas::subrange( covariance, iInBegin, iInEnd, 0, value.size() ) ) );
+	MatrixType im( ublas::prod( jacobian, ublas::subrange( covariance, iInBegin, iInEnd, 0, value.size() ) ) );
 	
 	// the left/upper row/column
 	if ( iOutBegin > 0 )
@@ -168,22 +171,24 @@ void transformRangeInternalWithCovariance( const F& f, ErrorVector< VType, N >& 
  * Transforms two vectors by some function f and computes the result with covariance
  *
  */
-template< class F, class VT1, class MT1, class VT2, class MT2, class VT3, class MT3 > 
-void binarytransformWithCovariance( const F& f, VT1& resultVec, MT1& resultCov, 
-	const VT2& inVec1, const MT2& inCov1, const VT3& inVec2, const MT3& inCov2 )
+template< class F, class VectorType1, class MT1, class VectorType2, class MT2, class VT3, class MT3 > 
+void binarytransformWithCovariance( const F& f, VectorType1& resultVec, MT1& resultCov, 
+	const VectorType2& inVec1, const MT2& inCov1, const VT3& inVec2, const MT3& inCov2 )
 {
 	namespace ublas = boost::numeric::ublas;
-	typedef typename VT1::value_type VType;
+	typedef typename VectorType1::value_type VType;
+	typedef typename Math::Matrix< VType >	MatrixType;
+	
 
 	// compute result and jacobian
-	Math::Matrix< VType, 0, 0 > jacobian1( resultVec.size(), inVec1.size() );
-	Math::Matrix< VType, 0, 0 > jacobian2( resultVec.size(), inVec2.size() );
+	MatrixType jacobian1( resultVec.size(), inVec1.size() );
+	MatrixType jacobian2( resultVec.size(), inVec2.size() );
 	f.evaluateWithJacobian( resultVec, inVec1, inVec2, jacobian1, jacobian2 );
 	
 	// transform covariance
-	Math::Matrix< VType, 0, 0 > im1( ublas::prod( jacobian1, inCov1 ) );
+	MatrixType im1( ublas::prod( jacobian1, inCov1 ) );
 	noalias( resultCov ) = ublas::prod( im1, ublas::trans( jacobian1 ) );
-	Math::Matrix< VType, 0, 0 > im2( ublas::prod( jacobian2, inCov2 ) );
+	MatrixType im2( ublas::prod( jacobian2, inCov2 ) );
 	noalias( resultCov ) += ublas::prod( im2, ublas::trans( jacobian2 ) );
 }
 
@@ -200,4 +205,4 @@ ErrorVector< VType, M > binarytransformWithCovariance( const F& f, const ErrorVe
 
 }}} // namespace Ubitrack::Math::Stochastic
 
-#endif
+#endif	// __UBITRACK_MATH_STOCHASTIC_COVARIANCETRANSFORM_H_INCLUDED__

@@ -30,15 +30,15 @@
  * @author Daniel Pustka <daniel.pustka@in.tum.de>
  */
 
-#ifndef __UBITRACK_TRACKING_KALMAN_H_INCLUDED__
-#define __UBITRACK_TRACKING_KALMAN_H_INCLUDED__
+#ifndef __UBITRACK_MATH_STOCHASTIC_KALMAN_H_INCLUDED__
+#define __UBITRACK_MATH_STOCHASTIC_KALMAN_H_INCLUDED__
 
 
 #ifdef HAVE_LAPACK
  
 #include <boost/numeric/bindings/lapack/posv.hpp>
 #include <boost/numeric/bindings/lapack/gesv.hpp>
-#include <utMath/ErrorVector.h>
+#include "../ErrorVector.h"
 
 // to turn on logging of internal processing, create a log4cpp::Category object called "logger"
 // and #define KALMAN_LOGGING before including this header 
@@ -78,6 +78,8 @@ void kalmanMeasurementUpdate( VState& state, MStateCov& stateCov, const MF& meas
 
 	// some useful shortcuts
 	typedef typename VState::value_type VType;
+	typedef typename Math::Matrix< VType > MatrixType;
+	
 	const std::size_t inSize( iEnd - iBegin );
 	const std::size_t measSize( measurement.size() );
 	const std::size_t stateSize( state.size() );
@@ -87,14 +89,14 @@ void kalmanMeasurementUpdate( VState& state, MStateCov& stateCov, const MF& meas
 	
 	// compute predicted measurement and jacobian
 	Math::Vector< VType > predicted( measSize );
-	Math::Matrix< VType, 0, 0 > jacobian( measSize, inSize );
+	MatrixType jacobian( measSize, inSize );
 	measurementFunction.evaluateWithJacobian( predicted, ublas::subrange( state, iBegin, iEnd ), jacobian );
 	KALMAN_LOG_DEBUG( "predicted: " << predicted );
 	KALMAN_LOG_TRACE( "jacobian: " << jacobian );
 	
 	// compute predicted measurement error
-	Math::Matrix< VType, 0, 0 > im( ublas::prod( jacobian, ublas::subrange( stateCov, iBegin, iEnd, iBegin, iEnd ) ) );
-	Math::Matrix< VType, 0, 0 > matInv( ublas::prod( im, ublas::trans( jacobian ) ) );
+	MatrixType im( ublas::prod( jacobian, ublas::subrange( stateCov, iBegin, iEnd, iBegin, iEnd ) ) );
+	MatrixType matInv( ublas::prod( im, ublas::trans( jacobian ) ) );
 	noalias( matInv ) += measurementCov;
 
 	KALMAN_LOG_TRACE( "before inversion: " << matInv );
@@ -117,11 +119,11 @@ void kalmanMeasurementUpdate( VState& state, MStateCov& stateCov, const MF& meas
 	KALMAN_LOG_TRACE( "after inversion: " << matInv );
 	
 	// matTemp = P * H^T
-	Math::Matrix< VType, 0, 0 > matTemp( ublas::prod( 
+	MatrixType matTemp( ublas::prod( 
 		ublas::subrange( stateCov, 0, stateSize, iBegin, iEnd ), ublas::trans( jacobian ) ) );
 
 	// compute kalman gain
-	Math::Matrix< VType, 0, 0 > kalmanGain( stateSize, measSize );
+	MatrixType kalmanGain( stateSize, measSize );
 	blas::symm( 'R', 'U', matInv, matTemp, kalmanGain );
 	KALMAN_LOG_DEBUG( "kalman gain: " << kalmanGain );
 
@@ -168,6 +170,7 @@ void kalmanMeasurementUpdateIdentity( VState& state, MStateCov& stateCov,
 
 	// some useful shortcuts
 	typedef typename VState::value_type VType;
+	typedef typename Math::Matrix< VType > MatrixType;
 	const std::size_t measSize( measurement.size() );
 	const std::size_t stateSize( state.size() );
 
@@ -179,7 +182,7 @@ void kalmanMeasurementUpdateIdentity( VState& state, MStateCov& stateCov,
 	KALMAN_LOG_DEBUG( "predicted: " << predicted );
 	
 	// compute predicted measurement error
-	Math::Matrix< VType, 0, 0 > matInv( ublas::subrange( stateCov, iBegin, iEnd, iBegin, iEnd ) + measurementCov );
+	MatrixType matInv( ublas::subrange( stateCov, iBegin, iEnd, iBegin, iEnd ) + measurementCov );
 
 	KALMAN_LOG_TRACE( "before inversion: " << matInv );
 	if ( lapack::potrf( 'U', matInv ) == 0 )
@@ -200,10 +203,10 @@ void kalmanMeasurementUpdateIdentity( VState& state, MStateCov& stateCov,
 	KALMAN_LOG_TRACE( "after inversion: " << matInv );
 	
 	// matTemp = P * H^T
-	Math::Matrix< VType, 0, 0 > matTemp( ublas::subrange( stateCov, 0, stateSize, iBegin, iEnd ) );
+	MatrixType matTemp( ublas::subrange( stateCov, 0, stateSize, iBegin, iEnd ) );
 	
 	// compute kalman gain
-	Math::Matrix< VType, 0, 0 > kalmanGain( stateSize, measSize );
+	MatrixType kalmanGain( stateSize, measSize );
 	blas::symm( 'R', 'U', matInv, matTemp, kalmanGain );
 	KALMAN_LOG_DEBUG( "kalman gain: " << kalmanGain );
 	
@@ -236,5 +239,5 @@ void kalmanMeasurementUpdateIdentity( Math::ErrorVector< double, N >& state,
 
 #endif // HAVE_LAPACK
 
-#endif // __UBITRACK_TRACKING_KALMAN_H_INCLUDED__
+#endif // __UBITRACK_MATH_STOCHASTIC_KALMAN_H_INCLUDED__
 

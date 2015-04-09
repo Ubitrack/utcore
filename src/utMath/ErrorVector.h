@@ -28,12 +28,12 @@
  * @author Daniel Pustka <daniel.pustka@in.tum.de>
  */ 
 
-#ifndef __UBITRACK_ERROR_ERRORVECTOR_H_INCLUDED__
-#define __UBITRACK_ERROR_ERRORVECTOR_H_INCLUDED__
+#ifndef __UBITRACK_MATH_ERRORVECTOR_H_INCLUDED__
+#define __UBITRACK_MATH_ERRORVECTOR_H_INCLUDED__
 
 
-#include <utMath/Vector.h>
-#include <utMath/Matrix.h>
+#include "Vector.h"
+#include "Matrix.h"
 
 #include <boost/numeric/ublas/vector_proxy.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
@@ -106,6 +106,6 @@ std::ostream& operator<<( std::ostream& s, const ErrorVector< T, N >& v )
 }
 
 
-} } // namespace Ubitrack::Error
+} } // namespace Ubitrack::Math
 
-#endif
+#endif //__UBITRACK_MATH_ERRORVECTOR_H_INCLUDED__
