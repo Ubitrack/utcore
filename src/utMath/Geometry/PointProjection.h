@@ -67,7 +67,7 @@ public:
 	template< typename notSupportedMatrixType, typename notSupportedVectorType >
 	notSupportedVectorType operator() ( const notSupportedMatrixType&, const notSupportedVectorType& vec_in ) const
 	{
-		UBITRACK_STATIC_ASSERT( false, USE_ONLY_WITH_VECTOR_TYPE_OF_2_3_OR_4_DIMENSIONS );
+		UBITRACK_STATIC_ASSERT( false, ONLY_VECTORS_OF_2_3_OR_4_DIMENSIONS_SUPPORTED );
 		return vec_in;
 	}
 	
@@ -76,9 +76,9 @@ public:
 	template< typename T >
 	Math::Vector< T, 2 > operator() ( const Math::Matrix< T, 3, 3 > &projMat, const Math::Vector< T, 2 > &vec ) const
 	{
-		const T e1 = projMat( 0, 0 ) * vec( 0 ) + projMat( 0, 1 ) * vec( 1 ) + projMat( 0, 3 );
-		const T e2 = projMat( 1, 0 ) * vec( 0 ) + projMat( 1, 1 ) * vec( 1 ) + projMat( 1, 3 );
-		const T e3 = projMat( 2, 0 ) * vec( 0 ) + projMat( 2, 1 ) * vec( 1 ) + projMat( 2, 3 );
+		const T e1 = projMat( 0, 0 ) * vec( 0 ) + projMat( 0, 1 ) * vec( 1 ) + projMat( 0, 2 );
+		const T e2 = projMat( 1, 0 ) * vec( 0 ) + projMat( 1, 1 ) * vec( 1 ) + projMat( 1, 2 );
+		const T e3 = projMat( 2, 0 ) * vec( 0 ) + projMat( 2, 1 ) * vec( 1 ) + projMat( 2, 2 );
 		return Math::Vector< T, 2 > ( e1/e3, e2/e3 );
 	}
 	
@@ -87,6 +87,10 @@ public:
 	template< typename T >
 	Math::Vector< T, 2 > operator() ( const Math::Matrix< T, 3, 4 > &projMat, const Math::Vector< T, 2 > &vec ) const
 	{
+		// const T e1 = projMat( 0, 0 ) * vec( 0 ) + projMat( 0, 1 ) * vec( 1 ) + projMat( 0, 2 );
+		// const T e2 = projMat( 1, 0 ) * vec( 0 ) + projMat( 1, 1 ) * vec( 1 ) + projMat( 1, 2 );
+		// const T e3 = projMat( 2, 0 ) * vec( 0 ) + projMat( 2, 1 ) * vec( 1 ) + projMat( 2, 2 );
+		// assume the 3rd position to be set to zero, therefore we skip 3 column of projMat
 		const T e1 = projMat( 0, 0 ) * vec( 0 ) + projMat( 0, 1 ) * vec( 1 ) + projMat( 0, 3 );
 		const T e2 = projMat( 1, 0 ) * vec( 0 ) + projMat( 1, 1 ) * vec( 1 ) + projMat( 1, 3 );
 		const T e3 = projMat( 2, 0 ) * vec( 0 ) + projMat( 2, 1 ) * vec( 1 ) + projMat( 2, 3 );
@@ -112,6 +116,25 @@ public:
 		const T e3 = projMat( 2, 0 ) * vec( 0 ) + projMat( 2, 1 ) * vec( 1 ) + projMat( 2, 2 ) * vec( 2 ) + projMat( 2, 3 ) * vec( 3 );
 		return Math::Vector< T, 2 > ( e1/e3, e2/e3 );
 	}
+	
+	
+	/// @internal Specialization of \c bracket-operator to flip the arguments if coming in inverse order
+	template< typename T, size_t L, size_t M, size_t N >
+	Math::Vector< T, 2 > operator() ( const Math::Vector< T, L > & lhs, const Math::Matrix< T, M, N > &rhs ) const
+	{
+		return operator()( rhs, lhs );
+	}
+	
+	/* // not really needed, see the flip function above
+	struct FlipArguements
+	{
+		template< typename VectorType, typename MatrixType >
+		Math::Vector< T, 2 > operator() ( const VectorType& lhs, const MatrixType& rhs ) const
+		{
+			return ProjectPoint()( rhs, lhs );
+		}
+	};
+	*/
 };
 
 
@@ -167,14 +190,18 @@ inline void project_points( const Math::Matrix< T, M, N > &projection, const For
 	typedef typename vector_type_in::value_type value_type_in;
 	typedef typename vector_type_out::value_type value_type_out;
 
-	UBITRACK_STATIC_ASSERT( ( (M == 3) && (N == 4) ), EXPECTS_3_BY_4_PROJECTION_MATRIX );
+	UBITRACK_STATIC_ASSERT( ( (M == 3) && ((N == 4)  || (N == 3) )) , EXPECTS_3_BY_4_OR_3_BY_3_PROJECTION_MATRIX );
 	UBITRACK_STATIC_ASSERT( ( Ubitrack::Util::is_same< value_type_in, T >::value ), MATRIX_AND_VECTORS_NEED_SAME_BUILTIN_TYPE ); // e.g. only float or only double
 	UBITRACK_STATIC_ASSERT( ( Ubitrack::Util::is_same< value_type_in, value_type_out >::value ), INPUT_AND_OUTPUT_VECTOR_NEED_SAME_BUILTIN_TYPE );
 	UBITRACK_STATIC_ASSERT( ( Ubitrack::Util::is_same< vector_type_out, Math::Vector< T, 2 > >::value ), OUTPUT_VECTOR_NEEDS_TO_BE_DEFINED_WITH_2_DIMENSIONS );
 
-	const std::size_t n = std::distance( iBegin, iEnd );
-	Ubitrack::Util::identity< const Math::Matrix< T, 3, 4 > > id_container( projection, n );
-	std::transform( id_container.begin(), id_container.end(), iBegin, iOut, ProjectPoint() );
+	Ubitrack::Util::identity< const Math::Matrix< T, M, N > > id_container( projection );
+	std::transform( iBegin, iEnd, id_container.begin(), iOut, ProjectPoint() );
+	
+	//const std::size_t n = std::distance( iBegin, iEnd );
+	//Ubitrack::Util::identity< const Math::Matrix< T, M, N > > id_container( projection, n );
+	//std::transform( id_container.begin(), id_container.end(), iBegin, iOut, ProjectPoint() );
+	
 	// std::transform( iBegin, iEnd, iOut, std::bind1st( ProjectPoint< T, M, N, vector_type_in >(), projection ) );
 }
 
