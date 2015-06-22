@@ -14,6 +14,7 @@
 #include <assert.h> //assert
 #include <iterator> //std::iterator_traits
 #include <cmath> // std::sqrt
+#include <algorithm>
 
 namespace Ubitrack { namespace Math { namespace Stochastic {
 
