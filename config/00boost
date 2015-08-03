@@ -85,7 +85,7 @@ boost_options = configHelper.getLibraryOptions()
 if sys.platform == 'win32':
 	boost_options['LIBS'] = []
 else:
-	boost_options['LIBS'] += [ boost_libs("system") ]
+	boost_options['LIBS'] += [ boost_libs("system"), boost_libs("serialization") ]
 
 
 have_boost = configHelper.haveLib()
