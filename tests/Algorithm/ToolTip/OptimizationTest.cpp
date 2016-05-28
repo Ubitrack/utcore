@@ -66,7 +66,7 @@ void testOptimizedTipCalibrationRandom( const std::size_t n_runs, const T epsilo
 		const Ubitrack::Math::Optimization::OptTerminate termCrit( 50, 1e-8 );
 		if( !Ubitrack::Algorithm::ToolTip::estimatePosition3D_6D( pWolrd2Tip, noisyPoses, pTool2Tip, termCrit ) )
 		{
-			BOOST_MESSAGE( "\non-linear tooltip calibration from " << n << " poses did not converge successfully." );
+			// BOOST_MESSAGE( "\non-linear tooltip calibration from " << n << " poses did not converge successfully." );
 			continue;
 		}
 		
@@ -76,7 +76,7 @@ void testOptimizedTipCalibrationRandom( const std::size_t n_runs, const T epsilo
 		Vector< T, 3 > pWolrd2Tip2;
 		if( !Ubitrack::Algorithm::ToolTip::estimatePosition3D_6D( pWolrd2Tip2, noisyPoses, pTool2Tip2 ) )
 		{
-			BOOST_MESSAGE( "tooltip calibration from " << n << " poses did not converge successfully." );
+//			BOOST_MESSAGE( "tooltip calibration from " << n << " poses did not converge successfully." );
 			continue;
 		}
 		

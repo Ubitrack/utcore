@@ -141,7 +141,7 @@ void Test2D3DPoseEstimationGeneral( const std::size_t n_runs, const T epsilon )
 		BOOST_WARN_MESSAGE( b_done, "Algorithm did not converge after " << max_iterations << " iterations with " << n 
 			<< " points.\nRemaining difference in rotation " << rotDiff << ", difference in translation " << posDiff << "." );
 	}
-	BOOST_MESSAGE( "Average number of iterations after " << n_runs << " runs: " << iter_count / n_runs );
+	//BOOST_MESSAGE( "Average number of iterations after " << n_runs << " runs: " << iter_count / n_runs );
 }
 
 void Test2D3DPoseEstimation()

@@ -49,7 +49,7 @@ void testTipCalibrationRandom( const std::size_t n_runs, const T epsilon )
 		Vector< T, 3 > pWolrd2Tip;
 		if( !Ubitrack::Algorithm::ToolTip::estimatePosition3D_6D( pWolrd2Tip, poses, pTool2Tip ) )
 		{
-			BOOST_MESSAGE( "tooltip calibration from " << n << " poses did not converge successfully." );
+			// BOOST_MESSAGE( "tooltip calibration from " << n << " poses did not converge successfully." );
 			continue;
 		}
 		const std::pair< T, T > err = Ubitrack::Algorithm::ToolTip::estimatePosition3DError_6D( pWolrd2Tip, poses, pTool2Tip );

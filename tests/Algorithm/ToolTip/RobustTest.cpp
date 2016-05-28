@@ -81,7 +81,7 @@ void testRobustTipCalibrationRandom( const std::size_t n_runs, const T epsilon )
 		Vector< T, 3 > pWolrd2Tip;
 		if( !Ubitrack::Algorithm::ToolTip::estimatePosition3D_6D( pWolrd2Tip, noisyPoses, pTool2Tip, params ) )
 		{
-			BOOST_MESSAGE( "robust tooltip calibration from " << n << " poses did not converge successfully with " << outlier << " outlier within " << params.nMaxIterations << " iterations." );
+			// BOOST_MESSAGE( "robust tooltip calibration from " << n << " poses did not converge successfully with " << outlier << " outlier within " << params.nMaxIterations << " iterations." );
 			continue;
 		}
 		
@@ -90,7 +90,7 @@ void testRobustTipCalibrationRandom( const std::size_t n_runs, const T epsilon )
 		Vector< T, 3 > pWolrd2Tip2;
 		if( !Ubitrack::Algorithm::ToolTip::estimatePosition3D_6D( pWolrd2Tip2, noisyPoses, pTool2Tip2 ) )
 		{
-			BOOST_MESSAGE( "tooltip calibration did not converge successfully." );
+			// BOOST_MESSAGE( "tooltip calibration did not converge successfully." );
 			continue;
 		}
 		
