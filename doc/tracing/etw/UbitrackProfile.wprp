@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes'?>
+<WindowsPerformanceRecorder
+    Author="Ulrich Eck"
+    Comments="Ubitrack Events"
+    Copyright="Ulrich Eck"
+    Version="1.0"
+    Tag="Enables Ubitrack providers to allow identifying key events in an instrumented process."
+    >
+
+  <Profiles>
+    <!-- The EventCollector block is used to specify the number and size of the buffers
+          to be used when recording ETW data. The Id must match what is specified in the
+          Collectors blocks. The units for Buffer Size are KB. -->
+    <EventCollector Id="UbitrackCollector" Name="Sample Event Collector">
+      <BufferSize Value="1024"/>
+      <Buffers Value="1200"/>
+    </EventCollector>
+    <!-- A fully specified .wprp file should have four profiles, with DetailLevel set to Verbose and Light and with Logging Mode set to
+          Memory and File. The Light options can be skipped, but then light logging will be disabled when your profile is enabled.
+          The ID must be of the form Name.DetailLevel.LoggingMode. The Description tag is mandatory but is ignored, except for the
+          description of the last Profile which is displayed in wprui. -->
+    <Profile Id="UbitrackProvider.Verbose.Memory" Name="UbitrackProvider" Description="UbitrackProvider providers" DetailLevel="Verbose" LoggingMode="Memory">
+      <Collectors>
+        <!-- EventCollectorId must match the EventCollector ID specified above -->
+        <EventCollectorId Value="UbitrackCollector">
+          <EventProviders>
+            <!-- List all the user mode providers you want enabled. Name is the name or GUID of the provider. Id is a word (no spaces
+                  spaces allowed?) that doesn't seem to be used. Some user-mode providers require that the NonPagedMemory be specified
+                  in the EventProvider definition and set to "true". No error messages are displayed if your providers fail to get
+                  enabled, but you can use the undocumented "xperf -loggers" command while tracing is enabled to see if your providers
+                  show up. -->
+            <EventProvider Id="Ubitrack-Provider" Name="Ubitrack"></EventProvider>
+          </EventProviders>
+        </EventCollectorId>
+      </Collectors>
+    </Profile>
+    <!-- Redundant Profile definition for Verbose.File - identical to Verbose.Memory in this case. -->
+    <Profile Id="UbitrackProvider.Verbose.File" Name="UbitrackProvider" Description="UbitrackProvider providers" DetailLevel="Verbose" LoggingMode="File">
+      <Collectors>
+        <EventCollectorId Value="UbitrackCollector">
+          <EventProviders>
+            <EventProvider Id="Ubitrack-Provider" Name="Ubitrack"></EventProvider>
+          </EventProviders>
+        </EventCollectorId>
+      </Collectors>
+    </Profile>
+  </Profiles>
+</WindowsPerformanceRecorder>
