@@ -16,9 +16,13 @@ provider ubitrack {
     /* probe for tracing output from the dataflow */
     probe measurement__receive(unsigned int domain, unsigned long long int timestamp, char *component, char* port);
 
+    /* probes for tracing cpu/gpu image allocations */
+    probe vision__allocate__cpu(long int size);
+    probe vision__allocate__gpu(long int size);
+
     /* probes for tracing cpu/gpu image transfers */
-    probe vision__gpu__upload(unsigned int domain, unsigned long long int timestamp, long int size);
-    probe vision__gpu__download(unsigned int domain, unsigned long long int timestamp, long int size);
+    probe vision__gpu__upload(long int size);
+    probe vision__gpu__download(long int size);
 
 };
 

@@ -104,13 +104,15 @@ Adjust that to match your games actual install path.
             <data inType="win:AnsiString" name="Text" />
           </template>
           <template tid="T_Vision_GPU_Upload">
-            <data inType="win:Int32" name="EventDomain" />
-            <data inType="win:Int64" name="Priority" />
             <data inType="win:Int64" name="Size" />
           </template>
           <template tid="T_Vision_GPU_Download">
-            <data inType="win:Int32" name="EventDomain" />
-            <data inType="win:Int64" name="Priority" />
+            <data inType="win:Int64" name="Size" />
+          </template>
+          <template tid="T_Vision_Allocate_GPU">
+            <data inType="win:Int64" name="Size" />
+          </template>
+          <template tid="T_Vision_Allocate_CPU">
             <data inType="win:Int64" name="Size" />
           </template>
         </templates>
@@ -126,6 +128,8 @@ Adjust that to match your games actual install path.
           <opcode name="ReceiveMeasurement" symbol="_ReceiveMeasurementOpcode" value="14"/>
           <opcode name="VisionGpuUpload" symbol="_VisionGpuUploadOpcode" value="15"/>
           <opcode name="VisionGpuDownload" symbol="_VisionGpuDownloadOpcode" value="16"/>
+          <opcode name="VisionAllocateGpu" symbol="_VisionAllocateGpuOpcode" value="17"/>
+          <opcode name="VisionAllocateCpu" symbol="_VisionAllocateCpuOpcode" value="18"/>
         </opcodes>
         <tasks>
           <task name="UbitrackTrace" symbol="Ubitrack_Task" value="1" eventGUID="{866D02A3-1A29-4207-B710-E883C8F59851}"/>
@@ -136,8 +140,10 @@ Adjust that to match your games actual install path.
           <event symbol="EventQueueDispatchDiscard" template="T_Eventqueue_Dispatch_Discard" value="102" task="UbitrackTrace" opcode="DispatchDiscard" keywords="HighFrequency" />
           <event symbol="CreateMeasurement" template="T_Create_Measurement" value="103" task="UbitrackTrace" opcode="CreateMeasurement" keywords="HighFrequency" />
           <event symbol="ReceiveMeasurement" template="T_Receive_Measurement" value="104" task="UbitrackTrace" opcode="ReceiveMeasurement" keywords="HighFrequency" />
-          <event symbol="VisionGpuUpload" template="T_Vision_GPU_Upload" value="105" task="UbitrackTrace" opcode="VisionGpuUpload" keywords="HighFrequency" />
-          <event symbol="VisionGpuDownload" template="T_Vision_GPU_Download" value="106" task="UbitrackTrace" opcode="VisionGpuDownload" keywords="HighFrequency" />
+          <event symbol="VisionGpuUpload" template="T_Vision_GPU_Upload" value="105" task="UbitrackTrace" opcode="VisionGpuUpload" keywords="NormalFrequency" />
+          <event symbol="VisionGpuDownload" template="T_Vision_GPU_Download" value="106" task="UbitrackTrace" opcode="VisionGpuDownload" keywords="NormalFrequency" />
+          <event symbol="VisionAllocateGpu" template="T_Vision_Allocate_GPU" value="107" task="UbitrackTrace" opcode="VisionAllocateGpu" keywords="NormalFrequency" />
+          <event symbol="VisionAllocateCpu" template="T_Vision_Allocate_CPU" value="108" task="UbitrackTrace" opcode="VisionAllocateCpu" keywords="NormalFrequency" />
         </events>
       </provider>
     </events>
