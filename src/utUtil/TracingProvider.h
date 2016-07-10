@@ -46,6 +46,125 @@
 // xxx
 #endif
 
+
+
+
+//
+//
+//
+//#ifdef ENABLE_EVENT_TRACING
+//#ifdef HAVE_DTRACE
+//			if (UBITRACK_EVENTQUEUE_DISPATCH_BEGIN_ENABLED() && pReceiverInfo ) {
+//				UBITRACK_EVENTQUEUE_DISPATCH_BEGIN(m_eventDomain,
+//												   messagePriority,
+//												   pReceiverInfo->pPort->getComponent().getName().c_str(),
+//												   pReceiverInfo->pPort->getName().c_str());
+//			}
+//#endif
+//
+//#ifdef HAVE_ETW
+//			int64 _startTime = ETWUbitrackEventQueueDispatchBegin(m_eventDomain, messagePriority,
+//																  pReceiverInfo->pPort->getComponent().getName().c_str(),
+//																  pReceiverInfo->pPort->getName().c_str());
+//#endif
+//#endif
+//#ifdef ENABLE_EVENT_TRACING
+//#ifdef HAVE_DTRACE
+//			if (UBITRACK_EVENTQUEUE_DISPATCH_BEGIN_ENABLED() && pReceiverInfo ) {
+//				UBITRACK_EVENTQUEUE_DISPATCH_BEGIN(m_eventDomain,
+//												   messagePriority,
+//												   pReceiverInfo->pPort->getComponent().getName().c_str(),
+//												   pReceiverInfo->pPort->getName().c_str());
+//			}
+//#endif
+//
+//#ifdef HAVE_ETW
+//			int64 _startTime = ETWUbitrackEventQueueDispatchBegin(m_eventDomain, messagePriority,
+//																  pReceiverInfo->pPort->getComponent().getName().c_str(),
+//																  pReceiverInfo->pPort->getName().c_str());
+//#endif
+//#endif
+//
+//
+//
+//
+//
+//#ifdef ENABLE_EVENT_TRACING
+//#ifdef HAVE_DTRACE
+//			if (UBITRACK_EVENTQUEUE_DISPATCH_END_ENABLED() && pReceiverInfo ) {
+//				UBITRACK_EVENTQUEUE_DISPATCH_END(m_eventDomain,
+//												 messagePriority,
+//												 pReceiverInfo->pPort->getComponent().getName().c_str(),
+//												 pReceiverInfo->pPort->getName().c_str());
+//			}
+//#endif
+//
+//#ifdef HAVE_ETW
+//			ETWUbitrackEventQueueDispatchEnd(m_eventDomain, messagePriority,
+//											 pReceiverInfo->pPort->getComponent().getName().c_str(),
+//											 pReceiverInfo->pPort->getName().c_str(),
+//											 _startTime);
+//#endif
+//#endif
+//#ifdef ENABLE_EVENT_TRACING
+//#ifdef HAVE_DTRACE
+//			if (UBITRACK_EVENTQUEUE_DISPATCH_END_ENABLED() && pReceiverInfo ) {
+//				UBITRACK_EVENTQUEUE_DISPATCH_END(m_eventDomain,
+//												 messagePriority,
+//												 pReceiverInfo->pPort->getComponent().getName().c_str(),
+//												 pReceiverInfo->pPort->getName().c_str());
+//			}
+//#endif
+//
+//
+//#ifdef HAVE_ETW
+//			ETWUbitrackEventQueueDispatchEnd(m_eventDomain, messagePriority,
+//											 pReceiverInfo->pPort->getComponent().getName().c_str(),
+//											 pReceiverInfo->pPort->getName().c_str(),
+//											 _startTime);
+//#endif
+//#endif
+//
+//
+//
+//#ifdef ENABLE_EVENT_TRACING
+//		#ifdef HAVE_DTRACE
+//			if (UBITRACK_MEASUREMENT_CREATE_ENABLED()) {
+//				UBITRACK_MEASUREMENT_CREATE(getEventDomain(),
+//											evt.time(),
+//											getName().c_str(),
+//											"Output");
+//			}
+//#endif
+//
+//#ifdef HAVE_ETW
+//			ETWUbitrackMeasurementCreate(getEventDomain(), evt.time(),
+//										 getName().c_str(),
+//										 "Output");
+//#endif
+//#endif
+//
+//
+//#ifdef ENABLE_EVENT_TRACING
+//			#ifdef HAVE_DTRACE
+//			if (UBITRACK_MEASUREMENT_RECEIVE_ENABLED()) {
+//				UBITRACK_MEASUREMENT_RECEIVE(getEventDomain(),
+//											 m.time(),
+//											 getName().c_str(),
+//											 "Input");
+//			}
+//#endif
+//
+//#ifdef HAVE_ETW
+//			ETWUbitrackMeasurementReceive(getEventDomain(), evt.time(),
+//										  getName().c_str(),
+//										  "Input");
+//#endif
+//#endif
+//
+
+
+
 #endif // ENABLE_EVENT_TRACING
 
 #endif //UBITACK_TRACINGPROVIDER_H
