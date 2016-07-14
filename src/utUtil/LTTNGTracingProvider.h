@@ -19,8 +19,8 @@ TRACEPOINT_EVENT(
         TP_ARGS(
             unsigned int, domain,
             unsigned long long int, priority,
-            char*, component,
-            char*, port
+            const char*, component,
+            const char*, port
         ),
         TP_FIELDS(
             ctf_integer(unsigned int, domain_field, domain)
@@ -36,8 +36,8 @@ TRACEPOINT_EVENT(
         TP_ARGS(
             unsigned int, domain,
             unsigned long long int, priority,
-            char*, component,
-            char*, port
+            const char*, component,
+            const char*, port
         ),
         TP_FIELDS(
             ctf_integer(unsigned int, domain_field, domain)
@@ -53,8 +53,8 @@ TRACEPOINT_EVENT(
         TP_ARGS(
             unsigned int, domain,
             unsigned long long int, priority,
-            char*, component,
-            char*, port
+            const char*, component,
+            const char*, port
         ),
         TP_FIELDS(
             ctf_integer(unsigned int, domain_field, domain)
@@ -70,8 +70,8 @@ TRACEPOINT_EVENT(
         TP_ARGS(
             unsigned int, domain,
             unsigned long long int, timestamp,
-            char*, component,
-            char*, port
+            const char*, component,
+            const char*, port
         ),
         TP_FIELDS(
             ctf_integer(unsigned int, domain_field, domain)
@@ -87,8 +87,8 @@ TRACEPOINT_EVENT(
         TP_ARGS(
             unsigned int, domain,
             unsigned long long int, timestamp,
-            char*, component,
-            char*, port
+            const char*, component,
+            const char*, port
         ),
         TP_FIELDS(
             ctf_integer(unsigned int, domain_field, domain)
