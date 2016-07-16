@@ -74,14 +74,29 @@ typedef long long int64;
 UBITRACK_EXPORT int64 __cdecl ETWUbitrackEventQueueDispatchBegin(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName,  _In_z_ PCSTR portName);
 UBITRACK_EXPORT int64 __cdecl ETWUbitrackEventQueueDispatchEnd(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName,  _In_z_ PCSTR portName, int64 startTime);
 UBITRACK_EXPORT void __cdecl ETWUbitrackEventQueueDispatchDiscard(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName,  _In_z_ PCSTR portName);
-UBITRACK_EXPORT void __cdecl ETWUbitrackEventQueueApplication(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName,  _In_z_ PCSTR portName,  _In_z_ PCSTR text);
+//UBITRACK_EXPORT void __cdecl ETWUbitrackEventQueueApplication(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName,  _In_z_ PCSTR portName,  _In_z_ PCSTR text);
+
+UBITRACK_EXPORT void __cdecl ETWUbitrackMeasurementCreate(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName, _In_z_ PCSTR portName);
+UBITRACK_EXPORT void __cdecl ETWUbitrackMeasurementReceive(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName, _In_z_ PCSTR portName);
+UBITRACK_EXPORT void __cdecl ETWUbitrackAllocateCpu(unsigned int bytes);
+UBITRACK_EXPORT void __cdecl ETWUbitrackAllocateGpu(unsigned int bytes);
+UBITRACK_EXPORT void __cdecl ETWUbitrackGpuUpload(unsigned int bytes);
+UBITRACK_EXPORT void __cdecl ETWUbitrackGpuDownload(unsigned int bytes);
 
 #else // ETW_MARKS_ENABLED
 
 UBITRACK_EXPORT int64 __cdecl ETWUbitrackEventQueueDispatchBegin(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName,  _In_z_ PCSTR portName) { return 0; };
 UBITRACK_EXPORT int64 __cdecl ETWUbitrackEventQueueDispatchEnd(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName,  _In_z_ PCSTR portName, int64 startTime) { return 0; };
 UBITRACK_EXPORT void __cdecl ETWUbitrackEventQueueDispatchDiscard(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName,  _In_z_ PCSTR portName) {};
-UBITRACK_EXPORT void __cdecl ETWUbitrackEventQueueApplication(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName,  _In_z_ PCSTR portName,  _In_z_ PCSTR text) {};
+//UBITRACK_EXPORT void __cdecl ETWUbitrackEventQueueApplication(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName,  _In_z_ PCSTR portName,  _In_z_ PCSTR text) {};
+
+UBITRACK_EXPORT void __cdecl ETWUbitrackMeasurementCreate(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName, _In_z_ PCSTR portName) {};
+UBITRACK_EXPORT void __cdecl ETWUbitrackMeasurementReceive(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName, _In_z_ PCSTR portName) {};
+UBITRACK_EXPORT void __cdecl ETWUbitrackAllocateCpu(unsigned int bytes) {};
+UBITRACK_EXPORT void __cdecl ETWUbitrackAllocateGpu(unsigned int bytes) {};
+UBITRACK_EXPORT void __cdecl ETWUbitrackGpuUpload(unsigned int bytes) {};
+UBITRACK_EXPORT void __cdecl ETWUbitrackGpuDownload(unsigned int bytes) {};
+
 
 #endif // ETW_MARKS_ENABLED
 

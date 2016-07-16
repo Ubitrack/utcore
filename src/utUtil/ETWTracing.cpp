@@ -62,7 +62,7 @@
 #define EVNTAPI __stdcall
 // Include the event register/write/unregister macros compiled from the manifest file.
 // Note that this includes evntprov.h which requires a Vista+ Windows SDK.
-#include "utDataflow/probes_ubitrack_etw.h"
+#include "utUtil/probes_ubitrack_etw.h"
 
 // Typedefs for use with GetProcAddress
 typedef ULONG (__stdcall *tEventRegister)( LPCGUID ProviderId, PENABLECALLBACK EnableCallback, PVOID CallbackContext, PREGHANDLE RegHandle);
@@ -224,22 +224,77 @@ void ETWUbitrackEventQueueDispatchDiscard(int eventDomain, unsigned long long in
 	EventWriteEventQueueDispatchDiscard( eventDomain, priority, componentName, portName );
 }
 
-void ETWUbitrackEventQueueApplication(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName,  _In_z_ PCSTR portName,  _In_z_ PCSTR text)
-{
-	// If we are running on Windows XP or if our providers have not been enabled
-	// (by xperf or other) then this will be false and we can early out.
-	// Be sure to check the appropriate context for the event. This is only
-	// worth checking if there is some cost beyond the EventWrite that we can
-	// avoid -- the redirectors in this file guarantee that EventWrite is always
-	// safe to call.
-	// In this case we also avoid the potentially unreliable TLS implementation
-	// (for dynamically loaded DLLs) on Windows XP.
-	if ( !UBITRACK_Context.IsEnabled )
+//void ETWUbitrackEventQueueApplication(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName,  _In_z_ PCSTR portName,  _In_z_ PCSTR text)
+//{
+//	// If we are running on Windows XP or if our providers have not been enabled
+//	// (by xperf or other) then this will be false and we can early out.
+//	// Be sure to check the appropriate context for the event. This is only
+//	// worth checking if there is some cost beyond the EventWrite that we can
+//	// avoid -- the redirectors in this file guarantee that EventWrite is always
+//	// safe to call.
+//	// In this case we also avoid the potentially unreliable TLS implementation
+//	// (for dynamically loaded DLLs) on Windows XP.
+//	if ( !UBITRACK_Context.IsEnabled )
+//	{
+//		return;
+//	}
+//
+//	EventWriteEventQueueApplication( eventDomain, priority, componentName, portName, text );
+//}
+
+
+void ETWUbitrackMeasurementCreate(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName, _In_z_ PCSTR portName) {
+	if (!UBITRACK_Context.IsEnabled)
 	{
 		return;
 	}
 
-	EventWriteEventQueueApplication( eventDomain, priority, componentName, portName, text );
-}
+	ETWUbitrackMeasurementCreate(eventDomain, priority, componentName, portName);
+};
+
+void ETWUbitrackMeasurementReceive(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName, _In_z_ PCSTR portName) {
+	if (!UBITRACK_Context.IsEnabled)
+	{
+		return;
+	}
+
+	ETWUbitrackMeasurementReceive(eventDomain, priority, componentName, portName);
+};
+
+void ETWUbitrackAllocateCpu(unsigned int bytes) {
+	if (!UBITRACK_Context.IsEnabled)
+	{
+		return;
+	}
+
+	ETWUbitrackAllocateCpu(bytes);
+};
+
+void ETWUbitrackAllocateGpu(unsigned int bytes) {
+	if (!UBITRACK_Context.IsEnabled)
+	{
+		return;
+	}
+
+	ETWUbitrackAllocateGpu(bytes);
+};
+
+void ETWUbitrackGpuUpload(unsigned int bytes) {
+	if (!UBITRACK_Context.IsEnabled)
+	{
+		return;
+	}
+
+	ETWUbitrackGpuUpload(bytes);
+};
+
+void ETWUbitrackGpuDownload(unsigned int bytes) {
+	if (!UBITRACK_Context.IsEnabled)
+	{
+		return;
+	}
+
+	ETWUbitrackGpuDownload(bytes);
+};
 
 #endif // ETW_MARKS_ENABLED
