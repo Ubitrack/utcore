@@ -69,7 +69,7 @@
 
 #ifdef HAVE_ETW
 #define TRACEPOINT_BLOCK_EVENTQUEUE_DISPATCH_BEGIN(event_domain, event_priority, component_name, component_port)\
-  int64 ___ubitrack_tracing_startTime = ETWUbitrackEventQueueDispatchBegin(event_domain, event_priority, component_name, component_port);
+  ___ubitrack_tracing_startTime = ETWUbitrackEventQueueDispatchBegin(event_domain, event_priority, component_name, component_port);
 #endif
 
 #ifdef HAVE_LTTNGUST
