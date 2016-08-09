@@ -33,7 +33,7 @@
 #ifndef __UBITRACK_MATH_POSE_H_INCLUDED__
 #define __UBITRACK_MATH_POSE_H_INCLUDED__
 
-
+#include <vector>
 #include <utCore.h>
 #include "Vector.h"
 #include "Quaternion.h"
@@ -215,6 +215,20 @@ UBITRACK_EXPORT std::ostream& operator<<( std::ostream& s, const Pose& p );
  * @return the new pose
  */
 UBITRACK_EXPORT Pose linearInterpolate ( const Pose& x, const Pose& y, double t );
+
+/// @internal stream output operator
+UBITRACK_EXPORT std::ostream& operator<<( std::ostream& s, const std::vector<Pose>& p );
+
+/**
+ * performs a linear interpolation between two lists of poses
+ * using SLERP and vector interpolation
+ * @param x first pose-list
+ * @param y second pose-list
+ * @param t interpolation point between 0.0 and 1.0
+ * @return the new pose-list
+ */
+UBITRACK_EXPORT std::vector<Pose> linearInterpolate ( const std::vector<Pose>& x, const std::vector<Pose>& y, double t );
+
 
 } } // namespace Ubitrack::Math
 

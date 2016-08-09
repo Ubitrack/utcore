@@ -84,6 +84,28 @@ Pose linearInterpolate ( const Pose& x, const Pose& y, double t )
 	);
 }
 
+std::ostream& operator<<( std::ostream& s, const std::vector<Pose>& p )
+{
+	s << "{\n";
+	for (unsigned int i=0; i<p.size(); i++) {
+		s << p[i].translation() << " " << p[i].rotation() << "\n";
+	}
+	s << "}";
+	return s;
+}
+
+std::vector<Pose> linearInterpolate ( const std::vector<Pose>& x, const std::vector<Pose>& y, double t )
+{
+	std::vector<Pose> result(x.size());
+	for (unsigned int i=0; i<x.size(); i++) {
+		result[i] = Pose( 
+			slerp( x[i].rotation(), y[i].rotation(), t ), 
+			linearInterpolate( x[i].translation(), y[i].translation(), t ) 
+			);
+	}
+	return result;
+}
+
 
 } } // namespaceUbitrack::Math
 
