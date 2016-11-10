@@ -94,7 +94,7 @@ public:
 	
 	/**
 	 * cameras' image calibration dimensions
-	 * due to normalisation this should be 1, 1
+	 * if it is 0 then the dimension is unknown
 	 */
 	Ubitrack::Math::Vector< std::size_t, 2 > dimension;
 	
@@ -130,7 +130,7 @@ public:
 	/** Standard Constructor */
 	CameraIntrinsics(  )
 		: calib_type( UNKNOWN )
-		, dimension( Math::Vector< std::size_t, 2 >( 1, 1 ) )
+		, dimension( Math::Vector< std::size_t, 2 >( 0, 0 ) )
 		, matrix( matrix_type::identity() )
 		, radial_size( 0 )
 		, radial_params( radial_type::zeros() )
@@ -138,9 +138,9 @@ public:
 		{}
 	
 	/** Constructor to use with old OpenCV values (2 radial distortion parameters) */	
-	CameraIntrinsics( const Math::Matrix< T, 3, 3 > &intrinsicMatrix, const Math::Vector< T, 2 > &_radial, const Math::Vector< T, 2 > &_tangential )
+	CameraIntrinsics(const Math::Matrix< T, 3, 3 > &intrinsicMatrix, const Math::Vector< T, 2 > &_radial, const Math::Vector< T, 2 > &_tangential, const std::size_t width = 0, const std::size_t height = 0)
 		: calib_type( OPENCV_2_2 )
-		, dimension( Math::Vector< std::size_t, 2 >( 1, 1 ) )
+		, dimension( Math::Vector< std::size_t, 2 >( width, height ) )
 		, matrix( intrinsicMatrix )
 		, radial_size( 2 )
 		, radial_params( radial_type::zeros() )
@@ -151,9 +151,9 @@ public:
 		}
 		
 	/** Constructor to use with newer OpenCV values (3 radial distortion parameters) */	
-	CameraIntrinsics( const Math::Matrix< T, 3, 3 > &intrinsicMatrix, const Math::Vector< T, 3 > &_radial, const Math::Vector< T, 2 > &_tangential )
+	CameraIntrinsics(const Math::Matrix< T, 3, 3 > &intrinsicMatrix, const Math::Vector< T, 3 > &_radial, const Math::Vector< T, 2 > &_tangential, const std::size_t width = 0, const std::size_t height = 0)
 		: calib_type( OPENCV_3_2 )
-		, dimension( Math::Vector< std::size_t, 2 >( 1, 1 ) )
+		, dimension(Math::Vector< std::size_t, 2 >(width, height))
 		, matrix( intrinsicMatrix )
 		, radial_size( 2 )
 		, radial_params( radial_type::zeros() )
@@ -165,9 +165,9 @@ public:
 		}
 	
 	/** Constructor to use with newer OpenCV values (6 radial distortion parameters) */	
-	CameraIntrinsics( const Math::Matrix< T, 3, 3 > &intrinsicMatrix, const Math::Vector< T, 6 > &_radial, const Math::Vector< T, 2 > &_tangential )
+	CameraIntrinsics(const Math::Matrix< T, 3, 3 > &intrinsicMatrix, const Math::Vector< T, 6 > &_radial, const Math::Vector< T, 2 > &_tangential, const std::size_t width = 0, const std::size_t height = 0)
 		: calib_type( OPENCV_6_2 )
-		, dimension( Math::Vector< std::size_t, 2 >( 1, 1 ) )
+		, dimension(Math::Vector< std::size_t, 2 >(width, height))
 		, matrix( intrinsicMatrix )
 		, radial_size( 6 )
 		, radial_params( _radial )
@@ -178,7 +178,7 @@ public:
 	/** Constructor to use with new OpenCV fish-eye values (4 distortion parameters, not tangential) */	
 	CameraIntrinsics( const Math::Matrix< T, 3, 3 > &intrinsicMatrix, const Math::Vector< T, 4 > &_radial )
 		: calib_type( OPENCV_4_0_FISHEYE )
-		, dimension( Math::Vector< std::size_t, 2 >( 1, 1 ) )
+		, dimension(Math::Vector< std::size_t, 2 >(width, height))
 		, matrix( intrinsicMatrix )
 		, radial_size( 4 )
 		, tangential_params( tangential_type::zeros() )
@@ -191,9 +191,9 @@ public:
 	
 	/** Constructor for the very general use case, accepting everything important */
 	template< typename IntType >
-	CameraIntrinsics( const Math::Vector< IntType, 2 >& size, const Math::Matrix< T, 3, 3 > &intrinsicMatrix, const std::size_t radSize, const Math::Vector< T, 6 > &_radial, const Math::Vector< T, 2 > &_tangential )
+	CameraIntrinsics(const Math::Vector< IntType, 2 >& size, const Math::Matrix< T, 3, 3 > &intrinsicMatrix, const std::size_t radSize, const Math::Vector< T, 6 > &_radial, const Math::Vector< T, 2 > &_tangential, const std::size_t width = 0, const std::size_t height = 0)
 		: calib_type( UNKNOWN )
-		, dimension( Math::Vector< std::size_t, 2 >( size( 0 ), size( 1 ) ) )
+		, dimension(Math::Vector< std::size_t, 2 >(width, height))
 		, matrix( intrinsicMatrix )
 		, radial_size( radSize )
 		, radial_params( _radial )
