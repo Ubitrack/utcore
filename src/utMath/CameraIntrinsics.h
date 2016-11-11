@@ -176,7 +176,7 @@ public:
 		}
 		
 	/** Constructor to use with new OpenCV fish-eye values (4 distortion parameters, not tangential) */	
-	CameraIntrinsics( const Math::Matrix< T, 3, 3 > &intrinsicMatrix, const Math::Vector< T, 4 > &_radial )
+	CameraIntrinsics(const Math::Matrix< T, 3, 3 > &intrinsicMatrix, const Math::Vector< T, 4 > &_radial, const std::size_t width = 0, const std::size_t height = 0)
 		: calib_type( OPENCV_4_0_FISHEYE )
 		, dimension(Math::Vector< std::size_t, 2 >(width, height))
 		, matrix( intrinsicMatrix )
