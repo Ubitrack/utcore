@@ -29,8 +29,8 @@
  * @author Ulrich Eck <ueck@net-labs.de>
  * based on work from: https://randomascii.wordpress.com/2015/04/14/uiforetw-windows-performance-made-easier/
  */ 
-#ifndef UBITACK_ETWTRACING_H
-#define UBITACK_ETWTRACING_H
+#ifndef UBITRACK_ETWTRACING_H
+#define UBITRACK_ETWTRACING_H
 
 
 #include <utCore.h>
@@ -101,4 +101,4 @@ UBITRACK_EXPORT void __cdecl ETWUbitrackGpuDownload(unsigned int bytes) {};
 #endif // ETW_MARKS_ENABLED
 
 
-#endif // UBITACK_ETWTRACING_H
+#endif // UBITRACK_ETWTRACING_H

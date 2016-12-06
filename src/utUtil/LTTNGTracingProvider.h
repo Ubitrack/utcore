@@ -8,8 +8,8 @@
 #undef TRACEPOINT_INCLUDE
 #define TRACEPOINT_INCLUDE "utUtil/LTTNGTracingProvider.h"
 
-#if !defined(UBITACK_LTTNGTRACINGPROVIDER_H) || defined(TRACEPOINT_HEADER_MULTI_READ)
-#define UBITACK_LTTNGTRACINGPROVIDER_H
+#if !defined(UBITRACK_LTTNGTRACINGPROVIDER_H) || defined(TRACEPOINT_HEADER_MULTI_READ)
+#define UBITRACK_LTTNGTRACINGPROVIDER_H
 
 #include <lttng/tracepoint.h>
 
@@ -142,6 +142,6 @@ TRACEPOINT_EVENT(
         )
 )
 
-#endif /* UBITACK_LTTNGTRACINGPROVIDER_H */
+#endif /* UBITRACK_LTTNGTRACINGPROVIDER_H */
 
 #include <lttng/tracepoint-event.h>
