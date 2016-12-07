@@ -78,7 +78,6 @@ public:
 	CETWRegister()
 	{
 		QueryPerformanceFrequency( &m_frequency );
-
 		// Find Advapi32.dll. This should always succeed.
 		HMODULE pAdvapiDLL = LoadLibraryW( L"Advapi32.dll" );
 		if ( pAdvapiDLL )
@@ -248,8 +247,7 @@ void ETWUbitrackMeasurementCreate(int eventDomain, unsigned long long int priori
 	{
 		return;
 	}
-
-	ETWUbitrackMeasurementCreate(eventDomain, priority, componentName, portName);
+	EventWriteCreateMeasurement(eventDomain, priority, componentName, portName, "");
 };
 
 void ETWUbitrackMeasurementReceive(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName, _In_z_ PCSTR portName) {
@@ -258,7 +256,7 @@ void ETWUbitrackMeasurementReceive(int eventDomain, unsigned long long int prior
 		return;
 	}
 
-	ETWUbitrackMeasurementReceive(eventDomain, priority, componentName, portName);
+	EventWriteReceiveMeasurement(eventDomain, priority, componentName, portName, "");
 };
 
 void ETWUbitrackAllocateCpu(unsigned int bytes) {
@@ -267,7 +265,7 @@ void ETWUbitrackAllocateCpu(unsigned int bytes) {
 		return;
 	}
 
-	ETWUbitrackAllocateCpu(bytes);
+	EventWriteVisionAllocateCpu(bytes);
 };
 
 void ETWUbitrackAllocateGpu(unsigned int bytes) {
@@ -276,7 +274,7 @@ void ETWUbitrackAllocateGpu(unsigned int bytes) {
 		return;
 	}
 
-	ETWUbitrackAllocateGpu(bytes);
+	EventWriteVisionAllocateGpu(bytes);
 };
 
 void ETWUbitrackGpuUpload(unsigned int bytes) {
@@ -285,7 +283,7 @@ void ETWUbitrackGpuUpload(unsigned int bytes) {
 		return;
 	}
 
-	ETWUbitrackGpuUpload(bytes);
+	EventWriteVisionGpuUpload(bytes);
 };
 
 void ETWUbitrackGpuDownload(unsigned int bytes) {
@@ -294,7 +292,7 @@ void ETWUbitrackGpuDownload(unsigned int bytes) {
 		return;
 	}
 
-	ETWUbitrackGpuDownload(bytes);
+	EventWriteVisionGpuDownload(bytes);
 };
 
 #endif // ETW_MARKS_ENABLED
