@@ -40,6 +40,9 @@
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+
 // get a logger
 #include <log4cpp/Category.hh>
 static log4cpp::Category& calibLogger( log4cpp::Category::getInstance( "Ubitrack.Utils.CalibFile" ) );
@@ -69,6 +72,32 @@ void readCalibFile( const std::string& sFile, T& result )
         UBITRACK_THROW( "Could not read ubitrack file" );
     }
 }
+
+/**
+* read data from a binary calibration file.
+* @param sFile filename of file to open
+* @param result where the result will be stored
+*/
+template< typename T >
+void readBinaryCalibFile(const std::string& sFile, T& result)
+{
+	// create ifstream
+	std::ifstream stream(sFile.c_str(), std::ios::in | std::ios::binary);
+	if (!stream.good())
+		UBITRACK_THROW("Could not open file " + sFile + " for reading");
+
+	try {
+		// create iarchive
+		boost::archive::binary_iarchive archive(stream);
+		// read data
+		archive >> result;
+	}
+	catch (std::exception& e) {
+		std::string tmp = e.what();
+		UBITRACK_THROW("Could not read ubitrack file: " + tmp);
+	}
+}
+
 
 /** 
  * read data from a calibration file (specialized for Measurements).
@@ -151,6 +180,25 @@ void writeCalibFile( const std::string& sFile, const T& data )
 	archive << data;
 }
 
+/**
+* write data to a calibration file.
+* @param sFile filename of file to open
+* @param data data to save
+*/
+template< typename T >
+void writeBinaryCalibFile(const std::string& sFile, const T& data)
+{
+	// create ofstream
+	std::ofstream stream(sFile.c_str(), std::ios::out | std::ios::binary);
+	if (!stream.good())
+		UBITRACK_THROW("Could not open file " + sFile + " for writing");
+
+	// create iarchive
+	boost::archive::binary_oarchive archive(stream);
+
+	// read data
+	archive << data;
+}
 } } // namespace Ubitrack::Util
 
 #endif
