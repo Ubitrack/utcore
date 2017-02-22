@@ -43,7 +43,7 @@ BlockTimer::~BlockTimer()
 	{ 
 		std::ostringstream s;
 		s << *this;
-		m_pLogger->log( log4cpp::Priority::debug, s.str(), m_sCodeFile.c_str(), m_nCodeLine );
+		m_pLogger->log( log4cpp::Priority::info, s.str(), m_sCodeFile.c_str(), m_nCodeLine );
 	}
 }
 
