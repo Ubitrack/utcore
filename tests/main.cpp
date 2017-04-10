@@ -6,6 +6,7 @@
 #include "Geometry/GeometryTest.h"
 #include "Stochastic/StochasticTest.h"
 #include "Algorithm/AlgorithmTest.h"
+#include "Serializer/SerializerTest.h"
 
 using boost::unit_test::test_suite;
 
@@ -26,7 +27,8 @@ test_suite* init_unit_test_suite( int, char* [] )
 	allTests->add( new GeometryTest );
 	allTests->add( new StochasticTest );
 	allTests->add( new AlgorithmTest );
-	
+	allTests->add( new SerializerTest );
+
 	return allTests;
 }
 
