@@ -30,7 +30,7 @@ ENDIF(ENABLE_TRACING_LTTNGUST)
 
 ut_module_include_directories(${UBITRACK_CORE_DEPS_INCLUDE_DIR} ${tracing_extra_include_dirs})
 ut_glob_module_sources(HEADERS "src/*.h" "src/*/*.h" "src/*/*/*.h" "src/*/*/*/*.h" "src/*/*/*/*/*.h" ${tracing_hdr_files} SOURCES "src/*/*.cpp" "src/*/*/*.cpp" "src/*/*/*/*.cpp" "src/*/*/*/*/*.cpp" ${tracing_src_files})
-ut_create_module(${TINYXML_LIBRARIES} ${LOG4CPP_LIBRARIES} ${LAPACK_LIBRARIES} ${Boost_LIBRARIES} ${tracing_extra_libraries})
+ut_create_module(${TINYXML_LIBRARIES} ${LOG4CPP_LIBRARIES} ${LAPACK_LIBRARIES} ${Boost_LIBRARIES} ${MSGPACK_LIBRARIES} ${tracing_extra_libraries})
 
 ut_add_module_tests()
 

@@ -1,0 +1,494 @@
+
+/*
+ * Ubitrack - Library for Ubiquitous Tracking
+ * Copyright 2006, Technische Universitaet Muenchen, and individual
+ * contributors as indicated by the @authors tag. See the
+ * copyright.txt in the distribution for a full listing of individual
+ * contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+
+
+/**
+ * @ingroup serialization
+ * @file
+ * Boost-Binary Serialization
+ * @author Ulrich Eck <ulrich.eck@tum.de>
+ */
+
+// good tutorial: https://github.com/msgpack/msgpack-c/wiki/v2_0_cpp_adaptor
+
+
+#ifndef UBITRACK_MSGPACKSERIALIZER_H
+#define UBITRACK_MSGPACKSERIALIZER_H
+
+#include "utSerialization/Serialization.h"
+#include "utSerialization/SerializationFormat.h"
+
+#include "utMeasurement/Measurement.h"
+
+#include <boost/array.hpp>
+#include <boost/call_traits.hpp>
+#include <boost/utility/enable_if.hpp>
+
+#ifdef HAVE_MSGPACK
+
+#include <msgpack.hpp>
+
+namespace Ubitrack {
+namespace Serialization {
+namespace MsgpackArchive {
+
+template<typename T>
+struct MsgpackSerializationFormat {
+  template<typename Stream>
+  inline static void write(Stream& stream, typename boost::call_traits<T>::param_type t)
+  {
+      msgpack::pack(stream, t);
+  }
+
+  template<typename Stream>
+  inline static void read(Stream& stream, typename boost::call_traits<T>::reference t)
+  {
+      msgpack::object_handle result;
+      msgpack::unpack(result, static_cast<const char*>(stream.data()), stream.size());
+      msgpack::object obj(result.get());
+      obj.convert(t);
+  }
+
+  inline static uint32_t maxSerializedLength(typename boost::call_traits<T>::param_type t)
+  {
+      return 0;
+  }
+};
+
+/**
+ * \brief Serialize an object.  Stream here should normally be a boost::archive::binary_oarchive
+ */
+template<typename T, typename Stream>
+inline void serialize(Stream& stream, const T& t)
+{
+    Serializer<T, MsgpackSerializationFormat<T> >::write(stream, t);
+}
+
+/**
+ * \brief Deserialize an object.  Stream here should normally be a boost::archive::binary_iarchive
+ */
+template<typename T, typename Stream>
+inline void deserialize(Stream& stream, T& t)
+{
+    Serializer<T, MsgpackSerializationFormat<T> >::read(stream, t);
+}
+
+/**
+ * \brief Determine the serialized length of an object
+ */
+template<typename T>
+inline uint32_t maxSerializationLength(const T& t)
+{
+    return Serializer<T, MsgpackSerializationFormat<T> >::maxSerializedLength(t);
+}
+
+} // MsgpackArchive
+} // Serialization
+} // Ubitrack
+
+
+namespace msgpack {
+MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS) {
+namespace adaptor {
+
+/*
+ * Measurements of type T
+ */
+template<typename T>
+struct as<Ubitrack::Measurement::Measurement<T>, typename std::enable_if<msgpack::has_as<T>::value>::type> {
+  Ubitrack::Measurement::Measurement<T> operator()(msgpack::object const& o) const
+  {
+      if (o.is_nil()) return nullptr;
+      if (o.type!=msgpack::type::ARRAY) throw msgpack::type_error();
+      if (o.via.array.size!=2) throw msgpack::type_error();
+      return Ubitrack::Measurement::Measurement<T>(
+              o.via.array.ptr[0].as<unsigned long long>(),
+              boost::shared_ptr<T>(o.via.array.ptr[0].as<T>())
+      );
+  }
+};
+
+template<typename T>
+struct convert<Ubitrack::Measurement::Measurement<T> > {
+  msgpack::object const& operator()(msgpack::object const& o, Ubitrack::Measurement::Measurement<T>& v) const
+  {
+      if (o.is_nil()) {
+          v.invalidate();
+          v.reset();
+      }
+      else {
+          if (o.type!=msgpack::type::ARRAY) throw msgpack::type_error();
+          if (o.via.array.size!=2) throw msgpack::type_error();
+          T value;
+          msgpack::adaptor::convert<T>()(o.via.array.ptr[1], value);
+          v = Ubitrack::Measurement::Measurement<T>(o.via.array.ptr[0].as<unsigned long long>(), value);
+      }
+      return o;
+  }
+};
+
+template<typename T>
+struct pack<Ubitrack::Measurement::Measurement<T> > {
+  template<typename Stream>
+  msgpack::packer<Stream>& operator()(msgpack::packer<Stream>& o, const Ubitrack::Measurement::Measurement<T>& v) const
+  {
+      if (v) {
+          o.pack_array(2);
+          o.pack((unsigned long long) v.time());
+          o.pack(*v);
+      }
+      else {
+          o.pack_nil();
+      }
+      return o;
+  }
+};
+
+template<typename T>
+struct object_with_zone<Ubitrack::Measurement::Measurement<T> > {
+  void operator()(msgpack::object::with_zone& o, const Ubitrack::Measurement::Measurement<T>& v) const
+  {
+      if (v) {
+          o.type = type::ARRAY;
+          o.via.array.size = 2;
+          o.via.array.ptr = static_cast<msgpack::object*>(
+                  o.zone.allocate_align(sizeof(msgpack::object)*o.via.array.size));
+          o.via.array.ptr[0] = msgpack::object((unsigned long long) v.time(), o.zone);
+          o.via.array.ptr[1] = msgpack::object(*v, o.zone);
+      }
+      else {
+          o.type = msgpack::type::NIL;
+      }
+  }
+};
+
+/*
+ * Ubitrack::Math::Scalar<T>
+ */
+template<typename T>
+struct convert<Ubitrack::Math::Scalar<T> > {
+  msgpack::object const& operator()(msgpack::object const& o, Ubitrack::Math::Scalar<T>& v) const
+  {
+      v = Ubitrack::Math::Scalar<T>(o.as<T>());
+      return o;
+  }
+};
+
+template<typename T>
+struct pack<Ubitrack::Math::Scalar<T> > {
+  template<typename Stream>
+  packer<Stream>& operator()(msgpack::packer<Stream>& o, Ubitrack::Math::Scalar<T> const& v) const
+  {
+      o.pack(v.m_value);
+      return o;
+  }
+};
+
+template<typename T>
+struct object_with_zone<Ubitrack::Math::Scalar<T> > {
+  void operator()(msgpack::object::with_zone& o, Ubitrack::Math::Scalar<T> const& v) const
+  {
+      msgpack::adaptor::object_with_zone<T>()(o, v.m_value);
+  }
+};
+
+
+/*
+ * Ubitrack::Math::Vector<T, N>
+ */
+template<typename T, std::size_t N>
+struct as<Ubitrack::Math::Vector<T, N>, typename std::enable_if<msgpack::has_as<T>::value>::type> {
+  Ubitrack::Math::Vector<T, N> operator()(msgpack::object const& o) const
+  {
+      if (o.type!=msgpack::type::ARRAY) throw msgpack::type_error();
+      std::size_t num_elements = o.via.array.size;
+      if (N>0) {
+          if (num_elements!=N) throw msgpack::type_error();
+      }
+      Ubitrack::Math::Vector<T, N> result(num_elements);
+      for (std::size_t i = 0; i<num_elements; ++i) {
+        result(i) = o.via.array.ptr[i].as<T>();
+      }
+      return result;
+  }
+};
+
+template<typename T, std::size_t N>
+struct convert<Ubitrack::Math::Vector<T, N> > {
+  msgpack::object const& operator()(msgpack::object const& o, Ubitrack::Math::Vector<T, N>& v) const
+  {
+      if (o.type!=msgpack::type::ARRAY) throw msgpack::type_error();
+      std::size_t num_elements = o.via.array.size;
+      if (N>0) {
+          if (num_elements!=N) throw msgpack::type_error();
+      }
+      for (std::size_t i = 0; i<num_elements; ++i) {
+          v(i) = o.via.array.ptr[i].as<T>();
+      }
+      return o;
+  }
+};
+
+template<typename T, std::size_t N>
+struct pack<Ubitrack::Math::Vector<T, N> > {
+  template<typename Stream>
+  msgpack::packer<Stream>& operator()(msgpack::packer<Stream>& o, const Ubitrack::Math::Vector<T, N>& v) const
+  {
+      std::size_t num_elements = N;
+      if (num_elements == 0) {
+          num_elements = v.size();
+      }
+      o.pack_array((uint32_t)num_elements);
+      for (std::size_t i = 0; i<num_elements; ++i) {
+          o.pack(v(i));
+      }
+      return o;
+  }
+};
+
+template<typename T, std::size_t N>
+struct object_with_zone<Ubitrack::Math::Vector<T, N> > {
+  void operator()(msgpack::object::with_zone& o, const Ubitrack::Math::Vector<T, N>& v) const
+  {
+      std::size_t num_elements = N;
+      if (num_elements == 0) {
+          num_elements = v.size();
+      }
+      o.type = type::ARRAY;
+      o.via.array.size = (uint32_t)num_elements;
+      o.via.array.ptr = static_cast<msgpack::object*>(
+              o.zone.allocate_align(sizeof(msgpack::object)*o.via.array.size));
+      for (std::size_t i = 0; i<num_elements; ++i) {
+          o.via.array.ptr[0] = msgpack::object(v(i), o.zone);
+      }
+  }
+};
+
+
+/*
+ * Ubitrack::Math::Matrix<T, M, N>
+ */
+template<typename T, std::size_t M, std::size_t N>
+struct as<Ubitrack::Math::Matrix<T, M, N>, typename std::enable_if<msgpack::has_as<T>::value>::type> {
+  Ubitrack::Math::Matrix<T, M, N> operator()(msgpack::object const& o) const
+  {
+      if (o.type!=msgpack::type::ARRAY) throw msgpack::type_error();
+      std::size_t num_elements = o.via.array.size;
+      if ((M>0) && (N>0)) {
+          if (num_elements!=M*N) throw msgpack::type_error();
+      } else {
+          // cannot unpack dynamically sized matrix without knowing dimensions ...
+          throw msgpack::type_error();
+      }
+      Ubitrack::Math::Matrix<T, M, N> result(M, N);
+      for (std::size_t i = 0; i<M; ++i) {
+          for (std::size_t j = 0; j<N; ++j) {
+              std::size_t idx = i*M + j;
+              result(i,j) = o.via.array.ptr[idx].as<T>();
+          }
+      }
+      return result;
+  }
+};
+
+template<typename T, std::size_t M, std::size_t N>
+struct convert<Ubitrack::Math::Matrix<T, M, N> > {
+  msgpack::object const& operator()(msgpack::object const& o, Ubitrack::Math::Matrix<T, M, N>& v) const
+  {
+      if (o.type!=msgpack::type::ARRAY) throw msgpack::type_error();
+      std::size_t num_elements = o.via.array.size;
+      if ((M>0) && (N>0)) {
+          if (num_elements!=M*N) throw msgpack::type_error();
+      } else {
+          // cannot unpack dynamically sized matrix without knowing dimensions ...
+          throw msgpack::type_error();
+      }
+      for (std::size_t i = 0; i<M; ++i) {
+          for (std::size_t j = 0; j<N; ++j) {
+              std::size_t idx = i*M + j;
+              v(i,j) = o.via.array.ptr[idx].as<T>();
+          }
+      }
+      return o;
+  }
+};
+
+template<typename T, std::size_t M, std::size_t N>
+struct pack<Ubitrack::Math::Matrix<T, M, N> > {
+  template<typename Stream>
+  msgpack::packer<Stream>& operator()(msgpack::packer<Stream>& o, const Ubitrack::Math::Matrix<T, M, N>& v) const
+  {
+      std::size_t num_elements = M*N;
+      if (num_elements == 0) {
+          // cannot pack dynamically sized matrix without also serializing dimensions ...
+          throw msgpack::type_error();
+      }
+      o.pack_array((uint32_t)num_elements);
+      for (std::size_t i = 0; i<M; ++i) {
+          for (std::size_t j = 0; j<N; ++j) {
+              std::size_t idx = i*M + j;
+              o.pack(v(i,j));
+          }
+      }
+      return o;
+  }
+};
+
+template<typename T, std::size_t M, std::size_t N>
+struct object_with_zone<Ubitrack::Math::Matrix<T, M, N> > {
+  void operator()(msgpack::object::with_zone& o, const Ubitrack::Math::Matrix<T, M, N>& v) const
+  {
+      std::size_t num_elements = M*N;
+      if (num_elements == 0) {
+          // cannot pack dynamically sized matrix without also serializing dimensions ...
+          throw msgpack::type_error();
+      }
+      o.type = type::ARRAY;
+      o.via.array.size = (uint32_t)num_elements;
+      o.via.array.ptr = static_cast<msgpack::object*>(
+              o.zone.allocate_align(sizeof(msgpack::object)*o.via.array.size));
+      for (std::size_t i = 0; i<M; ++i) {
+          for (std::size_t j = 0; j<N; ++j) {
+              std::size_t idx = i*M + j;
+              o.via.array.ptr[idx] = msgpack::object(v(i,j), o.zone);
+          }
+      }
+  }
+};
+
+
+
+
+
+/*
+ * Ubitrack::Math::Quaternion
+ */
+template<>
+struct as<Ubitrack::Math::Quaternion> {
+  Ubitrack::Math::Quaternion operator()(msgpack::object const& o) const
+  {
+      return Ubitrack::Math::Quaternion::fromVector(o.as<Ubitrack::Math::Vector<double, 4> >());
+  }
+};
+
+template<>
+struct convert<Ubitrack::Math::Quaternion > {
+  msgpack::object const& operator()(msgpack::object const& o, Ubitrack::Math::Quaternion& v) const
+  {
+      v = Ubitrack::Math::Quaternion::fromVector(o.as<Ubitrack::Math::Vector<double, 4> >());
+      return o;
+  }
+};
+
+template<>
+struct pack<Ubitrack::Math::Quaternion > {
+  template<typename Stream>
+  msgpack::packer<Stream>& operator()(msgpack::packer<Stream>& o, const Ubitrack::Math::Quaternion& v) const
+  {
+      Ubitrack::Math::Vector<double, 4> vec;
+      v.toVector(vec);
+      o.pack(vec);
+      return o;
+  }
+};
+
+template<>
+struct object_with_zone<Ubitrack::Math::Quaternion > {
+  void operator()(msgpack::object::with_zone& o, const Ubitrack::Math::Quaternion& v) const
+  {
+      o.type = type::ARRAY;
+      o.via.array.size = 4;
+      o.via.array.ptr = static_cast<msgpack::object*>(
+              o.zone.allocate_align(sizeof(msgpack::object)*o.via.array.size));
+      o.via.array.ptr[0] = msgpack::object(v.x(), o.zone);
+      o.via.array.ptr[1] = msgpack::object(v.y(), o.zone);
+      o.via.array.ptr[2] = msgpack::object(v.z(), o.zone);
+      o.via.array.ptr[3] = msgpack::object(v.w(), o.zone);
+  }
+};
+
+
+
+/*
+ * Ubitrack::Math::Pose
+ */
+template<>
+struct as<Ubitrack::Math::Pose> {
+  Ubitrack::Math::Pose operator()(msgpack::object const& o) const
+  {
+      if (o.type!=msgpack::type::ARRAY) throw msgpack::type_error();
+      if (o.via.array.size != 2) throw msgpack::type_error();
+      return Ubitrack::Math::Pose(
+              o.via.array.ptr[0].as<Ubitrack::Math::Quaternion>(),
+              o.via.array.ptr[1].as<Ubitrack::Math::Vector<double, 3> >()
+      );
+  }
+};
+
+template<>
+struct convert<Ubitrack::Math::Pose > {
+  msgpack::object const& operator()(msgpack::object const& o, Ubitrack::Math::Pose& v) const
+  {
+      if (o.type!=msgpack::type::ARRAY) throw msgpack::type_error();
+      if (o.via.array.size != 2) throw msgpack::type_error();
+      v = Ubitrack::Math::Pose(
+              o.via.array.ptr[0].as<Ubitrack::Math::Quaternion>(),
+              o.via.array.ptr[1].as<Ubitrack::Math::Vector<double, 3> >()
+      );
+      return o;
+  }
+};
+
+template<>
+struct pack<Ubitrack::Math::Pose > {
+  template<typename Stream>
+  msgpack::packer<Stream>& operator()(msgpack::packer<Stream>& o, const Ubitrack::Math::Pose& v) const
+  {
+      o.pack_array(2);
+      o.pack(v.rotation());
+      o.pack(v.translation());
+      return o;
+  }
+};
+
+template<>
+struct object_with_zone<Ubitrack::Math::Pose > {
+  void operator()(msgpack::object::with_zone& o, const Ubitrack::Math::Pose& v) const
+  {
+      o.type = type::ARRAY;
+      o.via.array.size = 2;
+      o.via.array.ptr = static_cast<msgpack::object*>(
+              o.zone.allocate_align(sizeof(msgpack::object)*o.via.array.size));
+      o.via.array.ptr[0] = msgpack::object(v.rotation(), o.zone);
+      o.via.array.ptr[1] = msgpack::object(v.translation(), o.zone);
+  }
+};
+
+} // namespace adaptor
+} // MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
+} // namespace msgpack
+
+#endif // HAVE_MSGPACK
+
+#endif //UBITRACK_MSGPACKSERIALIZER_H

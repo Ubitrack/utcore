@@ -106,12 +106,17 @@ void TestBoostArchive()
 {
     // Test simple data types
 
-    // Math::Scalar<double>
-    Math::Scalar<double> v_scalar(22);
-    testSerializeSimpleText(v_scalar);
-    testSerializeSimpleBinary(v_scalar);
+    // Math::Scalar<int>
+    Math::Scalar<int> v_scalari(22);
+    testSerializeSimpleText(v_scalari);
+    testSerializeSimpleBinary(v_scalari);
 
-    // Quaternion
+    // Math::Scalar<double>
+    Math::Scalar<double> v_scalard(22.33);
+    testSerializeSimpleText(v_scalard);
+    testSerializeSimpleBinary(v_scalard);
+
+    // Vector
     Math::Vector<double, 3> v_vec3 = randomVector<double, 3>(5.0);
     testSerializeSimpleText(v_vec3);
     testSerializeSimpleBinary(v_vec3);
@@ -126,12 +131,30 @@ void TestBoostArchive()
     testSerializeSimpleText(v_pose);
     testSerializeSimpleBinary(v_pose);
 
+    // Matrix3x3
+    Math::Matrix<double, 3, 3> v_mat33;
+    randomMatrix(v_mat33);
+    testSerializeSimpleText(v_mat33);
+    testSerializeSimpleBinary(v_mat33);
+
+    // Matrix4x4
+    Math::Matrix<double, 4, 4> v_mat44;
+    randomMatrix(v_mat44);
+    testSerializeSimpleText(v_mat44);
+    testSerializeSimpleBinary(v_mat44);
+
+
 
     // Test Measurements
 	Measurement::Timestamp ts = Measurement::now();
 
+    // Button
+    Measurement::Button m_button(ts, v_scalari);
+    testSerializeMeasurementText(m_button);
+    testSerializeMeasurementBinary(m_button);
+
     // Distance
-	Measurement::Distance m_distance(ts, v_scalar);
+	Measurement::Distance m_distance(ts, v_scalard);
 	testSerializeMeasurementText(m_distance);
 	testSerializeMeasurementBinary(m_distance);
 
@@ -149,6 +172,16 @@ void TestBoostArchive()
     Measurement::Pose m_pose(ts, v_pose);
     testSerializeMeasurementText(m_pose);
     testSerializeMeasurementBinary(m_pose);
+
+    // Matrix3x3
+    Measurement::Matrix3x3 m_mat33(ts, v_mat33);
+    testSerializeMeasurementText(m_mat33);
+    testSerializeMeasurementBinary(m_mat33);
+
+    // Matrix4x4
+    Measurement::Matrix4x4 m_mat44(ts, v_mat44);
+    testSerializeMeasurementText(m_mat44);
+    testSerializeMeasurementBinary(m_mat44);
 
 }
 
