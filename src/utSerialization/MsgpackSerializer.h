@@ -26,7 +26,7 @@
 /**
  * @ingroup serialization
  * @file
- * Boost-Binary Serialization
+ * Msgpack Serialization
  * @author Ulrich Eck <ulrich.eck@tum.de>
  */
 
@@ -452,6 +452,53 @@ struct object_with_zone<Ubitrack::Math::Quaternion > {
 
 
 /*
+ * Ubitrack::Math::RotationVelocity
+ */
+template<>
+struct as<Ubitrack::Math::RotationVelocity> {
+  Ubitrack::Math::RotationVelocity operator()(msgpack::object const& o) const
+  {
+      return Ubitrack::Math::RotationVelocity(o.as<Ubitrack::Math::Vector<double, 3> >());
+  }
+};
+
+template<>
+struct convert<Ubitrack::Math::RotationVelocity > {
+  msgpack::object const& operator()(msgpack::object const& o, Ubitrack::Math::RotationVelocity& v) const
+  {
+      v = Ubitrack::Math::RotationVelocity(o.as<Ubitrack::Math::Vector<double, 3> >());
+      return o;
+  }
+};
+
+template<>
+struct pack<Ubitrack::Math::RotationVelocity > {
+  template<typename Stream>
+  msgpack::packer<Stream>& operator()(msgpack::packer<Stream>& o, const Ubitrack::Math::RotationVelocity& v) const
+  {
+      Ubitrack::Math::Vector<double, 3> vec = (Ubitrack::Math::Vector<double, 3>)v;
+      o.pack(vec);
+      return o;
+  }
+};
+
+template<>
+struct object_with_zone<Ubitrack::Math::RotationVelocity > {
+  void operator()(msgpack::object::with_zone& o, const Ubitrack::Math::RotationVelocity& v) const
+  {
+      o.type = type::ARRAY;
+      o.via.array.size = 3;
+      o.via.array.ptr = static_cast<msgpack::object*>(
+              o.zone.allocate_align(sizeof(msgpack::object)*o.via.array.size));
+      o.via.array.ptr[0] = msgpack::object(v(0), o.zone);
+      o.via.array.ptr[1] = msgpack::object(v(1), o.zone);
+      o.via.array.ptr[2] = msgpack::object(v(2), o.zone);
+  }
+};
+
+
+
+/*
  * Ubitrack::Math::Pose
  */
 template<>
@@ -505,6 +552,196 @@ struct object_with_zone<Ubitrack::Math::Pose > {
       o.via.array.ptr[1] = msgpack::object(v.translation(), o.zone);
   }
 };
+
+
+
+/*
+ * Ubitrack::Math::ErrorVector<T,N>
+ */
+template<typename T, std::size_t N>
+struct as<Ubitrack::Math::ErrorVector<T, N> > {
+  Ubitrack::Math::ErrorVector<T, N> operator()(msgpack::object const& o) const
+  {
+      if (o.type!=msgpack::type::ARRAY) throw msgpack::type_error();
+      if (o.via.array.size != 2) throw msgpack::type_error();
+      return Ubitrack::Math::ErrorVector<T, N>(
+              o.via.array.ptr[0].as<Ubitrack::Math::Vector<T, N> >(),
+              o.via.array.ptr[1].as<Ubitrack::Math::Matrix<T, N, N> >()
+      );
+  }
+};
+
+template<typename T, std::size_t N>
+struct convert<Ubitrack::Math::ErrorVector<T, N> > {
+  msgpack::object const& operator()(msgpack::object const& o, Ubitrack::Math::ErrorVector<T, N>& v) const
+  {
+      if (o.type!=msgpack::type::ARRAY) throw msgpack::type_error();
+      if (o.via.array.size != 2) throw msgpack::type_error();
+      v = Ubitrack::Math::ErrorVector<T, N>(
+              o.via.array.ptr[0].as<Ubitrack::Math::Vector<T, N> >(),
+              o.via.array.ptr[1].as<Ubitrack::Math::Matrix<T, N, N> >()
+      );
+      return o;
+  }
+};
+
+template<typename T, std::size_t N>
+struct pack<Ubitrack::Math::ErrorVector<T, N> > {
+  template<typename Stream>
+  msgpack::packer<Stream>& operator()(msgpack::packer<Stream>& o, const Ubitrack::Math::ErrorVector<T, N>& v) const
+  {
+      o.pack_array(2);
+      o.pack(v.value);
+      o.pack(v.covariance);
+      return o;
+  }
+};
+
+template<typename T, std::size_t N>
+struct object_with_zone<Ubitrack::Math::ErrorVector<T, N> > {
+  void operator()(msgpack::object::with_zone& o, const Ubitrack::Math::ErrorVector<T, N>& v) const
+  {
+      o.type = type::ARRAY;
+      o.via.array.size = 2;
+      o.via.array.ptr = static_cast<msgpack::object*>(
+              o.zone.allocate_align(sizeof(msgpack::object)*o.via.array.size));
+      o.via.array.ptr[0] = msgpack::object(v.value, o.zone);
+      o.via.array.ptr[1] = msgpack::object(v.covariance, o.zone);
+  }
+};
+
+
+
+/*
+ * Ubitrack::Math::ErrorPose
+ */
+template<>
+struct as<Ubitrack::Math::ErrorPose> {
+  Ubitrack::Math::ErrorPose operator()(msgpack::object const& o) const
+  {
+      if (o.type!=msgpack::type::ARRAY) throw msgpack::type_error();
+      if (o.via.array.size != 3) throw msgpack::type_error();
+      return Ubitrack::Math::ErrorPose(
+              o.via.array.ptr[0].as<Ubitrack::Math::Quaternion>(),
+              o.via.array.ptr[1].as<Ubitrack::Math::Vector<double, 3> >(),
+              o.via.array.ptr[2].as< Ubitrack::Math::Matrix< double, 6, 6 > >()
+      );
+  }
+};
+
+template<>
+struct convert<Ubitrack::Math::ErrorPose > {
+  msgpack::object const& operator()(msgpack::object const& o, Ubitrack::Math::ErrorPose& v) const
+  {
+      if (o.type!=msgpack::type::ARRAY) throw msgpack::type_error();
+      if (o.via.array.size != 3) throw msgpack::type_error();
+      v = Ubitrack::Math::ErrorPose(
+              o.via.array.ptr[0].as<Ubitrack::Math::Quaternion>(),
+              o.via.array.ptr[1].as<Ubitrack::Math::Vector<double, 3> >(),
+              o.via.array.ptr[2].as< Ubitrack::Math::Matrix< double, 6, 6 > >()
+      );
+      return o;
+  }
+};
+
+template<>
+struct pack<Ubitrack::Math::ErrorPose > {
+  template<typename Stream>
+  msgpack::packer<Stream>& operator()(msgpack::packer<Stream>& o, const Ubitrack::Math::ErrorPose& v) const
+  {
+      o.pack_array(3);
+      o.pack(v.rotation());
+      o.pack(v.translation());
+      o.pack(v.covariance());
+      return o;
+  }
+};
+
+template<>
+struct object_with_zone<Ubitrack::Math::ErrorPose > {
+  void operator()(msgpack::object::with_zone& o, const Ubitrack::Math::ErrorPose& v) const
+  {
+      o.type = type::ARRAY;
+      o.via.array.size = 3;
+      o.via.array.ptr = static_cast<msgpack::object*>(
+              o.zone.allocate_align(sizeof(msgpack::object)*o.via.array.size));
+      o.via.array.ptr[0] = msgpack::object(v.rotation(), o.zone);
+      o.via.array.ptr[1] = msgpack::object(v.translation(), o.zone);
+      o.via.array.ptr[2] = msgpack::object(v.covariance(), o.zone);
+  }
+};
+
+
+/*
+ * Ubitrack::Math::CameraIntrinsics<T>
+ */
+template<typename T>
+struct as<Ubitrack::Math::CameraIntrinsics<T> > {
+  Ubitrack::Math::CameraIntrinsics<T> operator()(msgpack::object const& o) const
+  {
+      if (o.type!=msgpack::type::ARRAY) throw msgpack::type_error();
+      if (o.via.array.size != 6) throw msgpack::type_error();
+      Ubitrack::Math::CameraIntrinsics<T> result;
+      result.calib_type = static_cast<typename Ubitrack::Math::CameraIntrinsics<T>::CalibType>(o.via.array.ptr[0].as<int>());
+      result.dimension = o.via.array.ptr[1].as<Ubitrack::Math::Vector< std::size_t, 2 > >();
+      result.matrix = o.via.array.ptr[2].as<Ubitrack::Math::Matrix< T, 3, 3 > >();
+      result.radial_size = o.via.array.ptr[3].as<std::size_t>();
+      result.radial_params = o.via.array.ptr[4].as<Ubitrack::Math::Vector< T, 6 > >();
+      result.tangential_params = o.via.array.ptr[5].as<Ubitrack::Math::Vector< T, 2 > >();
+      return result;
+  }
+};
+
+template<typename T>
+struct convert<Ubitrack::Math::CameraIntrinsics<T> > {
+  msgpack::object const& operator()(msgpack::object const& o, Ubitrack::Math::CameraIntrinsics<T>& v) const
+  {
+      if (o.type!=msgpack::type::ARRAY) throw msgpack::type_error();
+      if (o.via.array.size != 6) throw msgpack::type_error();
+      v.calib_type = static_cast<typename Ubitrack::Math::CameraIntrinsics<T>::CalibType>(o.via.array.ptr[0].as<int>());
+      v.dimension = o.via.array.ptr[1].as<Ubitrack::Math::Vector< std::size_t, 2 > >();
+      v.matrix = o.via.array.ptr[2].as<Ubitrack::Math::Matrix< T, 3, 3 > >();
+      v.radial_size = o.via.array.ptr[3].as<std::size_t>();
+      v.radial_params = o.via.array.ptr[4].as<Ubitrack::Math::Vector< T, 6 > >();
+      v.tangential_params = o.via.array.ptr[5].as<Ubitrack::Math::Vector< T, 2 > >();
+      return o;
+  }
+};
+
+template<typename T>
+struct pack<Ubitrack::Math::CameraIntrinsics<T> > {
+  template<typename Stream>
+  msgpack::packer<Stream>& operator()(msgpack::packer<Stream>& o, const Ubitrack::Math::CameraIntrinsics<T>& v) const
+  {
+      o.pack_array(6);
+      o.pack((int)v.calib_type);
+      o.pack(v.dimension);
+      o.pack(v.matrix);
+      o.pack(v.radial_size);
+      o.pack(v.radial_params);
+      o.pack(v.tangential_params);
+      return o;
+  }
+};
+
+template<typename T>
+struct object_with_zone<Ubitrack::Math::CameraIntrinsics<T> > {
+  void operator()(msgpack::object::with_zone& o, const Ubitrack::Math::CameraIntrinsics<T>& v) const
+  {
+      o.type = type::ARRAY;
+      o.via.array.size = 6;
+      o.via.array.ptr = static_cast<msgpack::object*>(
+              o.zone.allocate_align(sizeof(msgpack::object)*o.via.array.size));
+      o.via.array.ptr[0] = msgpack::object((int)v.calib_type, o.zone);
+      o.via.array.ptr[1] = msgpack::object(v.dimension, o.zone);
+      o.via.array.ptr[2] = msgpack::object(v.matrix, o.zone);
+      o.via.array.ptr[3] = msgpack::object(v.radial_size, o.zone);
+      o.via.array.ptr[4] = msgpack::object(v.radial_params, o.zone);
+      o.via.array.ptr[5] = msgpack::object(v.tangential_params, o.zone);
+  }
+};
+
+
 
 } // namespace adaptor
 } // MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)

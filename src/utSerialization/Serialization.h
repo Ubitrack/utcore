@@ -68,14 +68,18 @@ enum SerializationProtocol {
 template<typename T, typename Stream>
 inline void serialize(const SerializationProtocol p, Stream& stream, const T& t)
 {
-    boost::archive::text_oarchive out_archive_t( stream );
-    boost::archive::binary_oarchive out_archive_b( stream );
     switch(p) {
     case PROTOCOL_BOOST_TEXT:
+    {
+        boost::archive::text_oarchive out_archive_t( stream );
         BoostArchive::serialize(out_archive_t, t);
+    }
         break;
     case PROTOCOL_BOOST_BINARY:
+    {
+        boost::archive::binary_oarchive out_archive_b( stream );
         BoostArchive::serialize(out_archive_b, t);
+    }
         break;
 #ifdef HAVE_MSGPACK
     case PROTOCOL_MSGPACK:
@@ -93,14 +97,18 @@ inline void serialize(const SerializationProtocol p, Stream& stream, const T& t)
 template<typename T, typename Stream>
 inline void deserialize(const SerializationProtocol p, Stream& stream, T& t)
 {
-    boost::archive::text_iarchive in_archive_t( stream );
-    boost::archive::binary_iarchive in_archive_b( stream );
     switch(p) {
     case PROTOCOL_BOOST_TEXT:
+    {
+        boost::archive::text_iarchive in_archive_t( stream );
         BoostArchive::deserialize(in_archive_t, t);
+    }
         break;
     case PROTOCOL_BOOST_BINARY:
+    {
+        boost::archive::binary_iarchive in_archive_b( stream );
         BoostArchive::deserialize(in_archive_b, t);
+    }
         break;
 #ifdef HAVE_MSGPACK
     case PROTOCOL_MSGPACK:
