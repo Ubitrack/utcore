@@ -102,6 +102,72 @@ void testSerializeMeasurementBinary(const Measurement::Measurement< T >& data)
 }
 
 
+void testSerializeBinaryMultiple()
+{
+
+    // Math::Scalar<int>
+    Math::Scalar<int> v_scalari(22);
+    // Math::Scalar<double>
+    Math::Scalar<double> v_scalard(22.33);
+    // Vector
+    Math::Vector<double, 3> v_vec3 = randomVector<double, 3>(5.0);
+    // Quaternion
+    Math::Quaternion v_quat = randomQuaternion();
+    // Pose
+    Math::Pose v_pose(randomQuaternion(), randomVector<double, 3>(5.0));
+    // Matrix3x3
+    Math::Matrix<double, 3, 3> v_mat33;
+    randomMatrix(v_mat33);
+    // Matrix4x4
+    Math::Matrix<double, 4, 4> v_mat44;
+    randomMatrix(v_mat44);
+
+
+    // Serialize
+    std::ostringstream ostream;
+    boost::archive::binary_oarchive out_archive( ostream );
+    // serialize all elements
+    BoostArchive::serialize(out_archive, v_scalari);
+    BoostArchive::serialize(out_archive, v_scalard);
+    BoostArchive::serialize(out_archive, v_vec3);
+    BoostArchive::serialize(out_archive, v_quat);
+    BoostArchive::serialize(out_archive, v_pose);
+    BoostArchive::serialize(out_archive, v_mat33);
+    BoostArchive::serialize(out_archive, v_mat44);
+
+    std::string serialized_data(ostream.str());
+
+    // Deserialize elements
+    Math::Scalar<int> r_scalari;
+    Math::Scalar<double> r_scalard;
+    Math::Vector<double, 3> r_vec3;
+    Math::Quaternion r_quat;
+    Math::Pose r_pose;
+    Math::Matrix<double, 3, 3> r_mat33;
+    Math::Matrix<double, 4, 4> r_mat44;
+
+    typedef boost::iostreams::basic_array_source<char> Device;
+    boost::iostreams::stream_buffer<Device> istream((char*)serialized_data.data(), serialized_data.size());
+    boost::archive::binary_iarchive in_archive( istream );
+
+    BoostArchive::deserialize(in_archive, r_scalari);
+    BOOST_CHECK_EQUAL(v_scalari, r_scalari);
+    BoostArchive::deserialize(in_archive, r_scalard);
+    BOOST_CHECK_EQUAL(v_scalard, r_scalard);
+    BoostArchive::deserialize(in_archive, r_vec3);
+    BOOST_CHECK_EQUAL(v_vec3, r_vec3);
+    BoostArchive::deserialize(in_archive, r_quat);
+    BOOST_CHECK_EQUAL(v_quat, r_quat);
+    BoostArchive::deserialize(in_archive, r_pose);
+    BOOST_CHECK_EQUAL(v_pose, r_pose);
+    BoostArchive::deserialize(in_archive, r_mat33);
+    BOOST_CHECK_EQUAL(v_mat33, r_mat33);
+    BoostArchive::deserialize(in_archive, r_mat44);
+    BOOST_CHECK_EQUAL(v_mat44, r_mat44);
+}
+
+
+
 void TestBoostArchive()
 {
     // Test simple data types
@@ -183,6 +249,8 @@ void TestBoostArchive()
     testSerializeMeasurementText(m_mat44);
     testSerializeMeasurementBinary(m_mat44);
 
+    // test serializing multiple objects in astream
+    testSerializeBinaryMultiple();
 }
 
 

@@ -25,93 +25,101 @@
 /**
  * @ingroup serialization
  * @file
- * Boost-Binary Serialization
+ * Base Clases for Serialization
  * @author Ulrich Eck <ulrich.eck@tum.de>
  */
 
-#ifndef UBITRACK_BOOSTBINARYSERIALIZER_H
-#define UBITRACK_BOOSTBINARYSERIALIZER_H
 
+#ifndef UBITRACK_BASESERIALIZER_H
+#define UBITRACK_BASESERIALIZER_H
 
-#include "utSerialization/BaseSerializer.h"
-#include "utSerialization/SerializationFormat.h"
+#include "utSerialization/Exception.h"
+#include "utSerialization/SerializationTypes.h"
+#include "utSerialization/SerializationTraits.h"
+#include <stdexcept>
+#include <string>
 
-#include "utMeasurement/Measurement.h"
-
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/binary_object.hpp>
-#include <boost/iostreams/device/array.hpp>
-#include <boost/iostreams/stream.hpp>
 
 #include <boost/array.hpp>
 #include <boost/call_traits.hpp>
 #include <boost/utility/enable_if.hpp>
 
+#include <memory>
+#include <string>
+#include <vector>
+#include <map>
+#include <set>
+#include <list>
+
+
+
 namespace Ubitrack {
 namespace Serialization {
-namespace BoostArchive {
 
+/**
+ * \brief Templated serialization class.
+ *
+ * Base Serializer Class - needs a format to serialize/deserialize Objects of type T to a stream of type Stream
+ */
+template<typename T, typename F>
+struct BaseSerializer {
 
-template<typename T>
-struct BoostArchiveSerializationFormat
-{
+  /**
+   * \brief Write an object to the stream.
+   */
   template<typename Stream>
-  inline static void write(Stream& stream,  typename boost::call_traits<T>::param_type t)
+  inline static void write(Stream& stream, typename boost::call_traits<T>::param_type t)
   {
-      stream << t;
+      F::write(stream, t);
   }
 
+  /**
+   * \brief Read an object from the stream.
+   */
   template<typename Stream>
   inline static void read(Stream& stream, typename boost::call_traits<T>::reference t)
   {
-      stream >> t;
+      F::read(stream, t);
   }
 
+  /**
+   * \brief Determine the maximum serialized length of an object.
+   */
   inline static uint32_t maxSerializedLength(typename boost::call_traits<T>::param_type t)
   {
-      // only way to find out is to either specialize for all types
-      // or to serialize into a stringstream  to know for shure ...
-      return 0; // Not Supported for now
+      return F::maxSerializedLength(t);
   }
 };
 
-
 /**
- * \brief Serialize an object.  Stream here should normally be a boost::archive::binary_oarchive
+ * \brief Serialize an object.
  */
-template<typename T, typename Stream>
+template<typename T, typename F, typename Stream>
 inline void serialize(Stream& stream, const T& t)
 {
-    BaseSerializer<T, BoostArchiveSerializationFormat<T> >::write(stream, t);
+    BaseSerializer<T, F>::write(stream, t);
 }
 
 /**
- * \brief Deserialize an object.  Stream here should normally be a boost::archive::binary_iarchive
+ * \brief Deserialize an object.
  */
-template<typename T, typename Stream>
+template<typename T, typename F, typename Stream>
 inline void deserialize(Stream& stream, T& t)
 {
-    BaseSerializer<T, BoostArchiveSerializationFormat<T> >::read(stream, t);
+    BaseSerializer<T, F>::read(stream, t);
 }
 
 /**
- * \brief Determine the serialized length of an object
+ * \brief Determine the maximum serialized length of an object
  */
-template<typename T>
+template<typename T, typename F>
 inline uint32_t maxSerializationLength(const T& t)
 {
-    return BaseSerializer<T, BoostArchiveSerializationFormat<T> >::maxSerializedLength(t);
+    return BaseSerializer<T, F>::maxSerializedLength(t);
 }
 
 
-
-} // BoostArchive
 } // Serialization
 } // Ubitrack
 
-#endif //UBITRACK_BOOSTBINARYSERIALIZER_H
+#endif //UBITRACK_BASESERIALIZER_H

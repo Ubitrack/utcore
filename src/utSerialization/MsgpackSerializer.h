@@ -36,7 +36,7 @@
 #ifndef UBITRACK_MSGPACKSERIALIZER_H
 #define UBITRACK_MSGPACKSERIALIZER_H
 
-#include "utSerialization/Serialization.h"
+#include "utSerialization/BaseSerializer.h"
 #include "utSerialization/SerializationFormat.h"
 
 #include "utMeasurement/Measurement.h"
@@ -62,6 +62,13 @@ struct MsgpackSerializationFormat {
   }
 
   template<typename Stream>
+  inline static void write(msgpack::packer<Stream>& pac, typename boost::call_traits<T>::param_type t)
+  {
+      pac.pack(t);
+  }
+
+  // @todo how can we simplify the std::enable_if
+  template<typename Stream, typename std::enable_if< ! std::is_same<msgpack::unpacker,Stream>::value>::type * = nullptr>
   inline static void read(Stream& stream, typename boost::call_traits<T>::reference t)
   {
       msgpack::object_handle result;
@@ -70,11 +77,25 @@ struct MsgpackSerializationFormat {
       obj.convert(t);
   }
 
+  template<typename Stream,  typename std::enable_if< std::is_same<msgpack::unpacker,Stream>::value>::type * = nullptr>
+  inline static void read(Stream& pac, typename boost::call_traits<T>::reference t)
+  {
+      msgpack::object_handle oh;
+      if (pac.next(oh)) {
+          msgpack::object obj = oh.get();
+          obj.convert(t);
+      } else {
+          // throw ??
+      }
+  }
+
+
   inline static uint32_t maxSerializedLength(typename boost::call_traits<T>::param_type t)
   {
       return 0;
   }
 };
+
 
 /**
  * \brief Serialize an object.  Stream here should normally be a boost::archive::binary_oarchive
@@ -82,7 +103,7 @@ struct MsgpackSerializationFormat {
 template<typename T, typename Stream>
 inline void serialize(Stream& stream, const T& t)
 {
-    Serializer<T, MsgpackSerializationFormat<T> >::write(stream, t);
+    BaseSerializer<T, MsgpackSerializationFormat<T> >::write(stream, t);
 }
 
 /**
@@ -91,7 +112,7 @@ inline void serialize(Stream& stream, const T& t)
 template<typename T, typename Stream>
 inline void deserialize(Stream& stream, T& t)
 {
-    Serializer<T, MsgpackSerializationFormat<T> >::read(stream, t);
+    BaseSerializer<T, MsgpackSerializationFormat<T> >::read(stream, t);
 }
 
 /**
@@ -100,7 +121,7 @@ inline void deserialize(Stream& stream, T& t)
 template<typename T>
 inline uint32_t maxSerializationLength(const T& t)
 {
-    return Serializer<T, MsgpackSerializationFormat<T> >::maxSerializedLength(t);
+    return BaseSerializer<T, MsgpackSerializationFormat<T> >::maxSerializedLength(t);
 }
 
 } // MsgpackArchive

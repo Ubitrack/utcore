@@ -31,7 +31,7 @@
 
 
 #include "Exception.h"
-#include "Serialization.h"
+#include "BaseSerializer.h"
 #include "SerializationTypes.h"
 #include "SerializationTraits.h"
 #include "SerializationFormat.h"

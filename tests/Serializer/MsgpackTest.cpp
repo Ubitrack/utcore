@@ -107,6 +107,74 @@ Ubitrack::Measurement::Measurement< std::vector< T > > make_vector_measurement(u
 }
 
 
+
+void testSerializeMultiple()
+{
+
+    // Math::Scalar<int>
+    Math::Scalar<int> v_scalari(22);
+    // Math::Scalar<double>
+    Math::Scalar<double> v_scalard(22.33);
+    // Vector
+    Math::Vector<double, 3> v_vec3 = randomVector<double, 3>(5.0);
+    // Quaternion
+    Math::Quaternion v_quat = randomQuaternion();
+    // Pose
+    Math::Pose v_pose(randomQuaternion(), randomVector<double, 3>(5.0));
+    // Matrix3x3
+    Math::Matrix<double, 3, 3> v_mat33;
+    randomMatrix(v_mat33);
+    // Matrix4x4
+    Math::Matrix<double, 4, 4> v_mat44;
+    randomMatrix(v_mat44);
+
+    msgpack::sbuffer buffer;
+    msgpack::packer<msgpack::sbuffer> pk(&buffer);
+
+    // serialize all elements
+    MsgpackArchive::serialize(pk, v_scalari);
+    MsgpackArchive::serialize(pk, v_scalard);
+    MsgpackArchive::serialize(pk, v_vec3);
+    MsgpackArchive::serialize(pk, v_quat);
+    MsgpackArchive::serialize(pk, v_pose);
+    MsgpackArchive::serialize(pk, v_mat33);
+    MsgpackArchive::serialize(pk, v_mat44);
+
+    // transfer to destination
+    msgpack::unpacker pac;
+    pac.reserve_buffer(buffer.size());
+    // simulate transfer
+    memcpy(pac.buffer(), buffer.data(), buffer.size() );
+
+    pac.buffer_consumed(buffer.size());
+
+    // Deserialize elements
+    Math::Scalar<int> r_scalari;
+    Math::Scalar<double> r_scalard;
+    Math::Vector<double, 3> r_vec3;
+    Math::Quaternion r_quat;
+    Math::Pose r_pose;
+    Math::Matrix<double, 3, 3> r_mat33;
+    Math::Matrix<double, 4, 4> r_mat44;
+
+    MsgpackArchive::deserialize(pac, r_scalari);
+    BOOST_CHECK_EQUAL(v_scalari, r_scalari);
+    MsgpackArchive::deserialize(pac, r_scalard);
+    BOOST_CHECK_EQUAL(v_scalard, r_scalard);
+    MsgpackArchive::deserialize(pac, r_vec3);
+    BOOST_CHECK_EQUAL(v_vec3, r_vec3);
+    MsgpackArchive::deserialize(pac, r_quat);
+    BOOST_CHECK_EQUAL(v_quat, r_quat);
+    MsgpackArchive::deserialize(pac, r_pose);
+    BOOST_CHECK_EQUAL(v_pose, r_pose);
+    MsgpackArchive::deserialize(pac, r_mat33);
+    BOOST_CHECK_EQUAL(v_mat33, r_mat33);
+    MsgpackArchive::deserialize(pac, r_mat44);
+    BOOST_CHECK_EQUAL(v_mat44, r_mat44);
+}
+
+
+
 #endif // HAVE_MSGPACK
 
 
@@ -214,6 +282,9 @@ void TestMsgpack()
     testSerializeMeasurement(m_mat44);
 
 
+    // test serializing multiple objects in astream
+    testSerializeMultiple();
+    
 #endif // HAVE_MSGPACK
 }
 

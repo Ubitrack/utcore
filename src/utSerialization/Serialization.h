@@ -25,7 +25,7 @@
 /**
  * @ingroup serialization
  * @file
- * Base Clases for Serialization
+ * Frontend for Serialization of Ubitrack Types
  * @author Ulrich Eck <ulrich.eck@tum.de>
  */
 
@@ -33,11 +33,8 @@
 #ifndef UBITRACK_SERIALIZATION_H
 #define UBITRACK_SERIALIZATION_H
 
-#include "utSerialization/Exception.h"
-#include "utSerialization/SerializationTypes.h"
-#include "utSerialization/SerializationTraits.h"
-#include <stdexcept>
-#include <string>
+#include "utSerialization/BoostArchiveSerializer.h"
+#include "utSerialization/MsgpackSerializer.h"
 
 
 #include <boost/array.hpp>
@@ -56,66 +53,63 @@
 namespace Ubitrack {
 namespace Serialization {
 
-/**
- * \brief Templated serialization class.
- *
- * Base Serializer Class - needs a format to serialize/deserialize Objects of type T to a stream of type Stream
- */
-template<typename T, typename F>
-struct Serializer {
 
-  /**
-   * \brief Write an object to the stream.
-   */
-  template<typename Stream>
-  inline static void write(Stream& stream, typename boost::call_traits<T>::param_type t)
-  {
-      F::write(stream, t);
-  }
-
-  /**
-   * \brief Read an object from the stream.
-   */
-  template<typename Stream>
-  inline static void read(Stream& stream, typename boost::call_traits<T>::reference t)
-  {
-      F::read(stream, t);
-  }
-
-  /**
-   * \brief Determine the maximum serialized length of an object.
-   */
-  inline static uint32_t maxSerializedLength(typename boost::call_traits<T>::param_type t)
-  {
-      return F::maxSerializedLength(t);
-  }
+enum SerializationProtocol {
+  PROTOCOL_UNKNOWN = 0,
+  PROTOCOL_BOOST_TEXT,
+  PROTOCOL_BOOST_BINARY,
+  PROTOCOL_MSGPACK
 };
+
 
 /**
  * \brief Serialize an object.
  */
-template<typename T, typename F, typename Stream>
-inline void serialize(Stream& stream, const T& t)
+template<typename T, typename Stream>
+inline void serialize(const SerializationProtocol p, Stream& stream, const T& t)
 {
-    Serializer<T, F>::write(stream, t);
+    boost::archive::text_oarchive out_archive_t( stream );
+    boost::archive::binary_oarchive out_archive_b( stream );
+    switch(p) {
+    case PROTOCOL_BOOST_TEXT:
+        BoostArchive::serialize(out_archive_t, t);
+        break;
+    case PROTOCOL_BOOST_BINARY:
+        BoostArchive::serialize(out_archive_b, t);
+        break;
+#ifdef HAVE_MSGPACK
+    case PROTOCOL_MSGPACK:
+        MsgpackArchive::serialize(stream, t);
+        break;
+#endif // HAVE_MSGPACK
+    default:
+        UBITRACK_THROW("Unknown Serialization Protocol");
+    }
 }
 
 /**
- * \brief Deserialize an object.
+ * \brief Deserialize an object using a protocol (format).
  */
-template<typename T, typename F, typename Stream>
-inline void deserialize(Stream& stream, T& t)
+template<typename T, typename Stream>
+inline void deserialize(const SerializationProtocol p, Stream& stream, T& t)
 {
-    Serializer<T, F>::read(stream, t);
-}
-
-/**
- * \brief Determine the maximum serialized length of an object
- */
-template<typename T, typename F>
-inline uint32_t maxSerializationLength(const T& t)
-{
-    return Serializer<T, F>::maxSerializedLength(t);
+    boost::archive::text_iarchive in_archive_t( stream );
+    boost::archive::binary_iarchive in_archive_b( stream );
+    switch(p) {
+    case PROTOCOL_BOOST_TEXT:
+        BoostArchive::deserialize(in_archive_t, t);
+        break;
+    case PROTOCOL_BOOST_BINARY:
+        BoostArchive::deserialize(in_archive_b, t);
+        break;
+#ifdef HAVE_MSGPACK
+    case PROTOCOL_MSGPACK:
+        MsgpackArchive::deserialize(stream, t);
+        break;
+#endif // HAVE_MSGPACK
+    default:
+        UBITRACK_THROW("Unknown Serialization Protocol");
+    }
 }
 
 
