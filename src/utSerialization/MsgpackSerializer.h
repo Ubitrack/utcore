@@ -67,23 +67,13 @@ struct MsgpackSerializationFormat {
       pac.pack(t);
   }
 
-  // @todo how can we simplify the std::enable_if
-  template<typename Stream, typename std::enable_if< ! std::is_same<msgpack::unpacker,Stream>::value>::type * = nullptr>
-  inline static void read(Stream& stream, typename boost::call_traits<T>::reference t)
-  {
-      msgpack::object_handle result;
-      msgpack::unpack(result, static_cast<const char*>(stream.data()), stream.size());
-      msgpack::object obj(result.get());
-      obj.convert(t);
-  }
-
-  template<typename Stream,  typename std::enable_if< std::is_same<msgpack::unpacker,Stream>::value>::type * = nullptr>
+  template<typename Stream>
   inline static void read(Stream& pac, typename boost::call_traits<T>::reference t)
   {
       msgpack::object_handle oh;
       if (pac.next(oh)) {
           msgpack::object obj = oh.get();
-          obj.convert(t);
+          obj.convert<T>(t);
       } else {
           // throw ??
       }
@@ -136,6 +126,8 @@ namespace adaptor {
 /*
  * Measurements of type T
  */
+
+#if !defined(MSGPACK_USE_CPP03)
 template<typename T>
 struct as<Ubitrack::Measurement::Measurement<T>, typename std::enable_if<msgpack::has_as<T>::value>::type> {
   Ubitrack::Measurement::Measurement<T> operator()(msgpack::object const& o) const
@@ -149,6 +141,7 @@ struct as<Ubitrack::Measurement::Measurement<T>, typename std::enable_if<msgpack
       );
   }
 };
+#endif // !defined(MSGPACK_USE_CPP03)
 
 template<typename T>
 struct convert<Ubitrack::Measurement::Measurement<T> > {
@@ -163,7 +156,9 @@ struct convert<Ubitrack::Measurement::Measurement<T> > {
           if (o.via.array.size!=2) throw msgpack::type_error();
           T value;
           msgpack::adaptor::convert<T>()(o.via.array.ptr[1], value);
-          v = Ubitrack::Measurement::Measurement<T>(o.via.array.ptr[0].as<unsigned long long>(), value);
+		  unsigned long long ts;
+		  msgpack::adaptor::convert<unsigned long long>()(o.via.array.ptr[0], ts);
+          v = Ubitrack::Measurement::Measurement<T>(ts, value);
       }
       return o;
   }
@@ -207,11 +202,23 @@ struct object_with_zone<Ubitrack::Measurement::Measurement<T> > {
 /*
  * Ubitrack::Math::Scalar<T>
  */
+#if !defined(MSGPACK_USE_CPP03)
 template<typename T>
 struct convert<Ubitrack::Math::Scalar<T> > {
   msgpack::object const& operator()(msgpack::object const& o, Ubitrack::Math::Scalar<T>& v) const
   {
       v = Ubitrack::Math::Scalar<T>(o.as<T>());
+      return o;
+  }
+};
+#endif 
+
+
+template<typename T>
+struct convert<Ubitrack::Math::Scalar<T> > {
+  msgpack::object const& operator()(msgpack::object const& o, Ubitrack::Math::Scalar<T>& v) const
+  {
+	  msgpack::adaptor::convert<T>()(o, v.m_value);
       return o;
   }
 };
@@ -238,6 +245,7 @@ struct object_with_zone<Ubitrack::Math::Scalar<T> > {
 /*
  * Ubitrack::Math::Vector<T, N>
  */
+#if !defined(MSGPACK_USE_CPP03)
 template<typename T, std::size_t N>
 struct as<Ubitrack::Math::Vector<T, N>, typename std::enable_if<msgpack::has_as<T>::value>::type> {
   Ubitrack::Math::Vector<T, N> operator()(msgpack::object const& o) const
@@ -254,6 +262,7 @@ struct as<Ubitrack::Math::Vector<T, N>, typename std::enable_if<msgpack::has_as<
       return result;
   }
 };
+#endif // !defined(MSGPACK_USE_CPP03)
 
 template<typename T, std::size_t N>
 struct convert<Ubitrack::Math::Vector<T, N> > {
@@ -265,7 +274,8 @@ struct convert<Ubitrack::Math::Vector<T, N> > {
           if (num_elements!=N) throw msgpack::type_error();
       }
       for (std::size_t i = 0; i<num_elements; ++i) {
-          v(i) = o.via.array.ptr[i].as<T>();
+		  msgpack::adaptor::convert<T>()(o.via.array.ptr[i], v(i));
+          //v(i) = o.via.array.ptr[i].as<T>();
       }
       return o;
   }
@@ -310,6 +320,7 @@ struct object_with_zone<Ubitrack::Math::Vector<T, N> > {
 /*
  * Ubitrack::Math::Matrix<T, M, N>
  */
+#if !defined(MSGPACK_USE_CPP03)
 template<typename T, std::size_t M, std::size_t N>
 struct as<Ubitrack::Math::Matrix<T, M, N>, typename std::enable_if<msgpack::has_as<T>::value>::type> {
   Ubitrack::Math::Matrix<T, M, N> operator()(msgpack::object const& o) const
@@ -332,6 +343,7 @@ struct as<Ubitrack::Math::Matrix<T, M, N>, typename std::enable_if<msgpack::has_
       return result;
   }
 };
+#endif // !defined(MSGPACK_USE_CPP03)
 
 template<typename T, std::size_t M, std::size_t N>
 struct convert<Ubitrack::Math::Matrix<T, M, N> > {
@@ -348,7 +360,8 @@ struct convert<Ubitrack::Math::Matrix<T, M, N> > {
       for (std::size_t i = 0; i<M; ++i) {
           for (std::size_t j = 0; j<N; ++j) {
               std::size_t idx = i*M + j;
-              v(i,j) = o.via.array.ptr[idx].as<T>();
+			  msgpack::adaptor::convert<T>()(o.via.array.ptr[idx], v(i, j));
+              //v(i,j) = o.via.array.ptr[idx].as<T>();
           }
       }
       return o;
@@ -405,6 +418,7 @@ struct object_with_zone<Ubitrack::Math::Matrix<T, M, N> > {
 /*
  * Ubitrack::Math::Quaternion
  */
+#if !defined(MSGPACK_USE_CPP03)
 template<>
 struct as<Ubitrack::Math::Quaternion> {
   Ubitrack::Math::Quaternion operator()(msgpack::object const& o) const
@@ -412,12 +426,15 @@ struct as<Ubitrack::Math::Quaternion> {
       return Ubitrack::Math::Quaternion::fromVector(o.as<Ubitrack::Math::Vector<double, 4> >());
   }
 };
+#endif 
 
 template<>
 struct convert<Ubitrack::Math::Quaternion > {
   msgpack::object const& operator()(msgpack::object const& o, Ubitrack::Math::Quaternion& v) const
   {
-      v = Ubitrack::Math::Quaternion::fromVector(o.as<Ubitrack::Math::Vector<double, 4> >());
+	  Ubitrack::Math::Vector<double, 4> vec;
+	  msgpack::adaptor::convert<Ubitrack::Math::Vector<double, 4> >()(o, vec);
+      v = Ubitrack::Math::Quaternion::fromVector(vec);
       return o;
   }
 };
@@ -454,6 +471,7 @@ struct object_with_zone<Ubitrack::Math::Quaternion > {
 /*
  * Ubitrack::Math::RotationVelocity
  */
+#if !defined(MSGPACK_USE_CPP03)
 template<>
 struct as<Ubitrack::Math::RotationVelocity> {
   Ubitrack::Math::RotationVelocity operator()(msgpack::object const& o) const
@@ -461,12 +479,15 @@ struct as<Ubitrack::Math::RotationVelocity> {
       return Ubitrack::Math::RotationVelocity(o.as<Ubitrack::Math::Vector<double, 3> >());
   }
 };
+#endif
 
 template<>
 struct convert<Ubitrack::Math::RotationVelocity > {
   msgpack::object const& operator()(msgpack::object const& o, Ubitrack::Math::RotationVelocity& v) const
   {
-      v = Ubitrack::Math::RotationVelocity(o.as<Ubitrack::Math::Vector<double, 3> >());
+	  Ubitrack::Math::Vector<double, 3> vec;
+	  msgpack::adaptor::convert<Ubitrack::Math::Vector<double, 3> >()(o, vec);
+      v = Ubitrack::Math::RotationVelocity(vec);
       return o;
   }
 };
@@ -501,6 +522,7 @@ struct object_with_zone<Ubitrack::Math::RotationVelocity > {
 /*
  * Ubitrack::Math::Pose
  */
+#if !defined(MSGPACK_USE_CPP03)
 template<>
 struct as<Ubitrack::Math::Pose> {
   Ubitrack::Math::Pose operator()(msgpack::object const& o) const
@@ -513,6 +535,7 @@ struct as<Ubitrack::Math::Pose> {
       );
   }
 };
+#endif
 
 template<>
 struct convert<Ubitrack::Math::Pose > {
@@ -520,10 +543,11 @@ struct convert<Ubitrack::Math::Pose > {
   {
       if (o.type!=msgpack::type::ARRAY) throw msgpack::type_error();
       if (o.via.array.size != 2) throw msgpack::type_error();
-      v = Ubitrack::Math::Pose(
-              o.via.array.ptr[0].as<Ubitrack::Math::Quaternion>(),
-              o.via.array.ptr[1].as<Ubitrack::Math::Vector<double, 3> >()
-      );
+	  Ubitrack::Math::Quaternion quat;
+	  Ubitrack::Math::Vector<double, 3> vec;
+	  msgpack::adaptor::convert<Ubitrack::Math::Quaternion>()(o.via.array.ptr[0], quat);
+	  msgpack::adaptor::convert<Ubitrack::Math::Vector<double, 3> >()(o.via.array.ptr[1], vec);
+      v = Ubitrack::Math::Pose(quat, vec);
       return o;
   }
 };
@@ -558,6 +582,7 @@ struct object_with_zone<Ubitrack::Math::Pose > {
 /*
  * Ubitrack::Math::ErrorVector<T,N>
  */
+#if !defined(MSGPACK_USE_CPP03)
 template<typename T, std::size_t N>
 struct as<Ubitrack::Math::ErrorVector<T, N> > {
   Ubitrack::Math::ErrorVector<T, N> operator()(msgpack::object const& o) const
@@ -570,6 +595,7 @@ struct as<Ubitrack::Math::ErrorVector<T, N> > {
       );
   }
 };
+#endif
 
 template<typename T, std::size_t N>
 struct convert<Ubitrack::Math::ErrorVector<T, N> > {
@@ -577,10 +603,11 @@ struct convert<Ubitrack::Math::ErrorVector<T, N> > {
   {
       if (o.type!=msgpack::type::ARRAY) throw msgpack::type_error();
       if (o.via.array.size != 2) throw msgpack::type_error();
-      v = Ubitrack::Math::ErrorVector<T, N>(
-              o.via.array.ptr[0].as<Ubitrack::Math::Vector<T, N> >(),
-              o.via.array.ptr[1].as<Ubitrack::Math::Matrix<T, N, N> >()
-      );
+	  Ubitrack::Math::Vector<T, N> vec;
+	  Ubitrack::Math::Matrix<T, N, N> cov;
+	  msgpack::adaptor::convert<Ubitrack::Math::Vector<T, N> >()(o.via.array.ptr[0], vec);
+	  msgpack::adaptor::convert<Ubitrack::Math::Matrix<T, N, N> >()(o.via.array.ptr[1], cov);
+      v = Ubitrack::Math::ErrorVector<T, N>(vec, cov);
       return o;
   }
 };
@@ -615,6 +642,7 @@ struct object_with_zone<Ubitrack::Math::ErrorVector<T, N> > {
 /*
  * Ubitrack::Math::ErrorPose
  */
+#if !defined(MSGPACK_USE_CPP03)
 template<>
 struct as<Ubitrack::Math::ErrorPose> {
   Ubitrack::Math::ErrorPose operator()(msgpack::object const& o) const
@@ -628,6 +656,7 @@ struct as<Ubitrack::Math::ErrorPose> {
       );
   }
 };
+#endif
 
 template<>
 struct convert<Ubitrack::Math::ErrorPose > {
@@ -635,11 +664,13 @@ struct convert<Ubitrack::Math::ErrorPose > {
   {
       if (o.type!=msgpack::type::ARRAY) throw msgpack::type_error();
       if (o.via.array.size != 3) throw msgpack::type_error();
-      v = Ubitrack::Math::ErrorPose(
-              o.via.array.ptr[0].as<Ubitrack::Math::Quaternion>(),
-              o.via.array.ptr[1].as<Ubitrack::Math::Vector<double, 3> >(),
-              o.via.array.ptr[2].as< Ubitrack::Math::Matrix< double, 6, 6 > >()
-      );
+	  Ubitrack::Math::Quaternion quat;
+	  Ubitrack::Math::Vector<double, 3> vec;
+	  Ubitrack::Math::Matrix<double, 6, 6> cov;
+	  msgpack::adaptor::convert<Ubitrack::Math::Quaternion>()(o.via.array.ptr[0], quat);
+	  msgpack::adaptor::convert<Ubitrack::Math::Vector<double, 3> >()(o.via.array.ptr[1], vec);
+	  msgpack::adaptor::convert<Ubitrack::Math::Matrix<double, 6, 6> >()(o.via.array.ptr[2], cov);
+      v = Ubitrack::Math::ErrorPose(quat, vec, cov);
       return o;
   }
 };
@@ -675,6 +706,7 @@ struct object_with_zone<Ubitrack::Math::ErrorPose > {
 /*
  * Ubitrack::Math::CameraIntrinsics<T>
  */
+#if !defined(MSGPACK_USE_CPP03)
 template<typename T>
 struct as<Ubitrack::Math::CameraIntrinsics<T> > {
   Ubitrack::Math::CameraIntrinsics<T> operator()(msgpack::object const& o) const
@@ -691,6 +723,7 @@ struct as<Ubitrack::Math::CameraIntrinsics<T> > {
       return result;
   }
 };
+#endif
 
 template<typename T>
 struct convert<Ubitrack::Math::CameraIntrinsics<T> > {
@@ -698,12 +731,14 @@ struct convert<Ubitrack::Math::CameraIntrinsics<T> > {
   {
       if (o.type!=msgpack::type::ARRAY) throw msgpack::type_error();
       if (o.via.array.size != 6) throw msgpack::type_error();
-      v.calib_type = static_cast<typename Ubitrack::Math::CameraIntrinsics<T>::CalibType>(o.via.array.ptr[0].as<int>());
-      v.dimension = o.via.array.ptr[1].as<Ubitrack::Math::Vector< std::size_t, 2 > >();
-      v.matrix = o.via.array.ptr[2].as<Ubitrack::Math::Matrix< T, 3, 3 > >();
-      v.radial_size = o.via.array.ptr[3].as<std::size_t>();
-      v.radial_params = o.via.array.ptr[4].as<Ubitrack::Math::Vector< T, 6 > >();
-      v.tangential_params = o.via.array.ptr[5].as<Ubitrack::Math::Vector< T, 2 > >();
+	  int calib_type;
+	  msgpack::adaptor::convert<int>()(o.via.array.ptr[0], calib_type);
+      v.calib_type = static_cast<typename Ubitrack::Math::CameraIntrinsics<T>::CalibType>(calib_type);
+	  msgpack::adaptor::convert<Ubitrack::Math::Vector<std::size_t, 2> >()(o.via.array.ptr[1], v.dimension);
+	  msgpack::adaptor::convert<Ubitrack::Math::Matrix< T, 3, 3 > >()(o.via.array.ptr[2], v.matrix);
+	  msgpack::adaptor::convert<std::size_t >()(o.via.array.ptr[3], v.radial_size);
+	  msgpack::adaptor::convert<Ubitrack::Math::Vector< T, 6 > >()(o.via.array.ptr[4], v.radial_params);
+	  msgpack::adaptor::convert<Ubitrack::Math::Vector< T, 2 > >()(o.via.array.ptr[5], v.tangential_params);
       return o;
   }
 };

@@ -21,13 +21,22 @@ template< typename T >
 void testSerializeSimple(const T& data)
 {
 	// Serialize
-    msgpack::sbuffer ostream;
-	MsgpackArchive::serialize(ostream, data);
+    msgpack::sbuffer buffer;
+    msgpack::packer<msgpack::sbuffer> pk(&buffer);
+	MsgpackArchive::serialize(pk, data);
+
+    // transfer to destination
+    msgpack::unpacker pac;
+    pac.reserve_buffer(buffer.size());
+    // simulate transfer
+    memcpy(pac.buffer(), buffer.data(), buffer.size() );
+
+    pac.buffer_consumed(buffer.size());
 
 	// Deserialize
 	T result;
 
-    MsgpackArchive::deserialize(ostream, result);
+    MsgpackArchive::deserialize(pac, result);
 
 	BOOST_CHECK_EQUAL(data, result);
 }
@@ -36,13 +45,22 @@ template< typename T >
 void testSerializeSimpleVector(const std::vector<T>& data)
 {
     // Serialize
-    msgpack::sbuffer ostream;
-    MsgpackArchive::serialize(ostream, data);
+    msgpack::sbuffer buffer;
+    msgpack::packer<msgpack::sbuffer> pk(&buffer);
+    MsgpackArchive::serialize(pk, data);
 
-    // Deserialize
+
+    // transfer to destination
+    msgpack::unpacker pac;
+    pac.reserve_buffer(buffer.size());
+    // simulate transfer
+    memcpy(pac.buffer(), buffer.data(), buffer.size() );
+
+    pac.buffer_consumed(buffer.size());
+	// Deserialize
     std::vector<T> result;
 
-    MsgpackArchive::deserialize(ostream, result);
+    MsgpackArchive::deserialize(pac, result);
 
     BOOST_CHECK_EQUAL(data.size(), result.size());
     for (std::size_t i=0; i<data.size(); ++i) {
@@ -56,13 +74,21 @@ template< typename T >
 void testSerializeMeasurement(const Measurement::Measurement< T >& data)
 {
     // Serialize
-    msgpack::sbuffer ostream;
-    MsgpackArchive::serialize(ostream, data);
+    msgpack::sbuffer buffer;
+    msgpack::packer<msgpack::sbuffer> pk(&buffer);
+    MsgpackArchive::serialize(pk, data);
 
+    // transfer to destination
+    msgpack::unpacker pac;
+    pac.reserve_buffer(buffer.size());
+    // simulate transfer
+    memcpy(pac.buffer(), buffer.data(), buffer.size() );
+
+    pac.buffer_consumed(buffer.size());
     // Deserialize
     Measurement::Measurement< T > result = Measurement::Measurement< T >( 0, boost::shared_ptr< T >( new T() ) );
 
-    MsgpackArchive::deserialize(ostream, result);
+    MsgpackArchive::deserialize(pac, result);
 
     BOOST_CHECK_EQUAL(data.time(), result.time());
     BOOST_CHECK_EQUAL(*data, *result);
@@ -72,13 +98,21 @@ template< typename T >
 void testSerializeMeasurementVector(const Measurement::Measurement< std::vector< T > >& data)
 {
     // Serialize
-    msgpack::sbuffer ostream;
-    MsgpackArchive::serialize(ostream, data);
+    msgpack::sbuffer buffer;
+    msgpack::packer<msgpack::sbuffer> pk(&buffer);
+    MsgpackArchive::serialize(pk, data);
 
+    // transfer to destination
+    msgpack::unpacker pac;
+    pac.reserve_buffer(buffer.size());
+    // simulate transfer
+    memcpy(pac.buffer(), buffer.data(), buffer.size() );
+
+    pac.buffer_consumed(buffer.size());
     // Deserialize
     Measurement::Measurement< std::vector< T > > result = Measurement::Measurement< std::vector< T > >( 0, boost::shared_ptr< std::vector< T > >( new std::vector<T>() ) );
 
-    MsgpackArchive::deserialize(ostream, result);
+    MsgpackArchive::deserialize(pac, result);
 
     BOOST_CHECK_EQUAL(data.time(), result.time());
     BOOST_CHECK_EQUAL(data->size(), result->size());
