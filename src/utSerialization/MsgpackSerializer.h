@@ -204,15 +204,13 @@ struct object_with_zone<Ubitrack::Measurement::Measurement<T> > {
  */
 #if !defined(MSGPACK_USE_CPP03)
 template<typename T>
-struct convert<Ubitrack::Math::Scalar<T> > {
-  msgpack::object const& operator()(msgpack::object const& o, Ubitrack::Math::Scalar<T>& v) const
+struct as<Ubitrack::Math::Scalar<T>, typename std::enable_if<msgpack::has_as<T>::value>::type> {
+  Ubitrack::Math::Scalar<T> operator()(msgpack::object const& o) const
   {
-      v = Ubitrack::Math::Scalar<T>(o.as<T>());
-      return o;
+      return Ubitrack::Math::Scalar<T>(o.as<T>());
   }
 };
-#endif 
-
+#endif
 
 template<typename T>
 struct convert<Ubitrack::Math::Scalar<T> > {
