@@ -45,6 +45,7 @@
 // WARNING: all boost/serialization headers should be
 //          included AFTER all boost/archive headers
 #include <boost/serialization/access.hpp>
+#include <boost/version.hpp>
 #if BOOST_VERSION >= 106400
 #include <boost/serialization/array_wrapper.hpp>
 #endif
