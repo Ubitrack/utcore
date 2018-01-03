@@ -48,6 +48,9 @@
 // WARNING: all boost/serialization headers should be 
 //          included AFTER all boost/archive headers
 #include <boost/serialization/access.hpp>
+#if BOOST_VERSION >= 106400
+#include <boost/serialization/array_wrapper.hpp>
+#endif
 #include <boost/numeric/ublas/matrix.hpp>
 
 namespace Ubitrack { namespace Math {
