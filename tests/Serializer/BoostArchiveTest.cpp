@@ -28,7 +28,7 @@ void testSerializeSimpleText(const T& data)
 	// Deserialize
 	T result;
 
-	std::istringstream istream(serialized_data.data(), serialized_data.size());
+	std::istringstream istream(serialized_data);
 	boost::archive::text_iarchive in_archive( istream );
 	BoostArchive::deserialize(in_archive, result);
 
@@ -71,7 +71,7 @@ void testSerializeMeasurementText(const Measurement::Measurement< T >& data)
     // Deserialize
     Measurement::Measurement< T > result = Measurement::Measurement< T >( 0, boost::shared_ptr< T >( new T() ) );
 
-    std::istringstream istream(serialized_data.data(), serialized_data.size());
+    std::istringstream istream(serialized_data);
     boost::archive::text_iarchive in_archive( istream );
     BoostArchive::deserialize(in_archive, result);
 
@@ -212,7 +212,7 @@ void TestBoostArchive()
 
 
     // Test Measurements
-	Measurement::Timestamp ts = Measurement::now();
+    Measurement::Timestamp ts = Measurement::now();
 
     // Button
     Measurement::Button m_button(ts, v_scalari);
@@ -220,9 +220,9 @@ void TestBoostArchive()
     testSerializeMeasurementBinary(m_button);
 
     // Distance
-	Measurement::Distance m_distance(ts, v_scalard);
-	testSerializeMeasurementText(m_distance);
-	testSerializeMeasurementBinary(m_distance);
+    Measurement::Distance m_distance(ts, v_scalard);
+    testSerializeMeasurementText(m_distance);
+    testSerializeMeasurementBinary(m_distance);
 
     // Position
     Measurement::Position m_pos(ts, v_vec3);
