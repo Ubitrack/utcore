@@ -9,6 +9,7 @@ class UbitrackCoreConan(ConanFile):
     version = "1.3.0"
     settings = "os", "compiler", "build_type", "arch"
     generators = "cmake"
+    options = {"shared": [True, False], "enable_tracing": [True, False]}
     requires = (
         "Boost.Bind/1.65.1@bincrafters/stable", 
         "Boost.Chrono/1.65.1@bincrafters/stable", 
@@ -47,6 +48,8 @@ class UbitrackCoreConan(ConanFile):
         "clapack:shared=True", 
         "msgpack:shared=True", 
         "ubitrack_log4cpp:shared=True",
+        "shared=True",
+        "enable_tracing=True",
         )
 
     # all sources are deployed with the package
@@ -58,6 +61,8 @@ class UbitrackCoreConan(ConanFile):
        
     def build(self):
         cmake = CMake(self)
+        cmake.definitions['BUILD_SHARED_LIBS'] = self.options.shared
+        cmake.definitions['ENABLE_TRACING'] = self.options.enable_tracing
         cmake.configure()
         cmake.build()
 
