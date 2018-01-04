@@ -42,7 +42,6 @@ class UbitrackCoreConan(ConanFile):
         "Boost.Iostreams:shared=True",  
         "Boost.Program_Options:shared=True", 
         "Boost.Regex:shared=True", 
-        "Boost.Serialization:shared=True", 
         "Boost.System:shared=True", 
         "opencv:shared=True", 
         "clapack:shared=True", 
