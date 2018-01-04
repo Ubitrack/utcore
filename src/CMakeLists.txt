@@ -88,7 +88,7 @@ ELSE(BUILD_SHARED_LIBS)
   ADD_LIBRARY(${UBITRACK_LIBRARY_NAME} STATIC ${UBITRACK_SRCS} ${UBITRACK_HEADERS})
 ENDIF(BUILD_SHARED_LIBS)
 
-target_link_libraries(${UBITRACK_LIBRARY_NAME} ${CONAN_LIBS} ${tracing_extra_libraries}))
+target_link_libraries(${UBITRACK_LIBRARY_NAME} ${CONAN_LIBS} ${tracing_extra_libraries})
 
 target_include_directories(${UBITRACK_LIBRARY_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
