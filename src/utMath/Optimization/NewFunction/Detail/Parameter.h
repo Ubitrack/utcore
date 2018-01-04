@@ -32,6 +32,10 @@
 #ifndef __UBITRACK_MATH_FUNCTION_DETAIL_PARAMETER_H_INCLUDED__
 #define __UBITRACK_MATH_FUNCTION_DETAIL_PARAMETER_H_INCLUDED__
 
+#include <boost/version.hpp>
+#if BOOST_VERSION >= 106400
+#include <boost/serialization/array_wrapper.hpp>
+#endif
 #include <boost/numeric/ublas/storage.hpp>
 #include <boost/numeric/ublas/vector_proxy.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
