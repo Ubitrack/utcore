@@ -12,9 +12,10 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
-#include <utUtil/BlockTimer.h>
-#include <log4cpp/Category.hh>
-log4cpp::Category& timeLogger( log4cpp::Category::getInstance( "Ubitrack.Test.Math.Blas3" ) );
+// commented out as it's not an essential feature for the unit-test and does not compile on linux
+//#include <utUtil/BlockTimer.h>
+//#include <log4cpp/Category.hh>
+//log4cpp::Category& timeLogger( log4cpp::Category::getInstance( "Ubitrack.Test.Math.Blas3" ) );
 
 using namespace Ubitrack::Math;
 
@@ -43,17 +44,17 @@ void testBasicMatrixMatrixProductFunctors( const std::size_t n, const T epsilon 
 		std::generate_n ( std::back_inserter( matrices2 ), n,  randMatrix2 );
 		
 		
-		
-		std::stringstream sstream;
-		sstream << "blas level 3: " << n << " matrix-matrix multiplications ([" << size1 << "x" << size2 << "]x[" << size3 << "x" << size4 << "]=[" << size1 << "x" << size4 << "])";
-		sstream << " of type \"" << typeid( T ).name() << "\" matrices.";
-		Ubitrack::Util::BlockTimer g_blas3_mat_mat_product( sstream.str(), timeLogger );
+		// temporarily commented out
+		//std::stringstream sstream;
+		//sstream << "blas level 3: " << n << " matrix-matrix multiplications ([" << size1 << "x" << size2 << "]x[" << size3 << "x" << size4 << "]=[" << size1 << "x" << size4 << "])";
+		//sstream << " of type \"" << typeid( T ).name() << "\" matrices.";
+		//Ubitrack::Util::BlockTimer g_blas3_mat_mat_product( sstream.str(), timeLogger );
 		
 		std::vector< Matrix< T, size1, size4 > > results;
 		results.reserve( n );
 
 		{
-			UBITRACK_TIME( g_blas3_mat_mat_product );
+			//UBITRACK_TIME( g_blas3_mat_mat_product );
 			product( matrices1.begin(), matrices1.end(), matrices2.begin(), std::back_inserter( results ) );
 		}
 		
