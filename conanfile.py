@@ -38,10 +38,8 @@ class UbitrackCoreConan(ConanFile):
 
     default_options = (
         "Boost.Chrono:shared=True", 
-        "Boost.Date_Time:shared=True", 
         "Boost.Filesystem:shared=True", 
         "Boost.Iostreams:shared=True",  
-        "Boost.Locale:shared=True", 
         "Boost.Program_Options:shared=True", 
         "Boost.Regex:shared=True", 
         "Boost.Serialization:shared=True", 
