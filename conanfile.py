@@ -5,7 +5,7 @@ from conans.tools import unzip
 
 
 class UbitrackCoreConan(ConanFile):
-    name = "ubitrack-core"
+    name = "ubitrack_core"
     version = "1.3.0"
     settings = "os", "compiler", "build_type", "arch"
     generators = "cmake"
@@ -52,27 +52,25 @@ class UbitrackCoreConan(ConanFile):
         "ubitrack_log4cpp:shared=True",
         )
 
-    def build_requirements(self):
-        self.build_requires("java_installer/9.0.0@bincrafters/stable")
-        if self.settings.os == "Windows":
-            self.build_requires("swig/3.0.12@ulricheck/stable")
+    # all sources are deployed with the package
+    exports_sources = "cmake/*", "doc/*", "misc/*", "src/*", "tests/*", "CMakeLists.txt"
 
-    def source(self):
-        self.run("git clone --branch stable/%s https://github.com/Ubitrack/build_environment.git source" % self.version)
-        self.run("git clone --branch stable/%s https://github.com/Ubitrack/utcore.git source/modules/utcore" % self.version)
-    
     def imports(self):
         self.copy(pattern="*.dll", dst="bin", src="bin") # From bin to bin
         self.copy(pattern="*.dylib*", dst="bin", src="lib") 
        
     def build(self):
-        cfname = os.path.join(self.conanfile_directory, "conanbuildinfo.cmake")
-        bdir = os.path.join(self.conanfile_directory, "build")
-        sdir = os.path.join(self.conanfile_directory, "source")
         cmake = CMake(self)
-        cmake.configure(source_dir=sdir, build_dir=bdir, defs={"UBITRACK_USE_CONAN":"ON", "UBITRACK_CONAN_CMAKE_CONFIG":cfname})
+        cmake.configure()
         cmake.build()
-        cmake.install()
+
+    def package(self):
+        self.copy("*.h", dst="include", src="src")
+        self.copy("*.lib", dst="lib", keep_path=False)
+        self.copy("*.dll", dst="bin", keep_path=False)
+        self.copy("*.dylib*", dst="lib", keep_path=False)
+        self.copy("*.so", dst="lib", keep_path=False)
+        self.copy("*.a", dst="lib", keep_path=False)
 
     def package_info(self):
         suffix = ""
