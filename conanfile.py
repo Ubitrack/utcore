@@ -92,8 +92,8 @@ class UbitrackCoreConan(ConanFile):
         "Boost.Regex:shared=True", 
         "Boost.System:shared=True", 
         "clapack:shared=True", 
-        # "msgpack:shared=True", 
-        # "ubitrack_log4cpp:shared=True",
+        "msgpack:shared=True", 
+        "ubitrack_log4cpp:shared=True",
         "shared=True",
         "enable_tracing=True",
         )
