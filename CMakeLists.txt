@@ -12,7 +12,7 @@ include(UbitrackConfig)
 
 add_subdirectory(src)
 
-#add_subdirectory(tests)
+add_subdirectory(tests)
 
 file(GLOB _doc_files LIST_DIRECTORIES false "doc/bibliography.bib")
 foreach(pfile ${_doc_files})
