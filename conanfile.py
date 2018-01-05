@@ -114,15 +114,16 @@ class UbitrackCoreConan(ConanFile):
         cmake.definitions['ENABLE_TRACING'] = self.options.enable_tracing
         cmake.configure()
         cmake.build()
+        cmake.install()
 
     def package(self):
-        self.copy("*.h", dst="include", src="src")
-        self.copy("*.lib", dst="lib", keep_path=False)
-        self.copy("*.dll", dst="bin", keep_path=False)
-        self.copy("*.dylib*", dst="lib", keep_path=False)
-        self.copy("*.so", dst="lib", keep_path=False)
-        self.copy("*.a", dst="lib", keep_path=False)
-        self.copy("*", dst="bin", src="bin", keep_path=False)
+        # self.copy("*.h", dst="include", src="src")
+        # self.copy("*.lib", dst="lib", keep_path=False)
+        # self.copy("*.dll", dst="bin", keep_path=False)
+        # self.copy("*.dylib*", dst="lib", keep_path=False)
+        # self.copy("*.so", dst="lib", keep_path=False)
+        # self.copy("*.a", dst="lib", keep_path=False)
+        # self.copy("*", dst="bin", src="bin", keep_path=False)
         self.copy("UbitrackConfig.cmake", dst="cmake", src="cmake")
 
     def package_info(self):
