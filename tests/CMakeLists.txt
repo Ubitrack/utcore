@@ -25,7 +25,7 @@ endif()
 # UTCORE library definition
 add_executable(${UBITRACK_TEST_NAME} ${UBITRACK_SRCS} ${UBITRACK_HEADERS})
 
-target_link_libraries(${UBITRACK_TEST_NAME} ${CONAN_LIBS} utcore)
+target_link_libraries(${UBITRACK_TEST_NAME} utcore ${CONAN_LIBS})
 
 # Apply Target Properties
 if(MSVC)
