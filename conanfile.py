@@ -57,7 +57,7 @@ class UbitrackCoreConan(ConanFile):
 
     def imports(self):
         self.copy(pattern="*.dll", dst="bin", src="bin") # From bin to bin
-        self.copy(pattern="*.dylib*", dst="bin", src="lib") 
+        self.copy(pattern="*.dylib*", dst="lib", src="lib") 
        
     def build(self):
         cmake = CMake(self)
@@ -73,6 +73,7 @@ class UbitrackCoreConan(ConanFile):
         self.copy("*.dylib*", dst="lib", keep_path=False)
         self.copy("*.so", dst="lib", keep_path=False)
         self.copy("*.a", dst="lib", keep_path=False)
+        self.copy("*", dst="bin", src="bin", keep_path=False)
 
     def package_info(self):
         suffix = ""

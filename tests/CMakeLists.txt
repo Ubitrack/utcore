@@ -14,6 +14,14 @@ file(GLOB UBITRACK_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
    "${CMAKE_CURRENT_SOURCE_DIR}/*/*/*.h" 
 )
 
+# custom RPATH Management
+if(APPLE)
+  set(CMAKE_INSTALL_RPATH "@executable_path/../lib")
+else()
+    set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
+endif()
+
+
 # UTCORE library definition
 add_executable(${UBITRACK_TEST_NAME} ${UBITRACK_SRCS} ${UBITRACK_HEADERS})
 
