@@ -123,10 +123,19 @@ class UbitrackCoreConan(ConanFile):
         self.copy("*.so", dst="lib", keep_path=False)
         self.copy("*.a", dst="lib", keep_path=False)
         self.copy("*", dst="bin", src="bin", keep_path=False)
+        self.copy("UbitrackConfig.cmake", dst="cmake", src="cmake")
 
     def package_info(self):
         if self.options.enable_tracing:
             self.cpp_info.defines.append("ENABLE_EVENT_TRACING")
+            if self.settings.os == "Windows":
+                self.cpp_info.defines.append("HAVE_ETW")
+            elif self.settings.os == "Linux":
+                self.cpp_info.defines.append("HAVE_LTTNGUST")
+            elif self.settings.os == "Macos":    
+                self.cpp_info.defines.append("HAVE_DTRACE")
+
+
         suffix = ""
         if self.settings.build_type == "Debug" and self.settings.os == "Windows":
             suffix = "d"
