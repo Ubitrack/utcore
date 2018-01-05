@@ -11,21 +11,21 @@ class UbitrackCoreConan(ConanFile):
     generators = "cmake"
     options = {"shared": [True, False], "enable_tracing": [True, False]}
     requires = (
-        "Boost.Bind/1.65.1@bincrafters/stable", 
-        "Boost.Chrono/1.65.1@bincrafters/stable", 
-        "Boost.Core/1.65.1@bincrafters/stable", 
-        "Boost.Date_Time/1.65.1@bincrafters/stable",
+        # "Boost.Bind/1.65.1@bincrafters/stable", 
+        # "Boost.Chrono/1.65.1@bincrafters/stable", 
+        # "Boost.Core/1.65.1@bincrafters/stable", 
+        # "Boost.Date_Time/1.65.1@bincrafters/stable",
         "Boost.Filesystem/1.65.1@bincrafters/stable", 
         "Boost.Iostreams/1.65.1@bincrafters/stable", 
-        "Boost.Locale/1.65.1@bincrafters/stable", 
+        # "Boost.Locale/1.65.1@bincrafters/stable", 
         "Boost.Math/1.65.1@bincrafters/stable", 
         "Boost.Mpl/1.65.1@bincrafters/stable", 
         "Boost.Numeric_Ublas/1.65.1@bincrafters/stable",
-        "Boost.Program_Options/1.65.1@bincrafters/stable",
+        # "Boost.Program_Options/1.65.1@bincrafters/stable",
         "Boost.Random/1.65.1@bincrafters/stable", 
         "Boost.Regex/1.65.1@bincrafters/stable", 
         "Boost.Serialization/1.65.1@bincrafters/stable",
-        "Boost.System/1.65.1@bincrafters/stable",
+        # "Boost.System/1.65.1@bincrafters/stable",
         "Boost.Test/1.65.1@bincrafters/stable",
         "Boost.Type_Traits/1.65.1@bincrafters/stable",
         "Boost.Utility/1.65.1@bincrafters/stable",
@@ -38,22 +38,24 @@ class UbitrackCoreConan(ConanFile):
         )
 
     default_options = (
-        "Boost.Chrono:shared=True", 
-        "Boost.Filesystem:shared=True", 
-        "Boost.Iostreams:shared=True",  
-        "Boost.Program_Options:shared=True", 
-        "Boost.Regex:shared=True", 
-        "Boost.System:shared=True", 
-        "opencv:shared=True", 
-        "clapack:shared=True", 
-        "msgpack:shared=True", 
-        "ubitrack_log4cpp:shared=True",
+        # "Boost.Chrono:shared=True", 
+        # "Boost.Filesystem:shared=True", 
+        # "Boost.Iostreams:shared=True",  
+        # "Boost.Program_Options:shared=True", 
+        # "Boost.Regex:shared=True", 
+        # "Boost.System:shared=True", 
+        # "clapack:shared=True", 
+        # "msgpack:shared=True", 
+        # "ubitrack_log4cpp:shared=True",
         "shared=True",
         "enable_tracing=True",
         )
 
     # all sources are deployed with the package
     exports_sources = "cmake/*", "doc/*", "misc/*", "src/*", "tests/*", "CMakeLists.txt"
+
+    # UbitrackConfig.cmake should be reused by all depending packages
+    exports = "cmake/UbitrackConfig.cmake"
 
     def imports(self):
         self.copy(pattern="*.dll", dst="bin", src="bin") # From bin to bin
@@ -76,6 +78,8 @@ class UbitrackCoreConan(ConanFile):
         self.copy("*", dst="bin", src="bin", keep_path=False)
 
     def package_info(self):
+        if self.options.enable_tracing:
+            self.cpp_info.defines.append("ENABLE_EVENT_TRACING")
         suffix = ""
         if self.settings.build_type == "Debug" and self.settings.os == "Windows":
             suffix = "d"
