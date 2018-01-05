@@ -11,6 +11,7 @@ class UbitrackCoreConan(ConanFile):
     generators = "cmake"
     options = {"shared": [True, False], "enable_tracing": [True, False]}
     requires = (
+        "Boost.Assert/1.65.1@bincrafters/stable", 
         # "Boost.Bind/1.65.1@bincrafters/stable", 
         # "Boost.Chrono/1.65.1@bincrafters/stable", 
         # "Boost.Core/1.65.1@bincrafters/stable", 
