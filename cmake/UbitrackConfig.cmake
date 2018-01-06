@@ -81,3 +81,7 @@ if (APPLE)
 else()
     set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
 endif()
+
+# default install directories
+set(UBITRACK_DOC_INSTALL_DIRECTORY "share/UbiTrack/doc")
+set(UBITRACK_UTQLPATTERN_INSTALL_DIRECTORY "share/Ubitrack/utql")
