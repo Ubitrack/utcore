@@ -16,16 +16,13 @@ class UbitrackCoreConan(ConanFile):
 
         "clapack/[>=3.2.1]@ulricheck/stable", 
         "msgpack/[>=2.1.5]@ulricheck/stable", 
+
         "ubitrack_boost_bindings/1.0@ulricheck/stable", 
         "ubitrack_tinyxml/2.5.3@ulricheck/stable", 
         "ubitrack_log4cpp/0.3.5@ulricheck/stable",
         )
 
     default_options = (
-        "Boost:shared=True", 
-        "clapack:shared=True", 
-        "msgpack:shared=True", 
-        "ubitrack_log4cpp:shared=True",
         "shared=True",
         "enable_tracing=True",
         )
@@ -35,6 +32,14 @@ class UbitrackCoreConan(ConanFile):
 
     # UbitrackConfig.cmake should be reused by all depending packages
     exports = "cmake/UbitrackConfig.cmake"
+
+    def configure(self):
+        if self.options.shared:
+            self.options['Boost'].shared = True 
+            self.options['clapack'].shared = True 
+            self.options['msgpack'].shared = True 
+            self.options['ubitrack_log4cpp'].shared = True
+
 
     def imports(self):
         self.copy(pattern="*.dll", dst="bin", src="bin") # From bin to bin
