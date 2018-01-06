@@ -153,9 +153,9 @@ ENDIF(ENABLE_TRACING_ETW)
 # Installation of libraries, headers and documents
 install(TARGETS ${UBITRACK_LIBRARY_NAME}
   EXPORT library_targets
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   )
 
 foreach(hdr ${UBITRACK_HEADERS})
@@ -180,5 +180,5 @@ endforeach()
 
 install(EXPORT library_targets
   NAMESPACE utcore::
-  DESTINATION lib/cmake/utcore
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/utcore
   )
