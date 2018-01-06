@@ -8,6 +8,7 @@ class UbitrackCoreConan(ConanFile):
     url = "https://github.com/Ubitrack/utcore.git"
     license = "GPL"
 
+    short_paths = True
     settings = "os", "compiler", "build_type", "arch"
     generators = "cmake"
     options = {"shared": [True, False], "enable_tracing": [True, False]}
