@@ -14,7 +14,7 @@
 
 #include <utUtil/BlockTimer.h>
 #include <log4cpp/Category.hh>
-log4cpp::Category& timeLogger( log4cpp::Category::getInstance( "Ubitrack.Test.Math.Blas3" ) );
+static log4cpp::Category& timeLogger( log4cpp::Category::getInstance( "Ubitrack.Test.Math.Blas3" ) );
 
 using namespace Ubitrack::Math;
 
