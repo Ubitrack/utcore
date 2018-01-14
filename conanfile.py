@@ -1,4 +1,4 @@
-from conans import ConanFile, CMake
+from conans import ConanFile, CMake, tools
 from conans.tools import os_info, SystemPackageTool
 
 class UbitrackCoreConan(ConanFile):
