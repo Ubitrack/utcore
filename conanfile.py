@@ -13,14 +13,14 @@ class UbitrackCoreConan(ConanFile):
     generators = "cmake"
     options = {"shared": [True, False], "enable_tracing": [True, False]}
     requires = (
-        "Boost/[>=1.64.0]@ulricheck/stable",
+        "Boost/[>=1.64.0]@camposs/stable",
 
-        "clapack/[>=3.2.1]@ulricheck/stable", 
-        "msgpack/[>=2.1.5]@ulricheck/stable", 
+        "clapack/[>=3.2.1]@camposs/stable", 
+        "msgpack/[>=2.1.5]@camposs/stable", 
 
-        "ubitrack_boost_bindings/1.0@ulricheck/stable", 
-        "ubitrack_tinyxml/2.5.3@ulricheck/stable", 
-        "ubitrack_log4cpp/0.3.5@ulricheck/stable",
+        "ubitrack_boost_bindings/1.0@camposs/stable", 
+        "ubitrack_tinyxml/2.5.3@camposs/stable", 
+        "ubitrack_log4cpp/0.3.5@camposs/stable",
         )
 
     default_options = (

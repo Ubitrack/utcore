@@ -1,0 +1,44 @@
+
+env:
+   global:
+     - CONAN_REFERENCE: "msgpack/2.1.5"
+     - CONAN_USERNAME: "camposs"
+     - CONAN_LOGIN_USERNAME: "camposs"
+     - CONAN_CHANNEL: "stable"
+     - CONAN_UPLOAD: "https://conan.campar.in.tum.de"
+     - CONAN_STABLE_BRANCH_PATTERN: "release/*"
+     - CONAN_UPLOAD_ONLY_WHEN_STABLE: 1 # Will only upload when the branch matches "release/*"
+
+linux: &linux
+   os: linux
+   sudo: required
+   language: python
+   python: "3.6"
+   services:
+     - docker
+osx: &osx
+   os: osx
+   language: generic
+matrix:
+   include:
+      - <<: *osx
+        osx_image: xcode9
+        env: CONAN_APPLE_CLANG_VERSIONS=9.0
+      - <<: *linux
+        env: CONAN_GCC_VERSIONS=4.9 CONAN_DOCKER_IMAGE=lasote/conangcc49
+      - <<: *linux
+        env: CONAN_GCC_VERSIONS=5 CONAN_DOCKER_IMAGE=lasote/conangcc54
+      - <<: *linux
+        env: CONAN_GCC_VERSIONS=6 CONAN_DOCKER_IMAGE=lasote/conangcc63
+
+before_script:
+  # See https://github.com/travis-ci/travis-ci/issues/4704. If this gets fixed, this line can also be removed. 
+  - python -c 'import os,sys,fcntl; flags = fcntl.fcntl(sys.stdout, fcntl.F_GETFL); fcntl.fcntl(sys.stdout, fcntl.F_SETFL, flags&~os.O_NONBLOCK);'
+
+install:
+  - chmod +x .travis/install.sh
+  - ./.travis/install.sh
+
+script:
+  - chmod +x .travis/run.sh
+  - ./.travis/run.sh
