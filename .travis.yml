@@ -1,6 +1,6 @@
 env:
    global:
-     - CONAN_REFERENCE: "ubitrack/1.3.0"
+     - CONAN_REFERENCE: "ubitrack_core/1.3.0"
      - CONAN_USERNAME: "ubitrack"
      - CONAN_LOGIN_USERNAME: "ubitrack"
      - CONAN_CHANNEL: "stable"
