@@ -47,6 +47,7 @@ class UbitrackCoreConan(ConanFile):
             if os_info.is_linux:
                 if os_info.with_apt:
                     installer = SystemPackageTool()
+                    installer.install("python-software-properties")
                     try:
                         # XXX bit of a hack here .. it's using private members of package_tools ...
                         self.run("%sapt-add-repository -y -u ppa:lttng/stable-2.10" % (installer._tool._sudo_str))
