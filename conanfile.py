@@ -47,6 +47,12 @@ class UbitrackCoreConan(ConanFile):
             if os_info.is_linux:
                 if os_info.with_apt:
                     installer = SystemPackageTool()
+                    try:
+                        # XXX bit of a hack here .. it's using private members of package_tools ...
+                        self.run("%sapt-add-repository -y -u ppa:lttng/stable-2.10" % (installer._tool._sudo_str))
+                    except:
+                        self.output.warn("Could not add PPA for LTTNG 2.10!")
+
                     if self.settings.arch == "x86" and tools.detected_architecture() == "x86_64":
                         arch_suffix = ':i386'
                         installer.install("g++-multilib")
