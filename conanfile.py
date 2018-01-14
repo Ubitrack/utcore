@@ -1,4 +1,5 @@
 from conans import ConanFile, CMake
+from conans.tools import os_info, SystemPackageTool
 
 class UbitrackCoreConan(ConanFile):
     name = "ubitrack_core"
@@ -41,6 +42,30 @@ class UbitrackCoreConan(ConanFile):
             self.options['msgpack'].shared = True 
             self.options['ubitrack_log4cpp'].shared = True
 
+    def system_requirements(self):
+        if self.options.enable_tracing:
+            if os_info.is_linux:
+                if os_info.with_apt:
+                    installer = SystemPackageTool()
+                    if self.settings.arch == "x86" and tools.detected_architecture() == "x86_64":
+                        arch_suffix = ':i386'
+                        installer.install("g++-multilib")
+                    else:
+                        arch_suffix = ''
+                    installer.install("%s%s" % ("lttng-tools", arch_suffix))
+                    # installer.install("lttng-modules-dkms")
+                    installer.install("%s%s" % ("liblttng-ust-dev", arch_suffix))
+                elif os_info.with_yum:
+                    installer = SystemPackageTool()
+                    if self.settings.arch == "x86" and tools.detected_architecture() == "x86_64":
+                        arch_suffix = '.i686'
+                        installer.install("glibc-devel.i686")
+                    else:
+                        arch_suffix = ''
+                    installer.install("%s%s" % ("lttng-tools", arch_suffix))
+                    installer.install("%s%s" % ("lttng-ust", arch_suffix))
+                else:
+                    self.output.warn("Could not determine package manager, skipping Linux system requirements installation.")
 
     def imports(self):
         self.copy(pattern="*.dll", dst="bin", src="bin") # From bin to bin
