@@ -13,14 +13,14 @@ There are no dependencies for this module.
 
 ### Basic setup
 
-    $ conan install ubitrack/1.3.0@ubitrack/stable
+    $ conan install ubitrack_core/1.3.0@ubitrack/stable
 
 ### Project setup
 
 If you handle multiple dependencies in your project is better to add a *conanfile.txt*
 
     [requires]
-    ubitrack/1.3.0@ubitrack/stable
+    ubitrack_core/1.3.0@ubitrack/stable
 
     [generators]
     cmake
@@ -42,7 +42,7 @@ This is a header only library, so nothing needs to be built.
 
 ## Package 
 
-    $ conan create camposs/stable
+    $ conan create . ubitrack/stable
     
 ## Add Remote
 
@@ -50,4 +50,4 @@ This is a header only library, so nothing needs to be built.
 
 ## Upload
 
-    $ conan upload -r camp ubitrack/1.3.0@ubitrack/stable
+    $ conan upload -r camp ubitrack_core/1.3.0@ubitrack/stable
