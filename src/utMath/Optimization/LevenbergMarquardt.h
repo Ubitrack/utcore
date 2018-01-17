@@ -39,6 +39,10 @@
 // Boost
 #include <boost/scoped_ptr.hpp>
 
+#include <boost/version.hpp>
+#if BOOST_VERSION >= 106400
+#include <boost/serialization/array_wrapper.hpp>
+#endif
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 #include <boost/numeric/ublas/vector_proxy.hpp>
 
