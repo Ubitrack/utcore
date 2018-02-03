@@ -51,7 +51,7 @@ class UbitrackCoreConan(ConanFile):
                     installer.install("python-software-properties")
                     try:
                         # XXX bit of a hack here .. it's using private members of package_tools ...
-                        self.run("%s/usr/bin/apt-add-repository -y -u ppa:lttng/stable-2.10" % (installer._tool._sudo_str))
+                        self.run("%s/usr/bin/apt-add-repository -y -u ppa:lttng/stable" % (installer._tool._sudo_str))
                     except:
                         self.output.warn("Could not add PPA for LTTNG 2.10!")
 
@@ -84,6 +84,7 @@ class UbitrackCoreConan(ConanFile):
         cmake = CMake(self)
         cmake.definitions['BUILD_SHARED_LIBS'] = self.options.shared
         cmake.definitions['ENABLE_TRACING'] = self.options.enable_tracing
+        cmake.definitions['CMAKE_POSITION_INDEPENDENT_CODE'] = True
         cmake.configure()
         cmake.build()
         cmake.install()
