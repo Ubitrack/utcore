@@ -14,7 +14,7 @@ class UbitrackCoreConan(ConanFile):
     generators = "cmake"
     options = {"shared": [True, False], "enable_tracing": [True, False]}
     requires = (
-        "Boost/[>=1.64.0]@camposs/stable",
+        "Boost/[>=1.59.0,<1.64.0]@camposs/stable",
 
         "clapack/[>=3.2.1]@camposs/stable", 
         "msgpack/[>=2.1.5]@camposs/stable", 
