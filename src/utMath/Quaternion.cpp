@@ -65,6 +65,8 @@ Quaternion::Quaternion( const Math::Matrix< double, 0, 0 >& mat )
 
 	// Quaternion has to be inverted, as the above code from the
 	// Matrix and Quaternion FAQ expects a column-major matrix.
+
+	// @TODO Fixme;  Boost >= 1.65.0 make abcd members private !!
 	a = -W;
 	b =  X;
 	c =  Y;

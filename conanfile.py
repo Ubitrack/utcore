@@ -12,7 +12,12 @@ class UbitrackCoreConan(ConanFile):
     short_paths = True
     settings = "os", "compiler", "build_type", "arch"
     generators = "cmake"
-    options = {"shared": [True, False], "enable_tracing": [True, False]}
+    options = {
+    "shared": [True, False], 
+    "enable_tracing": [True, False], 
+    "without_tests": [True, False]
+    }
+    
     requires = (
         "Boost/[>=1.59.0,<1.63.0]@camposs/stable",
 
@@ -27,6 +32,7 @@ class UbitrackCoreConan(ConanFile):
     default_options = (
         "shared=True",
         "enable_tracing=True",
+        "without_tests=True"
         )
 
     # all sources are deployed with the package
@@ -84,6 +90,7 @@ class UbitrackCoreConan(ConanFile):
         cmake = CMake(self)
         cmake.definitions['BUILD_SHARED_LIBS'] = self.options.shared
         cmake.definitions['ENABLE_TRACING'] = self.options.enable_tracing
+        cmake.definitions['ENABLE_UNITTESTS'] = not self.options.without_tests
         cmake.definitions['CMAKE_POSITION_INDEPENDENT_CODE'] = True
         cmake.configure()
         cmake.build()

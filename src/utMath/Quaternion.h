@@ -73,7 +73,7 @@ class UBITRACK_EXPORT Quaternion
 			: boost::math::quaternion< double >( 1, 0, 0, 0 )
 		{}
 		
-		Quaternion( double x, double y, double z)			
+		Quaternion( double x, double y, double z)
 		{
 			double c1 = cos(y/2);
 			double s1 = sin(y/2);
@@ -83,6 +83,7 @@ class UBITRACK_EXPORT Quaternion
 			double s3 = sin(z/2);
 			double c1c2 = c1*c2;
 			double s1s2 = s1*s2;
+			// @TODO Fixme;  Boost >= 1.65.0 make abcd members private !!
 			a =c1c2*c3 - s1s2*s3;
 			b =c1c2*s3 + s1s2*c3;
 			c =s1*c2*c3 + c1*s2*s3;
@@ -99,6 +100,7 @@ class UBITRACK_EXPORT Quaternion
 			double length = ::boost::numeric::ublas::norm_2(axis);
 			Vector< double, 3 > normAxis = axis*(sin(angle/2.0)/length);
 
+			// @TODO Fixme;  Boost >= 1.65.0 make abcd members private !!
 			a = cos(angle/2.0);
 			b = normAxis(0);
 			c = normAxis(1);
@@ -134,8 +136,9 @@ class UBITRACK_EXPORT Quaternion
 		 * get the real part
 		 * @return real component w (member a in the base class)
 		 */
-		double w() const { return a; }
-		
+
+		// @TODO Fixme;  Boost >= 1.65.0 make abcd members private !!
+		double w() const { return a; }		
 		double x() const { return b; }
 		double y() const { return c; }
 		double z() const { return d; }
@@ -274,6 +277,7 @@ class UBITRACK_EXPORT Quaternion
 		template< class Archive > 
 		void serialize( Archive& ar, const unsigned int version )
 		{
+			// @TODO Fixme;  Boost >= 1.65.0 make abcd members private !!
 			ar & b;
 			ar & c;
 			ar & d;
@@ -322,6 +326,9 @@ void Quaternion::toMatrix( M& matrix ) const
 template< typename T >
 void Quaternion::toAxisAngle( Math::Vector< T, 3 >& axis, T& angle )
 {
+
+	// @TODO Fixme;  Boost >= 1.65.0 make abcd members private !!
+
 	// assuming quaternion normalised then w is less than 1, so term always positive.
 	angle = 2 * acos( a );
 	
