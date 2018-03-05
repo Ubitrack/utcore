@@ -31,6 +31,9 @@
  * @author Christian Waechter <christian.waechter@in.tum.de> (modified)
  */
 
+#ifndef __UBITRACK_MATH_STOCHASTICAVERAGE_INCLUDED__
+#define __UBITRACK_MATH_STOCHASTICAVERAGE_INCLUDED__
+
 // Ubitrack
 #include "../Scalar.h"
 #include "../Pose.h"
@@ -318,3 +321,4 @@ public:
 };
 
 } } } // namespace Ubitrack::Math::Stochastic
+#endif //__UBITRACK_MATH_STOCHASTICAVERAGE_INCLUDED__
