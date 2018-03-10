@@ -19,7 +19,7 @@ class UbitrackCoreConan(ConanFile):
     }
     
     requires = (
-        "Boost/[>=1.59.0,<1.63.0]@camposs/stable",
+        "Boost/[>=1.59.0,<1.65.0]@camposs/stable",
 
         "clapack/[>=3.2.1]@camposs/stable", 
         "msgpack/[>=2.1.5]@camposs/stable", 
@@ -42,6 +42,25 @@ class UbitrackCoreConan(ConanFile):
     exports = "cmake/UbitrackConfig.cmake"
 
     def configure(self):
+        # Boost
+        self.options["Boost"].without_atomic = True
+        self.options["Boost"].without_container = True
+        self.options["Boost"].without_context = True
+        self.options["Boost"].without_coroutine = True
+        self.options["Boost"].without_coroutine2 = True
+        self.options["Boost"].without_exception = True
+        # self.options["Boost"].without_fiber = True
+        self.options["Boost"].without_graph = True
+        self.options["Boost"].without_graph_parallel = True
+        self.options["Boost"].without_locale = True
+        self.options["Boost"].without_log = True
+        # self.options["Boost"].without_metaparse = True
+        self.options["Boost"].without_mpi = True
+        self.options["Boost"].without_signals = True
+        self.options["Boost"].without_timer = True
+        # self.options["Boost"].without_type_erasure = True
+        self.options["Boost"].without_wave = True
+
         if self.options.shared:
             self.options['Boost'].shared = True 
             self.options['clapack'].shared = True 
