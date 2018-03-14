@@ -33,6 +33,7 @@
 
 #include <utMeasurement/Measurement.h> //includes already SharedPtr
 #include <utUtil/Exception.h>
+#include <utUtil/Filesystem.h>
 
 #include <string>
 #include <fstream>
@@ -58,8 +59,9 @@ namespace Ubitrack { namespace Util {
 template< typename T >
 void readCalibFile( const std::string& sFile, T& result )
 {
+	boost::filesystem::path sFileExpanded = getFilesystemPath(sFile);
 	// create ifstream
-	std::ifstream stream( sFile.c_str() );
+	std::ifstream stream( sFileExpanded.c_str() );
 	if ( !stream.good() )
 		UBITRACK_THROW( "Could not open file " + sFile + " for reading" );
 
@@ -81,8 +83,11 @@ void readCalibFile( const std::string& sFile, T& result )
 template< typename T >
 void readBinaryCalibFile(const std::string& sFile, T& result)
 {
+	// parse filename and expand environment variables
+	boost::filesystem::path sFileExpanded = getFilesystemPath(sFile);
+
 	// create ifstream
-	std::ifstream stream(sFile.c_str(), std::ios::in | std::ios::binary);
+	std::ifstream stream(sFileExpanded.c_str(), std::ios::in | std::ios::binary);
 	if (!stream.good())
 		UBITRACK_THROW("Could not open file " + sFile + " for reading");
 
@@ -107,11 +112,14 @@ void readBinaryCalibFile(const std::string& sFile, T& result)
 template< typename T >
 void readCalibFile( const std::string& sFile, Measurement::Measurement< T >& result )
 {
+	// parse filename and expand environment variables
+	boost::filesystem::path sFileExpanded = getFilesystemPath(sFile);
+
 	// initialize measurement
 	result = Measurement::Measurement< T >( 0, boost::shared_ptr< T >( new T() ) );
 
 	// create ifstream
-	std::ifstream stream( sFile.c_str() );
+	std::ifstream stream( sFileExpanded.c_str() );
 	if ( !stream.good() )
 		UBITRACK_THROW( "Could not open file " + sFile + " for reading" );
 
@@ -137,12 +145,15 @@ void readCalibFile( const std::string& sFile, Measurement::Measurement< T >& res
 template< typename T >
 void readCalibFileDropMeasurement( const std::string& sFile, T& result )
 {
+	// parse filename and expand environment variables
+	boost::filesystem::path sFileExpanded = getFilesystemPath(sFile);
+
     LOG4CPP_WARN( calibLogger, "Reading calibration files with measurement overhead. Consider using files without timestamp!" );
 	// initialize measurement
 	Measurement::Measurement< T > interResult ( 0, boost::shared_ptr< T >( new T() ) );
 
 	// create ifstream
-	std::ifstream stream( sFile.c_str() );
+	std::ifstream stream( sFileExpanded.c_str() );
 	if ( !stream.good() )
 		UBITRACK_THROW( "Could not open file " + sFile + " for reading" );
 
@@ -168,8 +179,11 @@ void readCalibFileDropMeasurement( const std::string& sFile, T& result )
 template< typename T >
 void writeCalibFile( const std::string& sFile, const T& data )
 {
+	// parse filename and expand environment variables
+	boost::filesystem::path sFileExpanded = getFilesystemPath(sFile);
+
 	// create ofstream
-	std::ofstream stream( sFile.c_str() );
+	std::ofstream stream( sFileExpanded.c_str() );
 	if ( !stream.good() )
 		UBITRACK_THROW( "Could not open file " + sFile + " for writing" );
 
@@ -188,8 +202,11 @@ void writeCalibFile( const std::string& sFile, const T& data )
 template< typename T >
 void writeBinaryCalibFile(const std::string& sFile, const T& data)
 {
+	// parse filename and expand environment variables
+	boost::filesystem::path sFileExpanded = getFilesystemPath(sFile);
+
 	// create ofstream
-	std::ofstream stream(sFile.c_str(), std::ios::out | std::ios::binary);
+	std::ofstream stream(sFileExpanded.c_str(), std::ios::out | std::ios::binary);
 	if (!stream.good())
 		UBITRACK_THROW("Could not open file " + sFile + " for writing");
 
