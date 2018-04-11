@@ -61,7 +61,8 @@ class UBITRACK_EXPORT Quaternion
 {
 	
 	friend class boost::serialization::access;
-
+protected: 
+	double a, b, c, d;
 	public:
 
 		typedef double value_type;
