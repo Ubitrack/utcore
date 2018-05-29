@@ -11,22 +11,27 @@ SET(ENABLE_TRACING_DTRACE OFF)
 SET(ENABLE_TRACING_ETW OFF)
 SET(ENABLE_TRACING_LTTNGUST OFF)
 
+SET(TRACING_HDR_FILES "")
+SET(TRACING_SRC_FILES "")
+SET(TRACING_EXTRA_LIBRARIES "")
+SET(TRACING_INCLUDE_DIRS "")
+
 # Tracing Providers for various platforms
 IF(APPLE AND ENABLE_TRACING)
     MESSAGE( STATUS "Enabled DTrace.")
     INCLUDE(dtrace)
-    add_definitions("-DHAVE_DTRACE")
-    add_definitions("-DENABLE_EVENT_TRACING")
-    include_directories(${CMAKE_BINARY_DIR})
+    set(UBITRACK_COMPILE_DEFINITIONS ${UBITRACK_COMPILE_DEFINITIONS} "HAVE_DTRACE")
+    set(UBITRACK_COMPILE_DEFINITIONS ${UBITRACK_COMPILE_DEFINITIONS} "ENABLE_EVENT_TRACING")
+    SET(TRACING_INCLUDE_DIRS ${TRACING_INCLUDE_DIRS} ${CMAKE_BINARY_DIR})
     SET(ENABLE_TRACING_DTRACE ON)
 ENDIF(APPLE AND ENABLE_TRACING)
 
 IF(WIN32 AND ENABLE_TRACING)
     MESSAGE( STATUS "Enabled Event Tracing for Windows.")
     INCLUDE(etw)
-    add_definitions("-DHAVE_ETW")
-    add_definitions("-DENABLE_EVENT_TRACING")
-    include_directories(${CMAKE_BINARY_DIR})
+    set(UBITRACK_COMPILE_DEFINITIONS ${UBITRACK_COMPILE_DEFINITIONS} "HAVE_ETW")
+    set(UBITRACK_COMPILE_DEFINITIONS ${UBITRACK_COMPILE_DEFINITIONS} "ENABLE_EVENT_TRACING")
+    SET(TRACING_INCLUDE_DIRS ${TRACING_INCLUDE_DIRS} ${CMAKE_BINARY_DIR})
     SET(ENABLE_TRACING_ETW ON)
 ENDIF(WIN32 AND ENABLE_TRACING)
 
@@ -35,28 +40,24 @@ ENDIF(WIN32 AND ENABLE_TRACING)
 IF(CMAKE_SYSTEM_NAME MATCHES "Linux" AND ENABLE_TRACING)
     MESSAGE( STATUS "Enabled LTTNG-UST.")
     include (FindLTTngUST REQUIRED)
-    add_definitions("-DHAVE_LTTNGUST")
-    add_definitions("-DENABLE_EVENT_TRACING")
+    set(UBITRACK_COMPILE_DEFINITIONS ${UBITRACK_COMPILE_DEFINITIONS} "HAVE_LTTNGUST")
+    set(UBITRACK_COMPILE_DEFINITIONS ${UBITRACK_COMPILE_DEFINITIONS} "ENABLE_EVENT_TRACING")
     SET(ENABLE_TRACING_LTTNGUST ON)
 ENDIF(CMAKE_SYSTEM_NAME MATCHES "Linux" AND ENABLE_TRACING)
 
-set(tracing_hdr_files "")
-set(tracing_src_files "")
-
-set(tracing_extra_libraries "")
 
 IF(ENABLE_TRACING_DTRACE)
-    set(tracing_hdr_files ${tracing_hdr_files} "${CMAKE_BINARY_DIR}/utUtil/probes_ubitrack_dtrace.h")
+    set(TRACING_HDR_FILES ${TRACING_HDR_FILES} "${CMAKE_BINARY_DIR}/utUtil/probes_ubitrack_dtrace.h")
 ENDIF(ENABLE_TRACING_DTRACE)
 
 IF(ENABLE_TRACING_ETW)
-    set(tracing_hdr_files ${tracing_hdr_files} "${CMAKE_BINARY_DIR}/utUtil/probes_ubitrack_etw.h")
-    set(tracing_src_files ${tracing_src_files} "${CMAKE_BINARY_DIR}/utUtil/probes_ubitrack_etw.rc")
+    set(TRACING_HDR_FILES ${TRACING_HDR_FILES} "${CMAKE_BINARY_DIR}/utUtil/probes_ubitrack_etw.h")
+    set(TRACING_SRC_FILES ${TRACING_SRC_FILES} "${CMAKE_BINARY_DIR}/utUtil/probes_ubitrack_etw.rc")
 ENDIF(ENABLE_TRACING_ETW)
 
 IF(ENABLE_TRACING_LTTNGUST)
-    include_directories(${LTTNGUST_INCLUDE_DIRS})
-    set(tracing_extra_libraries LTTng::UST)
+    SET(TRACING_INCLUDE_DIRS ${TRACING_INCLUDE_DIRS} ${LTTNGUST_INCLUDE_DIRS})
+    set(TRACING_EXTRA_LIBRARIES LTTng::UST)
 ENDIF(ENABLE_TRACING_LTTNGUST)
 
 
@@ -82,17 +83,24 @@ FILE(GLOB UBITRACK_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
 
 # UTCORE library definition
 IF(BUILD_SHARED_LIBS)
-  ADD_LIBRARY(${UBITRACK_LIBRARY_NAME} SHARED ${UBITRACK_SRCS} ${tracing_src_files} ${UBITRACK_HEADERS} ${tracing_hdr_files})
+  ADD_LIBRARY(${UBITRACK_LIBRARY_NAME} SHARED ${UBITRACK_SRCS} ${TRACING_SRC_FILES} ${UBITRACK_HEADERS} ${TRACING_HDR_FILES})
 ELSE(BUILD_SHARED_LIBS)
-  ADD_LIBRARY(${UBITRACK_LIBRARY_NAME} STATIC ${UBITRACK_SRCS} ${tracing_src_files} ${UBITRACK_HEADERS} ${tracing_hdr_files})
+  ADD_LIBRARY(${UBITRACK_LIBRARY_NAME} STATIC ${UBITRACK_SRCS} ${TRACING_SRC_FILES} ${UBITRACK_HEADERS} ${TRACING_HDR_FILES})
 ENDIF(BUILD_SHARED_LIBS)
 
-target_link_libraries(${UBITRACK_LIBRARY_NAME} ${CONAN_LIBS} ${tracing_extra_libraries})
+target_link_libraries(${UBITRACK_LIBRARY_NAME} PUBLIC 
+  CONAN_PKG::Boost 
+  CONAN_PKG::clapack 
+  CONAN_PKG::msgpack 
+  CONAN_PKG::ubitrack_boost_bindings 
+  CONAN_PKG::ubitrack_tinyxml
+  CONAN_PKG::ubitrack_log4cpp
+  PRIVATE ${TRACING_EXTRA_LIBRARIES})
 
 target_include_directories(${UBITRACK_LIBRARY_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:include>
-  PRIVATE src)
+  PRIVATE src ${TRACING_INCLUDE_DIRS})
 
 if(WIN32)
   IF(BUILD_SHARED_LIBS)
@@ -126,7 +134,7 @@ endforeach()
 set_target_properties(${UBITRACK_LIBRARY_NAME} PROPERTIES COMPILE_DEFINITIONS "${UBITRACK_COMPILE_DEFINITIONS}")
 
 # set fPIC
-set_property(TARGET ${UBITRACK_LIBRARY_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_target_properties(${UBITRACK_LIBRARY_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 set_target_properties(${UBITRACK_LIBRARY_NAME} PROPERTIES
   OUTPUT_NAME "${UBITRACK_LIBRARY_NAME}${UBITRACK_DLLVERSION}"
@@ -152,10 +160,11 @@ ENDIF(ENABLE_TRACING_ETW)
 
 # Installation of libraries, headers and documents
 install(TARGETS ${UBITRACK_LIBRARY_NAME}
-  EXPORT library_targets
+  EXPORT "utcoreTargets"
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   )
 
 foreach(hdr ${UBITRACK_HEADERS})
@@ -168,7 +177,7 @@ foreach(hdr ${UBITRACK_HEADERS})
   ENDIF(fpath)
 endforeach()
 
-foreach(hdr ${tracing_hdr_files})
+foreach(hdr ${TRACING_HDR_FILES})
   string(REGEX REPLACE "${CMAKE_BINARY_DIR}/" "" hdr2 "${hdr}")
   GET_FILENAME_COMPONENT(fpath ${hdr2} PATH)
   IF(fpath)
@@ -178,7 +187,17 @@ foreach(hdr ${tracing_hdr_files})
   ENDIF(fpath)
 endforeach()
 
-install(EXPORT library_targets
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file("${CMAKE_CURRENT_SOURCE_DIR}/ubitrack_boost_bindingsConfigVersion.cmake"
+  VERSION ${UBITRACK_FULL_VERSION}
+  COMPATIBILITY SameMajorVersion)
+
+install (FILES "utcoreConfig.cmake" "utcoreConfigVersion.cmake"
+  DESTINATION lib/cmake/utcore)
+
+install(EXPORT utcoreTargets
+  FILE utcoreTargets.cmake
   NAMESPACE utcore::
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/utcore
-  )
+)

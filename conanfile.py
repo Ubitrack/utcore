@@ -36,7 +36,7 @@ class UbitrackCoreConan(ConanFile):
         )
 
     # all sources are deployed with the package
-    exports_sources = "cmake/*", "doc/*", "misc/*", "src/*", "tests/*", "CMakeLists.txt"
+    exports_sources = "cmake/*", "doc/*", "misc/*", "src/*", "tests/*", "CMakeLists.txt", "utcoreConfig.cmake"
 
     # UbitrackConfig.cmake should be reused by all depending packages
     exports = "cmake/UbitrackConfig.cmake"

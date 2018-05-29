@@ -1,13 +1,16 @@
-SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-
-project(ubitrack_core)
-
 cmake_minimum_required(VERSION 3.4.0)
 
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+project(ubitrack_core VERSION 1.3.0 LANGUAGES CXX)
+
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup(KEEP_RPATHS)
+conan_basic_setup(TARGETS)
 
 include(UbitrackConfig)
+
+option(ENABLE_UNITTESTS "Enable Unit Tests" FALSE)
+option(ENABLE_TRACING "Enable Tracing Providers" FALSE)
 
 add_subdirectory(src)
 
