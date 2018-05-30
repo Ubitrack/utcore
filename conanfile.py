@@ -24,9 +24,9 @@ class UbitrackCoreConan(ConanFile):
         "clapack/[>=3.2.1]@camposs/stable", 
         "msgpack/[>=2.1.5]@camposs/stable", 
 
-        "ubitrack_boost_bindings/1.0@camposs/stable", 
-        "ubitrack_tinyxml/2.5.3@camposs/stable", 
-        "ubitrack_log4cpp/0.3.5@camposs/stable",
+        "ubitrack_boost_bindings/1.0@ubitrack/stable", 
+        "ubitrack_tinyxml/2.5.3@ubitrack/stable", 
+        "ubitrack_log4cpp/0.3.5@ubitrack/stable",
         )
 
     default_options = (
