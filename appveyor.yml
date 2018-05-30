@@ -4,8 +4,8 @@ environment:
     PYTHON_VERSION: "3.6.3"
     PYTHON_ARCH: "64"
     
-    CONAN_UPLOAD: "https://conan.campar.in.tum.de"
-    CONAN_REMOTES: "https://conan.campar.in.tum.de, https://api.bintray.com/conan/bincrafters/public-conan"
+    CONAN_UPLOAD: "https://conan.campar.in.tum.de/api/conan/conan-ubitrack"
+    CONAN_REMOTES: "https://conan.campar.in.tum.de/api/conan/conan-camposs, https://api.bintray.com/conan/bincrafters/public-conan"
     CONAN_REFERENCE: "ubitrack_core/1.3.0"
     CONAN_USERNAME: "ubitrack"
     CONAN_CHANNEL: "stable"
