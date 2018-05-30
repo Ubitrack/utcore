@@ -4,12 +4,17 @@ environment:
     PYTHON_VERSION: "3.6.3"
     PYTHON_ARCH: "64"
     
-    CONAN_UPLOAD: "https://conan.campar.in.tum.de/api/conan/conan-ubitrack"
-    CONAN_REMOTES: "https://conan.campar.in.tum.de/api/conan/conan-ubitrack, https://conan.campar.in.tum.de/api/conan/conan-camposs, https://api.bintray.com/conan/bincrafters/public-conan"
     CONAN_REFERENCE: "ubitrack_core/1.3.0"
-    CONAN_USERNAME: "ubitrack"
     CONAN_CHANNEL: "stable"
-    CONAN_STABLE_BRANCH_PATTERN: "release/*"
+    CONAN_STABLE_BRANCH_PATTERN: "stable/*"
+    CONAN_UPLOAD_ONLY_WHEN_STABLE: 0 # For now always upload built artefacts
+
+    CONAN_UPLOAD: "https://conan.campar.in.tum.de/api/conan/conan-ubitrack"
+    CONAN_REMOTES: "https://conan.campar.in.tum.de/api/conan/conan-ubitrack,https://conan.campar.in.tum.de/api/conan/conan-camposs,https://api.bintray.com/conan/bincrafters/public-conan"
+    CONAN_USERNAME: "ubitrack"
+    CONAN_LOGIN_USERNAME: "ubitrack"
+
+    VS150COMNTOOLS: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\Common7\\Tools\\"
     
     matrix:
         - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
@@ -24,7 +29,7 @@ install:
   # Workaround for CMake not wanting sh.exe on PATH for MinGW
   - set PATH=%PATH:C:\Program Files\Git\usr\bin;=%
   - set PATH=%PATH%;%PYTHON%/Scripts/
-  - pip.exe install conan_package_tools # It install conan too
+  - pip.exe install conan_package_tools --upgrade # It install conan too
   - conan user # It creates the conan data directory
 
 test_script:
