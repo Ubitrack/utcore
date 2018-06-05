@@ -189,7 +189,7 @@ endforeach()
 
 
 include(CMakePackageConfigHelpers)
-write_basic_package_version_file("${CMAKE_SOURCE_DIR}/ubitrack_boost_bindingsConfigVersion.cmake"
+write_basic_package_version_file("${CMAKE_SOURCE_DIR}/utcoreConfigVersion.cmake"
   VERSION ${UBITRACK_FULL_VERSION}
   COMPATIBILITY SameMajorVersion)
 
