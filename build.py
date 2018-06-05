@@ -51,14 +51,8 @@ def get_os():
 
 if __name__ == "__main__":
     name = get_name_from_recipe()
-    username, channel, version = get_env_vars()
-    reference = "{0}/{1}".format(name, version)
 
-    builder = ConanMultiPackager(
-        reference=reference,
-        # upload_only_when_stable=True,
-        # stable_branch_pattern="stable/*"
-        )
+    builder = ConanMultiPackager()
     builder.add_common_builds(shared_option_name="ubitrack_core:shared", pure_c=True)
 
     if platform.system() == "Windows":
