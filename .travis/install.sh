@@ -23,7 +23,7 @@ if [[ "$(uname -s)" == 'Linux' ]]; then
     sudo apt-get update -qq
     sudo apt-get install -y python-software-properties
 
-    sudo apt-add-repository -y -u ppa:lttng/ppa
+    sudo apt-add-repository -y ppa:lttng/ppa
     sudo apt-get update -qq
     sudo apt-get install -y lttng-tools lttng-modules-dkms babeltrace liblttng-ust-dev
 fi
