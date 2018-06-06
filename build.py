@@ -53,7 +53,7 @@ if __name__ == "__main__":
     name = get_name_from_recipe()
 
     builder = ConanMultiPackager()
-    builder.add_common_builds(shared_option_name="ubitrack_core:shared", pure_c=True)
+    builder.add_common_builds(shared_option_name="ubitrack_core:shared", pure_c=False)
 
     if platform.system() == "Windows":
         filtered_builds = []
