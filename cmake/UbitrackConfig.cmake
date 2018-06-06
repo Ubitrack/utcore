@@ -12,6 +12,7 @@ set(UBITRACK_LINK_FLAGS "")
 set(UBITRACK_LINK_FLAGS_DEBUG "")
 
 include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
 
 # do we require C++11 compilers now ?
 include(CheckCXXCompilerFlag)
@@ -92,3 +93,102 @@ set(UBITRACK_UTQLPATTERN_INSTALL_DIRECTORY "${CMAKE_INSTALL_DATADIR}/Ubitrack/ut
 set(UBITRACK_COMPONENT_INSTALL_DIRECTORY "ubitrack")
 set(UBITRACK_COMPONENT_INSTALL_PATH "${CMAKE_INSTALL_LIBDIR}/${UBITRACK_COMPONENT_INSTALL_DIRECTORY}")
 set(UBITRACK_COMPONENT_BIN_INSTALL_PATH "${CMAKE_INSTALL_BINDIR}/${UBITRACK_COMPONENT_INSTALL_DIRECTORY}")
+
+
+# Helper Marcros to simpilify and unify the installation process of libraries and components 
+
+# Macro to set target_properties from the custom variables defined above
+macro(ubitrack_set_target_properties target_name)
+
+  foreach(_flag ${UBITRACK_COMPILE_FLAGS})
+    set_target_properties(${target_name} PROPERTIES COMPILE_FLAGS "${_flag}")
+  endforeach()
+  foreach(_flag ${UBITRACK_LINK_FLAGS})
+    set_target_properties(${target_name} PROPERTIES LINK_FLAGS "${_flag}")
+  endforeach()
+  foreach(_flag ${UBITRACK_LINK_FLAGS_DEBUG})
+    set_target_properties(${target_name} PROPERTIES LINK_FLAGS_DEBUG "${_flag}")
+  endforeach()
+  foreach(_symb ${UBITRACK_DEFINES})
+    set_target_properties(${target_name} PROPERTIES DEFINE_SYMBOL ${_symb})
+  endforeach()
+
+  # set compiler Definitions
+  set_target_properties(${target_name} PROPERTIES COMPILE_DEFINITIONS "${UBITRACK_COMPILE_DEFINITIONS}")
+
+  # set fPIC
+  set_target_properties(${target_name} PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+  set_target_properties(${target_name} PROPERTIES
+    OUTPUT_NAME "${target_name}${UBITRACK_DLLVERSION}"
+    DEBUG_POSTFIX "${UBITRACK_DEBUG_POSTFIX}"
+    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_INSTALL_LIBDIR}
+    )
+
+  if(NOT ANDROID)
+    set_target_properties(${target_name} PROPERTIES
+      VERSION ${UBITRACK_LIBVERSION}
+      SOVERSION ${UBITRACK_SOVERSION}
+      )
+  endif(NOT ANDROID)
+
+endmacro(ubitrack_set_target_properties)
+
+# Macro to install the header files in a standarts conform way
+# Multiple arguments are allowed: each one is a list of header files to copy
+macro(ubitrack_install_headers)
+  foreach(arg ${ARGN})
+    foreach(hdr ${arg})
+      string(REGEX REPLACE "${CMAKE_BINARY_DIR}/" "" hdr2 "${hdr}")
+      GET_FILENAME_COMPONENT(fpath ${hdr2} PATH)
+      IF(fpath)
+        install(FILES ${hdr} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${fpath}" COMPONENT dev)
+      ELSE(fpath)
+        install(FILES ${hdr} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}" COMPONENT dev)
+      ENDIF(fpath)
+    endforeach()
+  endforeach()
+endmacro(ubitrack_install_headers)
+
+# Macro to install the current library in a standarts conform way
+# One argument is allowed: target_name
+macro(ubitrack_install_library target_name)
+  install(TARGETS ${target_name}
+    EXPORT "${target_name}Targets"
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    )
+
+  write_basic_package_version_file("${CMAKE_SOURCE_DIR}/${target_name}ConfigVersion.cmake"
+    VERSION ${UBITRACK_FULL_VERSION}
+    COMPATIBILITY SameMajorVersion)
+
+  # this requires the ${target_name}Config.cmake file to be present in all libraries
+  install (FILES "${CMAKE_SOURCE_DIR}/${target_name}Config.cmake" "${CMAKE_SOURCE_DIR}/${target_name}ConfigVersion.cmake"
+    DESTINATION lib/cmake/${target_name})
+
+  install(EXPORT "${target_name}Targets"
+    FILE "${target_name}Targets.cmake"
+    NAMESPACE "${target_name}::"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${target_name}"
+  )
+endmacro(ubitrack_install_library)
+
+# Macro to install additional data files into the doc folder
+# multiple arguments allowed: filenames or glob patterns
+macro(ubitrack_install_doc)
+  foreach(arg ${ARGN})
+    file(GLOB _doc_files LIST_DIRECTORIES false ${arg})
+    foreach(pfile ${_doc_files})
+      string(REGEX REPLACE "^.*/doc/" "" pfile2 "${pfile}")
+      GET_FILENAME_COMPONENT(fpath ${pfile2} PATH)
+      IF(fpath)
+        install(FILES ${pfile} DESTINATION "${UBITRACK_DOC_INSTALL_DIRECTORY}/${fpath}" COMPONENT doc)
+      ELSE(fpath)
+        install(FILES ${pfile} DESTINATION "${UBITRACK_DOC_INSTALL_DIRECTORY}" COMPONENT doc)
+      ENDIF(fpath)
+    endforeach()
+  endforeach()
+endmacro(ubitrack_install_doc)

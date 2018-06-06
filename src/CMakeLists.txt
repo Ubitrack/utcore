@@ -113,37 +113,7 @@ if(MSVC)
   set_target_properties(${UBITRACK_LIBRARY_NAME} PROPERTIES LINK_FLAGS "/NODEFAULTLIB:libc /DEBUG")
 endif()
 
-foreach(_flag ${UBITRACK_COMPILE_FLAGS})
-  set_target_properties(${UBITRACK_LIBRARY_NAME} PROPERTIES COMPILE_FLAGS "${_flag}")
-endforeach()
-foreach(_flag ${UBITRACK_LINK_FLAGS})
-  set_target_properties(${UBITRACK_LIBRARY_NAME} PROPERTIES LINK_FLAGS "${_flag}")
-endforeach()
-foreach(_flag ${UBITRACK_LINK_FLAGS_DEBUG})
-  set_target_properties(${UBITRACK_LIBRARY_NAME} PROPERTIES LINK_FLAGS_DEBUG "${_flag}")
-endforeach()
-foreach(_symb ${UBITRACK_DEFINES})
-  set_target_properties(${UBITRACK_LIBRARY_NAME} PROPERTIES DEFINE_SYMBOL ${_symb})
-endforeach()
-
-# set compiler Definitions
-set_target_properties(${UBITRACK_LIBRARY_NAME} PROPERTIES COMPILE_DEFINITIONS "${UBITRACK_COMPILE_DEFINITIONS}")
-
-# set fPIC
-set_target_properties(${UBITRACK_LIBRARY_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
-
-set_target_properties(${UBITRACK_LIBRARY_NAME} PROPERTIES
-  OUTPUT_NAME "${UBITRACK_LIBRARY_NAME}${UBITRACK_DLLVERSION}"
-  DEBUG_POSTFIX "${UBITRACK_DEBUG_POSTFIX}"
-  ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_INSTALL_LIBDIR}
-  )
-
-if(NOT ANDROID)
-  set_target_properties(${UBITRACK_LIBRARY_NAME} PROPERTIES
-    VERSION ${UBITRACK_LIBVERSION}
-    SOVERSION ${UBITRACK_SOVERSION}
-    )
-endif(NOT ANDROID)
+ubitrack_set_target_properties(${UBITRACK_LIBRARY_NAME})
 
 # Generate tracing helper files
 IF(ENABLE_TRACING_DTRACE)
@@ -154,46 +124,5 @@ IF(ENABLE_TRACING_ETW)
     ETW_INSTRUMENT(${UBITRACK_LIBRARY_NAME})
 ENDIF(ENABLE_TRACING_ETW)
 
-# Installation of libraries, headers and documents
-install(TARGETS ${UBITRACK_LIBRARY_NAME}
-  EXPORT "utcoreTargets"
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-  )
-
-foreach(hdr ${UBITRACK_HEADERS})
-  string(REGEX REPLACE "${CMAKE_BINARY_DIR}/" "" hdr2 "${hdr}")
-  GET_FILENAME_COMPONENT(fpath ${hdr2} PATH)
-  IF(fpath)
-    install(FILES ${hdr} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${fpath}" COMPONENT dev)
-  ELSE(fpath)
-    install(FILES ${hdr} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}" COMPONENT dev)
-  ENDIF(fpath)
-endforeach()
-
-foreach(hdr ${TRACING_HDR_FILES})
-  string(REGEX REPLACE "${CMAKE_BINARY_DIR}/" "" hdr2 "${hdr}")
-  GET_FILENAME_COMPONENT(fpath ${hdr2} PATH)
-  IF(fpath)
-    install(FILES ${hdr} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${fpath}" COMPONENT dev)
-  ELSE(fpath)
-    install(FILES ${hdr} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}" COMPONENT dev)
-  ENDIF(fpath)
-endforeach()
-
-
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file("${CMAKE_SOURCE_DIR}/utcoreConfigVersion.cmake"
-  VERSION ${UBITRACK_FULL_VERSION}
-  COMPATIBILITY SameMajorVersion)
-
-install (FILES "${CMAKE_SOURCE_DIR}/utcoreConfig.cmake" "${CMAKE_SOURCE_DIR}/utcoreConfigVersion.cmake"
-  DESTINATION lib/cmake/utcore)
-
-install(EXPORT utcoreTargets
-  FILE utcoreTargets.cmake
-  NAMESPACE utcore::
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/utcore
-)
+ubitrack_install_headers(${UBITRACK_HEADERS} ${TRACING_HDR_FILES})
+ubitrack_install_library(${UBITRACK_LIBRARY_NAME})
