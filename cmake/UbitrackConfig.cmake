@@ -176,6 +176,17 @@ macro(ubitrack_install_library target_name)
   )
 endmacro(ubitrack_install_library)
 
+# Macro to install the current application in a standarts conform way
+# One argument is allowed: target_name
+macro(ubitrack_install_application target_name)
+  install(TARGETS ${target_name}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    )
+endmacro(ubitrack_install_application)
+
 # Macro to install additional data files into the doc folder
 # multiple arguments allowed: filenames or glob patterns
 macro(ubitrack_install_doc)
