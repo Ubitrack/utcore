@@ -176,6 +176,16 @@ macro(ubitrack_install_library target_name)
   )
 endmacro(ubitrack_install_library)
 
+# Macro to install the current library in a standarts conform way
+# One argument is allowed: target_name
+macro(ubitrack_install_component target_name)
+  install(TARGETS ${target_name}
+    RUNTIME DESTINATION ${UBITRACK_COMPONENT_BIN_INSTALL_PATH}
+    LIBRARY DESTINATION ${UBITRACK_COMPONENT_INSTALL_PATH}
+    ARCHIVE DESTINATION ${UBITRACK_COMPONENT_INSTALL_PATH}
+    )
+endmacro(ubitrack_install_component)
+
 # Macro to install the current application in a standarts conform way
 # One argument is allowed: target_name
 macro(ubitrack_install_application target_name)
