@@ -47,7 +47,7 @@ class UbitrackCoreConan(ConanFile):
         self.options["Boost"].without_container = True
         self.options["Boost"].without_context = True
         self.options["Boost"].without_coroutine = True
-        self.options["Boost"].without_coroutine2 = True
+        # self.options["Boost"].without_coroutine2 = True
         self.options["Boost"].without_exception = True
         # self.options["Boost"].without_fiber = True
         self.options["Boost"].without_graph = True
