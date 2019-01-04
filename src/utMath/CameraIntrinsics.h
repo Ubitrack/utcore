@@ -268,7 +268,17 @@ public:
 	{
 		// compensate for left-handed OpenCV coordinate frame
 		intrinsics.matrix ( 0, 2 ) *= -1;
-		intrinsics.matrix ( 1, 2 ) *= -1;
+		
+		// PaF: the principal point y has to be flipped differently to correctly account for the pixel origin
+		//intrinsics.matrix ( 1, 2 ) *= -1;		
+		if (intrinsics.matrix(1, 2) < 0){
+			intrinsics.matrix(1, 2) = dimension(1) - 1 + intrinsics.matrix(1, 2);
+		}
+		else {
+			intrinsics.matrix(1, 2) = dimension(1) - 1 - intrinsics.matrix(1, 2);
+		}
+
+		
 		intrinsics.matrix ( 2, 2 ) *= -1;
 	}
 	

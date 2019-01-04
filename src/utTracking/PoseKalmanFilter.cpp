@@ -44,7 +44,7 @@
 #include <log4cpp/Category.hh>
 static log4cpp::Category& logger( log4cpp::Category::getInstance( "Ubitrack.Tracking.PoseKalmanFilter" ) );
 
-#define KALMAN_LOGGING
+//#define KALMAN_LOGGING
 #include <utMath/Stochastic/Kalman.h>
 
 namespace ublas = boost::numeric::ublas;
