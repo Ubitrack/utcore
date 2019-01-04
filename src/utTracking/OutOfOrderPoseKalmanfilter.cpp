@@ -30,7 +30,7 @@
 * @author Frieder Pankratz <pankratz@in.tum.de>
 */
 
-#include "OutOfOrderKalmanFilter.h"
+#include "OutOfOrderPoseKalmanFilter.h"
 #include <utUtil/Exception.h>
 // get a logger
 static log4cpp::Category& logger(log4cpp::Category::getInstance("Ubitrack.Tracking.OutOfOrderKalmanFilter"));
