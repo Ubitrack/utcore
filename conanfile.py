@@ -103,9 +103,9 @@ class UbitrackCoreConan(ConanFile):
     #             else:
     #                 self.output.warn("Could not determine package manager, skipping Linux system requirements installation.")
 
-    def imports(self):
-        self.copy(pattern="*.dll", dst="bin", src="bin") # From bin to bin
-        self.copy(pattern="*.dylib*", dst="lib", src="lib") 
+    # def imports(self):
+    #     self.copy(pattern="*.dll", dst="bin", src="bin") # From bin to bin
+    #     self.copy(pattern="*.dylib*", dst="lib", src="lib") 
        
     def build(self):
         cmake = CMake(self)
