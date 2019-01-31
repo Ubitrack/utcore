@@ -38,6 +38,7 @@
 #include "utUtil/probes_ubitrack_dtrace.h"
 #endif
 
+
 #ifdef HAVE_LTTNGUST
 #include "LTTNGTracingProvider.h"
 #endif
@@ -45,6 +46,23 @@
 #ifdef HAVE_ETW
 #include "ETWTracing.h"
 #endif
+
+#ifdef HAVE_USDT
+// copied from folly/tracingin/StaticTracepoint.h
+#if defined(__ELF__) &&                                                        \
+    (defined(__powerpc64__) || defined(__powerpc__) || defined(__aarch64__) || \
+     defined(__x86_64__) || defined(__i386__))
+#include <utUtil/StaticTracepoint-ELF.h>
+
+#define FOLLY_SDT(provider, name, ...)                                         \
+  FOLLY_SDT_PROBE_N(                                                           \
+    provider, name, FOLLY_SDT_NARG(0, ##__VA_ARGS__), ##__VA_ARGS__)
+#else
+#define FOLLY_SDT(provider, name, ...) do {} while(0)
+#endif
+#endif // HAVE_USDT
+
+
 
 
 /*
@@ -77,6 +95,10 @@
   tracepoint(ubitrack, eventqueue_dispatch_begin, event_domain, event_priority, component_name, component_port);
 #endif
 
+#ifdef HAVE_USDT
+#define TRACEPOINT_BLOCK_EVENTQUEUE_DISPATCH_BEGIN(event_domain, event_priority, component_name, component_port)\
+  FOLLY_SDT(ubitrack, eventqueue_dispatch_begin, event_domain, event_priority, component_name, component_port);
+#endif
 
 
 /*
@@ -109,6 +131,10 @@
   tracepoint(ubitrack, eventqueue_dispatch_end, event_domain, event_priority, component_name, component_port);
 #endif
 
+#ifdef HAVE_USDT
+#define TRACEPOINT_BLOCK_EVENTQUEUE_DISPATCH_END(event_domain, event_priority, component_name, component_port)\
+  FOLLY_SDT(ubitrack, eventqueue_dispatch_end, event_domain, event_priority, component_name, component_port);
+#endif
 
 /*
  * TRACEPOINT_MEASUREMENT_CREATE(event_domain, event_priority, component_name, component_port)
@@ -139,6 +165,10 @@
   tracepoint(ubitrack, measurement_create, event_domain, event_priority, component_name, component_port);
 #endif
 
+#ifdef HAVE_USDT
+#define TRACEPOINT_MEASUREMENT_CREATE(event_domain, event_priority, component_name, component_port)\
+  FOLLY_SDT(ubitrack, measurement_create, event_domain, event_priority, component_name, component_port);
+#endif
 
 /*
  * TRACEPOINT_MEASUREMENT_RECEIVE(event_domain, event_priority, component_name, component_port)
@@ -169,6 +199,10 @@
   tracepoint(ubitrack, measurement_receive, event_domain, event_priority, component_name, component_port);
 #endif
 
+#ifdef HAVE_USDT
+#define TRACEPOINT_MEASUREMENT_RECEIVE(event_domain, event_priority, component_name, component_port)\
+  FOLLY_SDT(ubitrack, measurement_receive, event_domain, event_priority, component_name, component_port);
+#endif
 
  /*
  * TRACEPOINT_VISION_ALLOCATE_CPU(bytes)
@@ -196,6 +230,10 @@
   tracepoint(ubitrack, vision_allocate_cpu, bytes);
 #endif
 
+#ifdef HAVE_USDT
+#define TRACEPOINT_VISION_ALLOCATE_CPU(bytes)\
+  FOLLY_SDT(ubitrack, vision_allocate_cpu, bytes);
+#endif
 
   /*
  * TRACEPOINT_VISION_ALLOCATE_GPU(bytes)
@@ -224,6 +262,11 @@
 #endif
 
 
+#ifdef HAVE_USDT
+#define TRACEPOINT_VISION_ALLOCATE_GPU(bytes)\
+  FOLLY_SDT(ubitrack, vision_allocate_gpu, bytes);
+#endif
+
  /*
  * TRACEPOINT_VISION_GPU_UPLOAD(bytes)
  * traces the uploads to GPU memory of an image
@@ -251,6 +294,11 @@
 #endif
 
 
+#ifdef HAVE_USDT
+#define TRACEPOINT_VISION_GPU_UPLOAD(bytes)\
+  FOLLY_SDT(ubitrack, vision_gpu_upload, bytes);
+#endif
+
  /*
  * TRACEPOINT_VISION_GPU_DOWNLOAD(bytes)
  * traces the downloas to CPU memory of an image
@@ -277,6 +325,10 @@
   tracepoint(ubitrack, vision_gpu_download, bytes);
 #endif
 
+#ifdef HAVE_USDT
+#define TRACEPOINT_VISION_GPU_DOWNLOAD(bytes)\
+  FOLLY_SDT(ubitrack, vision_gpu_download, bytes);
+#endif
 
 #else // ENABLE_EVENT_TRACING
 

@@ -133,7 +133,7 @@ class UbitrackCoreConan(ConanFile):
             if self.settings.os == "Windows":
                 self.cpp_info.defines.append("HAVE_ETW")
             elif self.settings.os == "Linux":
-                self.cpp_info.defines.append("HAVE_LTTNGUST")
+                self.cpp_info.defines.append("HAVE_USDT")
             elif self.settings.os == "Macos":    
                 self.cpp_info.defines.append("HAVE_DTRACE")
 
