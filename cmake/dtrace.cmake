@@ -153,6 +153,8 @@ FUNCTION(DTRACE_INSTRUMENT target)
         # Used in DTRACE_INSTRUMENT_WITH_STATIC_LIBS
         SET(TARGET_OBJECT_DIRECTORY_${target}  ${objdir} CACHE INTERNAL "")
       ENDIF()
+    ELSE()
+      MESSAGE(STATUS "DTRACE object file not found.")
     ENDIF()
 
     install(FILES ${CMAKE_BINARY_DIR}/utUtil/probes_ubitrack_dtrace.h DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/utUtil" COMPONENT main)
