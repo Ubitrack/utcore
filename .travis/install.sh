@@ -21,7 +21,7 @@ fi
 
 if [[ "$(uname -s)" == 'Linux' ]]; then
     sudo apt-get update -qq
-    sudo apt-get install -y python-software-properties libv4l-dev qv4l2 opencl-headers ocl-icd-opencl-dev libusb-1.0-0-dev libgtk2.0-dev pkg-config libomp-dev
+    sudo apt-get install -y python-software-properties libv4l-dev qv4l2 opencl-headers ocl-icd-opencl-dev libusb-1.0-0-dev libgtk2.0-dev pkg-config
     sudo apt-get install -y git cmake python3-pip python3-dev
 
 
