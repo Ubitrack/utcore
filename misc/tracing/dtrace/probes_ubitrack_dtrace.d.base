@@ -19,6 +19,8 @@ provider ubitrack {
     /* probes for tracing cpu/gpu image allocations */
     probe vision__allocate__cpu(long int size);
     probe vision__allocate__gpu(long int size);
+    probe vision__clone__cpu(long int size);
+    probe vision__clone__gpu(long int size);
 
     /* probes for tracing cpu/gpu image transfers */
     probe vision__gpu__upload(long int size);

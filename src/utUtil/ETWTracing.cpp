@@ -277,6 +277,24 @@ void ETWUbitrackAllocateGpu(unsigned int bytes) {
 	EventWriteVisionAllocateGpu(bytes);
 };
 
+void ETWUbitrackCloneCpu(unsigned int bytes) {
+	if (!UBITRACK_Context.IsEnabled)
+	{
+		return;
+	}
+
+	EventWriteVisionCloneCpu(bytes);
+};
+
+void ETWUbitrackCloneGpu(unsigned int bytes) {
+	if (!UBITRACK_Context.IsEnabled)
+	{
+		return;
+	}
+
+	EventWriteVisionCloneGpu(bytes);
+};
+
 void ETWUbitrackGpuUpload(unsigned int bytes) {
 	if (!UBITRACK_Context.IsEnabled)
 	{

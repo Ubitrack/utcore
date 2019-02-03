@@ -79,6 +79,8 @@ UBITRACK_EXPORT void __cdecl ETWUbitrackEventQueueDispatchDiscard(int eventDomai
 UBITRACK_EXPORT void __cdecl ETWUbitrackMeasurementCreate(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName, _In_z_ PCSTR portName);
 UBITRACK_EXPORT void __cdecl ETWUbitrackMeasurementReceive(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName, _In_z_ PCSTR portName);
 UBITRACK_EXPORT void __cdecl ETWUbitrackAllocateCpu(unsigned int bytes);
+UBITRACK_EXPORT void __cdecl ETWUbitrackCloneGpu(unsigned int bytes);
+UBITRACK_EXPORT void __cdecl ETWUbitrackCloneCpu(unsigned int bytes);
 UBITRACK_EXPORT void __cdecl ETWUbitrackAllocateGpu(unsigned int bytes);
 UBITRACK_EXPORT void __cdecl ETWUbitrackGpuUpload(unsigned int bytes);
 UBITRACK_EXPORT void __cdecl ETWUbitrackGpuDownload(unsigned int bytes);
@@ -94,6 +96,8 @@ UBITRACK_EXPORT void __cdecl ETWUbitrackMeasurementCreate(int eventDomain, unsig
 UBITRACK_EXPORT void __cdecl ETWUbitrackMeasurementReceive(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName, _In_z_ PCSTR portName) {};
 UBITRACK_EXPORT void __cdecl ETWUbitrackAllocateCpu(unsigned int bytes) {};
 UBITRACK_EXPORT void __cdecl ETWUbitrackAllocateGpu(unsigned int bytes) {};
+UBITRACK_EXPORT void __cdecl ETWUbitrackCloneCpu(unsigned int bytes) {};
+UBITRACK_EXPORT void __cdecl ETWUbitrackCloneGpu(unsigned int bytes) {};
 UBITRACK_EXPORT void __cdecl ETWUbitrackGpuUpload(unsigned int bytes) {};
 UBITRACK_EXPORT void __cdecl ETWUbitrackGpuDownload(unsigned int bytes) {};
 

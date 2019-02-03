@@ -115,6 +115,12 @@ Adjust that to match your games actual install path.
           <template tid="T_Vision_Allocate_CPU">
             <data inType="win:Int64" name="Size" />
           </template>
+          <template tid="T_Vision_Clone_GPU">
+            <data inType="win:Int64" name="Size" />
+          </template>
+          <template tid="T_Vision_Clone_CPU">
+            <data inType="win:Int64" name="Size" />
+          </template>
         </templates>
         <keywords>
           <keyword name="HighFrequency" mask="0x2" />
@@ -130,6 +136,8 @@ Adjust that to match your games actual install path.
           <opcode name="VisionGpuDownload" symbol="_VisionGpuDownloadOpcode" value="16"/>
           <opcode name="VisionAllocateGpu" symbol="_VisionAllocateGpuOpcode" value="17"/>
           <opcode name="VisionAllocateCpu" symbol="_VisionAllocateCpuOpcode" value="18"/>
+          <opcode name="VisionCloneGpu" symbol="_VisionCloneGpuOpcode" value="19"/>
+          <opcode name="VisionCloneCpu" symbol="_VisionCloneCpuOpcode" value="20"/>
         </opcodes>
         <tasks>
           <task name="UbitrackTrace" symbol="Ubitrack_Task" value="1" eventGUID="{866D02A3-1A29-4207-B710-E883C8F59851}"/>
@@ -144,6 +152,8 @@ Adjust that to match your games actual install path.
           <event symbol="VisionGpuDownload" template="T_Vision_GPU_Download" value="106" task="UbitrackTrace" opcode="VisionGpuDownload" keywords="NormalFrequency" />
           <event symbol="VisionAllocateGpu" template="T_Vision_Allocate_GPU" value="107" task="UbitrackTrace" opcode="VisionAllocateGpu" keywords="NormalFrequency" />
           <event symbol="VisionAllocateCpu" template="T_Vision_Allocate_CPU" value="108" task="UbitrackTrace" opcode="VisionAllocateCpu" keywords="NormalFrequency" />
+          <event symbol="VisionCloneGpu" template="T_Vision_Clone_GPU" value="109" task="UbitrackTrace" opcode="VisionCloneGpu" keywords="NormalFrequency" />
+          <event symbol="VisionCloneCpu" template="T_Vision_Clone_CPU" value="110" task="UbitrackTrace" opcode="VisionCloneCpu" keywords="NormalFrequency" />
         </events>
       </provider>
     </events>

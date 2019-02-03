@@ -38,11 +38,6 @@
 #include "utUtil/probes_ubitrack_dtrace.h"
 #endif
 
-
-#ifdef HAVE_LTTNGUST
-#include "LTTNGTracingProvider.h"
-#endif
-
 #ifdef HAVE_ETW
 #include "ETWTracing.h"
 #endif
@@ -90,11 +85,6 @@
   ___ubitrack_tracing_startTime = ETWUbitrackEventQueueDispatchBegin(event_domain, event_priority, component_name, component_port);
 #endif
 
-#ifdef HAVE_LTTNGUST
-#define TRACEPOINT_BLOCK_EVENTQUEUE_DISPATCH_BEGIN(event_domain, event_priority, component_name, component_port)\
-  tracepoint(ubitrack, eventqueue_dispatch_begin, event_domain, event_priority, component_name, component_port);
-#endif
-
 #ifdef HAVE_USDT
 #define TRACEPOINT_BLOCK_EVENTQUEUE_DISPATCH_BEGIN(event_domain, event_priority, component_name, component_port)\
   FOLLY_SDT(ubitrack, eventqueue_dispatch_begin, event_domain, event_priority, component_name, component_port);
@@ -126,11 +116,6 @@
   ETWUbitrackEventQueueDispatchEnd(event_domain, event_priority, component_name, component_port,___ubitrack_tracing_startTime);
 #endif
 
-#ifdef HAVE_LTTNGUST
-#define TRACEPOINT_BLOCK_EVENTQUEUE_DISPATCH_END(event_domain, event_priority, component_name, component_port)\
-  tracepoint(ubitrack, eventqueue_dispatch_end, event_domain, event_priority, component_name, component_port);
-#endif
-
 #ifdef HAVE_USDT
 #define TRACEPOINT_BLOCK_EVENTQUEUE_DISPATCH_END(event_domain, event_priority, component_name, component_port)\
   FOLLY_SDT(ubitrack, eventqueue_dispatch_end, event_domain, event_priority, component_name, component_port);
@@ -158,11 +143,6 @@
 #ifdef HAVE_ETW
 #define TRACEPOINT_MEASUREMENT_CREATE(event_domain, event_priority, component_name, component_port)\
   ETWUbitrackMeasurementCreate(event_domain, event_priority, component_name, component_port);
-#endif
-
-#ifdef HAVE_LTTNGUST
-#define TRACEPOINT_MEASUREMENT_CREATE(event_domain, event_priority, component_name, component_port)\
-  tracepoint(ubitrack, measurement_create, event_domain, event_priority, component_name, component_port);
 #endif
 
 #ifdef HAVE_USDT
@@ -194,11 +174,6 @@
   ETWUbitrackMeasurementReceive(event_domain, event_priority, component_name, component_port);
 #endif
 
-#ifdef HAVE_LTTNGUST
-#define TRACEPOINT_MEASUREMENT_RECEIVE(event_domain, event_priority, component_name, component_port)\
-  tracepoint(ubitrack, measurement_receive, event_domain, event_priority, component_name, component_port);
-#endif
-
 #ifdef HAVE_USDT
 #define TRACEPOINT_MEASUREMENT_RECEIVE(event_domain, event_priority, component_name, component_port)\
   FOLLY_SDT(ubitrack, measurement_receive, event_domain, event_priority, component_name, component_port);
@@ -223,11 +198,6 @@
 #ifdef HAVE_ETW
 #define TRACEPOINT_VISION_ALLOCATE_CPU(bytes)\
   ETWUbitrackAllocateCpu(bytes);
-#endif
-
-#ifdef HAVE_LTTNGUST
-#define TRACEPOINT_VISION_ALLOCATE_CPU(bytes)\
-  tracepoint(ubitrack, vision_allocate_cpu, bytes);
 #endif
 
 #ifdef HAVE_USDT
@@ -256,15 +226,61 @@
   ETWUbitrackAllocateGpu(bytes);
 #endif
 
-#ifdef HAVE_LTTNGUST
-#define TRACEPOINT_VISION_ALLOCATE_GPU(bytes)\
-  tracepoint(ubitrack, vision_allocate_gpu, bytes);
-#endif
-
-
 #ifdef HAVE_USDT
 #define TRACEPOINT_VISION_ALLOCATE_GPU(bytes)\
   FOLLY_SDT(ubitrack, vision_allocate_gpu, bytes);
+#endif
+
+ /*
+ * TRACEPOINT_VISION_CLONE_CPU(bytes)
+ * traces cloning on CPU memory of an image
+ * parameters:
+ * - bytes: number of bytes that were allocated
+ *
+ * example:
+ * TRACEPOINT_VISION_CLONE_CPU(m_width*m_height*m_channels)
+ */
+#if defined(HAVE_DTRACE) && !defined(DISABLE_DTRACE)
+#define TRACEPOINT_VISION_CLONE_CPU(bytes)\
+  if (UBITRACK_VISION_CLONE_CPU_ENABLED()) {\
+    UBITRACK_VISION_CLONE_CPU(bytes);\
+  }
+#endif
+
+#ifdef HAVE_ETW
+#define TRACEPOINT_VISION_CLONE_CPU(bytes)\
+  ETWUbitrackCloneCpu(bytes);
+#endif
+
+#ifdef HAVE_USDT
+#define TRACEPOINT_VISION_CLONE_CPU(bytes)\
+  FOLLY_SDT(ubitrack, vision_clone_cpu, bytes);
+#endif
+
+  /*
+ * TRACEPOINT_VISION_CLONE_GPU(bytes)
+ * traces cloning on GPU memory of an image
+ * parameters:
+ * - bytes: number of bytes that were allocated
+ *
+ * example:
+ * TRACEPOINT_VISION_CLONE_GPU(m_width*m_height*m_channels)
+ */
+#if defined(HAVE_DTRACE) && !defined(DISABLE_DTRACE)
+#define TRACEPOINT_VISION_CLONE_GPU(bytes)\
+  if (UBITRACK_VISION_CLONE_GPU_ENABLED()) {\
+    UBITRACK_VISION_CLONE_GPU(bytes);\
+  }
+#endif
+
+#ifdef HAVE_ETW
+#define TRACEPOINT_VISION_CLONE_GPU(bytes)\
+  ETWUbitrackCloneGpu(bytes);
+#endif
+
+#ifdef HAVE_USDT
+#define TRACEPOINT_VISION_CLONE_GPU(bytes)\
+  FOLLY_SDT(ubitrack, vision_clone_gpu, bytes);
 #endif
 
  /*
@@ -287,12 +303,6 @@
 #define TRACEPOINT_VISION_GPU_UPLOAD(bytes)\
   ETWUbitrackGpuUpload(bytes);
 #endif
-
-#ifdef HAVE_LTTNGUST
-#define TRACEPOINT_VISION_GPU_UPLOAD(bytes)\
-  tracepoint(ubitrack, vision_gpu_upload, bytes);
-#endif
-
 
 #ifdef HAVE_USDT
 #define TRACEPOINT_VISION_GPU_UPLOAD(bytes)\
@@ -318,11 +328,6 @@
 #ifdef HAVE_ETW
 #define TRACEPOINT_VISION_GPU_DOWNLOAD(bytes)\
   ETWUbitrackGpuDownload(bytes);
-#endif
-
-#ifdef HAVE_LTTNGUST
-#define TRACEPOINT_VISION_GPU_DOWNLOAD(bytes)\
-  tracepoint(ubitrack, vision_gpu_download, bytes);
 #endif
 
 #ifdef HAVE_USDT
