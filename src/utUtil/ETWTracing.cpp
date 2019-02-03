@@ -205,6 +205,46 @@ int64 ETWUbitrackEventQueueDispatchEnd(int eventDomain, unsigned long long int p
 	return nTime;
 }
 
+int64 ETWUbitrackEventQueueBlockDispatchBegin(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName,  _In_z_ PCSTR portName)
+{
+	// If we are running on Windows XP or if our providers have not been enabled
+	// (by xperf or other) then this will be false and we can early out.
+	// Be sure to check the appropriate context for the event. This is only
+	// worth checking if there is some cost beyond the EventWrite that we can
+	// avoid -- the redirectors in this file guarantee that EventWrite is always
+	// safe to call.
+	// In this case we also avoid the potentially unreliable TLS implementation
+	// (for dynamically loaded DLLs) on Windows XP.
+	if ( !UBITRACK_Context.IsEnabled )
+	{
+		return 0;
+	}
+
+	int64 nTime = GetQPCTime();
+	EventWriteEventQueueBlockDispatchBegin( eventDomain, priority, componentName, portName );
+	return nTime;
+}
+
+int64 ETWUbitrackEventQueueBlockDispatchEnd(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName,  _In_z_ PCSTR portName, int64 nStartTime)
+{
+	// If we are running on Windows XP or if our providers have not been enabled
+	// (by xperf or other) then this will be false and we can early out.
+	// Be sure to check the appropriate context for the event. This is only
+	// worth checking if there is some cost beyond the EventWrite that we can
+	// avoid -- the redirectors in this file guarantee that EventWrite is always
+	// safe to call.
+	// In this case we also avoid the potentially unreliable TLS implementation
+	// (for dynamically loaded DLLs) on Windows XP.
+	if ( !UBITRACK_Context.IsEnabled )
+	{
+		return 0;
+	}
+
+	int64 nTime = GetQPCTime();
+	EventWriteEventQueueBlockDispatchEnd( eventDomain, priority, componentName, portName, QPCToMS( nTime - nStartTime ) );
+	return nTime;
+}
+
 void ETWUbitrackEventQueueDispatchDiscard(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName,  _In_z_ PCSTR portName)
 {
 	// If we are running on Windows XP or if our providers have not been enabled

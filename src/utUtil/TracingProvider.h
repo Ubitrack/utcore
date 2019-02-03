@@ -60,6 +60,69 @@
 
 
 
+
+/*
+ * TRACEPOINT_EVENTQUEUE_DISPATCH_BEGIN(event_domain, event_priority, component_name, component_port)
+ * traces the begin of the execution of an eventqueue item
+ * parameters:
+ * - event_domain: Which domain the item belongs to
+ * - event_priority: The timestamp of the event or some other globally known identifier
+ * - component_name: The component that causes the execution of the event (the receiving component of a push message)
+ * - component_port: The port on which the message was received
+ *
+ * example:
+ * TRACEPOINT_EVENTQUEUE_DISPATCH_BEGIN(m_eventDomain, messagePriority,
+ *   pReceiverInfo->pPort->getComponent().getName().c_str(), pReceiverInfo->pPort->getName().c_str())
+ */
+#if defined(HAVE_DTRACE) && !defined(DISABLE_DTRACE)
+#define TRACEPOINT_EVENTQUEUE_DISPATCH_BEGIN(event_domain, event_priority, component_name, component_port)\
+  if (UBITRACK_EVENTQUEUE_DISPATCH_BEGIN_ENABLED()) {\
+    UBITRACK_EVENTQUEUE_DISPATCH_BEGIN(event_domain, event_priority, component_name, component_port);\
+  }
+#endif
+
+#ifdef HAVE_ETW
+#define TRACEPOINT_EVENTQUEUE_DISPATCH_BEGIN(event_domain, event_priority, component_name, component_port)\
+  ___ubitrack_tracing_startTime = ETWUbitrackEventQueueDispatchBegin(event_domain, event_priority, component_name, component_port);
+#endif
+
+#ifdef HAVE_USDT
+#define TRACEPOINT_EVENTQUEUE_DISPATCH_BEGIN(event_domain, event_priority, component_name, component_port)\
+  FOLLY_SDT(ubitrack, eventqueue_dispatch_begin, event_domain, event_priority, component_name, component_port);
+#endif
+
+
+/*
+ * TRACEPOINT_EVENTQUEUE_DISPATCH_END(event_domain, event_priority, component_name, component_port)
+ * traces the end of the execution of an eventqueue item
+ * parameters:
+ * - event_domain: Which domain the item belongs to
+ * - event_priority: The timestamp of the event or some other globally known identifier
+ * - component_name: The component that causes the execution of the event (the receiving component of a push message)
+ * - component_port: The port on which the message was received
+ *
+ * example:
+ * TRACEPOINT_EVENTQUEUE_DISPATCH_END(m_eventDomain, messagePriority,
+ *   pReceiverInfo->pPort->getComponent().getName().c_str(), pReceiverInfo->pPort->getName().c_str())
+ */
+#if defined(HAVE_DTRACE) && !defined(DISABLE_DTRACE)
+#define TRACEPOINT_EVENTQUEUE_DISPATCH_END(event_domain, event_priority, component_name, component_port)\
+  if (UBITRACK_EVENTQUEUE_DISPATCH_END_ENABLED()) {\
+    UBITRACK_EVENTQUEUE_DISPATCH_END(event_domain, event_priority, component_name, component_port);\
+  }
+#endif
+
+#ifdef HAVE_ETW
+#define TRACEPOINT_EVENTQUEUE_DISPATCH_END(event_domain, event_priority, component_name, component_port)\
+  ETWUbitrackEventQueueDispatchEnd(event_domain, event_priority, component_name, component_port,___ubitrack_tracing_startTime);
+#endif
+
+#ifdef HAVE_USDT
+#define TRACEPOINT_EVENTQUEUE_DISPATCH_END(event_domain, event_priority, component_name, component_port)\
+  FOLLY_SDT(ubitrack, eventqueue_dispatch_end, event_domain, event_priority, component_name, component_port);
+#endif
+
+
 /*
  * TRACEPOINT_BLOCK_EVENTQUEUE_DISPATCH_BEGIN(event_domain, event_priority, component_name, component_port)
  * traces the begin of the execution of an eventqueue item
@@ -74,20 +137,20 @@
  *   pReceiverInfo->pPort->getComponent().getName().c_str(), pReceiverInfo->pPort->getName().c_str())
  */
 #if defined(HAVE_DTRACE) && !defined(DISABLE_DTRACE)
-#define TRACEPOINT_BLOCK_EVENTQUEUE_DISPATCH_BEGIN(event_domain, event_priority, component_name, component_port)\
-  if (UBITRACK_EVENTQUEUE_DISPATCH_BEGIN_ENABLED()) {\
-    UBITRACK_EVENTQUEUE_DISPATCH_BEGIN(event_domain, event_priority, component_name, component_port);\
+#define TRACEPOINT_EVENTQUEUE_BLOCK_DISPATCH_BEGIN(event_domain, event_priority, component_name, component_port)\
+  if (UBITRACK_EVENTQUEUE_BLOCK_DISPATCH_BEGIN_ENABLED()) {\
+    UBITRACK_EVENTQUEUE_BLOCK_DISPATCH_BEGIN(event_domain, event_priority, component_name, component_port);\
   }
 #endif
 
 #ifdef HAVE_ETW
-#define TRACEPOINT_BLOCK_EVENTQUEUE_DISPATCH_BEGIN(event_domain, event_priority, component_name, component_port)\
-  ___ubitrack_tracing_startTime = ETWUbitrackEventQueueDispatchBegin(event_domain, event_priority, component_name, component_port);
+#define TRACEPOINT_EVENTQUEUE_BLOCK_DISPATCH_BEGIN(event_domain, event_priority, component_name, component_port)\
+  ___ubitrack_tracing_startTime = ETWUbitrackEventQueueBlockDispatchBegin(event_domain, event_priority, component_name, component_port);
 #endif
 
 #ifdef HAVE_USDT
-#define TRACEPOINT_BLOCK_EVENTQUEUE_DISPATCH_BEGIN(event_domain, event_priority, component_name, component_port)\
-  FOLLY_SDT(ubitrack, eventqueue_dispatch_begin, event_domain, event_priority, component_name, component_port);
+#define TRACEPOINT_EVENTQUEUE_BLOCK_DISPATCH_BEGIN(event_domain, event_priority, component_name, component_port)\
+  FOLLY_SDT(ubitrack, eventqueue_block_dispatch_begin, event_domain, event_priority, component_name, component_port);
 #endif
 
 
@@ -105,20 +168,20 @@
  *   pReceiverInfo->pPort->getComponent().getName().c_str(), pReceiverInfo->pPort->getName().c_str())
  */
 #if defined(HAVE_DTRACE) && !defined(DISABLE_DTRACE)
-#define TRACEPOINT_BLOCK_EVENTQUEUE_DISPATCH_END(event_domain, event_priority, component_name, component_port)\
-  if (UBITRACK_EVENTQUEUE_DISPATCH_END_ENABLED()) {\
-    UBITRACK_EVENTQUEUE_DISPATCH_END(event_domain, event_priority, component_name, component_port);\
+#define TRACEPOINT_EVENTQUEUE_BLOCK_DISPATCH_END(event_domain, event_priority, component_name, component_port)\
+  if (UBITRACK_EVENTQUEUE_BLOCK_DISPATCH_END_ENABLED()) {\
+    UBITRACK_EVENTQUEUE_BLOCK_DISPATCH_END(event_domain, event_priority, component_name, component_port);\
   }
 #endif
 
 #ifdef HAVE_ETW
-#define TRACEPOINT_BLOCK_EVENTQUEUE_DISPATCH_END(event_domain, event_priority, component_name, component_port)\
-  ETWUbitrackEventQueueDispatchEnd(event_domain, event_priority, component_name, component_port,___ubitrack_tracing_startTime);
+#define TRACEPOINT_EVENTQUEUE_BLOCK_DISPATCH_END(event_domain, event_priority, component_name, component_port)\
+  ETWUbitrackEventQueueBlockDispatchEnd(event_domain, event_priority, component_name, component_port,___ubitrack_tracing_startTime);
 #endif
 
 #ifdef HAVE_USDT
-#define TRACEPOINT_BLOCK_EVENTQUEUE_DISPATCH_END(event_domain, event_priority, component_name, component_port)\
-  FOLLY_SDT(ubitrack, eventqueue_dispatch_end, event_domain, event_priority, component_name, component_port);
+#define TRACEPOINT_EVENTQUEUE_BLOCK_DISPATCH_END(event_domain, event_priority, component_name, component_port)\
+  FOLLY_SDT(ubitrack, eventqueue_block_dispatch_end, event_domain, event_priority, component_name, component_port);
 #endif
 
 /*

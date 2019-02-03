@@ -73,6 +73,8 @@ typedef long long int64;
 
 UBITRACK_EXPORT int64 __cdecl ETWUbitrackEventQueueDispatchBegin(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName,  _In_z_ PCSTR portName);
 UBITRACK_EXPORT int64 __cdecl ETWUbitrackEventQueueDispatchEnd(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName,  _In_z_ PCSTR portName, int64 startTime);
+UBITRACK_EXPORT int64 __cdecl ETWUbitrackEventQueueBlockDispatchBegin(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName,  _In_z_ PCSTR portName);
+UBITRACK_EXPORT int64 __cdecl ETWUbitrackEventQueueBlockDispatchEnd(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName,  _In_z_ PCSTR portName, int64 startTime);
 UBITRACK_EXPORT void __cdecl ETWUbitrackEventQueueDispatchDiscard(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName,  _In_z_ PCSTR portName);
 //UBITRACK_EXPORT void __cdecl ETWUbitrackEventQueueApplication(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName,  _In_z_ PCSTR portName,  _In_z_ PCSTR text);
 
@@ -89,6 +91,8 @@ UBITRACK_EXPORT void __cdecl ETWUbitrackGpuDownload(unsigned int bytes);
 
 UBITRACK_EXPORT int64 __cdecl ETWUbitrackEventQueueDispatchBegin(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName,  _In_z_ PCSTR portName) { return 0; };
 UBITRACK_EXPORT int64 __cdecl ETWUbitrackEventQueueDispatchEnd(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName,  _In_z_ PCSTR portName, int64 startTime) { return 0; };
+UBITRACK_EXPORT int64 __cdecl ETWUbitrackBlockEventQueueDispatchBegin(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName,  _In_z_ PCSTR portName) { return 0; };
+UBITRACK_EXPORT int64 __cdecl ETWUbitrackBlockEventQueueDispatchEnd(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName,  _In_z_ PCSTR portName, int64 startTime) { return 0; };
 UBITRACK_EXPORT void __cdecl ETWUbitrackEventQueueDispatchDiscard(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName,  _In_z_ PCSTR portName) {};
 //UBITRACK_EXPORT void __cdecl ETWUbitrackEventQueueApplication(int eventDomain, unsigned long long int priority, _In_z_ PCSTR componentName,  _In_z_ PCSTR portName,  _In_z_ PCSTR text) {};
 

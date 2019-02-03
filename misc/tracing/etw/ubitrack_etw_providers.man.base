@@ -83,6 +83,19 @@ Adjust that to match your games actual install path.
             <data inType="win:AnsiString" name="PortName" />
             <data inType="win:Float" name="Duration (ms)" />
           </template>
+          <template tid="T_Block_Eventqueue_Dispatch_Begin">
+            <data inType="win:Int32" name="EventDomain" />
+            <data inType="win:Int64" name="Priority" />
+            <data inType="win:AnsiString" name="ComponentName" />
+            <data inType="win:AnsiString" name="PortName" />
+          </template>
+          <template tid="T_Block_Eventqueue_Dispatch_End">
+            <data inType="win:Int32" name="EventDomain" />
+            <data inType="win:Int64" name="Priority" />
+            <data inType="win:AnsiString" name="ComponentName" />
+            <data inType="win:AnsiString" name="PortName" />
+            <data inType="win:Float" name="Duration (ms)" />
+          </template>
           <template tid="T_Eventqueue_Dispatch_Discard">
             <data inType="win:Int32" name="EventDomain" />
             <data inType="win:Int64" name="Priority" />
@@ -129,15 +142,17 @@ Adjust that to match your games actual install path.
         <opcodes>
           <opcode name="DispatchBegin" symbol="_DispatchBeginOpcode" value="10"/>
           <opcode name="DispatchEnd" symbol="_DispatchEndOpcode" value="11"/>
-          <opcode name="DispatchDiscard" symbol="_DispatchDiscardOpcode" value="12"/>
-          <opcode name="CreateMeasurement" symbol="_CreateMeasurementOpcode" value="13"/>
-          <opcode name="ReceiveMeasurement" symbol="_ReceiveMeasurementOpcode" value="14"/>
-          <opcode name="VisionGpuUpload" symbol="_VisionGpuUploadOpcode" value="15"/>
-          <opcode name="VisionGpuDownload" symbol="_VisionGpuDownloadOpcode" value="16"/>
-          <opcode name="VisionAllocateGpu" symbol="_VisionAllocateGpuOpcode" value="17"/>
-          <opcode name="VisionAllocateCpu" symbol="_VisionAllocateCpuOpcode" value="18"/>
-          <opcode name="VisionCloneGpu" symbol="_VisionCloneGpuOpcode" value="19"/>
-          <opcode name="VisionCloneCpu" symbol="_VisionCloneCpuOpcode" value="20"/>
+          <opcode name="BlockDispatchBegin" symbol="_BlockDispatchBeginOpcode" value="12"/>
+          <opcode name="BlockDispatchEnd" symbol="_BlockDispatchEndOpcode" value="13"/>
+          <opcode name="DispatchDiscard" symbol="_DispatchDiscardOpcode" value="14"/>
+          <opcode name="CreateMeasurement" symbol="_CreateMeasurementOpcode" value="15"/>
+          <opcode name="ReceiveMeasurement" symbol="_ReceiveMeasurementOpcode" value="16"/>
+          <opcode name="VisionGpuUpload" symbol="_VisionGpuUploadOpcode" value="17"/>
+          <opcode name="VisionGpuDownload" symbol="_VisionGpuDownloadOpcode" value="18"/>
+          <opcode name="VisionAllocateGpu" symbol="_VisionAllocateGpuOpcode" value="19"/>
+          <opcode name="VisionAllocateCpu" symbol="_VisionAllocateCpuOpcode" value="20"/>
+          <opcode name="VisionCloneGpu" symbol="_VisionCloneGpuOpcode" value="21"/>
+          <opcode name="VisionCloneCpu" symbol="_VisionCloneCpuOpcode" value="22"/>
         </opcodes>
         <tasks>
           <task name="UbitrackTrace" symbol="Ubitrack_Task" value="1" eventGUID="{866D02A3-1A29-4207-B710-E883C8F59851}"/>
@@ -145,15 +160,17 @@ Adjust that to match your games actual install path.
         <events>
           <event symbol="EventQueueDispatchBegin" template="T_Eventqueue_Dispatch_Begin" value="100" task="UbitrackTrace" opcode="DispatchBegin" keywords="HighFrequency" />
           <event symbol="EventQueueDispatchEnd" template="T_Eventqueue_Dispatch_End" value="101" task="UbitrackTrace" opcode="DispatchEnd" keywords="HighFrequency" />
-          <event symbol="EventQueueDispatchDiscard" template="T_Eventqueue_Dispatch_Discard" value="102" task="UbitrackTrace" opcode="DispatchDiscard" keywords="HighFrequency" />
-          <event symbol="CreateMeasurement" template="T_Create_Measurement" value="103" task="UbitrackTrace" opcode="CreateMeasurement" keywords="HighFrequency" />
-          <event symbol="ReceiveMeasurement" template="T_Receive_Measurement" value="104" task="UbitrackTrace" opcode="ReceiveMeasurement" keywords="HighFrequency" />
-          <event symbol="VisionGpuUpload" template="T_Vision_GPU_Upload" value="105" task="UbitrackTrace" opcode="VisionGpuUpload" keywords="NormalFrequency" />
-          <event symbol="VisionGpuDownload" template="T_Vision_GPU_Download" value="106" task="UbitrackTrace" opcode="VisionGpuDownload" keywords="NormalFrequency" />
-          <event symbol="VisionAllocateGpu" template="T_Vision_Allocate_GPU" value="107" task="UbitrackTrace" opcode="VisionAllocateGpu" keywords="NormalFrequency" />
-          <event symbol="VisionAllocateCpu" template="T_Vision_Allocate_CPU" value="108" task="UbitrackTrace" opcode="VisionAllocateCpu" keywords="NormalFrequency" />
-          <event symbol="VisionCloneGpu" template="T_Vision_Clone_GPU" value="109" task="UbitrackTrace" opcode="VisionCloneGpu" keywords="NormalFrequency" />
-          <event symbol="VisionCloneCpu" template="T_Vision_Clone_CPU" value="110" task="UbitrackTrace" opcode="VisionCloneCpu" keywords="NormalFrequency" />
+          <event symbol="EventQueueBlockDispatchBegin" template="T_Eventqueue_Block_Dispatch_Begin" value="102" task="UbitrackTrace" opcode="DispatchBlockBegin" keywords="HighFrequency" />
+          <event symbol="EventQueueBlockDispatchEnd" template="T_Eventqueue_Block_Dispatch_End" value="103" task="UbitrackTrace" opcode="DispatchBlockEnd" keywords="HighFrequency" />
+          <event symbol="EventQueueDispatchDiscard" template="T_Eventqueue_Dispatch_Discard" value="104" task="UbitrackTrace" opcode="DispatchDiscard" keywords="HighFrequency" />
+          <event symbol="CreateMeasurement" template="T_Create_Measurement" value="105" task="UbitrackTrace" opcode="CreateMeasurement" keywords="HighFrequency" />
+          <event symbol="ReceiveMeasurement" template="T_Receive_Measurement" value="106" task="UbitrackTrace" opcode="ReceiveMeasurement" keywords="HighFrequency" />
+          <event symbol="VisionGpuUpload" template="T_Vision_GPU_Upload" value="107" task="UbitrackTrace" opcode="VisionGpuUpload" keywords="NormalFrequency" />
+          <event symbol="VisionGpuDownload" template="T_Vision_GPU_Download" value="108" task="UbitrackTrace" opcode="VisionGpuDownload" keywords="NormalFrequency" />
+          <event symbol="VisionAllocateGpu" template="T_Vision_Allocate_GPU" value="109" task="UbitrackTrace" opcode="VisionAllocateGpu" keywords="NormalFrequency" />
+          <event symbol="VisionAllocateCpu" template="T_Vision_Allocate_CPU" value="110" task="UbitrackTrace" opcode="VisionAllocateCpu" keywords="NormalFrequency" />
+          <event symbol="VisionCloneGpu" template="T_Vision_Clone_GPU" value="111" task="UbitrackTrace" opcode="VisionCloneGpu" keywords="NormalFrequency" />
+          <event symbol="VisionCloneCpu" template="T_Vision_Clone_CPU" value="112" task="UbitrackTrace" opcode="VisionCloneCpu" keywords="NormalFrequency" />
         </events>
       </provider>
     </events>

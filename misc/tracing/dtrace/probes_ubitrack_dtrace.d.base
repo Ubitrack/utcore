@@ -8,6 +8,8 @@ provider ubitrack {
     /* probes for tracing eventqueue dispatch */
     probe eventqueue__dispatch__begin(unsigned int domain, unsigned long long int priority, char *component, char* port);
     probe eventqueue__dispatch__end(unsigned int domain, unsigned long long int priority, char *component, char* port);
+    probe eventqueue__block__dispatch__begin(unsigned int domain, unsigned long long int priority, char *component, char* port);
+    probe eventqueue__block__dispatch__end(unsigned int domain, unsigned long long int priority, char *component, char* port);
     probe eventqueue__dispatch__discard(unsigned int domain, unsigned long long int priority, char *component, char* port);
 
     /* probe for tracing input to the dataflow */
