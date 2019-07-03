@@ -18,28 +18,29 @@ class UbitrackCoreConan(ConanFile):
     "without_tests": [True, False]
     }
     
-    requires = (
-        "Boost/[>=1.59.0,<1.65.0]@camposs/stable",
+    
 
-        "clapack/[>=3.2.1]@camposs/stable", 
-        "msgpack/[>=2.1.5]@camposs/stable", 
-
-        "ubitrack_boost_bindings/1.0@ubitrack/stable", 
-        "ubitrack_tinyxml/2.5.3@ubitrack/stable", 
-        "ubitrack_log4cpp/0.3.5@ubitrack/stable",
-        )
-
-    default_options = (
-        "shared=True",
-        "enable_tracing=False",
-        "without_tests=True"
-        )
+    default_options = {
+        "shared":True,
+        "enable_tracing":False,
+        "without_tests":True
+        }
 
     # all sources are deployed with the package
     exports_sources = "cmake/*", "doc/*", "misc/*", "src/*", "tests/*", "CMakeLists.txt", "utcoreConfig.cmake"
 
     # UbitrackConfig.cmake should be reused by all depending packages
     exports = "cmake/UbitrackConfig.cmake"
+
+    def requirements(self):
+        self.requires("Boost/[>=1.59.0,<1.65.0]@camposs/stable")
+        self.requires("clapack/[>=3.2.1]@camposs/stable")
+        self.requires("msgpack/[>=2.1.5]@camposs/stable") 
+        self.requires("ubitrack_boost_bindings/1.0@ubitrack/stable") 
+        self.requires("ubitrack_tinyxml/2.5.3@ubitrack/stable")
+        self.requires("ubitrack_log4cpp/0.3.5@ubitrack/stable")
+
+
 
     def configure(self):
         # Boost

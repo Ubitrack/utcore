@@ -4,7 +4,7 @@ SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 project(ubitrack_core VERSION 1.3.0 LANGUAGES CXX)
 
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+include(${CMAKE_CURRENT_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup(TARGETS)
 
 include(UbitrackConfig)

@@ -155,7 +155,7 @@ public:
 		: calib_type( OPENCV_3_2 )
 		, dimension(Math::Vector< std::size_t, 2 >(width, height))
 		, matrix( intrinsicMatrix )
-		, radial_size( 2 )
+		, radial_size( 3 )
 		, radial_params( radial_type::zeros() )
 		, tangential_params( _tangential )
 		{
@@ -269,18 +269,11 @@ public:
 		// compensate for left-handed OpenCV coordinate frame
 		intrinsics.matrix ( 0, 2 ) *= -1;
 		
-		// PaF: the principal point y has to be flipped differently to correctly account for the pixel origin
-		//intrinsics.matrix ( 1, 2 ) *= -1;		
-		if (intrinsics.matrix(1, 2) < 0){
-			intrinsics.matrix(1, 2) = dimension(1) - 1 + intrinsics.matrix(1, 2);
-		}
-		else {
-			intrinsics.matrix(1, 2) = dimension(1) - 1 - intrinsics.matrix(1, 2);
-		}
-
-		
+		intrinsics.matrix ( 1, 2 ) *= -1;		
 		intrinsics.matrix ( 2, 2 ) *= -1;
 	}
+
+	
 	
 
 protected:
