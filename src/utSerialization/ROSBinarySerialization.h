@@ -30,10 +30,10 @@
  */
 
 
-#ifndef UBITRACK_BINARYSERIALIZATION_H
-#define UBITRACK_BINARYSERIALIZATION_H
+#ifndef UBITRACK_ROSBINARYSERIALIZATION_H
+#define UBITRACK_ROSBINARYSERIALIZATION_H
 
-#include "utSerialization/Serialization.h.h"
+#include "utSerialization/Serialization.h"
 #include "utSerialization/SerializationFormat.h"
 
 #include <boost/array.hpp>
@@ -677,4 +677,4 @@ private:
 } // namespace Serialization
 } // Ubitrack
 
-#endif //UBITRACK_BINARYSERIALIZATION_H
+#endif //UBITRACK_ROSBINARYSERIALIZATION_H
