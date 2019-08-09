@@ -41,16 +41,6 @@ namespace Ubitrack {
             };
 
 
-
-/**
- * \brief Base type for compile-type true/false tests.  Compatible with Boost.MPL.  classes inheriting from this type
- * are \b false values.
- */
-            struct FalseType {
-                static const bool value = false;
-                typedef FalseType type;
-            };
-
             template< typename T >
             struct MeasurementTypeToEnumTraits
             {
@@ -62,6 +52,12 @@ namespace Ubitrack {
             };
 
 
+            template< MeasurementType MT, bool ISV = false >
+            struct MeasurementEnumToTypeTraits
+            {
+            };
+
+            // Measurement to Enum Traits
 
             // button
             template<>
@@ -339,6 +335,185 @@ namespace Ubitrack {
 
                 MeasurementType getMeasurementType() const
                 { return MeasurementType ::ErrorVector3; }
+            };
+
+
+
+            // Enum to Measurement Traits
+
+            // Button
+            template<>
+            struct MeasurementEnumToTypeTraits<MeasurementType::ScalarInt, false>
+            {
+                typedef Ubitrack::Measurement::Button value_type;
+            };
+
+            // Distance
+            template<>
+            struct MeasurementEnumToTypeTraits<MeasurementType::ScalarDouble, false>
+            {
+                typedef Ubitrack::Measurement::Distance value_type;
+            };
+
+            // Position2D
+            template<>
+            struct MeasurementEnumToTypeTraits<MeasurementType::Vector2, false>
+            {
+                typedef Ubitrack::Measurement::Position2D value_type;
+            };
+
+            // Position
+            template<>
+            struct MeasurementEnumToTypeTraits<MeasurementType::Vector3, false>
+            {
+                typedef Ubitrack::Measurement::Position value_type;
+            };
+
+            // Vector4d
+            template<>
+            struct MeasurementEnumToTypeTraits<MeasurementType::Vector4, false>
+            {
+                typedef Ubitrack::Measurement::Vector4D value_type;
+            };
+
+            // Vector8d
+            template<>
+            struct MeasurementEnumToTypeTraits<MeasurementType::Vector8, false>
+            {
+                typedef Ubitrack::Measurement::Vector8D value_type;
+            };
+
+            // Matrix3x3
+            template<>
+            struct MeasurementEnumToTypeTraits<MeasurementType::Matrix3x3, false>
+            {
+                typedef Ubitrack::Measurement::Matrix3x3 value_type;
+            };
+
+            // Matrix3x4
+            template<>
+            struct MeasurementEnumToTypeTraits<MeasurementType::Matrix3x4, false>
+            {
+                typedef Ubitrack::Measurement::Matrix3x4 value_type;
+            };
+
+            // Matrix4x4
+            template<>
+            struct MeasurementEnumToTypeTraits<MeasurementType::Matrix4x4, false>
+            {
+                typedef Ubitrack::Measurement::Matrix4x4 value_type;
+            };
+
+            // Rotation
+            template<>
+            struct MeasurementEnumToTypeTraits<MeasurementType::Quaternion, false>
+            {
+                typedef Ubitrack::Measurement::Rotation value_type;
+            };
+
+            // Pose
+            template<>
+            struct MeasurementEnumToTypeTraits<MeasurementType::Pose, false>
+            {
+                typedef Ubitrack::Measurement::Pose value_type;
+            };
+
+            // ErrorPosition2
+            template<>
+            struct MeasurementEnumToTypeTraits<MeasurementType::ErrorVector2, false>
+            {
+                typedef Ubitrack::Measurement::ErrorPosition2 value_type;
+            };
+
+            // ErrorPosition
+            template<>
+            struct MeasurementEnumToTypeTraits<MeasurementType::ErrorVector3, false>
+            {
+                typedef Ubitrack::Measurement::ErrorPosition value_type;
+            };
+
+            // ErrorPose
+            template<>
+            struct MeasurementEnumToTypeTraits<MeasurementType::ErrorPose, false>
+            {
+                typedef Ubitrack::Measurement::ErrorPose value_type;
+            };
+
+            // RotationVelocity
+            template<>
+            struct MeasurementEnumToTypeTraits<MeasurementType::RotationVelocity, false>
+            {
+                typedef Ubitrack::Measurement::RotationVelocity value_type;
+            };
+
+            // CameraIntrinsics
+            template<>
+            struct MeasurementEnumToTypeTraits<MeasurementType::CameraIntrinsics, false>
+            {
+                typedef Ubitrack::Measurement::CameraIntrinsics value_type;
+            };
+
+            // Vector of Buttons
+            template<>
+            struct MeasurementEnumToTypeTraits<MeasurementType::ScalarInt, true>
+            {
+                typedef Ubitrack::Measurement::ButtonList value_type;
+            };
+
+            // Vector of Distances
+            template<>
+            struct MeasurementEnumToTypeTraits<MeasurementType::ScalarDouble, true>
+            {
+                typedef Ubitrack::Measurement::DistanceList value_type;
+            };
+
+            // Vector of IDs
+            template<>
+            struct MeasurementEnumToTypeTraits<MeasurementType::ScalarUnsignedLong, true>
+            {
+                typedef Ubitrack::Measurement::IDList value_type;
+            };
+
+            // Vector of Poses
+            template<>
+            struct MeasurementEnumToTypeTraits<MeasurementType::Pose, true>
+            {
+                typedef Ubitrack::Measurement::PoseList value_type;
+            };
+
+            // Vector of Position2
+            template<>
+            struct MeasurementEnumToTypeTraits<MeasurementType::Vector2, true>
+            {
+                typedef Ubitrack::Measurement::PositionList2 value_type;
+            };
+
+            // Vector of Position
+            template<>
+            struct MeasurementEnumToTypeTraits<MeasurementType::Vector3, true>
+            {
+                typedef Ubitrack::Measurement::PositionList value_type;
+            };
+
+            // Vector of ErrorPoses
+            template<>
+            struct MeasurementEnumToTypeTraits<MeasurementType::ErrorPose, true>
+            {
+                typedef Ubitrack::Measurement::ErrorPoseList value_type;
+            };
+
+            // Vector of ErrorPositionList2
+            template<>
+            struct MeasurementEnumToTypeTraits<MeasurementType::ErrorVector2, true>
+            {
+                typedef Ubitrack::Measurement::ErrorPositionList2 value_type;
+            };
+
+            // Vector of ErrorPosition
+            template<>
+            struct MeasurementEnumToTypeTraits<MeasurementType::ErrorVector3, true>
+            {
+                typedef Ubitrack::Measurement::ErrorPositionList value_type;
             };
 
         } // Traits
