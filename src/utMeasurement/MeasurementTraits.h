@@ -17,45 +17,30 @@ namespace Ubitrack {
         namespace Traits {
 
 
-// Enumeration of all available element data types
-            enum class DataType {
-                DataTypeUndefined = 0,
-                DataTypeInteger,
-                DataTypeUnsignedLong,
-                DataTypeDouble
-            };
-
-
 // Enumeration of all available Types for introspection
             enum class MeasurementType {
-                MeasurementTypeUndefined = 0,
-                MeasurementTypeScalar,
-                MeasurementTypeVector2,
-                MeasurementTypeVector3,
-                MeasurementTypeVector4,
-                MeasurementTypeVector8,
-                MeasurementTypeQuaternion,
-                MeasurementTypeMatrix3x3,
-                MeasurementTypeMatrix3x4,
-                MeasurementTypeMatrix4x4,
-                MeasurementTypePose,
-                MeasurementTypeErrorPose,
-                MeasurementTypeErrorVector2,
-                MeasurementTypeErrorVector3,
-                MeasurementTypeRotationVelocity,
-                MeasurementTypeCameraIntrinsics,
-                MeasurementTypeImage // Forward declaration as we cannot extend an enumeration later
+                Undefined = 0,
+                ScalarInt,
+                ScalarDouble,
+                ScalarUnsignedLong,
+                Vector2,
+                Vector3,
+                Vector4,
+                Vector8,
+                Quaternion,
+                Matrix3x3,
+                Matrix3x4,
+                Matrix4x4,
+                Pose,
+                ErrorPose,
+                ErrorVector2,
+                ErrorVector3,
+                RotationVelocity,
+                CameraIntrinsics,
+                Image // Forward declaration as we cannot extend an enumeration later
             };
 
 
-            /**
- * \brief Base type for compile-type true/false tests.  Compatible with Boost.MPL.  classes inheriting from this type
- * are \b true values.
- */
-            struct TrueType {
-                static const bool value = true;
-                typedef TrueType type;
-            };
 
 /**
  * \brief Base type for compile-type true/false tests.  Compatible with Boost.MPL.  classes inheriting from this type
@@ -66,225 +51,192 @@ namespace Ubitrack {
                 typedef FalseType type;
             };
 
-/**
- * \brief A vector datatype is one whose size is not constant, i.e. it has variable-length arrays or strings
- */
-            template<typename M>
-            struct IsVector : public FalseType {
-            };
-
-            // there should be a generic way to do this for all Math::TYPES that are wrapped in a vector ..
-            // what's wrong with this??
-//            template<>
-//            struct IsVector<Measurement< std::vector < M::value_type > > > : public TrueType {};
-
-            template<>
-            struct IsVector<Measurement< std::vector < Math::Scalar< int > > > > : public TrueType {};
-
-            template<>
-            struct IsVector<Measurement< std::vector < Math::Scalar< double > > > > : public TrueType {};
-
-            template<>
-            struct IsVector<Measurement< std::vector < Math::Scalar< unsigned long > > > > : public TrueType {};
-
-            template<>
-            struct IsVector<Measurement< std::vector < Math::Pose > > > : public TrueType {};
-
-            template<>
-            struct IsVector<Measurement< std::vector < Math::Vector< double, 2 > > > > : public TrueType {};
-
-            template<>
-            struct IsVector<Measurement< std::vector < Math::Vector< double, 3 > > > > : public TrueType {};
-
-            template<>
-            struct IsVector<Measurement< std::vector < Math::ErrorPose > > > : public TrueType {};
-
-            template<>
-            struct IsVector<Measurement< std::vector < Math::ErrorVector< double, 2 > > > > : public TrueType {};
-
-            template<>
-            struct IsVector<Measurement< std::vector < Math::ErrorVector< double, 3 > > > > : public TrueType {};
-
-
-
             template< typename T >
-            struct MeasurementTypeTraits
+            struct MeasurementTypeToEnumTraits
             {
                 bool isFixedType() const
-                { return IsVector<typename boost::remove_reference<typename boost::remove_const<T>::type>::type>::value; }
-
-                DataType getDataType() const
-                { return DataType ::DataTypeUndefined; }
+                { return true; }
 
                 MeasurementType getMeasurementType() const
-                { return MeasurementType ::MeasurementTypeUndefined; }
-
+                { return MeasurementType ::Undefined; }
             };
+
 
 
             // button
             template<>
-            struct MeasurementTypeTraits< Ubitrack::Measurement::Button >
+            struct MeasurementTypeToEnumTraits< Ubitrack::Measurement::Button >
              {
-                DataType getDataType() const
-                { return DataType ::DataTypeInteger; }
+                bool isFixedType() const
+                { return true; }
 
                 MeasurementType getMeasurementType() const
-                { return MeasurementType ::MeasurementTypeScalar; }
+                { return MeasurementType ::ScalarInt; }
             };
 
             // distance
             template<>
-            struct MeasurementTypeTraits< Ubitrack::Measurement::Distance >
+            struct MeasurementTypeToEnumTraits< Ubitrack::Measurement::Distance >
             {
-                DataType getDataType() const
-                { return DataType ::DataTypeDouble; }
+                bool isFixedType() const
+                { return true; }
 
                 MeasurementType getMeasurementType() const
-                { return MeasurementType ::MeasurementTypeScalar; }
+                { return MeasurementType ::ScalarDouble; }
             };
 
             // Vector2
             template<>
-            struct MeasurementTypeTraits< Ubitrack::Measurement::Position2D >
+            struct MeasurementTypeToEnumTraits< Ubitrack::Measurement::Position2D >
             {
-                DataType getDataType() const
-                { return DataType ::DataTypeDouble; }
+                bool isFixedType() const
+                { return true; }
 
                 MeasurementType getMeasurementType() const
-                { return MeasurementType ::MeasurementTypeVector2; }
+                { return MeasurementType ::Vector2; }
             };
 
             // Vector3
             template<>
-            struct MeasurementTypeTraits< Ubitrack::Measurement::Position >
+            struct MeasurementTypeToEnumTraits< Ubitrack::Measurement::Position >
             {
-                DataType getDataType() const
-                { return DataType ::DataTypeDouble; }
+                bool isFixedType() const
+                { return true; }
 
                 MeasurementType getMeasurementType() const
-                { return MeasurementType ::MeasurementTypeVector3; }
+                { return MeasurementType ::Vector3; }
             };
 
             // Vector4
             template<>
-            struct MeasurementTypeTraits< Ubitrack::Measurement::Vector4D >
+            struct MeasurementTypeToEnumTraits< Ubitrack::Measurement::Vector4D >
             {
-                DataType getDataType() const
-                { return DataType ::DataTypeDouble; }
+                bool isFixedType() const
+                { return true; }
 
                 MeasurementType getMeasurementType() const
-                { return MeasurementType ::MeasurementTypeVector4; }
+                { return MeasurementType ::Vector4; }
+            };
+
+            // Vector8
+            template<>
+            struct MeasurementTypeToEnumTraits< Ubitrack::Measurement::Vector8D >
+            {
+                bool isFixedType() const
+                { return true; }
+
+                MeasurementType getMeasurementType() const
+                { return MeasurementType ::Vector8; }
             };
 
             // Quaternion
             template<>
-            struct MeasurementTypeTraits< Ubitrack::Measurement::Rotation >
+            struct MeasurementTypeToEnumTraits< Ubitrack::Measurement::Rotation >
             {
-                DataType getDataType() const
-                { return DataType ::DataTypeDouble; }
+                bool isFixedType() const
+                { return true; }
 
                 MeasurementType getMeasurementType() const
-                { return MeasurementType ::MeasurementTypeQuaternion; }
+                { return MeasurementType ::Quaternion; }
             };
 
             // Matrix3x3
             template<>
-            struct MeasurementTypeTraits< Ubitrack::Measurement::Matrix3x3 >
+            struct MeasurementTypeToEnumTraits< Ubitrack::Measurement::Matrix3x3 >
             {
-                DataType getDataType() const
-                { return DataType ::DataTypeDouble; }
+                bool isFixedType() const
+                { return true; }
 
                 MeasurementType getMeasurementType() const
-                { return MeasurementType ::MeasurementTypeMatrix3x3; }
+                { return MeasurementType ::Matrix3x3; }
             };
 
             // Matrix3x4
             template<>
-            struct MeasurementTypeTraits< Ubitrack::Measurement::Matrix3x4 >
+            struct MeasurementTypeToEnumTraits< Ubitrack::Measurement::Matrix3x4 >
             {
-                DataType getDataType() const
-                { return DataType ::DataTypeDouble; }
+                bool isFixedType() const
+                { return true; }
 
                 MeasurementType getMeasurementType() const
-                { return MeasurementType ::MeasurementTypeMatrix3x4; }
+                { return MeasurementType ::Matrix3x4; }
             };
 
             // Matrix4x4
             template<>
-            struct MeasurementTypeTraits< Ubitrack::Measurement::Matrix4x4 >
+            struct MeasurementTypeToEnumTraits< Ubitrack::Measurement::Matrix4x4 >
             {
-                DataType getDataType() const
-                { return DataType ::DataTypeDouble; }
+                bool isFixedType() const
+                { return true; }
 
                 MeasurementType getMeasurementType() const
-                { return MeasurementType ::MeasurementTypeMatrix4x4; }
+                { return MeasurementType ::Matrix4x4; }
             };
 
             // Pose
             template<>
-            struct MeasurementTypeTraits< Ubitrack::Measurement::Pose >
+            struct MeasurementTypeToEnumTraits< Ubitrack::Measurement::Pose >
             {
-                DataType getDataType() const
-                { return DataType ::DataTypeDouble; }
+                bool isFixedType() const
+                { return true; }
 
                 MeasurementType getMeasurementType() const
-                { return MeasurementType ::MeasurementTypePose; }
+                { return MeasurementType ::Pose; }
             };
 
             // ErrorPose
             template<>
-            struct MeasurementTypeTraits< Ubitrack::Measurement::ErrorPose >
+            struct MeasurementTypeToEnumTraits< Ubitrack::Measurement::ErrorPose >
             {
-                DataType getDataType() const
-                { return DataType ::DataTypeDouble; }
+                bool isFixedType() const
+                { return true; }
 
                 MeasurementType getMeasurementType() const
-                { return MeasurementType ::MeasurementTypeErrorPose; }
+                { return MeasurementType ::ErrorPose; }
             };
 
             // ErrorPosition2
             template<>
-            struct MeasurementTypeTraits< Ubitrack::Measurement::ErrorPosition2 >
+            struct MeasurementTypeToEnumTraits< Ubitrack::Measurement::ErrorPosition2 >
             {
-                DataType getDataType() const
-                { return DataType ::DataTypeDouble; }
+                bool isFixedType() const
+                { return true; }
 
                 MeasurementType getMeasurementType() const
-                { return MeasurementType ::MeasurementTypeErrorVector2; }
+                { return MeasurementType ::ErrorVector2; }
             };
 
             // ErrorPosition3
             template<>
-            struct MeasurementTypeTraits< Ubitrack::Measurement::ErrorPosition >
+            struct MeasurementTypeToEnumTraits< Ubitrack::Measurement::ErrorPosition >
             {
-                DataType getDataType() const
-                { return DataType ::DataTypeDouble; }
+                bool isFixedType() const
+                { return true; }
 
                 MeasurementType getMeasurementType() const
-                { return MeasurementType ::MeasurementTypeErrorVector3; }
+                { return MeasurementType ::ErrorVector3; }
             };
 
             // RotationVelocity
             template<>
-            struct MeasurementTypeTraits< Ubitrack::Measurement::RotationVelocity >
+            struct MeasurementTypeToEnumTraits< Ubitrack::Measurement::RotationVelocity >
             {
-                DataType getDataType() const
-                { return DataType ::DataTypeDouble; }
+                bool isFixedType() const
+                { return true; }
 
                 MeasurementType getMeasurementType() const
-                { return MeasurementType ::MeasurementTypeRotationVelocity; }
+                { return MeasurementType ::RotationVelocity; }
             };
 
             // CameraIntrinsics
             template<>
-            struct MeasurementTypeTraits< Ubitrack::Measurement::CameraIntrinsics >
+            struct MeasurementTypeToEnumTraits< Ubitrack::Measurement::CameraIntrinsics >
             {
-                DataType getDataType() const
-                { return DataType ::DataTypeDouble; }
+                bool isFixedType() const
+                { return true; }
 
                 MeasurementType getMeasurementType() const
-                { return MeasurementType ::MeasurementTypeCameraIntrinsics; }
+                { return MeasurementType ::CameraIntrinsics; }
             };
 
 
@@ -292,101 +244,101 @@ namespace Ubitrack {
 
             // Vector of Buttons
             template<>
-            struct MeasurementTypeTraits< Ubitrack::Measurement::ButtonList >
+            struct MeasurementTypeToEnumTraits< Ubitrack::Measurement::ButtonList >
             {
-                DataType getDataType() const
-                { return DataType ::DataTypeInteger; }
+                bool isFixedType() const
+                { return false; }
 
                 MeasurementType getMeasurementType() const
-                { return MeasurementType ::MeasurementTypeScalar; }
+                { return MeasurementType ::ScalarInt; }
             };
 
             // Vector of Distances
             template<>
-            struct MeasurementTypeTraits< Ubitrack::Measurement::DistanceList >
+            struct MeasurementTypeToEnumTraits< Ubitrack::Measurement::DistanceList >
             {
-                DataType getDataType() const
-                { return DataType ::DataTypeDouble; }
+                bool isFixedType() const
+                { return false; }
 
                 MeasurementType getMeasurementType() const
-                { return MeasurementType ::MeasurementTypeScalar; }
+                { return MeasurementType ::ScalarDouble; }
             };
 
             // Vector of IDs
             template<>
-            struct MeasurementTypeTraits< Ubitrack::Measurement::IDList >
+            struct MeasurementTypeToEnumTraits< Ubitrack::Measurement::IDList >
             {
-                DataType getDataType() const
-                { return DataType ::DataTypeUnsignedLong; }
+                bool isFixedType() const
+                { return false; }
 
                 MeasurementType getMeasurementType() const
-                { return MeasurementType ::MeasurementTypeScalar; }
+                { return MeasurementType ::ScalarUnsignedLong; }
             };
 
             // Vector of Poses
             template<>
-            struct MeasurementTypeTraits< Ubitrack::Measurement::PoseList >
+            struct MeasurementTypeToEnumTraits< Ubitrack::Measurement::PoseList >
             {
-                DataType getDataType() const
-                { return DataType ::DataTypeDouble; }
+                bool isFixedType() const
+                { return false; }
 
                 MeasurementType getMeasurementType() const
-                { return MeasurementType ::MeasurementTypePose; }
+                { return MeasurementType ::Pose; }
             };
 
             // Vector of Position2
             template<>
-            struct MeasurementTypeTraits< Ubitrack::Measurement::PositionList2 >
+            struct MeasurementTypeToEnumTraits< Ubitrack::Measurement::PositionList2 >
             {
-                DataType getDataType() const
-                { return DataType ::DataTypeDouble; }
+                bool isFixedType() const
+                { return false; }
 
                 MeasurementType getMeasurementType() const
-                { return MeasurementType ::MeasurementTypeVector2; }
+                { return MeasurementType ::Vector2; }
             };
 
             // Vector of Position
             template<>
-            struct MeasurementTypeTraits< Ubitrack::Measurement::PositionList >
+            struct MeasurementTypeToEnumTraits< Ubitrack::Measurement::PositionList >
             {
-                DataType getDataType() const
-                { return DataType ::DataTypeDouble; }
+                bool isFixedType() const
+                { return false; }
 
                 MeasurementType getMeasurementType() const
-                { return MeasurementType ::MeasurementTypeVector3; }
+                { return MeasurementType ::Vector3; }
             };
 
             // Vector of ErrorPoses
             template<>
-            struct MeasurementTypeTraits< Ubitrack::Measurement::ErrorPoseList >
+            struct MeasurementTypeToEnumTraits< Ubitrack::Measurement::ErrorPoseList >
             {
-                DataType getDataType() const
-                { return DataType ::DataTypeDouble; }
+                bool isFixedType() const
+                { return false; }
 
                 MeasurementType getMeasurementType() const
-                { return MeasurementType ::MeasurementTypeErrorPose; }
+                { return MeasurementType ::ErrorPose; }
             };
 
             // Vector of ErrorPositionList2
             template<>
-            struct MeasurementTypeTraits< Ubitrack::Measurement::ErrorPositionList2 >
+            struct MeasurementTypeToEnumTraits< Ubitrack::Measurement::ErrorPositionList2 >
             {
-                DataType getDataType() const
-                { return DataType ::DataTypeDouble; }
+                bool isFixedType() const
+                { return false; }
 
                 MeasurementType getMeasurementType() const
-                { return MeasurementType ::MeasurementTypeErrorVector2; }
+                { return MeasurementType ::ErrorVector2; }
             };
 
             // Vector of ErrorPosition
             template<>
-            struct MeasurementTypeTraits< Ubitrack::Measurement::ErrorPositionList >
+            struct MeasurementTypeToEnumTraits< Ubitrack::Measurement::ErrorPositionList >
             {
-                DataType getDataType() const
-                { return DataType ::DataTypeDouble; }
+                bool isFixedType() const
+                { return false; }
 
                 MeasurementType getMeasurementType() const
-                { return MeasurementType ::MeasurementTypeErrorVector3; }
+                { return MeasurementType ::ErrorVector3; }
             };
 
         } // Traits
