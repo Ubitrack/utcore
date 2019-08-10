@@ -43,61 +43,61 @@ namespace Ubitrack {
             std::ostream& operator<<( std::ostream& s, const MeasurementType& m )
             {
                 switch (m) {
-                    case Undefined:
+                    case MeasurementType::Undefined:
                         s << "Undefined";
                         break;
-                    case ScalarInt:
+                    case MeasurementType::ScalarInt:
                         s << "ScalarInt";
                         break;
-                    case ScalarDouble:
+                    case MeasurementType::ScalarDouble:
                         s << "ScalarDouble";
                         break;
-                    case ScalarUnsignedLong:
+                    case MeasurementType::ScalarUnsignedLong:
                         s << "ScalarUnsignedLong";
                         break;
-                    case Vector2:
+                    case MeasurementType::Vector2:
                         s << "Vector2";
                         break;
-                    case Vector3:
+                    case MeasurementType::Vector3:
                         s << "Vector3";
                         break;
-                    case Vector4:
+                    case MeasurementType::Vector4:
                         s << "Vector4";
                         break;
-                    case Vector8:
+                    case MeasurementType::Vector8:
                         s << "Vector8";
                         break;
-                    case Quaternion:
+                    case MeasurementType::Quaternion:
                         s << "Quaternion";
                         break;
-                    case Matrix3x3:
+                    case MeasurementType::Matrix3x3:
                         s << "Matrix3x3";
                         break;
-                    case Matrix3x4:
+                    case MeasurementType::Matrix3x4:
                         s << "Matrix3x4";
                         break;
-                    case Matrix4x4:
+                    case MeasurementType::Matrix4x4:
                         s << "Matrix4x4";
                         break;
-                    case Pose:
+                    case MeasurementType::Pose:
                         s << "Pose";
                         break;
-                    case ErrorPose:
+                    case MeasurementType::ErrorPose:
                         s << "ErrorPose";
                         break;
-                    case ErrorVector2:
+                    case MeasurementType::ErrorVector2:
                         s << "ErrorVector2";
                         break;
-                    case ErrorVector3:
+                    case MeasurementType::ErrorVector3:
                         s << "ErrorVector3";
                         break;
-                    case RotationVelocity:
+                    case MeasurementType::RotationVelocity:
                         s << "RotationVelocity";
                         break;
-                    case CameraIntrinsics:
+                    case MeasurementType::CameraIntrinsics:
                         s << "CameraIntrinsics";
                         break;
-                    case Image:
+                    case MeasurementType::Image:
                         s << "Image";
                         break;
                 }
