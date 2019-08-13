@@ -33,7 +33,7 @@ class UbitrackCoreConan(ConanFile):
     exports = "cmake/UbitrackConfig.cmake"
 
     def requirements(self):
-        self.requires("Boost/[>=1.59.0,<1.65.0]@camposs/stable")
+        self.requires("Boost/1.70.0@camposs/stable")
         self.requires("clapack/[>=3.2.1]@camposs/stable")
         self.requires("msgpack/[>=2.1.5]@camposs/stable") 
         self.requires("ubitrack_boost_bindings/1.0@ubitrack/stable") 
