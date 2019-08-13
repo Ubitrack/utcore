@@ -57,9 +57,9 @@ class UbitrackCoreConan(ConanFile):
         self.options["Boost"].without_log = True
         # self.options["Boost"].without_metaparse = True
         self.options["Boost"].without_mpi = True
-        self.options["Boost"].without_signals = True
+        # self.options["Boost"].without_signals = True
         self.options["Boost"].without_timer = True
-        # self.options["Boost"].without_type_erasure = True
+        self.options["Boost"].without_type_erasure = True
         self.options["Boost"].without_wave = True
 
         if self.options.shared:
