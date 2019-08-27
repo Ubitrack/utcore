@@ -160,8 +160,8 @@ Adjust that to match your games actual install path.
         <events>
           <event symbol="EventQueueDispatchBegin" template="T_Eventqueue_Dispatch_Begin" value="100" task="UbitrackTrace" opcode="DispatchBegin" keywords="HighFrequency" />
           <event symbol="EventQueueDispatchEnd" template="T_Eventqueue_Dispatch_End" value="101" task="UbitrackTrace" opcode="DispatchEnd" keywords="HighFrequency" />
-          <event symbol="EventQueueBlockDispatchBegin" template="T_Eventqueue_Block_Dispatch_Begin" value="102" task="UbitrackTrace" opcode="DispatchBlockBegin" keywords="HighFrequency" />
-          <event symbol="EventQueueBlockDispatchEnd" template="T_Eventqueue_Block_Dispatch_End" value="103" task="UbitrackTrace" opcode="DispatchBlockEnd" keywords="HighFrequency" />
+          <event symbol="EventQueueBlockDispatchBegin" template="T_Eventqueue_Block_Dispatch_Begin" value="102" task="UbitrackTrace" opcode="BlockDispatchBegin" keywords="HighFrequency" />
+          <event symbol="EventQueueBlockDispatchEnd" template="T_Eventqueue_Block_Dispatch_End" value="103" task="UbitrackTrace" opcode="BlockDispatchEnd" keywords="HighFrequency" />
           <event symbol="EventQueueDispatchDiscard" template="T_Eventqueue_Dispatch_Discard" value="104" task="UbitrackTrace" opcode="DispatchDiscard" keywords="HighFrequency" />
           <event symbol="CreateMeasurement" template="T_Create_Measurement" value="105" task="UbitrackTrace" opcode="CreateMeasurement" keywords="HighFrequency" />
           <event symbol="ReceiveMeasurement" template="T_Receive_Measurement" value="106" task="UbitrackTrace" opcode="ReceiveMeasurement" keywords="HighFrequency" />
