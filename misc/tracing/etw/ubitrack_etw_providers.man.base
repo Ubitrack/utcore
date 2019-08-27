@@ -83,13 +83,13 @@ Adjust that to match your games actual install path.
             <data inType="win:AnsiString" name="PortName" />
             <data inType="win:Float" name="Duration (ms)" />
           </template>
-          <template tid="T_Block_Eventqueue_Dispatch_Begin">
+          <template tid="T_Eventqueue_Block_Dispatch_Begin">
             <data inType="win:Int32" name="EventDomain" />
             <data inType="win:Int64" name="Priority" />
             <data inType="win:AnsiString" name="ComponentName" />
             <data inType="win:AnsiString" name="PortName" />
           </template>
-          <template tid="T_Block_Eventqueue_Dispatch_End">
+          <template tid="T_Eventqueue_Block_Dispatch_End">
             <data inType="win:Int32" name="EventDomain" />
             <data inType="win:Int64" name="Priority" />
             <data inType="win:AnsiString" name="ComponentName" />
