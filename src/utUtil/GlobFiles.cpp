@@ -98,7 +98,7 @@ void globFiles( const std::string& directory, const enum FilePattern pattern, st
 		else if ( pattern == PATTERN_UBITRACK_CALIBRATION_FILES )
 			patternString = ".*\\.(cal)";
 		else if (pattern == PATTERN_UBITRACK_BOOST_BINARY)
-			patternString = ".*\\.(BoostBinary)";
+			patternString = ".*\\.(BoostBinary|boostbinary|BOOSTBINARY)";
 		globFiles ( directory, patternString, files, false);
 	}
 }
