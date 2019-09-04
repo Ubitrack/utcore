@@ -35,7 +35,7 @@ class UbitrackCoreConan(ConanFile):
     def requirements(self):
         self.requires("Boost/1.70.0@camposs/stable")
         self.requires("clapack/[>=3.2.1]@camposs/stable")
-        self.requires("msgpack/[>=2.1.5]@camposs/stable") 
+        self.requires("msgpack/[>=3.2.0]@camposs/stable") 
         self.requires("ubitrack_boost_bindings/1.0@ubitrack/stable") 
         self.requires("ubitrack_tinyxml/2.5.3@ubitrack/stable")
         self.requires("ubitrack_log4cpp/0.3.5@ubitrack/stable")
