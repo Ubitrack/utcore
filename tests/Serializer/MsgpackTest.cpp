@@ -15,7 +15,6 @@
 using namespace Ubitrack;
 using namespace Ubitrack::Serialization;
 
-#ifdef HAVE_MSGPACK
 
 template< typename T >
 void testSerializeSimple(const T& data)
@@ -209,13 +208,11 @@ void testSerializeMultiple()
 
 
 
-#endif // HAVE_MSGPACK
 
 
 void TestMsgpack()
 {
 
-#ifdef HAVE_MSGPACK
     // Test simple data types
 
     // Math::Scalar<int>
@@ -319,7 +316,6 @@ void TestMsgpack()
     // test serializing multiple objects in astream
     testSerializeMultiple();
     
-#endif // HAVE_MSGPACK
 }
 
 
