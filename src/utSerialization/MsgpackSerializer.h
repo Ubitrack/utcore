@@ -44,9 +44,6 @@
 #include <boost/array.hpp>
 #include <boost/call_traits.hpp>
 #include <boost/utility/enable_if.hpp>
-
-#ifdef HAVE_MSGPACK
-
 #include <msgpack.hpp>
 
 namespace Ubitrack {
@@ -780,6 +777,5 @@ struct object_with_zone<Ubitrack::Math::CameraIntrinsics<T> > {
 } // MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
 } // namespace msgpack
 
-#endif // HAVE_MSGPACK
 
 #endif //UBITRACK_MSGPACKSERIALIZER_H

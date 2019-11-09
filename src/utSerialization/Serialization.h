@@ -81,11 +81,9 @@ inline void serialize(const SerializationProtocol p, Stream& stream, const T& t)
         BoostArchive::serialize(out_archive_b, t);
     }
         break;
-#ifdef HAVE_MSGPACK
     case PROTOCOL_MSGPACK:
         MsgpackArchive::serialize(stream, t);
         break;
-#endif // HAVE_MSGPACK
     default:
         UBITRACK_THROW("Unknown Serialization Protocol");
     }
@@ -110,11 +108,9 @@ inline void deserialize(const SerializationProtocol p, Stream& stream, T& t)
         BoostArchive::deserialize(in_archive_b, t);
     }
         break;
-#ifdef HAVE_MSGPACK
     case PROTOCOL_MSGPACK:
         MsgpackArchive::deserialize(stream, t);
         break;
-#endif // HAVE_MSGPACK
     default:
         UBITRACK_THROW("Unknown Serialization Protocol");
     }
