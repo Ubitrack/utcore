@@ -282,7 +282,7 @@ struct hemisphere_alignment
 	typedef pose_type result_type;
 
 	template< typename pose_in >
-	void operator()( const pose_in & pose )const
+	result_type operator()( const pose_in & pose )const
 	{
 		UBITRACK_STATIC_ASSERT( (false), NO_MATCHING_SPECIALIZATION_AVALIABLE );
 		return result_type();
@@ -295,7 +295,7 @@ struct hemisphere_alignment< Math::Vector< T, 6 >, true >
 	typedef Math::Vector< T, 6 > result_type;
 
 	template< typename pose_in >
-	void operator()( const pose_in & pose )const
+	result_type operator()( const pose_in & pose )const
 	{
 		UBITRACK_STATIC_ASSERT( (false), NO_MATCHING_POSE_AVAILABLE );
 		return result_type();
