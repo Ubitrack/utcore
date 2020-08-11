@@ -127,7 +127,7 @@ struct Pose
 				vec( 0 ) = distribute_uniform< T >( m_min_range( 0 ), m_max_range( 0 ) );
 				vec( 1 ) = distribute_uniform< T >( m_min_range( 1 ), m_max_range( 1 ) );
 				vec( 2 ) = distribute_uniform< T >( m_min_range( 2 ), m_max_range( 2 ) );
-				return Math::Pose( randRotations(), vec );
+				return Math::Pose( this.randRotations(), vec );
 			}
 	};
 };
